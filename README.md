@@ -5,6 +5,8 @@ to simulate the evolution of a galaxy.
 
 ## Disclaimer: this code in under test, and should not be relied on.
 
+## Contents
+
 | File | Header | Purpose |
 |---------------------|------------------|---------------------------------------------------------------------|
 | barnes-hut.cpp |barnes-hut.h| Calculate accelerations using Barnes Hut|
@@ -20,3 +22,9 @@ to simulate the evolution of a galaxy.
 | treecode.cpp | treecode.h | Barnes-Hut Tree|
 | utils.cpp | utils.h | Assorted utility functions|
 | verlet.cpp | verlet.h | [Verlet "leapfrog"](http://physics.ucsc.edu/~peter/242/leapfrog.pdf) integrator|
+
+## Implementation Notes
+
+| Date | Remarks |
+|------------|--------------------------------------------------------------------------------------------|
+| 31 Jan 2018 | Program segfaults. Turn off Barnes-Hut and try some easy test cases, e.g. Kepler, Lagrange points, and a resonance |

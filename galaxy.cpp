@@ -130,17 +130,19 @@ double config_version=0.0;
 int main(int argc, char **argv) {
 
 	if (extract_options(argc,argv)) {
-	std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
+		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
 
-	run_verlet([](std::vector<Particle*> particles)->void{get_acceleration_bh(particles,theta,G);},
-				max_iter,
-				dt,
-				particles,
-				[](std::vector<Particle*> particles){return true;});
+		run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration_bh(particles,theta,G);},
+						max_iter,
+						dt,
+						particles,
+						[](std::vector<Particle*> particles){return true;});
+	}
 	
-	
-	
-		// run_verlet(&get_acceleration_shm, max_iter, dt,	particles,	&print_values);
+	return EXIT_SUCCESS;
+}
+
+	// run_verlet(&get_acceleration_shm, max_iter, dt,	particles,	&print_values);
 	// for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) 
 		// delete (*it);
 	
@@ -158,11 +160,6 @@ int main(int argc, char **argv) {
 		// bodies=createBodies(numbodies, inivel, ini_radius, mass );
 		// simulate(0, max_iter, bodies,  theta,  G,  dt,  img_iter, path,config_file_name,check_energy);
 	// }
-	}
-	
-	return EXIT_SUCCESS;
-}
-
 
  /**
   * Create all bodies needed at start of run
