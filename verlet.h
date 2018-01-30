@@ -18,9 +18,8 @@
 #ifndef _VERLET_H
 #define _VERLET_H
 #include <vector>
-#include <cmath>
-#include "particle.h"
 
+#include "particle.h"
 
 
 void  euler(Particle* p,double dt);
