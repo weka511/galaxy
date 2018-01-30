@@ -120,4 +120,3 @@ bool ends_with(std::string const & value, std::string const & ending){
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-double sqr(double x) {return x*x;}

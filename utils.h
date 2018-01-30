@@ -47,7 +47,7 @@ bool ends_with(std::string const & value, std::string const & ending);
 
 void remove_old_configs(std::string path);
  
-double sqr(double x);
+inline double sqr(double x) {return x*x;}
 
 #endif
  
