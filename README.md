@@ -25,6 +25,6 @@ to simulate the evolution of a galaxy.
 
 ## Implementation Notes
 
-| Date | Remarks |
+|  Date | Remarks |
 |------------|--------------------------------------------------------------------|
-|31 Jan 2018| Program segfaults. Turn off Barnes-Hut and try some easy test cases, e.g. Kepler, Lagrange points, and a resonance |
+|31_Jan_2018| Program segfaults. Turn off Barnes-Hut and try some easy test cases, e.g. Kepler, Lagrange points, and a resonance |
