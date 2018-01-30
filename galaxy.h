@@ -29,16 +29,18 @@ bool extract_options(int argc, char **argv);
   * Create all bodies needed at start of run
   */
 std::vector<Particle*>  createParticles(int numbodies,double inivel,double ini_radius,double mass);
+
+/**
+  * Generate help text
+  */
+void help();
+ 
  
  /**
   * Execute simulation
   */
 // void simulate(int start_iter,int max_iter,std::vector<Body*> bodies, double theta, double G, double dt, int img_iter,std::string path,std::string config_file_name,int check_energy);
  
- /**
-  * Generate help text
-  */
-void help(int numbodies,double inivel,double ini_radius,double mass,int max_iter,double theta, double G, double dt, int img_iter,std::string path,std::string config_file_name);
  
  /**
   * Restore configuration from saved file

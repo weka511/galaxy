@@ -443,7 +443,7 @@ bool extract_options(int argc, char **argv) {
 		}
 		
 		case 'h':{
-			help( numbodies, inivel, ini_radius, mass, max_iter, theta,  G,  dt,  img_iter, path,config_file_name);
+			help( );
 			return false;
 		}
 		
@@ -519,7 +519,7 @@ bool extract_options(int argc, char **argv) {
 /**
   * Generate help text
   */
-void help(int numbodies,double inivel,double ini_radius,double mass,int max_iter,double theta, double G, double dt, int img_iter,std::string path,std::string config_file_name) {
+void help() {
 	std::cout << "Galaxy Simulator based on Barnes Hut code from University of Geneva." << std::endl<<std::endl;
 	std::cout << "Parameters, showing default values" <<std::endl;
 	std::cout << "\t-c,--config\t\tConfiguration file [" << config_file_name<<"]"<< std::endl;
