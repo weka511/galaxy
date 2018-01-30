@@ -20,6 +20,11 @@
 
 #include "particle.h"
 
+/**
+ *  Process command line options. Returns `true` iff execution is to continue.
+ */
+bool extract_options(int argc, char **argv);
+
  /**
   * Create all bodies needed at start of run
   */

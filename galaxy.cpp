@@ -20,13 +20,7 @@
 #include <fstream>
 #include <ostream>
 #include <sstream>
-#include <iomanip>
-#include <cstdlib>
-#include <cmath>
-#include <cassert>
-#include <unistd.h>
 #include <getopt.h>
-#include <random>
 #include <algorithm>
 
 #include "barnes-hut.h"
@@ -70,140 +64,68 @@ struct option long_options[] = {
  */
 double theta = 0.5;
 
- // The "gravitational constant" is chosen so as to get a pleasant output.
- double G = 4.e-6;
+/**
+* The "gravitational constant" is chosen so as to get a pleasant output.
+*/
+double G = 4.e-6;
 	
+/**
+ * Mass of a body.
+ */
+double mass = 1.0;
+
+/**
+ * Initially, the bodies are distributed inside a circle of radius ini_radius.
+ */
+double ini_radius = 0.1;
+
+/** 
+ * Initial maximum velocity of the bodies.
+ */
+double inivel = 0.1;
+
+/**
+ * Discrete time step.
+ */
+double dt = 1.e-3;
+
+/**
+ * Number of bodies
+ */
+int numbodies = 1000;
+
+/**
+ * Number of time-iterations executed by the program.
+ */
+int max_iter = 10000;
+
+/**
+ * Frequency at which configuration records are written.
+ */
+int img_iter = 20;
+
+ /**
+  * Frequency for checking total energy
+  */
+int check_energy = -1;
+
+/**
+ * File Name for configuration records
+ */
+std::string config_file_name="config.txt";
+
+/**
+ * Folder for configuration records
+ */
+std::string path = "./configs";
+
+
 /**
  * Main program. Parse command line options, create bodies, then run simulation.
  */
 int main(int argc, char **argv) {
 
-    // Mass of a body.
-    double mass = 1.0;
-    // Initially, the bodies are distributed inside a circle of radius ini_radius.
-    double ini_radius = 0.1;
-    // Initial maximum velocity of the bodies.
-    double inivel = 0.1;
-
-    // Discrete time step.
-    double dt = 1.e-3;
-    // outside the initial radius are removed).
-    int numbodies = 1000;
-    // Number of time-iterations executed by the program.
-    int max_iter = 10000;
-    // Frequency at which PNG images are written.
-    int img_iter = 20;
-	
-	// Frequency for checking total energy
-	int check_energy = -1;
-	
-	std::string config_file_name="config.txt";
-	
-	std::string path = "./configs";
-	
-	int option_index = 0;
-	int c;
-	
-	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:m:n:p:r:Ss:t:v:",long_options, &option_index)) != -1)
-    switch (c){
-		case 'c':{
-			std::stringstream param(optarg);
-			param>>config_file_name;
-			std::cout<<"Configuration File:="<<config_file_name<<std::endl;
-			break;
-		}
-		
-		case 'd':{
-			std::stringstream param(optarg);
-			param>>dt;
-			std::cout<<"dt="<<dt<<std::endl;
-			break;
-		}
-		
-		case 'e':{
-			std::stringstream param(optarg);
-			param>>check_energy;
-			std::cout<<"check_energy="<<check_energy <<std::endl;
-			break;
-		}
-		
-		case 'G':{
-			std::stringstream param(optarg);
-			param>>G;
-			std::cout<<"G="<<G<<std::endl;
-			break;
-		}
-		
-		case 'h':{
-			help( numbodies, inivel, ini_radius, mass, max_iter, theta,  G,  dt,  img_iter, path,config_file_name);
-			return 0;
-		}
-		
-		case 'i':{
-			std::stringstream param(optarg);
-			param>>img_iter;
-			std::cout<<"Frequency at which PNG images are written="<<img_iter<<std::endl;
-			break;
-		}
-		
-		case 'm':{
-			std::stringstream param(optarg);
-			param>>max_iter;
-			std::cout<<"Number of iterations="<<max_iter<<std::endl;
-			break;
-		}
-		
-		case 'n':{
-			std::stringstream param(optarg);
-			param>>numbodies;
-			std::cout<<"Number of bodies="<<numbodies<<std::endl;
-			break;
-		}
-		
-		case 'p':{
-			std::stringstream param(optarg);
-			param>>path;
-			std::cout<<"Path="<<path<<std::endl;
-			break;
-		}
-		
-		case 'r':{
-			std::stringstream param(optarg);
-			param>>ini_radius;
-			std::cout<<"Initial radius="<<ini_radius<<std::endl;
-			break;
-		}
-		
-		case 'S':{
-			std::cout<<"Seed random number generator"<<std::endl;
-			std::srand(1);
-			break;
-		}
-		
-		case 's':{
-			std::stringstream param(optarg);
-			param>>mass;
-			std::cout<<"mass="<<mass<<std::endl;
-			break;
-		}
-			
-		case 't':{
-			std::stringstream param(optarg);
-			param>>theta;
-			std::cout<<"Theta="<<theta<<std::endl;
-			break;
-		}
-		
-		case 'v':{
-			std::stringstream param(optarg);
-			param>>inivel;
-			std::cout<<"Velocity="<<inivel<<std::endl;
-			break;
-		}
-	}
-	if (!ends_with(path,"/"))
-		path.append("/");
-	
+	if (extract_options(argc,argv)) {
 	std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
 
 	run_verlet([](std::vector<Particle*> particles)->void{get_acceleration_bh(particles,theta,G);},
@@ -232,6 +154,8 @@ int main(int argc, char **argv) {
 		// bodies=createBodies(numbodies, inivel, ini_radius, mass );
 		// simulate(0, max_iter, bodies,  theta,  G,  dt,  img_iter, path,config_file_name,check_energy);
 	// }
+	}
+	
 	return EXIT_SUCCESS;
 }
 
@@ -476,6 +400,117 @@ double config_version=0.0;
 	// }
 	// ofile << "End\n";
 // }
+
+/**
+ *  Process command line options. Returns `true` iff execution is to continue.
+ */
+bool extract_options(int argc, char **argv) {
+	int option_index = 0;
+	int c;
+	
+	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:m:n:p:r:Ss:t:v:",long_options, &option_index)) != -1)
+    switch (c){
+		case 'c':{
+			std::stringstream param(optarg);
+			param>>config_file_name;
+			std::cout<<"Configuration File:="<<config_file_name<<std::endl;
+			break;
+		}
+		
+		case 'd':{
+			std::stringstream param(optarg);
+			param>>dt;
+			std::cout<<"dt="<<dt<<std::endl;
+			break;
+		}
+		
+		case 'e':{
+			std::stringstream param(optarg);
+			param>>check_energy;
+			std::cout<<"check_energy="<<check_energy <<std::endl;
+			break;
+		}
+		
+		case 'G':{
+			std::stringstream param(optarg);
+			param>>G;
+			std::cout<<"G="<<G<<std::endl;
+			break;
+		}
+		
+		case 'h':{
+			help( numbodies, inivel, ini_radius, mass, max_iter, theta,  G,  dt,  img_iter, path,config_file_name);
+			return false;
+		}
+		
+		case 'i':{
+			std::stringstream param(optarg);
+			param>>img_iter;
+			std::cout<<"Frequency at which PNG images are written="<<img_iter<<std::endl;
+			break;
+		}
+		
+		case 'm':{
+			std::stringstream param(optarg);
+			param>>max_iter;
+			std::cout<<"Number of iterations="<<max_iter<<std::endl;
+			break;
+		}
+		
+		case 'n':{
+			std::stringstream param(optarg);
+			param>>numbodies;
+			std::cout<<"Number of bodies="<<numbodies<<std::endl;
+			break;
+		}
+		
+		case 'p':{
+			std::stringstream param(optarg);
+			param>>path;
+			std::cout<<"Path="<<path<<std::endl;
+			break;
+		}
+		
+		case 'r':{
+			std::stringstream param(optarg);
+			param>>ini_radius;
+			std::cout<<"Initial radius="<<ini_radius<<std::endl;
+			break;
+		}
+		
+		case 'S':{
+			std::cout<<"Seed random number generator"<<std::endl;
+			std::srand(1);
+			break;
+		}
+		
+		case 's':{
+			std::stringstream param(optarg);
+			param>>mass;
+			std::cout<<"mass="<<mass<<std::endl;
+			break;
+		}
+			
+		case 't':{
+			std::stringstream param(optarg);
+			param>>theta;
+			std::cout<<"Theta="<<theta<<std::endl;
+			break;
+		}
+		
+		case 'v':{
+			std::stringstream param(optarg);
+			param>>inivel;
+			std::cout<<"Velocity="<<inivel<<std::endl;
+			break;
+		}
+	}
+	if (!ends_with(path,"/"))
+		path.append("/");
+	return true;
+}	
+
+
 
 /**
   * Generate help text
