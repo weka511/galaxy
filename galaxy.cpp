@@ -119,6 +119,10 @@ std::string config_file_name="config.txt";
  */
 std::string path = "./configs";
 
+/**
+ * Version number for configuration records
+ */
+double config_version=0.0;
 
 /**
  * Main program. Parse command line options, create bodies, then run simulation.
@@ -253,7 +257,7 @@ int main(int argc, char **argv) {
 // }
 
 
-double config_version=0.0;
+
 
 
  /**
