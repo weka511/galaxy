@@ -1,0 +1,20 @@
+<NotepadPlus>
+    <Project name="Galaxy Simulator">
+        <File name="barnes-hut.cpp" />
+        <File name="barnes-hut.h" />
+        <File name="catch.hpp" />
+        <File name="center-of-mass.cpp" />
+        <File name="center-of-mass.h" />
+        <File name="galaxy.cpp" />
+        <File name="galaxy.h" />
+        <File name="Makefile" />
+        <File name="particle.h" />
+        <File name="README.md" />
+        <File name="treecode.cpp" />
+        <File name="treecode.h" />
+        <File name="utils.cpp" />
+        <File name="utils.h" />
+        <File name="verlet.cpp" />
+        <File name="verlet.h" />
+    </Project>
+</NotepadPlus>
