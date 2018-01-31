@@ -15,8 +15,8 @@
 #
 # Makefile snarfed from https://stackoverflow.com/questions/2481269/how-to-make-a-simple-c-makefile
 
-CPPFLAGS=-g -O3 -pthread -I/sw/include/root  -std=gnu++11
-LDFLAGS=-g -O3
+CPPFLAGS=-g -O0 -ggdb -pthread -I/sw/include/root  -std=gnu++11
+LDFLAGS=-g -O0
 LDLIBS=
 CC=gcc
 CXX=g++
