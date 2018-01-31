@@ -19,6 +19,8 @@ to simulate the evolution of a galaxy.
 | make_img.py || Plot output from galaxy |
 || particles.h | Represents the particles whose motion is being simulated|
 | plot_orbits.py || Select a few stars at random and plot their orbits |
+| tests.cpp || Test harness |
+| test-kepler.cpp| | Test for Kepler problem |
 | treecode.cpp | treecode.h | Barnes-Hut Tree|
 | utils.cpp | utils.h | Assorted utility functions|
 | verlet.cpp | verlet.h | [Verlet "leapfrog"](http://physics.ucsc.edu/~peter/242/leapfrog.pdf) integrator|

@@ -17,4 +17,8 @@
         <File name="verlet.cpp" />
         <File name="verlet.h" />
     </Project>
+    <Project name="Tests">
+        <File name="tests.cpp" />
+        <File name="test-kepler.cpp" />
+    </Project>
 </NotepadPlus>

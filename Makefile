@@ -27,14 +27,23 @@ SRCS=	barnes-hut.cpp		\
 		treecode.cpp		\
 		utils.cpp			\
 		verlet.cpp
+
+TESTS= test-kepler.cpp
 		
 OBJS=$(subst .cpp,.o,$(SRCS))
+
+TEST_OBJS=$(subst .cpp,.o,$(TESTS))
+
 MAIN=galaxy.exe
+TEST_MAIN=tests.exe
 
 TARGETS=$(MAIN) 
 
 all : $(TARGETS)
 
+tests : $(TEST_MAIN)
+	./$(TEST_MAIN)
+	
 clean :
 	${RM} *.o *.stackdump
 	
@@ -47,7 +56,9 @@ depend: .depend
 $(MAIN): $(OBJS) galaxy.o
 	${CXX} $(LDFLAGS) -o $(MAIN) galaxy.o ${OBJS} ${LDLIBS}
 	
-
+$(TEST_MAIN): $(OBJS) tests.o $(TEST_OBJS)
+	${CXX} $(LDFLAGS) -o $(TEST_MAIN) tests.o ${OBJS} $(TEST_OBJS) ${LDLIBS}
+	
 distclean: clean
 	$(RM) *~ .depend
 
