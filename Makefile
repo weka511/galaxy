@@ -43,7 +43,8 @@ all : $(TARGETS) $(TEST_OBJS)
 
 tests : $(TEST_MAIN)
 	./$(TEST_MAIN)
-	
+	python make_3d.py kepler.csv
+
 clean :
 	${RM} *.o *.stackdump
 	

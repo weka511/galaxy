@@ -16,6 +16,7 @@
  */
  
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <cmath>
 #include "catch.hpp"
@@ -25,8 +26,10 @@
 #include "verlet.h"
 
 double dt=0.001;
-int max_iter=(int)(2*M_PI/dt);
-
+int n_orbits=1000;
+int max_iter=(int)(2*M_PI*n_orbits/dt);
+int n_freq=100;
+int iter=0;
 void get_acceleration(std::vector<Particle*> particles) {
 	for (int i=1;i<particles.size();i++)
 		for (int j=0;j<i;j++){
@@ -50,27 +53,32 @@ void get_acceleration(std::vector<Particle*> particles) {
 	}
 }
 
+
+std::ofstream logger;
+
 bool shouldContinue(std::vector<Particle*> particles) {
-	for (int i=0;i<particles.size();i++) {
-		double x,y,z;
-		particles[i]->getPos(x,y,z);
-		std::cout << x << "," << y << "," << z << std::endl;
-	}
+	if (iter%n_freq==0)
+		for (int i=0;i<particles.size();i++){
+			double x,y,z;
+			particles[i]->getPos(x,y,z);
+			logger << x << "," << y << "," << z << std::endl;
+		}
+	iter++;
 	return true;
 }
 
 
 
+
+
 TEST_CASE( "Kepler Tests", "[kepler]" ) {
-     
-	 SECTION( "Test my assumptions about physical constants" ) {
-        REQUIRE( 4*M_PI*M_PI==Approx(G_solar_system).epsilon(0.0001) );
-    }
 	
 	SECTION("Simple Earth-Sun Kepler"){
+		logger.open("kepler.csv");
 		std::vector<Particle*> particles;
 		particles.push_back(new Particle(0,0,0,0,0,0,1));
 		particles.push_back(new Particle(1,0,0,0,2*M_PI,0,mass_earth/mass_sun));
 		run_verlet(&get_acceleration,max_iter, dt,  particles,&shouldContinue);
+		logger.close();
 	}
 }
