@@ -50,17 +50,11 @@ void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
 				double dt,
 				std::vector<Particle*> particles,
 				bool (*shouldContinue)(std::vector<Particle*> particles)) {
-	std::cout <<"Running verlet" << std::endl;
 	get_acceleration(particles);
-	std::cout <<"Euler" << std::endl;
 	std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
-	std::cout <<"Eulered" << std::endl;
 	for (int i=1;i<max_iter && shouldContinue(particles);i++) {
-		std::cout <<"Verlet 1" << std::endl;
 		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_x(particle,dt);});
-		std::cout <<"acceleration" << std::endl;
 		get_acceleration(particles);
-		std::cout <<"Verlet 2" << std::endl;
 		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_v(particle,dt);});
 	}
 }

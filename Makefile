@@ -39,7 +39,7 @@ TEST_MAIN=tests.exe
 
 TARGETS=$(MAIN) 
 
-all : $(TARGETS)
+all : $(TARGETS) $(TEST_OBJS)
 
 tests : $(TEST_MAIN)
 	./$(TEST_MAIN)

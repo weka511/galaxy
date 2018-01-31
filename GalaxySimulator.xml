@@ -16,6 +16,7 @@
         <File name="utils.h" />
         <File name="verlet.cpp" />
         <File name="verlet.h" />
+        <File name="physics.h" />
     </Project>
     <Project name="Tests">
         <File name="tests.cpp" />
