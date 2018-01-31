@@ -49,7 +49,7 @@ clean :
 	
 depend: .depend
 
-.depend: $(SRCS)  galaxy.cpp 
+.depend: $(SRCS)  galaxy.cpp $(TESTS) tests.cpp
 	$(RM) ./.depend
 	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
 	
