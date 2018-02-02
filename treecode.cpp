@@ -20,6 +20,8 @@
 #include <iostream>
 #include <limits>
 
+int Node::_count=0;
+
 Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax)
 : _particle_index(Unused),
 	_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
@@ -27,6 +29,7 @@ Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zm
 	_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d) {
 	for (int i=0;i<N_Children;i++)
 		_child[i]=NULL;
+	_count++;
 }
 
 Node::get_limits(std::vector<Particle*> particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax){

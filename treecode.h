@@ -28,6 +28,7 @@
  */
 class Node {
   public:
+	  static int _count;
 	  class Visitor {
 		public:
 			enum Status{Stop, Continue, Sideways};
@@ -49,6 +50,7 @@ class Node {
 		for (int i=0;i<N_Children;i++)
 			if (_child[i]!=NULL)
 				delete _child[i];
+		Node::_count--;
 	}
 	
 	bool visit(Visitor& visitor);
@@ -78,6 +80,7 @@ class Node {
 	
 	double getSide() {return _xmax - _xmin;}
   private:
+	
 	int _get_child_index(int i, int j, int k) {return 4*i+2*j+k;}
 	
 	int _get_child_index(Particle * particle);
@@ -89,8 +92,6 @@ class Node {
 	void _split_node();
 	
 	int _particle_index;
-	
-	
 	
 	Node * _child[N_Children];
 	
