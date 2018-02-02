@@ -18,7 +18,6 @@
 #ifndef _TREECODE_H
 #define _TREECODE_H
 
-#include <cstdlib>
 #include <vector>
 
 #include "particle.h"
@@ -68,7 +67,7 @@ class Node {
 	/**
 	 * Insert one particle in tree
 	 */
-	void insert(int particle_index,std::vector<Particle*> particles);
+	void insert(int new_particle_index,std::vector<Particle*> particles);
 	
 	/**
 	 * Destroy node and its descendants.
@@ -104,12 +103,12 @@ class Node {
 	double getSide() {return _xmax - _xmin;}
 	
 	/**
-	 * Bounding rectangular prism for Node. This will be subdivided as we move down the tree
+	 * Bounding box for Node. This will be subdivided as we move down the tree
 	 */
 	const double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax, _xmean, _ymean, _zmean;
 		
 	/**
-	 * Determine the bounding rectangular prism for set of particles
+	 * Determine the bounding box for set of particles
 	 */
 	static get_limits(std::vector<Particle*> particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax);
 	
@@ -120,12 +119,28 @@ class Node {
 	 */
 	int _get_child_index(int i, int j, int k) {return 4*i+2*j+k;}
 	
+	/**
+	 * Find correct subtree to store particle, using bounding rectangular box
+	 */
 	int _get_child_index(Particle * particle);
 	
+	/**
+	 * Used when we have just split an External node, but the incumbent and new
+	 * node both want to occupy the same child.
+	 */
 	void _pass_down(int particle_index,int incumbent,std::vector<Particle*> particles);
 	
+	/**
+	 * Used when we have just split an External node, so we need to pass
+	 * the incumbent and a new particle down the tree
+	 */
 	void _insert_or_propagate(int particle_index,int incumbent,std::vector<Particle*> particles);
 	
+	/**
+	 * Convert an External Node into an Internal one, and
+	 * determine bounding boxes for children, so we can 
+	 * Propagate particle down
+	 */
 	void _split_node();
 	
 	/**
