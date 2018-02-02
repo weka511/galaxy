@@ -72,6 +72,16 @@ class Particle {
 	void setAcc(double ax,	double ay, double az) {_ax=ax;_ay=ay;_az=az;}
 	
 	/**
+	 *  Set current acceleration
+	 */
+	void resetAcc() {_ax=0;_ay=0;_az=0;}
+	
+	/**
+	 *  Set current acceleration
+	 */
+	void accumulateAcc(double ax,	double ay, double az) {_ax+=ax;_ay+=ay;_az+=az;}
+	
+	/**
 	 *  Accessor for mass
 	 */
 	double getMass() {return _m;}

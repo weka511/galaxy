@@ -30,9 +30,9 @@ const double mass_sun = 1.98855e30;  // https://en.wikipedia.org/wiki/Solar_mass
 const double metres_per_AU = 149597870700; // https://en.wikipedia.org/wiki/Astronomical_unit
 
 const double au_per_m = 1/metres_per_AU;
-const double G = 6.67408e-11; // https://en.wikipedia.org/wiki/Gravitational_constant
+const double G_SI = 6.67408e-11; // https://en.wikipedia.org/wiki/Gravitational_constant
 
-const double G_solar_system = G * au_per_m*au_per_m*au_per_m *(mass_sun)*(seconds_in_one_year *seconds_in_one_year);
+const double G_solar_system = G_SI * au_per_m*au_per_m*au_per_m *(mass_sun)*(seconds_in_one_year *seconds_in_one_year);
 
 void get_acceleration(std::vector<Particle*> particles,double G);
 

@@ -38,12 +38,30 @@ void get_acceleration(std::vector<Particle*> particles) {
 
 std::ofstream logger;
 
-bool shouldContinue(std::vector<Particle*> particles) {
+bool record_orbit(std::vector<Particle*> particles) {
 	if (iter%n_freq==0)
 		for (int i=0;i<particles.size();i++){
 			double x,y,z;
 			particles[i]->getPos(x,y,z);
 			logger << x << "," << y << "," << z << std::endl;
+		}
+	iter++;
+	return true;
+}
+
+bool record_all(std::vector<Particle*> particles) {
+	if (iter%n_freq==0)
+		for (int i=0;i<particles.size();i++){
+			std::cout<<i<<std::endl;
+			double x,y,z;
+			particles[i]->getPos(x,y,z);
+			std::cout << x << "," << y << "," << z << std::endl;
+			double vx,vy,vz;
+			particles[i]->getVel(vx,vy,vz);
+			std::cout << vx << "," << vy << "," << vz << std::endl;
+			double ax,ay,az;
+			particles[i]->getAcc(ax,ay,az);
+			std::cout << ax << "," << ay << "," << az << std::endl;
 		}
 	iter++;
 	return true;
@@ -62,7 +80,7 @@ TEST_CASE( "Kepler Tests", "[kepler]" ) {
 		std::vector<Particle*> particles;
 		particles.push_back(new Particle(0,0,0,0,0,0,1));
 		particles.push_back(new Particle(1,0,0,0,2*M_PI,0,mass_earth/mass_sun));
-		run_verlet(&get_acceleration,max_iter, dt,  particles,&shouldContinue);
+		run_verlet(&get_acceleration,max_iter, dt,  particles,&record_orbit);
 		logger.close();
 	}
 	
@@ -78,9 +96,8 @@ TEST_CASE( "Kepler Tests", "[kepler]" ) {
 		particles.push_back(new Particle(1,0,0, 0,2*M_PI,0, mass_earth/mass_sun));
 		const double x2=0.5;
 		const double y2=sqrt(3.0)/2;
-		
-		particles.push_back(new Particle(x2,y2,0, -2*M_PI*y2, 2*M_PI*x2,0,  mass_earth/mass_sun));
-		run_verlet(&get_acceleration,max_iter, dt,  particles,&shouldContinue);
+		particles.push_back(new Particle(x2+0.05,y2-0.05,0.05, -2*M_PI*y2, 2*M_PI*x2,0,  mass_earth/mass_sun));
+		run_verlet(&get_acceleration,max_iter, dt,  particles,&record_orbit);
 		logger.close();
 	}
 }
