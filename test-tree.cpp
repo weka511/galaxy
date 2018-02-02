@@ -22,17 +22,26 @@
 TEST_CASE( "Tree Tests", "[tree]" ) {
 	REQUIRE(Node::_count==0);
 	
-	SECTION("Alloc/dealloc test"){
-		Node * product=new Node(-1,1,-1,1,-1,1);
-		REQUIRE(Node::_count==1);
-		delete product;
-		REQUIRE(Node::_count==0);
-	}
 	
 	SECTION("Trivial Tree Insert") {
 		std::vector<Particle*> particles;
 		particles.push_back(new Particle(-1,-1,-1,0,0,0,0));
 		particles.push_back(new Particle(-1,-1,1,0,0,0,0));
+		Node * tree = Node::create(particles);
+		REQUIRE(Node::_count==9);
+		delete tree;
+	}
+	
+	SECTION("Larger Tree Insert") {
+		std::vector<Particle*> particles;
+		particles.push_back(new Particle(-1, -1, -1,0,0,0,1));
+		particles.push_back(new Particle(-1, -1, +1,0,0,0,1));
+		particles.push_back(new Particle(-1, +1, -1,0,0,0,1));
+		particles.push_back(new Particle(+1, -1, -1,0,0,0,1));
+		particles.push_back(new Particle(-1, +1, +1,0,0,0,1));
+		particles.push_back(new Particle(+1, -1, +1,0,0,0,1));
+		particles.push_back(new Particle(+1, +1, -1,0,0,0,1));
+		particles.push_back(new Particle(+1, +1, +1,0,0,0,1));
 		Node * tree = Node::create(particles);
 		REQUIRE(Node::_count==9);
 		delete tree;

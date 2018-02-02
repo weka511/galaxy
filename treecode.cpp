@@ -35,10 +35,12 @@ Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zm
 	_count++;
 }
 
+
 /**
- * Determine the bounding rectangular prism for set of particles
+ * Determine the bounding box for set of particles. Make it slightly 
+ * larger than strictly needed, so everything is guaranteed to be inside box
  */
-Node::get_limits(std::vector<Particle*>& particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax){
+Node::get_limits(std::vector<Particle*>& particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax,const double epsilon){
 	xmin=std::numeric_limits<double>::max();
 	xmax=-xmin;
 	ymin=std::numeric_limits<double>::max();
@@ -57,8 +59,8 @@ Node::get_limits(std::vector<Particle*>& particles,double& xmin,double& xmax,dou
 						if (z<zmin) zmin=z;
 						if (z>zmax) zmax=z;
 					});
-	xmin=ymin=zmin=std::min(xmin,std::min(ymin,zmin));  // because Barnes Hut requires cubes
-	xmax=ymax=zmax=std::max(xmax,std::max(ymax,zmax));
+	xmin=ymin=zmin=std::min(xmin,std::min(ymin,zmin))*(1+epsilon);  // because Barnes Hut requires cubes
+	xmax=ymax=zmax=std::max(xmax,std::max(ymax,zmax))*(1+epsilon);
 }
 
 /**
@@ -79,6 +81,7 @@ Node * Node::create(std::vector<Particle*>& particles){
  * Recursively descend until we find an empty node.
  */
 void Node::insert(int new_particle_index,std::vector<Particle*>& particles) {
+	// std::cout<<"Inserting " << new_particle_index <<std::endl;
 	switch(_particle_index){
 		case Unused:   // we can add particle to Unused Node
 			_particle_index=new_particle_index;
