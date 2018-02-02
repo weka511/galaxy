@@ -18,7 +18,7 @@ to simulate the evolution of a galaxy.
 | make_3d.py | |Plot output from galaxy |
 | make_img.py || Plot output from galaxy |
 || particles.h | Represents the particles whose motion is being simulated|
-|| physics.h |Physical constants|
+|physics.cpp| physics.h |Physical constants, law of gravitation, etc|
 | plot_orbits.py || Select a few stars at random and plot their orbits |
 | tests.cpp || Test harness |
 | test-kepler.cpp| | Test for Kepler problem |
