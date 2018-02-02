@@ -20,7 +20,7 @@
 
 #include <cstdlib>
 #include <vector>
-#include "verlet.h"
+
 #include "particle.h"
 
 /**

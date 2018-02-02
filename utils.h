@@ -17,6 +17,7 @@
  
 #ifndef _UTILS_H
 #define _UTILS_H
+#include <string>
 
  /**
   * Encode a floating value so it can be stored and retrieved without loss of significant digits
