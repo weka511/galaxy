@@ -9,6 +9,8 @@
         <File name="galaxy.h" />
         <File name="Makefile" />
         <File name="particle.h" />
+        <File name="physics.cpp" />
+        <File name="physics.h" />
         <File name="README.md" />
         <File name="treecode.cpp" />
         <File name="treecode.h" />
@@ -16,10 +18,12 @@
         <File name="utils.h" />
         <File name="verlet.cpp" />
         <File name="verlet.h" />
-        <File name="physics.h" />
     </Project>
     <Project name="Tests">
         <File name="tests.cpp" />
         <File name="test-kepler.cpp" />
+    </Project>
+    <Project name="Helpers">
+        <File name="make_3d.py" />
     </Project>
 </NotepadPlus>

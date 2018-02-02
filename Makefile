@@ -24,6 +24,7 @@ RM=rm -f
 MKDIR=mkdir
 SRCS=	barnes-hut.cpp		\
 		center-of-mass.cpp	\
+		physics.cpp         \
 		treecode.cpp		\
 		utils.cpp			\
 		verlet.cpp
@@ -44,6 +45,7 @@ all : $(TARGETS) $(TEST_OBJS)
 tests : $(TEST_MAIN)
 	./$(TEST_MAIN)
 	python make_3d.py kepler.csv
+	python make_3d.py -n 3 lagrange.csv
 
 clean :
 	${RM} *.o *.stackdump
