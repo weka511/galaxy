@@ -147,4 +147,20 @@ bool Node::visit(Visitor & visitor) {
 	return should_continue ? visitor.depart(this) : false;
 }
 
-
+/**
+ *   Used to calculate centre of mass for internal nodes.
+ */
+void Node::accumulatePhysics(Node* other) {
+	_m+=other->_m;
+	const int mult = other->getStatus() >=0 ? other->_m : 1;
+	_x += mult * other->_x;
+	_y += mult * other->_y;
+	_z += mult * other->_z;
+}
+	
+Node::~Node() {
+		for (int i=0;i<N_Children;i++)
+			if (_child[i]!=NULL)
+				delete _child[i];
+		Node::_count--;
+	}

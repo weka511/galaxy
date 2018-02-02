@@ -28,7 +28,19 @@
  */
 class Node {
   public:
+  
+	/**
+	 * Create an oct-tree from a set of particles
+	 */
+	static Node * create(std::vector<Particle*> particles);
+	  /**
+	   * Number of nodes allocated: used in testing
+	   */
 	  static int _count;
+	  
+	  /**
+	   *  Used to traverse tree.
+	   */
 	  class Visitor {
 		public:
 			enum Status{Stop, Continue, Sideways};
@@ -36,51 +48,76 @@ class Node {
 			virtual void propagate(Node * node,Node * child){;}
 			virtual bool depart(Node * node) {return true;};
 	  };
+	  
+	 /**
+	  * Indicates type of node. External Nodes use the index of the
+      * associated particle instead of one of these values.
+	  */
   	enum Status {Internal=-2, Unused=-1};
-	enum {N_Children=8};
 	
+	/**
+	 *   Used to ensure we have an octree
+	 */
+	enum {N_Children=8};
+	 
 	/**
 	 *  Create one node for tree
 	 */
     Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax);
 	
+	/**
+	 * Insert one particle in tree
+	 */
 	void insert(int particle_index,std::vector<Particle*> particles);
 	
-	virtual ~Node() {
-		for (int i=0;i<N_Children;i++)
-			if (_child[i]!=NULL)
-				delete _child[i];
-		Node::_count--;
-	}
+	/**
+	 * Destroy node and its descendants.
+	 */
+	virtual ~Node();
 	
+	/**
+	 * Used to traverse tree
+	 */
 	bool visit(Visitor& visitor);
-	 
+	
+	/**
+	 * Indicates type of node. External Nodes use the index of the
+     * associated particle instead of one of these values.
+	 */
 	int getStatus() { return _particle_index;}
 	
+	/**
+	 * Get mass and centre of mass
+	 */
 	void getPhysics(double& m, double& x, double& y, double &z) {m=_m;x=_x;y=_y;z=_z;}
 	
+	/**
+	 * Set mass and centre of mass
+	 */
 	void setPhysics(double m, double x, double y, double z) {_m=m,_x=x;_y=y;_z=z;}
 	
 	/**
 	 *   Used to calculate centre of mass for internal nodes.
 	 */
-	void accumulatePhysics(Node* other) {
-		_m+=other->_m;
-		const int mult = other->getStatus() >=0 ? other->_m : 1;
-		_x += mult * other->_x;
-		_y += mult * other->_y;
-		_z += mult * other->_z;
-	}
+	void accumulatePhysics(Node* other);
+
+	double getSide() {return _xmax - _xmin;}
 	
+	/**
+	 * Bounding rectangular prism for Node. This will be subdivided as we move down the tree
+	 */
 	const double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax, _xmean, _ymean, _zmean;
-	
-	static Node * create(std::vector<Particle*> particles);
-	
+		
+	/**
+	 * Determine the bounding rectangular prism for set of particles
+	 */
 	static get_limits(std::vector<Particle*> particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax);
 	
-	double getSide() {return _xmax - _xmin;}
   private:
 	
+	/**
+	 * Used to map a triple to an octet
+	 */
 	int _get_child_index(int i, int j, int k) {return 4*i+2*j+k;}
 	
 	int _get_child_index(Particle * particle);
@@ -91,10 +128,20 @@ class Node {
 	
 	void _split_node();
 	
+	/**
+	 * Indicates type of node. External Nodes use the index of the
+     * associated particle instead of one of these values.
+	 */
 	int _particle_index;
 	
+	/**
+	 * Descendants of this node - only for an Internal Node
+	 */
 	Node * _child[N_Children];
 	
+	/**
+	 *  Mass and centre of mass
+	 */
 	double _m, _x, _y, _z;
 };
 
