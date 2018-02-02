@@ -25,32 +25,14 @@
 #include "utils.h"
 #include "verlet.h"
 
-double dt=0.001;
-int n_orbits=1000;
-int max_iter=(int)(2*M_PI*n_orbits/dt);
-int n_freq=100;
-int iter=0;
+double dt;
+int n_orbits;
+int max_iter;
+int n_freq;
+int iter;
+
 void get_acceleration(std::vector<Particle*> particles) {
-	for (int i=1;i<particles.size();i++)
-		for (int j=0;j<i;j++){
-			double x0,y0,z0;
-			particles[i]->getPos(x0,y0,z0);
-			double x1,y1,z1;
-			particles[j]->getPos(x1,y1,z1);
-			const double distance= sqrt(sqr(x0-x1)+sqr(y0-y1)+sqr(z0-z1));
-			double d_factor=1/(distance*distance*distance);
-			const double acc_x  =G_solar_system*(x1-x0);
-			const double acc_y  =G_solar_system*(y1-y0);
-			const double acc_z  =G_solar_system*(z1-z0);
-			const double acc_x0 =  particles[j]->getMass()*acc_x;
-			const double acc_y0 =  particles[j]->getMass()*acc_y;
-			const double acc_z0 =  particles[j]->getMass()*acc_z;
-			particles[i]->setAcc(acc_x0,acc_y0,acc_z0);
-			const double acc_x1 =  particles[i]->getMass()*acc_x;
-			const double acc_y1 =  particles[i]->getMass()*acc_y;
-			const double acc_z1 =  particles[i]->getMass()*acc_z;
-			particles[j]->setAcc(acc_x1,acc_y1,acc_z1);
-	}
+	get_acceleration(particles,G_solar_system);
 }
 
 
@@ -68,16 +50,36 @@ bool shouldContinue(std::vector<Particle*> particles) {
 }
 
 
-
-
-
 TEST_CASE( "Kepler Tests", "[kepler]" ) {
 	
 	SECTION("Simple Earth-Sun Kepler"){
+		dt=0.001;
+		n_orbits=1;
+		max_iter=(int)(2*M_PI*n_orbits/dt);
+		n_freq=1;
+		iter=0;
 		logger.open("kepler.csv");
 		std::vector<Particle*> particles;
 		particles.push_back(new Particle(0,0,0,0,0,0,1));
 		particles.push_back(new Particle(1,0,0,0,2*M_PI,0,mass_earth/mass_sun));
+		run_verlet(&get_acceleration,max_iter, dt,  particles,&shouldContinue);
+		logger.close();
+	}
+	
+	SECTION("Lagrange Points"){
+		dt=0.001;
+		n_orbits=1;
+		max_iter=(int)(2*M_PI*n_orbits/dt);
+		n_freq=1;
+		iter=0;
+		logger.open("lagrange.csv");
+		std::vector<Particle*> particles;
+		particles.push_back(new Particle(0,0,0,0,0,0,1));
+		particles.push_back(new Particle(1,0,0, 0,2*M_PI,0, mass_earth/mass_sun));
+		const double x2=0.5;
+		const double y2=sqrt(3.0)/2;
+		
+		particles.push_back(new Particle(x2,y2,0, -2*M_PI*y2, 2*M_PI*x2,0,  mass_earth/mass_sun));
 		run_verlet(&get_acceleration,max_iter, dt,  particles,&shouldContinue);
 		logger.close();
 	}
