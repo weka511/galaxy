@@ -38,7 +38,7 @@ Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zm
 /**
  * Determine the bounding rectangular prism for set of particles
  */
-Node::get_limits(std::vector<Particle*> particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax){
+Node::get_limits(std::vector<Particle*>& particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax){
 	xmin=std::numeric_limits<double>::max();
 	xmax=-xmin;
 	ymin=std::numeric_limits<double>::max();
@@ -64,7 +64,7 @@ Node::get_limits(std::vector<Particle*> particles,double& xmin,double& xmax,doub
 /**
  * Create an oct-tree from a set of particles
  */
-Node * Node::create(std::vector<Particle*> particles){
+Node * Node::create(std::vector<Particle*>& particles){
 	double xmin, xmax, ymin, ymax, zmin, zmax;
 	Node::get_limits(particles,xmin, xmax, ymin, ymax, zmin, zmax);
 	Node * product=new Node(xmin,xmax,ymin,ymax,zmin,zmax);
@@ -78,7 +78,7 @@ Node * Node::create(std::vector<Particle*> particles){
  *
  * Recursively descend until we find an empty node.
  */
-void Node::insert(int new_particle_index,std::vector<Particle*> particles) {
+void Node::insert(int new_particle_index,std::vector<Particle*>& particles) {
 	switch(_particle_index){
 		case Unused:   // we can add particle to Unused Node
 			_particle_index=new_particle_index;
@@ -96,7 +96,7 @@ void Node::insert(int new_particle_index,std::vector<Particle*> particles) {
  * Used when we have just split an External node, but the incumbent and new
  * node both want to occupy the same child.
  */
-void Node::_pass_down(int new_particle_index,int incumbent,std::vector<Particle*> particles) {
+void Node::_pass_down(int new_particle_index,int incumbent,std::vector<Particle*>& particles) {
 	_split_node();
 	_insert_or_propagate(new_particle_index,incumbent,particles);
 } 
@@ -105,7 +105,7 @@ void Node::_pass_down(int new_particle_index,int incumbent,std::vector<Particle*
  * Used when we have just split an External node, so we need to pass
  * the incumbent and a new particle down the tree
  */
-void Node::_insert_or_propagate(int particle_index,int incumbent,std::vector<Particle*> particles) {
+void Node::_insert_or_propagate(int particle_index,int incumbent,std::vector<Particle*>& particles) {
 	const int child_index_new=_get_child_index(particles[particle_index]);
 	const int child_index_incumbent=_get_child_index(particles[incumbent]);
 	if (child_index_new==child_index_incumbent)

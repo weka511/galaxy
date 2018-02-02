@@ -31,7 +31,7 @@ class Node {
 	/**
 	 * Create an oct-tree from a set of particles
 	 */
-	static Node * create(std::vector<Particle*> particles);
+	static Node * create(std::vector<Particle*>& particles);
 	  /**
 	   * Number of nodes allocated: used in testing
 	   */
@@ -67,7 +67,7 @@ class Node {
 	/**
 	 * Insert one particle in tree
 	 */
-	void insert(int new_particle_index,std::vector<Particle*> particles);
+	void insert(int new_particle_index,std::vector<Particle*>& particles);
 	
 	/**
 	 * Destroy node and its descendants.
@@ -110,7 +110,7 @@ class Node {
 	/**
 	 * Determine the bounding box for set of particles
 	 */
-	static get_limits(std::vector<Particle*> particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax);
+	static get_limits(std::vector<Particle*>& particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax);
 	
   private:
 	
@@ -128,13 +128,13 @@ class Node {
 	 * Used when we have just split an External node, but the incumbent and new
 	 * node both want to occupy the same child.
 	 */
-	void _pass_down(int particle_index,int incumbent,std::vector<Particle*> particles);
+	void _pass_down(int particle_index,int incumbent,std::vector<Particle*>& particles);
 	
 	/**
 	 * Used when we have just split an External node, so we need to pass
 	 * the incumbent and a new particle down the tree
 	 */
-	void _insert_or_propagate(int particle_index,int incumbent,std::vector<Particle*> particles);
+	void _insert_or_propagate(int particle_index,int incumbent,std::vector<Particle*>& particles);
 	
 	/**
 	 * Convert an External Node into an Internal one, and
