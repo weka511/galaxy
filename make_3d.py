@@ -29,7 +29,7 @@ Plot points from input file
 I have had to workaround the problem of the legend function not supporting the type returned by a 3D scatter.
 See https://stackoverflow.com/questions/20505105/add-a-legend-in-a-3d-scatterplot-with-scatter-in-matplotlib for details.
 '''
-def plot(fname_in='kepler.csv',n=2,m=sys.maxsize):    
+def plot(fname_in='kepler.csv',n=2,m=sys.maxsize,scale_to_cube=False):    
     pos = np.loadtxt(fname_in,delimiter=',')
     plt.figure(figsize=(20,10))
     ax = plt.gcf().add_subplot(111, aspect='equal', projection='3d')
@@ -39,8 +39,14 @@ def plot(fname_in='kepler.csv',n=2,m=sys.maxsize):
         xs=[pos[j,0] for j in range(i,min(len(pos),m),n)]
         ys=[pos[j,1] for j in range(i,min(len(pos),m),n)]
         zs=[pos[j,2] for j in range(i,min(len(pos),m),n)]
+        min_scale=min(min(xs),min(ys),min(zs))
+        max_scale=max(max(xs),max(ys),max(zs))
         colour=colours[i%len(colours)]
         ax.scatter(xs,ys,zs,edgecolor=colour,s=1)
+        if scale_to_cube:
+            ax.set_xlim(min_scale,max_scale)
+            ax.set_ylim(min_scale,max_scale)
+            ax.set_zbound(min_scale,max_scale)
         scatterproxies.append( lines.Line2D([0],[0], linestyle="none", c=colour, marker = 'o'))
         labels.append('{0}'.format(i))
     plt.title(fname_in.replace('.csv',''));
@@ -58,7 +64,8 @@ if __name__=='__main__':
         n=2
         m=sys.maxsize
         show=False
-        opts, args = getopt.getopt(sys.argv[1:], 'hm:n:s', ['help', 'points','bodies=','show'])
+        scale_to_cube=False
+        opts, args = getopt.getopt(sys.argv[1:], 'hm:n:sc', ['help', 'points','bodies=','show','cube'])
         for o,a in opts:
             if o in ['-h','--help']:
                 usage()
@@ -69,11 +76,13 @@ if __name__=='__main__':
                 m=int(a)            
             elif o in ['-s','--show']:
                 show=True
+            elif o in ['-c','--cube']:
+                scale_to_cube=True
             else:
                 print ('Unexpected option {0} {1}'.format(o,a))
                 sys.exit(2) 
         for fname_in in args:
-            plot(fname_in=fname_in,n=n,m=m)
+            plot(fname_in=fname_in,n=n,m=m,scale_to_cube=scale_to_cube)
         if show:
             plt.show()
     except getopt.GetoptError as err:  # print help information and exit:      
