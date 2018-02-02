@@ -18,6 +18,9 @@
 #ifndef _PHYSICS_H
 #define _PHYSICS_H
 
+#include <vector>
+#include "particle.h"
+
 const double seconds_in_one_year = 365.25*24*60*60;
 
 const double mass_earth = 5.9722e24;  // https://en.wikipedia.org/wiki/Earth_mass
@@ -30,5 +33,9 @@ const double au_per_m = 1/metres_per_AU;
 const double G = 6.67408e-11; // https://en.wikipedia.org/wiki/Gravitational_constant
 
 const double G_solar_system = G * au_per_m*au_per_m*au_per_m *(mass_sun)*(seconds_in_one_year *seconds_in_one_year);
- 
+
+void get_acceleration(std::vector<Particle*> particles,double G);
+
+void get_acceleration_between_pair(Particle* p_i,Particle* p_j,double G);
+
 #endif
