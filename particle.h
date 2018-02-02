@@ -19,6 +19,7 @@
 #define _PARTICLE_H
 #include <vector>
 #include <cmath>
+#include "utils.h"
 
 /**
  * A Particle represents one of the bodies whose motion is being simulated.
@@ -85,6 +86,8 @@ class Particle {
 	 *  Accessor for mass
 	 */
 	double getMass() {return _m;}
+	
+	inline double get_distance_sq(Particle*other)  {return sqr(_x-other->_x)+sqr(_y-other->_y)+sqr(_z-other->_z);}
 	
   private:
 	/**

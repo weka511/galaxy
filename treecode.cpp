@@ -19,6 +19,8 @@
 #include <algorithm>
 #include <iostream>
 #include <limits>
+#include <stdexcept>
+#include <sstream>
 
 int Node::_count=0;
 
@@ -81,7 +83,7 @@ Node * Node::create(std::vector<Particle*>& particles){
  * Recursively descend until we find an empty node.
  */
 void Node::insert(int new_particle_index,std::vector<Particle*>& particles) {
-	// std::cout<<"Inserting " << new_particle_index <<std::endl;
+	const double epsilon=1e-12;
 	switch(_particle_index){
 		case Unused:   // we can add particle to Unused Node
 			_particle_index=new_particle_index;
@@ -91,6 +93,12 @@ void Node::insert(int new_particle_index,std::vector<Particle*>& particles) {
 			return;
 		default:     //oops - we already have a particle here, so have to move it
 			const int incumbent=_particle_index;
+			const double dsq=particles[new_particle_index]->get_distance_sq(particles[incumbent]);
+			if (dsq<epsilon*(_xmax-_xmin)){
+				std::stringstream message;
+				message<<"Particles "<<new_particle_index << " and " << incumbent << " within " << epsilon*(_xmax-_xmin) << " f each other"; 
+				throw std::logic_error(message.str().c_str());
+			}
 			_pass_down(new_particle_index,incumbent,particles);
 	}
 }

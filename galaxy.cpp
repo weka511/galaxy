@@ -22,7 +22,7 @@
 #include <sstream>
 #include <getopt.h>
 #include <algorithm>
-
+#include <stdexcept>
 #include "barnes-hut.h"
 #include "galaxy.h"
 #include "center-of-mass.h"
@@ -132,11 +132,15 @@ int main(int argc, char **argv) {
 	if (extract_options(argc,argv)) {
 		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
 
-		run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration_bh(particles,theta,G);},
+		try {
+			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration_bh(particles,theta,G);},
 						max_iter,
 						dt,
 						particles,
 						[](std::vector<Particle*> particles){return true;});
+		} catch(const std::logic_error& e) {
+			std::cout << e.what() << std::endl;
+		}
 	}
 	
 	return EXIT_SUCCESS;
