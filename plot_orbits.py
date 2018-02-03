@@ -55,7 +55,7 @@ def extract(config_path = './configs/',selector=[0,1,2,55,100,400],maxsamples=10
         skip*=10
     i=0
     for file_name in os.listdir(config_path):
-        m = re.search('body_[0-9]+.dat',file_name)
+        m = re.search('bodies[0-9]+.dat',file_name)
         if m:
             if i%skip == 0:
                 positions = np.loadtxt(os.path.join(config_path,m.group(0)))

@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <math.h>
 #include <ostream>
 #include <sstream>
 #include <getopt.h>
@@ -126,11 +127,18 @@ std::string path = "./configs";
 double config_version=0.0;
 
 /**
+ * Length of sequence number for config files
+ */
+int max_digits_config=5;
+
+/**
  * Main program. Parse command line options, create bodies, then run simulation.
  */
 int main(int argc, char **argv) {
 
 	if (extract_options(argc,argv)) {
+		const int max_imgs=std::ceil(((double)max_iter)/img_iter);
+		max_digits_config = std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
 		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
 
 		try {
@@ -154,7 +162,7 @@ bool report_configuration(std::vector<Particle*> particles,int iter) {
 	if (iter%img_iter==0) {
 		std::cout << "Writing configuration for iteration " << iter << std::endl;
 		std::stringstream file_name;
-		file_name << path<< "bodies" << std::setw(5) << std::setfill('0') <<iter/img_iter << ".csv";
+		file_name << path<< "bodies" << std::setw(max_digits_config) << std::setfill('0') <<iter/img_iter << ".csv";
 		std::ofstream ofile(file_name.str().c_str());
 		for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {
 			double x,y,z;
