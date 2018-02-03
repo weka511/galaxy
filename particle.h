@@ -19,7 +19,10 @@
 #define _PARTICLE_H
 #include <vector>
 #include <cmath>
+#include <math.h>
+#include <stdexcept>
 #include "utils.h"
+#include <iostream>
 
 /**
  * A Particle represents one of the bodies whose motion is being simulated.
@@ -36,8 +39,10 @@ class Particle {
 		double m)
 		: _x(x),_y(y),_z(z),
 		_vx(vx), _vy(vy), _vz(vz),_m(m),
-		_ax(NAN), _ay(NAN), _az(NAN)
-	{}
+		_ax(NAN), _ay(NAN), _az(NAN){
+			if (std::isnan(x) || std::isnan(y) || std::isnan(z))
+				throw std::logic_error("Attempt to create pos from to NAN");				
+		}
 	
 	virtual ~Particle() {
 	}
@@ -50,7 +55,12 @@ class Particle {
 	/**
 	 *  Set current position
 	 */
-	void setPos(double x,	double y, double z) {_x=x;_y=y;_z=z;}
+	void setPos(double x, double y, double z) {
+		if (std::isnan(x) || std::isnan(y) || std::isnan(z))
+			throw std::logic_error("Attempt to setPos to NAN");
+		_x=x;
+		_y=y;
+		_z=z;}
 	
 	/**
 	 *  Accessor for current velocity
