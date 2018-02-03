@@ -31,3 +31,4 @@ to simulate the evolution of a galaxy.
 |  Date | Remarks |
 |------------|--------------------------------------------------------------------|
 |31_Jan_2018| Program segfaults. Turn off Barnes-Hut and try some easy test cases, e.g. Kepler, Lagrange points, and a resonance |
+| 4_Feb_2018| Traced problem to acceleration calcs: when we figure out force on a particular particle we included the particle itself. This has been corrected, but [the fix is a kludge, so some work still needs to be done](https://github.com/weka511/galaxy/issues/2).<br>_Particles are diverging,_ is the initial velocty too high?|
