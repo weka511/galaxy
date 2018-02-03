@@ -16,13 +16,16 @@
  */
  
 #include <algorithm>
+#include <assert.h>
+#include <limits>
 #include <string>
 #include <cmath>
 #include "barnes-hut.h"
 #include "center-of-mass.h"
+#include <iostream>
 
-
-void get_acceleration_bh(std::vector<Particle*> particles,double theta,double G) {
+void get_acceleration_bh(std::vector<Particle*>& particles,double theta,double G) {
+	assert(Node::_count==0);
 	Node * root=Node::create(particles);
 	CentreOfMassCalculator calculator(particles);
 	root->visit(calculator);
@@ -55,11 +58,9 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 			return Node::Visitor::Status::Continue;
 		default: 
 			dsq=sqr(x-_x) + sqr(y-_y) + sqr(z-_z);
-			_accumulate_acceleration(m,x,y,z,dsq);
+			if (dsq>0)_accumulate_acceleration(m,x,y,z,dsq);
 			return Node::Visitor::Status::Continue;
 	}
-
-
 }
 
 

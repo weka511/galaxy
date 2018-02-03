@@ -23,7 +23,7 @@
 #include "treecode.h"
 #include "utils.h"
 
-void get_acceleration_bh(std::vector<Particle*>,double theta,double G);
+void get_acceleration_bh(std::vector<Particle*>&,double theta,double G);
 
 
 class BarnesHutVisitor :  public Node::Visitor{

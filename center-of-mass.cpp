@@ -46,10 +46,11 @@ void CentreOfMassCalculator::propagate(Node * node,Node * child){
 }
 
 void CentreOfMassCalculator::display() {
-	std::cout << "Done " << indices.size() << " bodies."<< std::endl;
 	for (int i =0;i<indices.size();i++)
-		if (!indices[i])
-			std::cout<<"Missing index: "<<indices[i]<<std::endl;
+		if (!indices[i]) {
+			std::cout<<__FILE__ <<", " <<__LINE__<< std::endl;
+			std::cout<<"Missing index: "<<indices[i]<<std::endl;    // FIXME - throw exception
+		}
 }
 
 bool CentreOfMassCalculator::depart(Node * node)  {
@@ -64,6 +65,7 @@ bool CentreOfMassCalculator::depart(Node * node)  {
 		default: ;
 	}
 	if (x<node->_xmin || node->_xmax<x || y<node->_ymin || node->_ymax<y || z<node->_zmin || node->_zmax<z) {
+		std::cout<<__FILE__ <<", " <<__LINE__<< std::endl;
 		std::cout << node->getStatus()<< " "<<node->_xmin << ", " << x << ", " << node->_xmax << std::endl;
 		std::cout << node->getStatus()<< " "<<node->_ymin << ", " << y << ", " << node->_ymax << std::endl;
 		std::cout << node->getStatus()<< " "<<node->_zmin << ", " << z << ", " << node->_zmax << std::endl;

@@ -29,7 +29,7 @@
 #include "treecode.h"
 #include "utils.h"
 #include "verlet.h"
-
+#include "physics.h"
 
 /**
  *  Long version of command line options.
@@ -67,7 +67,7 @@ double theta = 0.5;
 /**
 * The "gravitational constant" is chosen so as to get a pleasant output.
 */
-double G = 4.e-6;
+double G = G_solar_system;
 	
 /**
  * Mass of a body.
@@ -137,7 +137,9 @@ int main(int argc, char **argv) {
 						max_iter,
 						dt,
 						particles,
-						[](std::vector<Particle*> particles){return true;});
+						[](std::vector<Particle*> particles){
+							std::cout<<__FILE__ <<", " <<__LINE__<< std::endl;
+							return true;});
 		} catch(const std::logic_error& e) {
 			std::cout << e.what() << std::endl;
 		}
@@ -169,7 +171,7 @@ int main(int argc, char **argv) {
   * Create all bodies needed at start of run
   */
  std::vector<Particle*>  createParticles(int numbodies,double inivel,double ini_radius,double mass ){
-	std::cout << "Initializing " << numbodies << " bodies" << std::endl;
+	std::cout<<__FILE__ <<", " <<__LINE__<< ": Initializing " << numbodies << " bodies"<< std::endl;
 	std::vector<std::vector<double>> positions=direct_sphere(3,numbodies);
 	std::vector<Particle*> product;
 	
@@ -186,6 +188,7 @@ int main(int argc, char **argv) {
 		const double vz = flat_flag==0 ? (std::rand()%2==0 ? rpx : -rpx) : 0;
         product.push_back( new Particle( px, py, pz, vx, vy,vz, mass) );
     }
+	std::cout<<__FILE__ <<", " <<__LINE__<< ": Initialized " << numbodies << " bodies"<<std::endl;
 	return product;
  }
  
