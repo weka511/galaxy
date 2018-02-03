@@ -18,6 +18,7 @@
 '''
 import os, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d,random
 
+
 '''
 Plot orbits
 
@@ -46,8 +47,11 @@ Extract data from configuration files
         config_path     Location of data
         selector        Used to select points that will be extracted
         maxsamples      Maximum number of points sampled in each orbit
+        prefix          Prefix for configuration files
+        suffix          Suffix for configuration files
+        delimiter       Delimiter for fields in config file
 '''
-def extract(config_path = './configs/',selector=[0,1,2,55,100,400],maxsamples=1000):
+def extract(config_path = './configs/',selector=[0,1,2,55,100,400],maxsamples=1000,prefix='bodies',suffix='csv',delimiter=','):
     result=[]
     n=len(os.listdir(config_path))   # Total number of points
     skip=1                           # Used to skip over data so number of points won't exceed maxsamples
@@ -55,13 +59,14 @@ def extract(config_path = './configs/',selector=[0,1,2,55,100,400],maxsamples=10
         skip*=10
     i=0
     for file_name in os.listdir(config_path):
-        m = re.search('bodies[0-9]+.dat',file_name)
+        m = re.search(r'{0}[0-9]+\.{1}'.format(prefix,suffix),file_name)
         if m:
             if i%skip == 0:
-                positions = np.loadtxt(os.path.join(config_path,m.group(0)))
+                positions = np.loadtxt(os.path.join(config_path,m.group(0)),delimiter=delimiter)
                 result.append([positions[i] for i in selector])
             i+=1
     return result
+
 
 if __name__=='__main__':
     import argparse
@@ -72,9 +77,15 @@ if __name__=='__main__':
                         help='Number of orbits',default=6)
     parser.add_argument('--maxsamples','-m', type=int,action='store',
                         help='Maximum number of sample per orbit',default=1000)    
-    
+    parser.add_argument('--prefix','-p', action='store',
+                        help='Prefix for configuration files',default='bodies') 
+    parser.add_argument('--suffix','-s', action='store',
+                        help='Suffix for configuration files',default='csv') 
+    parser.add_argument('--delimiter','-d', action='store',
+                        help='Delimiter for fields in config file',default=',')     
     args = parser.parse_args()    
     selector=random.sample(range(args.bodies),args.norbits) 
-    data=extract(selector=selector,maxsamples=args.maxsamples)
+    data=extract(selector=selector,maxsamples=args.maxsamples,prefix=args.prefix,suffix=args.suffix,delimiter=args.delimiter)
     plot(data,selector=selector)
     plt.show()
+  
