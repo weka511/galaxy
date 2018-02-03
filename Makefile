@@ -53,7 +53,9 @@ tests : $(TEST_MAIN)
 
 clean :
 	${RM} *.o *.stackdump
-	
+
+rebuild: clean all
+
 depend: .depend
 
 .depend: $(SRCS)  galaxy.cpp $(TESTS) tests.cpp
