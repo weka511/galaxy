@@ -47,5 +47,21 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		delete tree;
 	}
 	
+	SECTION("2nd layer Tree Insert") {
+		std::vector<Particle*> particles;
+		particles.push_back(new Particle(-1, -1, -1,0,0,0,1));
+		particles.push_back(new Particle(-1, -1, +1,0,0,0,1));
+		particles.push_back(new Particle(-1, +1, -1,0,0,0,1));
+		particles.push_back(new Particle(+1, -1, -1,0,0,0,1));
+		particles.push_back(new Particle(-1, +1, +1,0,0,0,1));
+		particles.push_back(new Particle(+1, -1, +1,0,0,0,1));
+		particles.push_back(new Particle(+1, +1, -1,0,0,0,1));
+		particles.push_back(new Particle(+1, +1, +1,0,0,0,1));
+		particles.push_back(new Particle(+0.2, +0.2, +1,0,0,0,1));
+		Node * tree = Node::create(particles);
+		REQUIRE(Node::_count==17);
+		delete tree;
+	}
+	
 	REQUIRE(Node::_count==0);
 }
