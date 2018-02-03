@@ -33,10 +33,10 @@ def plot(data,selector=[],colours=['r','g','b','m','c','y']):
     plt.figure(figsize=(20,20)) 
     ax = plt.gcf().add_subplot(111,  projection='3d')
     for body in range(len(data[0])):
-        ax.scatter(get_coordinates(body,0)[0],get_coordinates(body,1)[0],get_coordinates(body,2)[0],c=colours[body%len(colours)],
-                   label="Body: {0}".format(selector[body]))
         ax.scatter(get_coordinates(body,0),get_coordinates(body,1),get_coordinates(body,2),edgecolor=colours[body%len(colours)],s=1) 
-        plt.legend(loc='best')
+        ax.scatter(get_coordinates(body,0)[0],get_coordinates(body,1)[0],get_coordinates(body,2)[0],c=colours[body%len(colours)],
+                       label="Body: {0}".format(selector[body]),s=50,marker='x')        
+    plt.legend(loc='best')
     plt.title('Orbits of randomly selected stars')
     plt.savefig('orbits.png')
 
