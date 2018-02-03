@@ -43,6 +43,9 @@ TARGETS=$(MAIN)
 
 all : $(TARGETS) $(TEST_OBJS)
 
+run : all
+	$(MAIN)
+	
 tests : $(TEST_MAIN)
 	./$(TEST_MAIN)
 	python make_3d.py kepler.csv
