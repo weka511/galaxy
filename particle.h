@@ -70,7 +70,10 @@ class Particle {
 	/**
 	 *  Set current velocity
 	 */
-	void setVel(double vx,	double vy, double vz) {_vx=vx;_vy=vy;_vz=vz;}
+	void setVel(double vx,	double vy, double vz) {
+		if (std::isnan(vx) || std::isnan(vy) || std::isnan(vz))
+			throw std::logic_error("Attempt to setVel to NAN");
+		_vx=vx;_vy=vy;_vz=vz;}
 	
 	/**
 	 *  Accessor for current acceleration
@@ -80,7 +83,10 @@ class Particle {
 	/**
 	 *  Set current acceleration
 	 */
-	void setAcc(double ax,	double ay, double az) {_ax=ax;_ay=ay;_az=az;}
+	void setAcc(double ax,	double ay, double az) {
+		if (std::isnan(ax) || std::isnan(ay) || std::isnan(az))
+			throw std::logic_error("Attempt to setAcc to NAN");
+		_ax=ax;_ay=ay;_az=az;}
 	
 	/**
 	 *  Set current acceleration
