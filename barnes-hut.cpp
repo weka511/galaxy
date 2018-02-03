@@ -24,8 +24,12 @@
 #include "center-of-mass.h"
 #include <iostream>
 
-void get_acceleration_bh(std::vector<Particle*>& particles,double theta,double G) {
-	assert(Node::_count==0);
+/**
+ * Calculate acceleration for all particles
+ */
+ 
+void get_acceleration(std::vector<Particle*>& particles,double theta,double G) {
+	assert(Node::_count==0);   // Tree should have been removed at end of previous call
 	Node * root=Node::create(particles);
 	CentreOfMassCalculator calculator(particles);
 	root->visit(calculator);

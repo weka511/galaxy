@@ -20,7 +20,9 @@
 
 #include "treecode.h"
 
-
+/**
+ * Used to calculate centre of mass for Internal and External Nodes
+ */
 class CentreOfMassCalculator : public Node::Visitor {
   public:
 	CentreOfMassCalculator(std::vector<Particle*> particles);

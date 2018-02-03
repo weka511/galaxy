@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 CentreOfMassCalculator::CentreOfMassCalculator(std::vector<Particle*> particles) 
-: _particles(particles) {
+  : _particles(particles) {
 	for (int i=0;i<particles.size();i++)
 		indices.push_back(false);
 }
