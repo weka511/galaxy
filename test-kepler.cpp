@@ -38,7 +38,7 @@ void get_acceleration(std::vector<Particle*> particles) {
 
 std::ofstream logger;
 
-bool record_orbit(std::vector<Particle*> particles) {
+bool record_orbit(std::vector<Particle*> particles,int iter) {
 	if (iter%n_freq==0)
 		for (int i=0;i<particles.size();i++){
 			double x,y,z;
@@ -49,7 +49,7 @@ bool record_orbit(std::vector<Particle*> particles) {
 	return true;
 }
 
-bool record_all(std::vector<Particle*> particles) {
+bool record_all(std::vector<Particle*> particles,int iter) {
 	if (iter%n_freq==0)
 		for (int i=0;i<particles.size();i++){
 			std::cout<<i<<std::endl;

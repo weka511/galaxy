@@ -49,10 +49,10 @@ void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
 				int max_iter,
 				double dt,
 				std::vector<Particle*> particles,
-				bool (*shouldContinue)(std::vector<Particle*> particles)) {
+				bool (*shouldContinue)(std::vector<Particle*> particles,int iter)) {
 	get_acceleration(particles);
 	std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
-	for (int i=1;i<max_iter && shouldContinue(particles);i++) {
+	for (int iter=1;iter<max_iter && shouldContinue(particles,iter);iter++) {
 		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_x(particle,dt);});
 		get_acceleration(particles);
 		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_v(particle,dt);});

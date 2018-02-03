@@ -35,6 +35,14 @@ std::vector<Particle*>  createParticles(int numbodies,double inivel,double ini_r
   */
 void help();
  
+ /**
+  * Write out configuration
+  */
+ bool report_configuration(std::vector<Particle*> particles,int iter);
+ 
+
+ 
+ //----------------------------------------------------------------------------------------------------
  
  /**
   * Execute simulation

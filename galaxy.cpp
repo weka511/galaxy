@@ -16,6 +16,7 @@
  */
  
 #include <vector>
+#include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <ostream>
@@ -133,13 +134,11 @@ int main(int argc, char **argv) {
 		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
 
 		try {
-			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration_bh(particles,theta,G);},
+			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,theta,G);},
 						max_iter,
 						dt,
 						particles,
-						[](std::vector<Particle*> particles){
-							std::cout<<__FILE__ <<", " <<__LINE__<< std::endl;
-							return true;});
+						&report_configuration);
 		} catch(const std::logic_error& e) {
 			std::cout << e.what() << std::endl;
 		}
@@ -148,24 +147,24 @@ int main(int argc, char **argv) {
 	return EXIT_SUCCESS;
 }
 
-	// run_verlet(&get_acceleration_shm, max_iter, dt,	particles,	&print_values);
-	// for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) 
-		// delete (*it);
-	
-	// std::vector<Body*> bodies; 
-	// int iter=0;
-    // if (resume_flag && restore_config(path,config_file_name, bodies,  iter,  theta,  G,  dt)) {
-		// std::cout <<"Resume at "<<iter <<  ", theta="<<theta<<", G="<< G <<", dt="<<  dt << ", size="<< bodies.size() << std::endl;
-		// simulate(iter, max_iter, bodies,  theta,  G,  dt,  img_iter, path,config_file_name,check_energy);
-	// } else {
-		// if (resume_flag)
-			// std::cout << "Configuration file not found: starting from a new configuration" << std::endl;
-		// else
-			// std::cout << "Starting from a new configuration" << std::endl;
-		// remove_old_configs(path);
-		// bodies=createBodies(numbodies, inivel, ini_radius, mass );
-		// simulate(0, max_iter, bodies,  theta,  G,  dt,  img_iter, path,config_file_name,check_energy);
-	// }
+/**
+  * Write out configuration
+  */
+bool report_configuration(std::vector<Particle*> particles,int iter) {
+	if (iter%img_iter==0) {
+		std::cout << "Writing configuration for iteration " << iter << std::endl;
+		std::stringstream file_name;
+		file_name << path<< "bodies" << std::setw(5) << std::setfill('0') <<iter/img_iter << ".csv";
+		std::ofstream ofile(file_name.str().c_str());
+		for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {
+			double x,y,z;
+			(*it)->getPos(x,y,z);
+			ofile<<x <<"," <<y <<","<<z <<std::endl;
+		}
+		ofile.close();
+	}
+	return true;
+}
 
  /**
   * Create all bodies needed at start of run
@@ -192,6 +191,162 @@ int main(int argc, char **argv) {
 	return product;
  }
  
+ 
+/**
+ *  Process command line options. Returns `true` iff execution is to continue.
+ */
+bool extract_options(int argc, char **argv) {
+	int option_index = 0;
+	int c;
+	
+	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:m:n:p:r:Ss:t:v:",long_options, &option_index)) != -1)
+    switch (c){
+		case 'c':{
+			std::stringstream param(optarg);
+			param>>config_file_name;
+			std::cout<<"Configuration File:="<<config_file_name<<std::endl;
+			break;
+		}
+		
+		case 'd':{
+			std::stringstream param(optarg);
+			param>>dt;
+			std::cout<<"dt="<<dt<<std::endl;
+			break;
+		}
+		
+		case 'e':{
+			std::stringstream param(optarg);
+			param>>check_energy;
+			std::cout<<"check_energy="<<check_energy <<std::endl;
+			break;
+		}
+		
+		case 'G':{
+			std::stringstream param(optarg);
+			param>>G;
+			std::cout<<"G="<<G<<std::endl;
+			break;
+		}
+		
+		case 'h':{
+			help( );
+			return false;
+		}
+		
+		case 'i':{
+			std::stringstream param(optarg);
+			param>>img_iter;
+			std::cout<<"Frequency at which PNG images are written="<<img_iter<<std::endl;
+			break;
+		}
+		
+		case 'm':{
+			std::stringstream param(optarg);
+			param>>max_iter;
+			std::cout<<"Number of iterations="<<max_iter<<std::endl;
+			break;
+		}
+		
+		case 'n':{
+			std::stringstream param(optarg);
+			param>>numbodies;
+			std::cout<<"Number of bodies="<<numbodies<<std::endl;
+			break;
+		}
+		
+		case 'p':{
+			std::stringstream param(optarg);
+			param>>path;
+			std::cout<<"Path="<<path<<std::endl;
+			break;
+		}
+		
+		case 'r':{
+			std::stringstream param(optarg);
+			param>>ini_radius;
+			std::cout<<"Initial radius="<<ini_radius<<std::endl;
+			break;
+		}
+		
+		case 'S':{
+			std::cout<<"Seed random number generator"<<std::endl;
+			std::srand(1);
+			break;
+		}
+		
+		case 's':{
+			std::stringstream param(optarg);
+			param>>mass;
+			std::cout<<"mass="<<mass<<std::endl;
+			break;
+		}
+			
+		case 't':{
+			std::stringstream param(optarg);
+			param>>theta;
+			std::cout<<"Theta="<<theta<<std::endl;
+			break;
+		}
+		
+		case 'v':{
+			std::stringstream param(optarg);
+			param>>inivel;
+			std::cout<<"Velocity="<<inivel<<std::endl;
+			break;
+		}
+	}
+	if (!ends_with(path,"/"))
+		path.append("/");
+	return true;
+}	
+
+
+
+/**
+  * Generate help text
+  */
+void help() {
+	std::cout << "Galaxy Simulator based on Barnes Hut code from University of Geneva." << std::endl<<std::endl;
+	std::cout << "Parameters, showing default values" <<std::endl;
+	std::cout << "\t-c,--config\t\tConfiguration file [" << config_file_name<<"]"<< std::endl;
+	std::cout << "\t-d,--dt\t\tTime Step for Integration [" << dt<<"]"<< std::endl;
+	std::cout << "\t-e,--check_energy\tCheck total energy every `check_energy` iterations[don't check]"<< std::endl;
+	std::cout << "\t--flat\t\tUsed to set z to origin for 3D only"<< std::endl;
+	std::cout << "\t-G,--G\t\tGravitational Constant [" << G << "]"<<std::endl;
+	std::cout << "\t-h,--help\tShow help text" << std::endl;
+	std::cout << "\t-i,--img_iter\tFrequency for writing positions [" << img_iter << "]"<< std::endl;
+	std::cout << "\t-m,--max_iter\tMaximum number of iterations [" << max_iter << "]"<< std::endl;
+	std::cout << "\t-n,--numbodies\tNumber of bodies [" << numbodies<< "]"<<std::endl;
+	std::cout << "\t-p,--path\tPath for writing configurations [" << path << "]"<< std::endl;
+	std::cout << "\t-r,--ini_radius\tInitial Radius [" << ini_radius << "]"<<std::endl;
+	std::cout << "\t--resume\tResume previous run"<<std::endl;
+	std::cout << "\t-s,--mass\tMass of bodies [" << mass << "]"<<std::endl;
+	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" << theta << "]"<< std::endl;
+	std::cout << "\t-v,--inivel\tInitial velocities [" << inivel << "]"<<std::endl;
+}
+
+// --------------------------------------Old code that might be useful one day ------------------------------------------------
+
+	// run_verlet(&get_acceleration_shm, max_iter, dt,	particles,	&print_values);
+	// for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) 
+		// delete (*it);
+	
+	// std::vector<Body*> bodies; 
+	// int iter=0;
+    // if (resume_flag && restore_config(path,config_file_name, bodies,  iter,  theta,  G,  dt)) {
+		// std::cout <<"Resume at "<<iter <<  ", theta="<<theta<<", G="<< G <<", dt="<<  dt << ", size="<< bodies.size() << std::endl;
+		// simulate(iter, max_iter, bodies,  theta,  G,  dt,  img_iter, path,config_file_name,check_energy);
+	// } else {
+		// if (resume_flag)
+			// std::cout << "Configuration file not found: starting from a new configuration" << std::endl;
+		// else
+			// std::cout << "Starting from a new configuration" << std::endl;
+		// remove_old_configs(path);
+		// bodies=createBodies(numbodies, inivel, ini_radius, mass );
+		// simulate(0, max_iter, bodies,  theta,  G,  dt,  img_iter, path,config_file_name,check_energy);
+	// }
+
   /**
   * Execute simulation
   */
@@ -409,139 +564,6 @@ int main(int argc, char **argv) {
 	// ofile << "End\n";
 // }
 
-/**
- *  Process command line options. Returns `true` iff execution is to continue.
- */
-bool extract_options(int argc, char **argv) {
-	int option_index = 0;
-	int c;
-	
-	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:m:n:p:r:Ss:t:v:",long_options, &option_index)) != -1)
-    switch (c){
-		case 'c':{
-			std::stringstream param(optarg);
-			param>>config_file_name;
-			std::cout<<"Configuration File:="<<config_file_name<<std::endl;
-			break;
-		}
-		
-		case 'd':{
-			std::stringstream param(optarg);
-			param>>dt;
-			std::cout<<"dt="<<dt<<std::endl;
-			break;
-		}
-		
-		case 'e':{
-			std::stringstream param(optarg);
-			param>>check_energy;
-			std::cout<<"check_energy="<<check_energy <<std::endl;
-			break;
-		}
-		
-		case 'G':{
-			std::stringstream param(optarg);
-			param>>G;
-			std::cout<<"G="<<G<<std::endl;
-			break;
-		}
-		
-		case 'h':{
-			help( );
-			return false;
-		}
-		
-		case 'i':{
-			std::stringstream param(optarg);
-			param>>img_iter;
-			std::cout<<"Frequency at which PNG images are written="<<img_iter<<std::endl;
-			break;
-		}
-		
-		case 'm':{
-			std::stringstream param(optarg);
-			param>>max_iter;
-			std::cout<<"Number of iterations="<<max_iter<<std::endl;
-			break;
-		}
-		
-		case 'n':{
-			std::stringstream param(optarg);
-			param>>numbodies;
-			std::cout<<"Number of bodies="<<numbodies<<std::endl;
-			break;
-		}
-		
-		case 'p':{
-			std::stringstream param(optarg);
-			param>>path;
-			std::cout<<"Path="<<path<<std::endl;
-			break;
-		}
-		
-		case 'r':{
-			std::stringstream param(optarg);
-			param>>ini_radius;
-			std::cout<<"Initial radius="<<ini_radius<<std::endl;
-			break;
-		}
-		
-		case 'S':{
-			std::cout<<"Seed random number generator"<<std::endl;
-			std::srand(1);
-			break;
-		}
-		
-		case 's':{
-			std::stringstream param(optarg);
-			param>>mass;
-			std::cout<<"mass="<<mass<<std::endl;
-			break;
-		}
-			
-		case 't':{
-			std::stringstream param(optarg);
-			param>>theta;
-			std::cout<<"Theta="<<theta<<std::endl;
-			break;
-		}
-		
-		case 'v':{
-			std::stringstream param(optarg);
-			param>>inivel;
-			std::cout<<"Velocity="<<inivel<<std::endl;
-			break;
-		}
-	}
-	if (!ends_with(path,"/"))
-		path.append("/");
-	return true;
-}	
-
-
-
-/**
-  * Generate help text
-  */
-void help() {
-	std::cout << "Galaxy Simulator based on Barnes Hut code from University of Geneva." << std::endl<<std::endl;
-	std::cout << "Parameters, showing default values" <<std::endl;
-	std::cout << "\t-c,--config\t\tConfiguration file [" << config_file_name<<"]"<< std::endl;
-	std::cout << "\t-d,--dt\t\tTime Step for Integration [" << dt<<"]"<< std::endl;
-	std::cout << "\t-e,--check_energy\tCheck total energy every `check_energy` iterations[don't check]"<< std::endl;
-	std::cout << "\t--flat\t\tUsed to set z to origin for 3D only"<< std::endl;
-	std::cout << "\t-G,--G\t\tGravitational Constant [" << G << "]"<<std::endl;
-	std::cout << "\t-h,--help\tShow help text" << std::endl;
-	std::cout << "\t-i,--img_iter\tFrequency for writing positions [" << img_iter << "]"<< std::endl;
-	std::cout << "\t-m,--max_iter\tMaximum number of iterations [" << max_iter << "]"<< std::endl;
-	std::cout << "\t-n,--numbodies\tNumber of bodies [" << numbodies<< "]"<<std::endl;
-	std::cout << "\t-p,--path\tPath for writing configurations [" << path << "]"<< std::endl;
-	std::cout << "\t-r,--ini_radius\tInitial Radius [" << ini_radius << "]"<<std::endl;
-	std::cout << "\t--resume\tResume previous run"<<std::endl;
-	std::cout << "\t-s,--mass\tMass of bodies [" << mass << "]"<<std::endl;
-	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" << theta << "]"<< std::endl;
-	std::cout << "\t-v,--inivel\tInitial velocities [" << inivel << "]"<<std::endl;
-}
 
 
  

@@ -31,6 +31,6 @@ void  verlet_v(Particle* p,double dt);
 void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
 				int max_iter,double dt,
 				std::vector<Particle*> particles,
-				bool (*shouldContinue)(std::vector<Particle*> ));
+				bool (*shouldContinue)(std::vector<Particle*>,int iter ));
 
 #endif
