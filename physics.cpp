@@ -53,3 +53,45 @@ void get_acceleration_between_pair(Particle* p1,Particle* p2,double G) {
 	assert( std::fabs(p1->getMass()*acc_y1+p2->getMass()*acc_y2)<=epsilon*(std::fabs(p1->getMass()*acc_y1)+std::fabs(p2->getMass()*acc_y2)));
 	assert( std::fabs(p1->getMass()*acc_z1+p2->getMass()*acc_z2)<=epsilon*(std::fabs(p1->getMass()*acc_z1)+std::fabs(p2->getMass()*acc_z2)));
 }
+
+double get_energy(std::vector<Particle*> particles,double G) {
+	return 0;
+}
+
+void get_momentum(std::vector<Particle*> particles,double& px,double& py,double &pz) {
+	px=0;py=0;pz=0;
+	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
+		double vx,vy,vz;
+		(*iter)->getVel(vx,vy,vz);
+		px+=(*iter)->getMass()*vx;py+=(*iter)->getMass()*vy;pz+=(*iter)->getMass()*vz;
+	}
+}
+
+void get_centre_of_mass(std::vector<Particle*> particles,double& x0,double& y0,double &z0) {
+	x0=0; y0=0;  z0=0;
+	double m0=0;
+	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
+		double x,y,z;
+		(*iter)->getPos(x,y,z);
+		x0+=(*iter)->getMass()*x;y0+=(*iter)->getMass()*y;z0+=(*iter)->getMass()*z;
+		m0+=(*iter)->getMass();
+	}
+	x0/=m0; y0/=m0; z0/=m0;
+}
+
+void get_angular_momentum(std::vector<Particle*> particles,double& lx,double& ly,double &lz) {
+	lx=0;ly=0;lz=0;
+	double x0,y0,z0;
+	get_centre_of_mass(particles,x0,y0,z0);
+	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
+		double x,y,z;
+		(*iter)->getPos(x,y,z);
+		const double d=sqrt(dsq(x0,y0,z0,x,y,z));
+		const double rx=(x-x0)/d; const double ry=(y-y0)/d; const double rz=(z-z0)/d;
+		double vx,vy,vz;
+		(*iter)->getVel(vx,vy,vz);
+		lx+=(*iter)->getMass()*(ry*vz-ry*vy);
+		ly+=(*iter)->getMass()*(rz*vx-rx*vz);
+		lz+=(*iter)->getMass()*(rx*vy-ry*vx);
+	}
+}

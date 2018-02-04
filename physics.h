@@ -38,4 +38,14 @@ void get_acceleration(std::vector<Particle*> particles,double G);
 
 void get_acceleration_between_pair(Particle* p_i,Particle* p_j,double G);
 
+double get_energy(std::vector<Particle*> particles,double G);
+
+void get_momentum(std::vector<Particle*> particles,double& px,double& py,double &pz);
+
+void get_angular_momentum(std::vector<Particle*> particles,double& lx,double& ly,double &lz);
+
+void get_centre_of_mass(std::vector<Particle*> particles,double& x0,double& y0,double &z0);
+
+inline double dsq(double x0,double y0,double z0,double x1,double y1,double z1) {return sqr(x0-x1) + sqr(y0-y1) + sqr(z0-z1);}
+
 #endif

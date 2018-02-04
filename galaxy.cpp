@@ -161,6 +161,12 @@ int main(int argc, char **argv) {
 bool report_configuration(std::vector<Particle*> particles,int iter) {
 	if (iter%img_iter==0) {
 		std::cout << "Writing configuration for iteration " << iter << std::endl;
+		double px,py,pz;
+		get_momentum(particles,px,py,pz);
+		std::cout << "momentum=(" <<px << "," <<py<<"," <<pz<<")"<<std::endl;
+		double lx,ly,lz;
+		get_angular_momentum(particles,lx,ly,lz);
+		std::cout << "angular momentum=(" <<lx << "," <<ly<<"," <<lz<<")"<<std::endl;
 		std::stringstream file_name;
 		file_name << path<< "bodies" << std::setw(max_digits_config) << std::setfill('0') <<iter/img_iter << ".csv";
 		std::ofstream ofile(file_name.str().c_str());
