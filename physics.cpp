@@ -54,10 +54,16 @@ void get_acceleration_between_pair(Particle* p1,Particle* p2,double G) {
 	assert( std::fabs(p1->getMass()*acc_z1+p2->getMass()*acc_z2)<=epsilon*(std::fabs(p1->getMass()*acc_z1)+std::fabs(p2->getMass()*acc_z2)));
 }
 
+/**
+ *  Calculate total energy for a system of particles
+ */
 double get_energy(std::vector<Particle*> particles,double G) {
 	return get_kinetic_energy(particles) + get_potential_energy(particles,G);
 }
 
+/**
+ *  Calculate kinetic energy for a system of particles
+ */
 double get_kinetic_energy(std::vector<Particle*> particles) {
 	double sum=0;
 	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
@@ -68,13 +74,16 @@ double get_kinetic_energy(std::vector<Particle*> particles) {
 	return 0.5*sum;
 }
 
+/**
+ *  Calculate gravitational potential energy for a system of particles
+ */
 double get_potential_energy(std::vector<Particle*> particles,double G) {
 	double sum=0;
 	for (int i=1;i<particles.size();i++) {
 		double x0,y0,z0;
 		particles[i]->getPos(x0,y0,z0);
 		const double m0=particles[i]->getMass();
-		for (int j=0;i<i;j++) {
+		for (int j=0;j<i;j++) {
 			double x1,y1,z1;
 			particles[j]->getPos(x1,y1,z1);
 			const double m1=particles[j]->getMass();
@@ -84,6 +93,9 @@ double get_potential_energy(std::vector<Particle*> particles,double G) {
 	return -G*sum;
 }
 
+/**
+ * Find linear momentum of a set of particles
+ */
 void get_momentum(std::vector<Particle*> particles,double& px,double& py,double &pz) {
 	px=0;py=0;pz=0;
 	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
@@ -93,6 +105,9 @@ void get_momentum(std::vector<Particle*> particles,double& px,double& py,double 
 	}
 }
 
+/**
+ * Find centre of mass of a set of particles.
+ */
 void get_centre_of_mass(std::vector<Particle*> particles,double& x0,double& y0,double &z0) {
 	x0=0; y0=0;  z0=0;
 	double m0=0;
@@ -105,6 +120,9 @@ void get_centre_of_mass(std::vector<Particle*> particles,double& x0,double& y0,d
 	x0/=m0; y0/=m0; z0/=m0;
 }
 
+/**
+ * Find angular momentum of a set of particles
+ */
 void get_angular_momentum(std::vector<Particle*> particles,double& lx,double& ly,double &lz) {
 	lx=0;ly=0;lz=0;
 	double x0,y0,z0;
@@ -116,7 +134,7 @@ void get_angular_momentum(std::vector<Particle*> particles,double& lx,double& ly
 		const double rx=(x-x0)/d; const double ry=(y-y0)/d; const double rz=(z-z0)/d;
 		double vx,vy,vz;
 		(*iter)->getVel(vx,vy,vz);
-		lx+=(*iter)->getMass()*(ry*vz-ry*vy);
+		lx+=(*iter)->getMass()*(ry*vz-rz*vy);
 		ly+=(*iter)->getMass()*(rz*vx-rx*vz);
 		lz+=(*iter)->getMass()*(rx*vy-ry*vx);
 	}

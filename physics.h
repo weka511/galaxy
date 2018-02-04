@@ -39,16 +39,34 @@ void get_acceleration(std::vector<Particle*> particles,double G);
 
 void get_acceleration_between_pair(Particle* p_i,Particle* p_j,double G);
 
+/**
+ *  Calculate kinetic energy for a system of particles
+ */
 double get_kinetic_energy(std::vector<Particle*> particles);
 
+/**
+ *  Calculate gravitational potential energy for a system of particles
+ */
 double get_potential_energy(std::vector<Particle*> particles,double G);
 
+/**
+ *  Calculate total energy for a system of particles
+ */
 double get_energy(std::vector<Particle*> particles,double G);
 
+/**
+ * Find linear momentum of a set of particles
+ */
 void get_momentum(std::vector<Particle*> particles,double& px,double& py,double &pz);
 
+/**
+ * Find angular momentum of a set of particles
+ */
 void get_angular_momentum(std::vector<Particle*> particles,double& lx,double& ly,double &lz);
 
+/**
+ * Find centre of mass of a set of particles.
+ */
 void get_centre_of_mass(std::vector<Particle*> particles,double& x0,double& y0,double &z0);
 
 inline double dsq(double x0,double y0,double z0,double x1,double y1,double z1) {return sqr(x0-x1) + sqr(y0-y1) + sqr(z0-z1);}

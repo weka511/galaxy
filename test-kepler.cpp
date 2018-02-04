@@ -50,6 +50,9 @@ bool record_orbit(std::vector<Particle*> particles,int iter) {
 			double px,py,pz;
 			get_momentum(particles,px,py,pz);
 			std::cout<< "P: (" <<px << ", " <<py << ", " <<pz << ")" << std::endl;
+			double cx,cy,cz;
+			get_centre_of_mass(particles,cx,cy,cz);
+			std::cout<< "C: (" <<cx << ", " <<cy << ", " <<cz << ")" << std::endl;
 			double lx,ly,lz;
 			get_angular_momentum(particles,lx,ly,lz);
 			std::cout<< "L: (" <<lx << ", " <<ly << ", " <<lz << ")" << std::endl;
