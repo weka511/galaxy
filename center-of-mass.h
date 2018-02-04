@@ -25,15 +25,44 @@
  */
 class CentreOfMassCalculator : public Node::Visitor {
   public:
+    /**
+    * Create CentreOfMassCalculator.
+	*   Parameters:
+	*   	particles These are the particles whose centre of mass is to be calculated. 
+    */
 	CentreOfMassCalculator(std::vector<Particle*> particles);
+	/**
+	 * When we visit an External Node, record the position and mass of the particle
+	 */
 	Node::Visitor::Status visit(Node * node);
+	
+	/**
+	 *  For an internal note we need to accumulate the mass and positions for each child
+	 */
 	virtual void propagate(Node * node,Node * child);
+	
+	/**
+	* This is called when we finish processing a Node, which means that all children 
+	* have been processed. Store centre of mass.
+	*/
 	virtual bool depart(Node * node);
-	void display();
+	
+	/**
+	 * Make sure every node was processed.
+	*/
+	void check_all_paticles_processed();
 	
   private:
+  
+   /**
+    * These are the particles whose centre of mass is to be calculated. 
+    */
 	std::vector<Particle*> _particles;
-	std::vector<bool> indices;
+	
+	/**
+	 * Indicates whether each particle has been processed
+	 */
+	std::vector<bool> _processed_particle;
 };
 
 #endif

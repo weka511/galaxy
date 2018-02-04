@@ -18,54 +18,69 @@
 #include "center-of-mass.h"
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
+#include <sstream>
 #include <limits>
 #include <stdlib.h>
 
 CentreOfMassCalculator::CentreOfMassCalculator(std::vector<Particle*> particles) 
   : _particles(particles) {
 	for (int i=0;i<particles.size();i++)
-		indices.push_back(false);
+		_processed_particle.push_back(false);
 }
 
+/**
+ * When we visit an External Node, record the position and mass of the particle
+ */
 Node::Visitor::Status CentreOfMassCalculator::visit(Node * node) {
-	const int index= node->getStatus();
-	if (index>=0) {
-		indices[index]=true;
+	const int particle_index= node->getStatus();
+	if (particle_index>=0) {
+		_processed_particle[particle_index]=true;
 		double x,y,z;
-		_particles[index]->getPos(x,y,z);
-		node->setPhysics(_particles[index]->getMass(),x,y,z);
+		_particles[particle_index]->getPos(x,y,z);
+		node->setPhysics(_particles[particle_index]->getMass(),x,y,z);
 	}
 	return Node::Visitor::Status::Continue;
 }
 
+/**
+ *  For an internal note we need to accumulate the mass and positions for each child
+ */
 void CentreOfMassCalculator::propagate(Node * node,Node * child){
-	const int index= node->getStatus();
-	if (index==Node::Internal) {
+	if (node->getStatus()==Node::Internal) 
 		node->accumulatePhysics(child);
-	}
 }
 
-void CentreOfMassCalculator::display() {
-	for (int i =0;i<indices.size();i++)
-		if (!indices[i]) {
-			std::cout<<__FILE__ <<", " <<__LINE__<< std::endl;
-			std::cout<<"Missing index: "<<indices[i]<<std::endl;    // FIXME - throw exception
+/**
+ * Make sure every node was processed
+ */
+void CentreOfMassCalculator::check_all_paticles_processed() {
+	for (int i =0;i<_processed_particle.size();i++)
+		if (!_processed_particle[i]) {
+			std::stringstream message;
+			std::cout<<__FILE__ <<", " <<__LINE__<<" Missing index: "<<_processed_particle[i]<<std::endl; 
+			throw std::logic_error(message.str().c_str());
 		}
 }
 
+/**
+ *This is called when we finish processing a Node, which means that all children 
+ * have been processed. Store centre of mass.
+ */
 bool CentreOfMassCalculator::depart(Node * node)  {
 	double m,x,y,z;
 	node->getPhysics(m,x,y,z);
 	switch (node->getStatus()) {
 		case Node::Internal:
 			x/=m;y/=m;z/=m;
+			node->setPhysics(m,x,y,z);
 			break;
 		case Node::Unused:
 			return true;
 		default: ;
 	}
 	if (x<node->_xmin || node->_xmax<x || y<node->_ymin || node->_ymax<y || z<node->_zmin || node->_zmax<z) {
-		std::cout<<__FILE__ <<", " <<__LINE__<< std::endl;
+		std::cout<<__FILE__ <<", " <<__LINE__<< "Status: "<< node->getStatus()<<std::endl;   // FIXME - throw exception
 		std::cout << node->getStatus()<< " "<<node->_xmin << ", " << x << ", " << node->_xmax << std::endl;
 		std::cout << node->getStatus()<< " "<<node->_ymin << ", " << y << ", " << node->_ymax << std::endl;
 		std::cout << node->getStatus()<< " "<<node->_zmin << ", " << z << ", " << node->_zmax << std::endl;

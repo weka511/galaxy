@@ -186,21 +186,27 @@ bool Node::visit(Visitor & visitor) {
 	bool should_continue=status != Node::Visitor::Status::Stop;
 	if (_particle_index==Internal && status==Node::Visitor::Status::Continue)
 		for (int i=0;i<N_Children&&should_continue;i++) {
-		should_continue=_child[i]->visit(visitor);
-		visitor.propagate(this,_child[i]);
+			should_continue=_child[i]->visit(visitor);
+			visitor.propagate(this,_child[i]);
 	}
 	return should_continue ? visitor.depart(this) : false;
 }
 
 /**
  *   Used to calculate centre of mass for internal nodes.
+ *   We accumulate mx,my,mz, so we need to treat External nodes differently
  */
 void Node::accumulatePhysics(Node* other) {
 	_m+=other->_m;
-	const int mult = other->getStatus() >=0 ? other->_m : 1;
-	_x += mult * other->_x;
-	_y += mult * other->_y;
-	_z += mult * other->_z;
+	// if (  other->getStatus() >=0) {  // External Node
+		_x += other->_m * other->_x;
+		_y += other->_m * other->_y;
+		_z += other->_m * other->_z;
+	// } else {                         //Internal Node
+		// _x += other->_x;
+		// _y += other->_y;
+		// _z += other->_z;
+	// }
 }
 
 /**

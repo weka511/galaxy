@@ -33,7 +33,7 @@ void get_acceleration(std::vector<Particle*>& particles,double theta,double G) {
 	Node * root=Node::create(particles);
 	CentreOfMassCalculator calculator(particles);
 	root->visit(calculator);
-	calculator.display();
+	calculator.check_all_paticles_processed();
 	std::for_each(particles.begin(),
 				particles.end(),
 				[root,theta,G](Particle*me){
