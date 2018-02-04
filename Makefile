@@ -14,9 +14,9 @@
 # along with this software.  If not, see <http://www.gnu.org/licenses/>
 #
 # Makefile snarfed from https://stackoverflow.com/questions/2481269/how-to-make-a-simple-c-makefile
-#-ggdb
-CPPFLAGS=-g -O0  -pthread -I/sw/include/root  -std=gnu++11
-LDFLAGS=-g -O0
+
+CPPFLAGS=-g -O3  -pthread -I/sw/include/root  -std=gnu++11
+LDFLAGS=-g -O3
 LDLIBS=
 CC=gcc
 CXX=g++
