@@ -13,6 +13,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * Integrate an Ordinary Differential Equation using the Verlet algorithm
  */
  
 #ifndef _VERLET_H
@@ -21,13 +23,25 @@
 
 #include "particle.h"
 
-
+/**
+ *  Use Euler algorithm for first step. NB: this updates velocity only, so x
+ *  remains at its initial value, which is what Verlet needs.
+ */
 void  euler(Particle* p,double dt);
 
-void  verlet_x(Particle* p,double dt);
+/**
+ *  First half of Verlet algorithm - update positions
+ */
+void  verlet_positions(Particle* p,double dt);
 
-void  verlet_v(Particle* p,double dt);
+/**
+ *  Second half of Verlet algorithm - update velocities
+ */
+void  verlet_velocities(Particle* p,double dt);
 
+/**
+ * Integrate by taking one Euler step, followed by repeated Verlet steps
+ */
 void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
 				int max_iter,double dt,
 				std::vector<Particle*> particles,
