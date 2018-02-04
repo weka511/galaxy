@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * This file exercises the Verlet algorithm for some simple N-body cases
+ * without using the Barnes Hut approximations.
  */
  
 #include <iostream>
@@ -31,12 +34,11 @@ int max_iter;
 int n_freq;
 int iter;
 
+std::ofstream logger;
+
 void get_acceleration(std::vector<Particle*> particles) {
 	get_acceleration(particles,G_solar_system);
 }
-
-
-std::ofstream logger;
 
 bool record_orbit(std::vector<Particle*> particles,int iter) {
 	if (iter%n_freq==0)
@@ -44,6 +46,13 @@ bool record_orbit(std::vector<Particle*> particles,int iter) {
 			double x,y,z;
 			particles[i]->getPos(x,y,z);
 			logger << x << "," << y << "," << z << std::endl;
+			std::cout <<  "E: " << get_energy( particles, G_solar_system) << std::endl;
+			double px,py,pz;
+			get_momentum(particles,px,py,pz);
+			std::cout<< "P: (" <<px << ", " <<py << ", " <<pz << ")" << std::endl;
+			double lx,ly,lz;
+			get_angular_momentum(particles,lx,ly,lz);
+			std::cout<< "L: (" <<lx << ", " <<ly << ", " <<lz << ")" << std::endl;
 		}
 	iter++;
 	return true;
@@ -71,6 +80,7 @@ bool record_all(std::vector<Particle*> particles,int iter) {
 TEST_CASE( "Kepler Tests", "[kepler]" ) {
 	
 	SECTION("Simple Earth-Sun Kepler"){
+		std::cout << "Simple Earth-Sun Kepler" << std::endl;
 		dt=0.001;
 		n_orbits=1;
 		max_iter=(int)(2*M_PI*n_orbits/dt);
@@ -85,6 +95,7 @@ TEST_CASE( "Kepler Tests", "[kepler]" ) {
 	}
 	
 	SECTION("Lagrange Points"){
+		std::cout << "Lagrange Points" << std::endl;
 		dt=0.001;
 		n_orbits=1;
 		max_iter=(int)(2*M_PI*n_orbits/dt);
