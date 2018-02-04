@@ -163,10 +163,11 @@ bool report_configuration(std::vector<Particle*> particles,int iter) {
 		std::cout << "Writing configuration for iteration " << iter << std::endl;
 		double px,py,pz;
 		get_momentum(particles,px,py,pz);
-		std::cout << "momentum=(" <<px << "," <<py<<"," <<pz<<")"<<std::endl;
+		std::cout << "Momentum=(" <<px << "," <<py<<"," <<pz<<")"<<std::endl;
 		double lx,ly,lz;
 		get_angular_momentum(particles,lx,ly,lz);
-		std::cout << "angular momentum=(" <<lx << "," <<ly<<"," <<lz<<")"<<std::endl;
+		std::cout << "Angular momentum=(" <<lx << "," <<ly<<"," <<lz<<")"<<std::endl;
+		std::cout << "Energy " << get_energy(particles,G) << std::endl;
 		std::stringstream file_name;
 		file_name << path<< "bodies" << std::setw(max_digits_config) << std::setfill('0') <<iter/img_iter << ".csv";
 		std::ofstream ofile(file_name.str().c_str());
@@ -399,35 +400,7 @@ void help() {
 	// }
 // }
 
-/**
- * Print total energy
- */
-// void print_energy(double energy, double total_energy,double initial_energy) {
-	// std::cout<< "Energy=" << energy << "("<<(energy-total_energy)<< "}, previous=" 
-				// << total_energy << "(" << (energy-initial_energy) 
-				// << "), initial=" << initial_energy  <<std::endl;
-// }
 
-/**
- * Calculate kinetic energy for bodies
- */	
-// double get_kinetic_energy(std::vector<Body*> bodies) {
-	// double result=0;
-	// for (std::vector<Body*>::iterator it = bodies.begin() ; it != bodies.end(); ++it)
-		// result+=(*it)->get_kinetic_energy();
-	// return result; 
-// }
-
-/**
- * Calculate gravitational potential energy for bodies
- */
-// double get_potential_energy(std::vector<Body*> bodies,double G){
-	// double total=0;
-	// for (int i=1;i<bodies.size();i++)
-		// for (int j=0;j<i;j++)
-			// total+=bodies[i]->get_potential_energy(bodies[j]);
-	// return -G*total;
-// }
 
 
 

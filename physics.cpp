@@ -55,7 +55,33 @@ void get_acceleration_between_pair(Particle* p1,Particle* p2,double G) {
 }
 
 double get_energy(std::vector<Particle*> particles,double G) {
-	return 0;
+	return get_kinetic_energy(particles) + get_potential_energy(particles,G);
+}
+
+double get_kinetic_energy(std::vector<Particle*> particles) {
+	double sum=0;
+	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
+		double vx,vy,vz;
+		(*iter)->getVel(vy,vz,vz);
+		sum+=(*iter)->getMass()*(sqr(vx)+sqr(vy)+sqr(vz));
+	}
+	return 0.5*sum;
+}
+
+double get_potential_energy(std::vector<Particle*> particles,double G) {
+	double sum=0;
+	for (int i=1;i<particles.size();i++) {
+		double x0,y0,z0;
+		particles[i]->getPos(x0,y0,z0);
+		const double m0=particles[i]->getMass();
+		for (int j=0;i<i;j++) {
+			double x1,y1,z1;
+			particles[j]->getPos(x1,y1,z1);
+			const double m1=particles[j]->getMass();
+			sum+=m0*m1/sqrt(dsq(x0,y0,z0,x1,y1,z1));
+		}
+	}
+	return -G*sum;
 }
 
 void get_momentum(std::vector<Particle*> particles,double& px,double& py,double &pz) {

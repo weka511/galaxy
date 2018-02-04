@@ -65,20 +65,7 @@ void help();
  */
 // Body * extract_body(std::string line);
 
-/**
- * Calculate kinetic energy for bodies
- */
-// double get_kinetic_energy(std::vector<Body*> bodies);
 
-/**
- * Calculate gravitational potential energy for bodies
- */
-// double get_potential_energy(std::vector<Body*> bodies,double G);
-
-/**
- * Print total energy
- */
-// void print_energy(double energy, double total_energy,double initial_energy);
 
 #endif
 
