@@ -101,7 +101,10 @@ void get_momentum(std::vector<Particle*> particles,double& px,double& py,double 
 	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
 		double vx,vy,vz;
 		(*iter)->getVel(vx,vy,vz);
-		px+=(*iter)->getMass()*vx;py+=(*iter)->getMass()*vy;pz+=(*iter)->getMass()*vz;
+		const double m=(*iter)->getMass();
+		px+=m*vx;
+		py+=m*vy;
+		pz+=m*vz;
 	}
 }
 
@@ -109,13 +112,16 @@ void get_momentum(std::vector<Particle*> particles,double& px,double& py,double 
  * Find centre of mass of a set of particles.
  */
 void get_centre_of_mass(std::vector<Particle*> particles,double& x0,double& y0,double &z0) {
-	x0=0; y0=0;  z0=0;
+	x0=0; y0=0; z0=0;
 	double m0=0;
 	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
 		double x,y,z;
 		(*iter)->getPos(x,y,z);
-		x0+=(*iter)->getMass()*x;y0+=(*iter)->getMass()*y;z0+=(*iter)->getMass()*z;
-		m0+=(*iter)->getMass();
+		const double m=(*iter)->getMass();
+		m0+=m;
+		x0+=m*x;
+		y0+=m*y;
+		z0+=m*z;
 	}
 	x0/=m0; y0/=m0; z0/=m0;
 }
@@ -130,12 +136,18 @@ void get_angular_momentum(std::vector<Particle*> particles,double& lx,double& ly
 	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
 		double x,y,z;
 		(*iter)->getPos(x,y,z);
+		const double m=(*iter)->getMass();
+		// Calculate unit radius vector from centre of mass
 		const double d=sqrt(dsq(x0,y0,z0,x,y,z));
-		const double rx=(x-x0)/d; const double ry=(y-y0)/d; const double rz=(z-z0)/d;
+		const double rx=(x-x0)/d;
+		const double ry=(y-y0)/d;
+		const double rz=(z-z0)/d;
+		
 		double vx,vy,vz;
 		(*iter)->getVel(vx,vy,vz);
-		lx+=(*iter)->getMass()*(ry*vz-rz*vy);
-		ly+=(*iter)->getMass()*(rz*vx-rx*vz);
-		lz+=(*iter)->getMass()*(rx*vy-ry*vx);
+		
+		lx+=m*(ry*vz-rz*vy);
+		ly+=m*(rz*vx-rx*vz);
+		lz+=m*(rx*vy-ry*vx);
 	}
 }
