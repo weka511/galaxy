@@ -140,13 +140,13 @@ int main(int argc, char **argv) {
 		const int max_imgs=std::ceil(((double)max_iter)/img_iter);
 		max_digits_config = std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
 		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
-		report_configuration(particles,0);
+		report_all(particles,0);
 		try {
 			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,theta,G);},
 						max_iter,
 						dt,
 						particles,
-						&report_configuration);
+						&report_all);
 		} catch(const std::logic_error& e) {
 			std::cout << e.what() << std::endl;
 		}
@@ -156,22 +156,42 @@ int main(int argc, char **argv) {
 }
 
 /**
+ * Used after iteration to write out data
+*/
+bool report_all(std::vector<Particle*> particles,int iter){
+	report_energy(particles,iter);
+	return report_configuration(particles,iter);
+}
+
+/**
+  * Write out energy and other conserved quantities
+  */
+void report_energy(std::vector<Particle*> particles,int iter) {
+	if (check_energy>0 && iter%check_energy==0) {
+		std::cout << "Conserved quantities for iteration " << iter << std::endl;
+		
+		double x0,y0,z0;
+		get_centre_of_mass(particles,x0,y0,z0);
+		std::cout << "Centre of mass=(" <<x0 << "," <<y0<<"," <<z0<<")"<<std::endl;	
+		
+		double px,py,pz;
+		get_momentum(particles,px,py,pz);
+		std::cout << "Momentum=(" <<px << "," <<py<<"," <<pz<<")"<<std::endl;
+		
+		double lx,ly,lz;
+		get_angular_momentum(particles,lx,ly,lz);
+		std::cout << "Angular momentum=(" <<lx << "," <<ly<<"," <<lz<<")"<<std::endl;
+		
+		std::cout << "Energy " << get_energy(particles,G) << std::endl;
+	}
+}
+
+/**
   * Write out configuration
   */
 bool report_configuration(std::vector<Particle*> particles,int iter) {
 	if (iter%img_iter==0) {
 		std::cout << "Writing configuration for iteration " << iter << std::endl;
-		double x0,y0,z0;
-		get_centre_of_mass(particles,x0,y0,z0);
-		std::cout << "Centre of mass=(" <<x0 << "," <<y0<<"," <<z0<<")"<<std::endl;
-		
-		double px,py,pz;
-		get_momentum(particles,px,py,pz);
-		std::cout << "Momentum=(" <<px << "," <<py<<"," <<pz<<")"<<std::endl;
-		double lx,ly,lz;
-		get_angular_momentum(particles,lx,ly,lz);
-		std::cout << "Angular momentum=(" <<lx << "," <<ly<<"," <<lz<<")"<<std::endl;
-		std::cout << "Energy " << get_energy(particles,G) << std::endl;
 		std::stringstream file_name;
 		file_name << path<< "bodies" << std::setw(max_digits_config) << std::setfill('0') <<iter/img_iter << ".csv";
 		std::ofstream ofile(file_name.str().c_str());
