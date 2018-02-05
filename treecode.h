@@ -97,9 +97,9 @@ class Node {
 	 */
 	void setPhysics(double m, double x, double y, double z) {
 		#ifdef _RUNTIME_CHECKS
-			_check_range("x",x,_xmin,_xmax);
-			_check_range("y",y,_ymin,_ymax);
-			_check_range("z",z,_zmin,_zmax);
+			_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
+			_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
+			_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
 		#endif
 		_m=m;_x=x;_y=y;_z=z;
 	}
@@ -109,6 +109,9 @@ class Node {
 	 */
 	void accumulatePhysics(Node* other);
 
+	/**
+	 * Determine length of side: since Node is a cube, and side will do
+	 */
 	double getSide() {return _xmax - _xmin;}
 	
 	/**
@@ -168,6 +171,9 @@ class Node {
 	 */
 	Node * _child[N_Children];
 	
+	/**
+	 *  Check that a point really does belong in this cube.
+	 */
 	inline void _check_range(std::string wname,double w,double wmin,double wmax,std::string file=__FILE__,int line=__LINE__) {
 		if (w<wmin||w>wmax) {
 			std::stringstream message;
