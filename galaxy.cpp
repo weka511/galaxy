@@ -79,7 +79,7 @@ double mass = 1.0;
 /**
  * Initially, the bodies are distributed inside a circle of radius ini_radius.
  */
-double ini_radius = 0.1;
+double ini_radius = 1.0;
 
 /** 
  * Initial maximum velocity of the bodies.
@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
 		const int max_imgs=std::ceil(((double)max_iter)/img_iter);
 		max_digits_config = std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
 		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
-
+		report_configuration(particles,0);
 		try {
 			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,theta,G);},
 						max_iter,
@@ -161,6 +161,10 @@ int main(int argc, char **argv) {
 bool report_configuration(std::vector<Particle*> particles,int iter) {
 	if (iter%img_iter==0) {
 		std::cout << "Writing configuration for iteration " << iter << std::endl;
+		double x0,y0,z0;
+		get_centre_of_mass(particles,x0,y0,z0);
+		std::cout << "Centre of mass=(" <<x0 << "," <<y0<<"," <<z0<<")"<<std::endl;
+		
 		double px,py,pz;
 		get_momentum(particles,px,py,pz);
 		std::cout << "Momentum=(" <<px << "," <<py<<"," <<pz<<")"<<std::endl;
@@ -185,22 +189,22 @@ bool report_configuration(std::vector<Particle*> particles,int iter) {
   * Create all bodies needed at start of run
   */
  std::vector<Particle*>  createParticles(int numbodies,double inivel,double ini_radius,double mass ){
-	std::cout<<__FILE__ <<", " <<__LINE__<< ": Initializing " << numbodies << " bodies"<< std::endl;
+	std::cout<<__FILE__ <<", " <<__LINE__<< ": Initializing " << numbodies << " bodies, radius=" <<ini_radius<< std::endl;
 	std::vector<std::vector<double>> positions=direct_sphere(3,numbodies);
 	std::vector<Particle*> product;
 	
 	for (std::vector<std::vector<double>>::iterator it = positions.begin() ; it != positions.end(); ++it) {
-        const double px = (*it)[0]* 2.*ini_radius + 0.5-ini_radius;
-        const double py = (*it)[1]* 2.*ini_radius + 0.5-ini_radius;
-		const double pz = flat_flag==0 ? (*it)[2]* 2.*ini_radius + 0.5-ini_radius:0;
-        const double rpx = px-0.5;
-        const double rpy = py-0.5;
-		const double rpz = flat_flag==0 ? pz-0.5 : 0;
-        const double rnorm = std::sqrt(sqr(rpx)+sqr(rpy)+sqr(rpz));
-        const double vx = -rpy * inivel * rnorm / ini_radius;
-        const double vy =  rpx * inivel * rnorm / ini_radius;
-		const double vz = flat_flag==0 ? (std::rand()%2==0 ? rpx : -rpx) : 0;
-        product.push_back( new Particle( px, py, pz, vx, vy,vz, mass) );
+        const double x     = (*it)[0] * ini_radius;
+        const double y     = (*it)[1] * ini_radius ;
+		const double z     = flat_flag==0 ? (*it)[2] * ini_radius :0;
+        const double rx    = x-0.5;
+        const double ry    = y-0.5;
+		const double rz    = flat_flag==0 ? z-0.5 : 0;
+        const double rnorm = std::sqrt(sqr(rx)+sqr(ry)+sqr(rz));
+        const double vx    = -ry * inivel * rnorm / ini_radius;
+        const double vy    =  rx * inivel * rnorm / ini_radius;
+		const double vz    = flat_flag==0 ? (std::rand()%2==0 ? rx : -rx) : 0;
+        product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
     }
 	std::cout<<__FILE__ <<", " <<__LINE__<< ": Initialized " << numbodies << " bodies"<<std::endl;
 	return product;
@@ -313,6 +317,7 @@ bool extract_options(int argc, char **argv) {
 	}
 	if (!ends_with(path,"/"))
 		path.append("/");
+
 	return true;
 }	
 
