@@ -18,8 +18,9 @@
 #ifndef _TREECODE_H
 #define _TREECODE_H
 
+#include <sstream>
 #include <vector>
-
+#include <stdexcept>
 #include "particle.h"
 
 /**
@@ -90,10 +91,18 @@ class Node {
 	 */
 	void getPhysics(double& m, double& x, double& y, double &z) {m=_m;x=_x;y=_y;z=_z;}
 	
+
 	/**
 	 * Set mass and centre of mass
 	 */
-	void setPhysics(double m, double x, double y, double z) {_m=m,_x=x;_y=y;_z=z;}
+	void setPhysics(double m, double x, double y, double z) {
+		#ifdef _RUNTIME_CHECKS
+			_check_range("x",x,_xmin,_xmax);
+			_check_range("y",y,_ymin,_ymax);
+			_check_range("z",z,_zmin,_zmax);
+		#endif
+		_m=m;_x=x;_y=y;_z=z;
+	}
 	
 	/**
 	 *   Used to calculate centre of mass for internal nodes.
@@ -120,9 +129,9 @@ class Node {
   private:
 	
 	/**
-	 * Used to map a triple to an octet
+	 * Used to map a triple to an octant
 	 */
-	int _get_child_index(int i, int j, int k) {return 4*i+2*j+k;}
+	inline int _get_child_index(int i, int j, int k) {return 4*i+2*j+k;}
 	
 	/**
 	 * Find correct subtree to store particle, using bounding rectangular box
@@ -158,6 +167,14 @@ class Node {
 	 * Descendants of this node - only for an Internal Node
 	 */
 	Node * _child[N_Children];
+	
+	inline void _check_range(std::string wname,double w,double wmin,double wmax,std::string file=__FILE__,int line=__LINE__) {
+		if (w<wmin||w>wmax) {
+			std::stringstream message;
+			message<<file <<" " <<line << " particle " << _particle_index <<":"<<wname <<" out of range: " <<w<< " (" << wmin << "," << wmax << ")";
+			throw  std::logic_error(message.str().c_str());
+		}
+	}
 	
 	/**
 	 *  Mass and centre of mass

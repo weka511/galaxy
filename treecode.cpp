@@ -38,6 +38,7 @@ Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zm
 }
 
 
+
 /**
  * Determine the bounding box for set of particles. Make it slightly 
  * larger than strictly needed, so everything is guaranteed to be inside box
@@ -61,8 +62,13 @@ Node::get_limits(std::vector<Particle*>& particles,double& xmin,double& xmax,dou
 						if (z<zmin) zmin=z;
 						if (z>zmax) zmax=z;
 					});
-	xmin=ymin=zmin=std::min(xmin,std::min(ymin,zmin))*(1+epsilon);  // because Barnes Hut requires cubes
-	xmax=ymax=zmax=std::max(xmax,std::max(ymax,zmax))*(1+epsilon);
+	
+	zmin=std::min(xmin,std::min(ymin,zmin));
+	zmax=std::max(xmax,std::max(ymax,zmax));
+	if (zmin<0) zmin*=(1+epsilon); else zmin/=(1+epsilon);
+	if (zmax<0) zmax/=(1+epsilon); else zmax*=(1+epsilon);
+	xmin=ymin=zmin;
+	xmax=ymax=zmax;
 }
 
 /**
@@ -83,6 +89,14 @@ Node * Node::create(std::vector<Particle*>& particles){
  * Recursively descend until we find an empty node.
  */
 void Node::insert(int new_particle_index,std::vector<Particle*>& particles) {
+
+	#ifdef _RUNTIME_CHECKS
+		double x,y,z; 
+		particles[new_particle_index]->getPos(x,y,z);
+		_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
+		_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
+		_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
+	#endif
 	const double epsilon=1e-12;
 	switch(_particle_index){
 		case Unused:   // we can add particle to Unused Node
@@ -122,7 +136,9 @@ void Node::_insert_or_propagate(int particle_index,int incumbent,std::vector<Par
 	if (child_index_new==child_index_incumbent)
 		_child[child_index_incumbent]->_pass_down(particle_index,incumbent,particles);
 	else {
+		// std::cout << __FILE__ << __LINE__<< std::endl;
 		_child[child_index_new]->insert(particle_index,particles);
+		// std::cout << __FILE__ << __LINE__<< ":" << child_index_incumbent <<std::endl;
 		_child[child_index_incumbent]->insert(incumbent,particles);
 	}
 }
@@ -137,6 +153,15 @@ int Node::_get_child_index(Particle * particle) {
 	const int i=x>_xmean;
 	const int j=y>_ymean;
 	const int k=z>_zmean;
+	// #ifdef _RUNTIME_CHECKS
+		// _check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
+		// _check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
+		// _check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
+		// std::cout <<__FILE__<< " " <<__LINE__ << "x: " <<x << "("<< _xmin <<"," << _xmean << "," << _xmax << ")->"<<i<< std::endl;
+		// std::cout <<__FILE__<< " " <<__LINE__ << "y: " <<y << "("<< _ymin <<"," << _ymean << "," << _ymax << ")->"<<j<< std::endl;
+		// std::cout <<__FILE__<< " " <<__LINE__ << "z: " <<z << "("<< _zmin <<"," << _zmean << "," << _zmax << ")->"<<k<< std::endl;
+		// std::cout <<__FILE__<< " " <<__LINE__<< "   " <<_get_child_index(i,j,k)<<std::endl;
+	// #endif
 	return _get_child_index(i,j,k);
 }
 
@@ -172,6 +197,9 @@ void Node::_split_node() {
 					zmin=_zmean;
 					zmax=_zmax;
 				}
+				// #ifdef _RUNTIME_CHECKS
+					// std::cout << _get_child_index(i,j,k) <<": "<< xmin<<", "<< xmax<<", "<< ymin<<", "<< ymax<<", "<< zmin<<", "<< zmax <<std::endl;
+				// #endif
 				_child[_get_child_index(i,j,k)]=new Node(xmin, xmax, ymin, ymax, zmin, zmax);
 			}	// k
 		}		// j
