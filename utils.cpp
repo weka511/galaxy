@@ -89,7 +89,7 @@ void backup(std::string file_name, std::string backup) {
   */
   std::vector<std::vector<double>> direct_sphere(int d,int n,double mean){
 	  std::default_random_engine generator;
-	  std::normal_distribution<double> gaussian_distribution(mean,1.0);
+	  std::normal_distribution<double> gaussian_distribution(mean,1.0/std::sqrt(d));
 	  std::uniform_real_distribution<double> uniform_distribution(0.0,1.0);
 	  std::vector<std::vector<double>> samples;
 	  for (int i=0;i<n;i++){
@@ -97,12 +97,15 @@ void backup(std::string file_name, std::string backup) {
 		double Sigma=0;
 
 		for (int i=0;i<d;i++){
-			x.push_back(gaussian_distribution(generator));
-			Sigma+=x.back()*x.back();
+			const double xk=gaussian_distribution(generator);
+			x.push_back(xk);
+			Sigma+=xk*xk;
 		}
 
 		const double upsilon=pow(uniform_distribution(generator),1.0/d);
-		std::transform(x.begin(), x.end(), x.begin(),std::bind2nd(std::multiplies<double>(), upsilon/Sigma));
+		for (std::vector<double>::iterator iter =x.begin();iter!=x.end();iter++)
+			(*iter)*=upsilon/std::sqrt(Sigma);
+
 		samples.push_back(x);
 	  }
 
