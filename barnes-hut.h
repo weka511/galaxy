@@ -30,31 +30,61 @@ void get_acceleration(std::vector<Particle*>&,double theta,double G);
 
 
 /**
- *  This class is used to calculate acceleration using the Barnes Hut algorithm
+ *  This class is used to calculate the acceleration of one particle 
+ *  using the Barnes Hut algorithm
  *
  */
 class BarnesHutVisitor :  public Node::Visitor{
   public:
+   /**
+   * Initialize BarnesHutVisitor for a specific particle
+   */
 	BarnesHutVisitor(Particle* me,const double theta, const double G) :
-	  _me(me),_theta2(sqr(theta)),_G(G),_acc_x(0),_acc_y(0),_acc_z(0) {
+	  _me(me),_theta_squared(sqr(theta)),_G(G),_acc_x(0),_acc_y(0),_acc_z(0) {
 		_me->getPos(_x,_y,_z);
 	}
 	
+	/**
+	 * Used to accumulate accelerations for each node
+	 */
 	virtual Node::Visitor::Status visit(Node * node);
 	
-	void store_accelerations(Particle*me);
+	/**
+	 * Used at the end of calculation to store accelerations back into particle
+	 */
+	void store_accelerations();
 	
   private:
+	/**
+	 * Used to add in the contribution to the acceleration from one Node
+	 */
 	void _accumulate_acceleration(double m,double x,double y,double z,double dsq);
-	Particle * _me;
-	const double _theta2;   //Theta squared
 	
+	/**
+	 * The particle whose acceleration is being calculated
+	 */
+	Particle * _me;
+	
+	/**
+	 * Store squared theta to simplify comparisons
+	 */ 
+	const double _theta_squared;
+
+	/**
+	 * Position of the particle whose acceleration is being calculated
+	 */
 	double _x;
 	double _y;
 	double _z;
 	
-	double _G;
+	/**
+	 * Gravitational constant
+	 */
+	const double _G;
 	
+	/**
+	 * We accumulate the acceleration here
+	 */
 	double _acc_x;
 	double _acc_y;
 	double _acc_z;

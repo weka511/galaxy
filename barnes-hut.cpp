@@ -20,9 +20,10 @@
 #include <limits>
 #include <string>
 #include <cmath>
+#include <iostream>
 #include "barnes-hut.h"
 #include "center-of-mass.h"
-#include <iostream>
+#include "physics.h"
 
 /**
  * Calculate acceleration for all particles
@@ -39,39 +40,47 @@ void get_acceleration(std::vector<Particle*>& particles,double theta,double G) {
 				[root,theta,G](Particle*me){
 					BarnesHutVisitor visitor(me,theta,G);
 					root->visit(visitor);
-					visitor.store_accelerations(me);
+					visitor.store_accelerations();
 				});
 	delete root;
 }
 
+/**
+ * Used to accumulate accelerations for each node
+ */
 Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 	const int index= node->getStatus();
 	double m,x,y,z;
 	node->getPhysics(m,x,y,z);
-	double dsq;
+	double dsq_node;
 	switch (node->getStatus()) {
 		case Node::Internal:
-			x/=m;y/=m;z/=m;
-			dsq=sqr(x-_x) + sqr(y-_y) + sqr(z-_z);
-			if (sqr(node->getSide())/dsq<_theta2) {
-				_accumulate_acceleration(m,x,y,z,dsq);
+//			x/=m;y/=m;z/=m;
+			dsq_node=dsq(x,y,z,_x,_y,_z);
+			if (sqr(node->getSide())/dsq_node<_theta_squared) {
+				_accumulate_acceleration(m,x,y,z,dsq_node);
 				return Node::Visitor::Status::Sideways;
 			} else
 				return Node::Visitor::Status::Continue;
 		case Node::Unused:
 			return Node::Visitor::Status::Continue;
-		default: 
-			dsq=sqr(x-_x) + sqr(y-_y) + sqr(z-_z);
-			if (dsq>0)_accumulate_acceleration(m,x,y,z,dsq);
+		default: // External Node
+			dsq_node=dsq(x,y,z,_x,_y,_z);
+			if (dsq_node>0)_accumulate_acceleration(m,x,y,z,dsq_node); // FIXME: find nicer way to avoid accumulating "me"
 			return Node::Visitor::Status::Continue;
 	}
 }
 
-
-void BarnesHutVisitor::store_accelerations(Particle*me) {
-	me->setAcc(_acc_x,_acc_y,_acc_z);
+/**
+ * Used at the end of calculation to store accelerations back into particle
+ */
+void BarnesHutVisitor::store_accelerations() {
+	_me->setAcc(_acc_x,_acc_y,_acc_z);
 }
 
+	/**
+	 * Used to add in the contribution to the acceleration from one Node
+	 */
 void BarnesHutVisitor::_accumulate_acceleration(double m,double x,double y,double z,double dsq){
 	const double d_factor=pow(dsq,-3/2);
 	_acc_x+=_G*m*(x-_x)*d_factor;

@@ -6,7 +6,8 @@
 [project attributes]
 proj.file-list = [loc('make_3d.py'),
                   loc('make_img.py'),
-                  loc('plot_orbits.py')]
+                  loc('plot_orbits.py'),
+                  loc('README.md')]
 proj.file-type = 'normal'
 proj.launch-config = {loc('make_3d.py'): ('project',
         (u'-n 3 -c -s lagrange.csv',
@@ -24,7 +25,7 @@ debug.recent-run-args = {loc('make_3d.py'): [u'-n 3 -c -s lagrange.csv',
 guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                             'windows': [{'name': 'dtaAtJloNhSft7SabFzspl0xqE'\
         'mVIDbK',
-        'size-state': '',
+        'size-state': 'iconified',
         'type': 'dock',
         'view': {'area': 'tall',
                  'constraint': None,
