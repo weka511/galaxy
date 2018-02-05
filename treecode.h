@@ -39,13 +39,28 @@ class Node {
 	  static int _count;
 	  
 	  /**
-	   *  Used to traverse tree.
+	   *  Used to traverse tree depth first
 	   */
 	  class Visitor {
 		public:
-			enum Status{Stop, Continue, Sideways};
+			enum Status{
+				Stop,     // abandon the traversal
+				Continue, // keep traversing
+				DontDescend // do not vist any more children of this node
+			};
+			/**
+			 * Called once for each node in tree, before any children are processed
+			 */
 			virtual Status visit(Node * node)=0;
+			
+			/**
+			 *  Called once for each child Node, immediately after vist
+			 */
 			virtual void propagate(Node * node,Node * child){;}
+			
+			/**
+			 *  Called once for each Internal Node, after all children have been visited
+			 */
 			virtual bool depart(Node * node) {return true;};
 	  };
 	  

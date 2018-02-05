@@ -49,24 +49,26 @@ void get_acceleration(std::vector<Particle*>& particles,double theta,double G) {
  * Used to accumulate accelerations for each node
  */
 Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
-	const int index= node->getStatus();
 	double m,x,y,z;
 	node->getPhysics(m,x,y,z);
 	double dsq_node;
 	switch (node->getStatus()) {
 		case Node::Internal:
-//			x/=m;y/=m;z/=m;
 			dsq_node=dsq(x,y,z,_x,_y,_z);
+			/*
+			 * Is this node are enough away that its particles can be lumped?
+			 */
 			if (sqr(node->getSide())/dsq_node<_theta_squared) {
 				_accumulate_acceleration(m,x,y,z,dsq_node);
-				return Node::Visitor::Status::Sideways;
+				return Node::Visitor::Status::DontDescend;
 			} else
 				return Node::Visitor::Status::Continue;
 		case Node::Unused:
 			return Node::Visitor::Status::Continue;
 		default: // External Node
 			dsq_node=dsq(x,y,z,_x,_y,_z);
-			if (dsq_node>0)_accumulate_acceleration(m,x,y,z,dsq_node); // FIXME: find nicer way to avoid accumulating "me"
+			if (dsq_node>0)   // FIXME: find nicer way to avoid accumulating "me"
+				_accumulate_acceleration(m,x,y,z,dsq_node); 
 			return Node::Visitor::Status::Continue;
 	}
 }

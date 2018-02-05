@@ -196,14 +196,23 @@ void Node::_split_node() {
  * Traverse Tree. The Visitor decides whether we continue all the way down.
  */
 bool Node::visit(Visitor & visitor) {
-	Node::Visitor::Status status=visitor.visit(this);
-	bool should_continue=status != Node::Visitor::Status::Stop;
-	if (_particle_index==Internal && status==Node::Visitor::Status::Continue)
-		for (int i=0;i<N_Children&&should_continue;i++) {
-			should_continue=_child[i]->visit(visitor);
-			visitor.propagate(this,_child[i]);
+	switch (visitor.visit(this)) {
+		case Node::Visitor::Stop:
+			return false;
+		case Node::Visitor::Continue:
+			if (_particle_index==Internal){
+				bool should_continue=true;
+				for (int i=0;i<N_Children&&should_continue;i++) {
+					should_continue=_child[i]->visit(visitor);
+					visitor.propagate(this,_child[i]);
+				}
+				return should_continue ? visitor.depart(this) : false;		
+			}  else
+				return true;
+
+		case Node::Visitor::DontDescend:
+			return true;
 	}
-	return should_continue ? visitor.depart(this) : false;
 }
 
 /**
@@ -212,15 +221,9 @@ bool Node::visit(Visitor & visitor) {
  */
 void Node::accumulatePhysics(Node* other) {
 	_m+=other->_m;
-	// if (  other->getStatus() >=0) {  // External Node
-		_x += other->_m * other->_x;
-		_y += other->_m * other->_y;
-		_z += other->_m * other->_z;
-	// } else {                         //Internal Node
-		// _x += other->_x;
-		// _y += other->_y;
-		// _z += other->_z;
-	// }
+	_x += other->_m * other->_x;
+	_y += other->_m * other->_y;
+	_z += other->_m * other->_z;
 }
 
 /**
