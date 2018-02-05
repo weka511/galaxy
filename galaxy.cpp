@@ -197,13 +197,10 @@ bool report_configuration(std::vector<Particle*> particles,int iter) {
         const double x     = (*it)[0] * ini_radius;
         const double y     = (*it)[1] * ini_radius ;
 		const double z     = flat_flag==0 ? (*it)[2] * ini_radius :0;
-        const double rx    = x-0.5;
-        const double ry    = y-0.5;
-		const double rz    = flat_flag==0 ? z-0.5 : 0;
-        const double rnorm = std::sqrt(sqr(rx)+sqr(ry)+sqr(rz));
-        const double vx    = -ry * inivel * rnorm / ini_radius;
-        const double vy    =  rx * inivel * rnorm / ini_radius;
-		const double vz    = flat_flag==0 ? (std::rand()%2==0 ? rx : -rx) : 0;
+        const double rnorm = std::sqrt(sqr(x)+sqr(y)+sqr(z));
+        const double vx    = -y * inivel * rnorm / ini_radius;
+        const double vy    =  x * inivel * rnorm / ini_radius;
+		const double vz    = flat_flag==0 ? (std::rand()%2==0 ? x : -x) : 0;
         product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
     }
 	std::cout<<__FILE__ <<", " <<__LINE__<< ": Initialized " << numbodies << " bodies"<<std::endl;
