@@ -21,6 +21,9 @@
 #include <sstream>
 #include <vector>
 #include <stdexcept>
+#ifdef _RUNTIME_CHECKS
+	#include <string>
+#endif
 #include "particle.h"
 
 /**
@@ -74,12 +77,15 @@ class Node {
 	 *   Used to ensure we have an octree
 	 */
 	enum {N_Children=8};
-	 
+
 	/**
 	 *  Create one node for tree
-	 */
-    Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax);
-	
+	 */	
+	#ifdef _RUNTIME_CHECKS
+		Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,std::string id);
+	#else
+		Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax);
+	#endif
 	/**
 	 * Insert one particle in tree
 	 */
@@ -143,6 +149,8 @@ class Node {
 				double& ymin,double& ymax,
 				double& zmin,double& zmax,
 				const double epsilon=0.0001);
+	
+	std::string _id;
 	
   private:
 	

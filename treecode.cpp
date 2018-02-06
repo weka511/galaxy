@@ -27,15 +27,30 @@ int Node::_count=0;
 /**
  * Create a Node for a given region of space. Set it unused until it has been added to Tree,
  */
-Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax)
-  : _particle_index(Unused),
-	_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
-	_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)),
-	_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d) {
-	for (int i=0;i<N_Children;i++)
-		_child[i]=NULL;
-	_count++;
-}
+ 
+#ifdef _RUNTIME_CHECKS
+	Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,std::string id)
+	  : _particle_index(Unused),
+		_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
+		_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)),
+		_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d),
+		_id(id) {
+		for (int i=0;i<N_Children;i++)
+			_child[i]=NULL;
+		_count++;
+	}
+#else
+	Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax)
+	  : _particle_index(Unused),
+		_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
+		_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)),
+		_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d) {
+		for (int i=0;i<N_Children;i++)
+			_child[i]=NULL;
+		_count++;
+	}	
+#endif
+
 
 
 
@@ -77,7 +92,11 @@ Node::get_limits(std::vector<Particle*>& particles,double& xmin,double& xmax,dou
 Node * Node::create(std::vector<Particle*>& particles){
 	double xmin, xmax, ymin, ymax, zmin, zmax;
 	Node::get_limits(particles,xmin, xmax, ymin, ymax, zmin, zmax);
-	Node * product=new Node(xmin,xmax,ymin,ymax,zmin,zmax);
+	#ifdef _RUNTIME_CHECKS
+		Node * product=new Node(xmin,xmax,ymin,ymax,zmin,zmax,"0");
+	#else
+		Node * product=new Node(xmin,xmax,ymin,ymax,zmin,zmax);
+	#endif
 	for (int index=0;index<particles.size();index++)
 		product->insert(index,particles);
 	return product;
@@ -186,7 +205,13 @@ void Node::_split_node() {
 					zmin=_zmean;
 					zmax=_zmax;
 				}
-				_child[_get_child_index(i,j,k)]=new Node(xmin, xmax, ymin, ymax, zmin, zmax);
+				#ifdef _RUNTIME_CHECKS
+					std::stringstream ss;
+					ss<<_id<<_get_child_index(i,j,k);
+					_child[_get_child_index(i,j,k)]=new Node(xmin, xmax, ymin, ymax, zmin, zmax,ss.str().c_str());
+				#else
+					_child[_get_child_index(i,j,k)]=new Node(xmin, xmax, ymin, ymax, zmin, zmax);
+				#endif
 			}	// k
 		}		// j
 	}			// i
