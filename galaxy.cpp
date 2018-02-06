@@ -131,6 +131,10 @@ double config_version=0.0;
  */
 int max_digits_config=5;
 
+double  E0 =0; // initial energy
+
+double energy_error=0;  //largest discrepancy in energy
+
 /**
  * Main program. Parse command line options, create bodies, then run simulation.
  */
@@ -141,12 +145,14 @@ int main(int argc, char **argv) {
 		max_digits_config = std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
 		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
 		report_all(particles,0);
+		E0 = get_energy(particles,G);
 		try {
 			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,theta,G);},
 						max_iter,
 						dt,
 						particles,
 						&report_all);
+			std::cout << "Energy Error=" << energy_error << ", " <<(int)(100*energy_error/abs(E0)) << "%" <<std::endl;
 		} catch(const std::logic_error& e) {
 			std::cout << e.what() << std::endl;
 		}
@@ -183,7 +189,10 @@ void report_energy(std::vector<Particle*> particles,int iter) {
 		get_angular_momentum(particles,lx,ly,lz);
 		std::cout << "Angular momentum=(" <<lx << "," <<ly<<"," <<lz<<")"<<std::endl;
 		
-		std::cout << "Energy " << get_energy(particles,G) << std::endl;
+		const double E=get_energy(particles,G);
+		std::cout << "Energy " << E << std::endl;
+		if (abs(E-E0)>energy_error)
+			energy_error=abs(E-E0);
 	}
 }
 
