@@ -225,10 +225,39 @@ void report_configuration(std::vector<Particle*> particles,int iter) {
 		const double vz    = flat_flag==0 ? (std::rand()%2==0 ? 0.1*vx : -0.1*vx) : 0;
         product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
     }
-	std::cout<<__FILE__ <<", " <<__LINE__<< ": Initialized " << numbodies << " bodies"<<std::endl;
+	zero_centre_mass_and_linear_momentum(product);
 	return product;
  }
  
+ 
+/**
+ * Set centre of mass and total linear momentum to (0,0,0) by adjusting
+ * the position and velocity of each point
+ */
+ void zero_centre_mass_and_linear_momentum(std::vector<Particle*> particles) {
+	double x0,y0,z0;
+	get_centre_of_mass(particles,x0,y0,z0);
+
+	double total_mass=0;
+	for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {
+		double x,y,z;
+		(*it)->getPos(x,y,z);
+		x-=x0;y-=y0;z-=z0;
+		(*it)->setPos(x,y,z);
+		total_mass+=(*it)->getMass();
+	}
+	
+	double px0,py0,pz0;
+	get_momentum(particles,px0,py0,pz0);
+	for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {	
+		double vx,vy,vz;
+		(*it)->getVel(vx,vy,vz);
+		vx-=px0/total_mass;vy-=py0/total_mass;vz-=pz0/total_mass;
+		(*it)->setVel(vx,vy,vz);
+	}
+
+	std::cout<<__FILE__ <<", " <<__LINE__<< ": Initialized " << numbodies << " bodies"<<std::endl;
+ }
  
 /**
  *  Process command line options. Returns `true` iff execution is to continue.

@@ -49,7 +49,12 @@ void help();
   * Write out energy and other conserved quantities
   */
 void report_energy(std::vector<Particle*> particles,int iter);
- 
+
+/**
+ * Set centre of mass and total linear momentum to (0,0,0)
+ */
+void zero_centre_mass_and_linear_momentum(std::vector<Particle*> particles);
+
  //----------------------------------------------------------------------------------------------------
  
  /**
