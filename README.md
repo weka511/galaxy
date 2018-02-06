@@ -3,7 +3,9 @@
 Implementation of the [Barnes Hut](https://en.wikipedia.org/wiki/Barnes%E2%80%93Hut_simulation) algorithm
 to simulate the evolution of a galaxy.
 
-## Disclaimer: this code is under test, and should not be relied on.
+## Disclaimer
+
+This code is under test, and should not be relied on. See [Implementation Notes](notes)
 
 ## Contents
 
@@ -26,9 +28,10 @@ to simulate the evolution of a galaxy.
 | utils.cpp | utils.h | Assorted utility functions|
 | verlet.cpp | verlet.h | [Verlet "leapfrog"](http://physics.ucsc.edu/~peter/242/leapfrog.pdf) integrator|
 
-## Implementation Notes
+## <a name="notes"> Implementation Notes
 
 |  Date | Remarks |
 |------------|--------------------------------------------------------------------|
 |31_Jan_2018| Program segfaults. Turn off Barnes-Hut and try some easy test cases, e.g. Kepler, Lagrange points, and a resonance |
 | 4_Feb_2018| Traced problem to acceleration calcs: when we figure out force on a particular particle we included the particle itself. This has been corrected, but [the fix is a kludge, so some work still needs to be done](https://github.com/weka511/galaxy/issues/2).<br>_Particles are diverging,_ is the initial velocity too high?|
+| 6_feb_2018 | Reset centre of mass and linear momentum to (0,0,0) at start of run, and checked code. Configuration still drifts. Need to construct simplest possible case that exhibits error. | 
