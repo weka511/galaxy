@@ -52,13 +52,15 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 	double m,x,y,z;
 	node->getPhysics(m,x,y,z);
 	double dsq_node;
+	double l_sqr;
 	switch (node->getStatus()) {
 		case Node::Internal:
 			dsq_node=dsq(x,y,z,_x,_y,_z);
 			/*
 			 * Is this node are enough away that its particles can be lumped?
 			 */
-			if (sqr(node->getSide())/dsq_node<_theta_squared) {
+			l_sqr=sqr(node->getSide());
+			if (l_sqr/dsq_node<_theta_squared) {
 				_accumulate_acceleration(m,x,y,z,dsq_node);
 				return Node::Visitor::Status::DontDescend;
 			} else

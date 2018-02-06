@@ -125,9 +125,9 @@ class Node {
 	void accumulatePhysics(Node* other);
 
 	/**
-	 * Determine length of side: since Node is a cube, and side will do
+	 * Determine length of side: since Node is a cube, any side will do
 	 */
-	double getSide() {return _xmax - _xmin;}
+	inline double getSide() {return _xmax - _xmin;}
 	
 	/**
 	 * Bounding box for Node. This will be subdivided as we move down the tree
