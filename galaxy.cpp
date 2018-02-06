@@ -133,7 +133,7 @@ int max_digits_config=5;
 
 double  E0 =0; // initial energy
 
-double energy_error=0;  //largest discrepancy in energy
+double maximum_energy_error=0;  //largest discrepancy in energy
 
 /**
  * Main program. Parse command line options, create bodies, then run simulation.
@@ -152,7 +152,8 @@ int main(int argc, char **argv) {
 						dt,
 						particles,
 						&report_all);
-			std::cout << "Energy Error=" << energy_error << ", " <<(int)(100*energy_error/abs(E0)) << "%" <<std::endl;
+			if (check_energy>0 )
+				std::cout << "Energy Error=" << maximum_energy_error << ", " <<(int)(100*maximum_energy_error/abs(E0)) << "%" <<std::endl;
 		} catch(const std::logic_error& e) {
 			std::cout << e.what() << std::endl;
 		}
@@ -174,25 +175,28 @@ bool report_all(std::vector<Particle*> particles,int iter){
   * Write out energy and other conserved quantities
   */
 void report_energy(std::vector<Particle*> particles,int iter) {
-	if (check_energy>0 && iter%check_energy==0) {
-		std::cout << "Conserved quantities for iteration " << iter << std::endl;
-		
-		double x0,y0,z0;
-		get_centre_of_mass(particles,x0,y0,z0);
-		std::cout << "Centre of mass=(" <<x0 << "," <<y0<<"," <<z0<<")"<<std::endl;	
-		
-		double px,py,pz;
-		get_momentum(particles,px,py,pz);
-		std::cout << "Momentum=(" <<px << "," <<py<<"," <<pz<<")"<<std::endl;
-		
-		double lx,ly,lz;
-		get_angular_momentum(particles,lx,ly,lz);
-		std::cout << "Angular momentum=(" <<lx << "," <<ly<<"," <<lz<<")"<<std::endl;
-		
-		const double E=get_energy(particles,G);
-		std::cout << "Energy " << E << std::endl;
-		if (abs(E-E0)>energy_error)
-			energy_error=abs(E-E0);
+		if (check_energy>0 ) {
+			const double E=get_energy(particles,G);
+			if (abs(E-E0)>maximum_energy_error)	
+				maximum_energy_error=abs(E-E0);
+			
+			if (iter%check_energy==0) {
+			std::cout << "Conserved quantities for iteration " << iter << std::endl;
+			
+			double x0,y0,z0;
+			get_centre_of_mass(particles,x0,y0,z0);
+			std::cout << "Centre of mass=(" <<x0 << "," <<y0<<"," <<z0<<")"<<std::endl;	
+			
+			double px,py,pz;
+			get_momentum(particles,px,py,pz);
+			std::cout << "Momentum=(" <<px << "," <<py<<"," <<pz<<")"<<std::endl;
+			
+			double lx,ly,lz;
+			get_angular_momentum(particles,lx,ly,lz);
+			std::cout << "Angular momentum=(" <<lx << "," <<ly<<"," <<lz<<")"<<std::endl;
+			
+			std::cout << "Energy " << E << std::endl;
+		}
 	}
 }
 

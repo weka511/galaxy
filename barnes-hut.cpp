@@ -82,9 +82,11 @@ void BarnesHutVisitor::store_accelerations() {
 	_me->setAcc(_acc_x,_acc_y,_acc_z);
 }
 
-	/**
-	 * Used to add in the contribution to the acceleration from one Node
-	 */
+/**
+ * Used to add in the contribution to the acceleration from one Node
+ * NB: there is a new instance of the visitor for each particle, so
+ * acceleration is always zero at the start.
+ */
 void BarnesHutVisitor::_accumulate_acceleration(double m,double x,double y,double z,double dsq){
 	const double d_factor=pow(dsq,-3/2);
 	_acc_x+=_G*m*(x-_x)*d_factor;
