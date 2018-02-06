@@ -160,7 +160,8 @@ int main(int argc, char **argv) {
 */
 bool report_all(std::vector<Particle*> particles,int iter){
 	report_energy(particles,iter);
-	return report_configuration(particles,iter);
+	report_configuration(particles,iter);
+	return !killed();
 }
 
 /**
@@ -218,9 +219,10 @@ bool report_configuration(std::vector<Particle*> particles,int iter) {
         const double y     = (*it)[1] * ini_radius ;
 		const double z     = flat_flag==0 ? (*it)[2] * ini_radius :0;
         const double rnorm = std::sqrt(sqr(x)+sqr(y)+sqr(z));
-        const double vx    = -y * inivel * rnorm / ini_radius;
-        const double vy    =  x * inivel * rnorm / ini_radius;
-		const double vz    = flat_flag==0 ? (std::rand()%2==0 ? x : -x) : 0;
+		const double v     = 2*M_PI/std::sqrt(rnorm*rnorm*rnorm);
+        const double vx    = -y *v;
+        const double vy    =  x *v;
+		const double vz    = flat_flag==0 ? (std::rand()%2==0 ? 0.1*vx : -0.1*vx) : 0;
         product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
     }
 	std::cout<<__FILE__ <<", " <<__LINE__<< ": Initialized " << numbodies << " bodies"<<std::endl;
