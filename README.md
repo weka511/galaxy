@@ -5,7 +5,7 @@ to simulate the evolution of a galaxy.
 
 ## Disclaimer
 
-This code is under test, and should not be relied on. See [Implementation Notes](notes)
+This code is under test, and should not be relied on. See [Implementation Notes](#notes)
 
 ## Contents
 
