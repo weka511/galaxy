@@ -190,7 +190,7 @@ void report_energy(std::vector<Particle*> particles,int iter) {
 /**
   * Write out configuration
   */
-bool report_configuration(std::vector<Particle*> particles,int iter) {
+void report_configuration(std::vector<Particle*> particles,int iter) {
 	if (iter%img_iter==0) {
 		std::cout << "Writing configuration for iteration " << iter << std::endl;
 		std::stringstream file_name;
@@ -203,7 +203,7 @@ bool report_configuration(std::vector<Particle*> particles,int iter) {
 		}
 		ofile.close();
 	}
-	return true;
+
 }
 
  /**
