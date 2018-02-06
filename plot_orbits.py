@@ -14,10 +14,14 @@
  You should have received a copy of the GNU General Public License
  along with this software.  If not, see <http://www.gnu.org/licenses/>
 
- Companion to galaxy.cpp - plot orbits of randomly selected stars
+ Companion to galaxy.exe - plot orbits of randomly selected stars
 '''
 import os, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d,random
 
+def get_limits(bodies,n=1):
+    m=np.mean(bodies)
+    sigma=np.std(bodies)
+    return (m-n*sigma,m+n*sigma)
 
 '''
 Plot orbits
@@ -27,15 +31,27 @@ Plot orbits
         selector  Used to selectd which points will be plotted
         colours   Colours used to distinguish orbits
 '''
-def plot(data,selector=[],colours=['r','g','b','m','c','y']):
+def plot(data,selector=[],colours=['r','g','b','m','c','y'],n=2):
     def get_coordinates(body,i):
         return [d[body][i] for d in data]
     plt.figure(figsize=(20,20)) 
     ax = plt.gcf().add_subplot(111,  projection='3d')
+    xs=[]
+    ys=[]
+    zs=[]
     for body in range(len(data[0])):
-        ax.scatter(get_coordinates(body,0),get_coordinates(body,1),get_coordinates(body,2),edgecolor=colours[body%len(colours)],s=1) 
+        ax.plot(get_coordinates(body,0),get_coordinates(body,1),get_coordinates(body,2),c=colours[body%len(colours)]) 
         ax.scatter(get_coordinates(body,0)[0],get_coordinates(body,1)[0],get_coordinates(body,2)[0],c=colours[body%len(colours)],
-                       label="Body: {0}".format(selector[body]),s=50,marker='x')        
+                       label="Body: {0}".format(selector[body]),s=50,marker='x')
+        xs.append(get_coordinates(body,0))
+        ys.append(get_coordinates(body,1))
+        zs.append(get_coordinates(body,2))
+    x0,x1=get_limits(xs,n=n)
+    ax.set_xlim(x0,x1)
+    y0,y1=get_limits(xs,n=n)
+    ax.set_ylim(y0,y1)
+    z0,z1=get_limits(xs,n=n)
+    ax.set_zlim(z0,z1)
     plt.legend(loc='best')
     plt.title('Orbits of randomly selected stars')
     plt.savefig('orbits.png')
@@ -70,7 +86,7 @@ def extract(config_path = './configs/',selector=[0,1,2,55,100,400],maxsamples=10
 
 if __name__=='__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='Plot orbits from Barnes Hut Galaxy Simulator, galax')
+    parser = argparse.ArgumentParser(description='Plot orbits from Barnes Hut Galaxy Simulator, galaxy.exe')
     parser.add_argument('--bodies','-b', type=int,action='store',
                         help='Number of bodies from simulation',default=1000)    
     parser.add_argument('--norbits','-n', type=int,action='store',
@@ -82,10 +98,12 @@ if __name__=='__main__':
     parser.add_argument('--suffix','-s', action='store',
                         help='Suffix for configuration files',default='csv') 
     parser.add_argument('--delimiter','-d', action='store',
-                        help='Delimiter for fields in config file',default=',')     
+                        help='Delimiter for fields in config file',default=',')
+    parser.add_argument('--nsigma','-g', type=int,action='store',
+                        help='Number of standard deviations to use for scaling',default=3)    
     args = parser.parse_args()    
     selector=random.sample(range(args.bodies),args.norbits) 
     data=extract(selector=selector,maxsamples=args.maxsamples,prefix=args.prefix,suffix=args.suffix,delimiter=args.delimiter)
-    plot(data,selector=selector)
+    plot(data,selector=selector,n=args.nsigma)
     plt.show()
   
