@@ -15,6 +15,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
+#include <chrono>
+#include <ctime>
 #include <vector>
 #include <iomanip>
 #include <iostream>
@@ -137,15 +139,21 @@ double  E0 =0; // initial energy
 
 double maximum_energy_error=0;  //largest discrepancy in energy
 
-double softening_length=0.0001;
+double softening_length=0.0001;  // Used to handle collisions
+
+std::ofstream logfile;
 
 /**
  * Main program. Parse command line options, create bodies, then run simulation.
  */
 int main(int argc, char **argv) {
-
+	logfile.open("galaxy.log", std::ios_base::app);
+	auto start = std::chrono::system_clock::now();
+	std::time_t start_time = std::chrono::system_clock::to_time_t(start);
+    logfile << "Started at " << std::ctime(&start_time)<<std::endl;
+	
 	if (extract_options(argc,argv)) {
-		std::system("rm configs/*");
+		std::system("rm configs/*");  // Issue #5 - remove old config files
 		const int max_imgs=std::ceil(((double)max_iter)/img_iter);
 		max_digits_config = std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
 		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
@@ -158,12 +166,21 @@ int main(int argc, char **argv) {
 						particles,
 						&report_all);
 			if (check_energy>0 )
-				std::cout << "Energy Error=" << maximum_energy_error << ", " <<(int)(100*maximum_energy_error/abs(E0)) << "%" <<std::endl;
+				logfile << "Energy Error=" << maximum_energy_error << ", " <<(int)(100*maximum_energy_error/abs(E0)) << "%" <<std::endl;
 		} catch(const std::logic_error& e) {
 			std::cout << e.what() << std::endl;
+			logfile << e.what() << std::endl;
 		}
 	}
 	
+	auto end = std::chrono::system_clock::now();
+ 
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+ 
+    logfile << "finished computation at " << std::ctime(&end_time)
+              << "elapsed time: " << elapsed_seconds.count() << "s\n";
+			  
 	return EXIT_SUCCESS;
 }
 
@@ -180,27 +197,26 @@ bool report_all(std::vector<Particle*> particles,int iter){
   * Write out energy and other conserved quantities
   */
 void report_energy(std::vector<Particle*> particles,int iter) {
-		if (check_energy>0 ) {
-			const double E=get_energy(particles,G,softening_length);
-			if (abs(E-E0)>maximum_energy_error)	
-				maximum_energy_error=abs(E-E0);
-			
-			if (iter%check_energy==0) {
-			std::cout << "Conserved quantities for iteration " << iter << std::endl;
-			
+	if (check_energy>0 ) {
+		const double E=get_energy(particles,G,softening_length);
+		if (abs(E-E0)>maximum_energy_error)	
+			maximum_energy_error=abs(E-E0);
+		
+		if (iter%check_energy==0) {
+			logfile << "Conserved quantities for iteration " << iter << std::endl;
 			double x0,y0,z0;
 			get_centre_of_mass(particles,x0,y0,z0);
-			std::cout << "Centre of mass=(" <<x0 << "," <<y0<<"," <<z0<<")"<<std::endl;	
+			logfile << "Centre of mass=(" <<x0 << "," <<y0<<"," <<z0<<")"<<std::endl;	
 			
 			double px,py,pz;
 			get_momentum(particles,px,py,pz);
-			std::cout << "Momentum=(" <<px << "," <<py<<"," <<pz<<")"<<std::endl;
+			logfile << "Momentum=(" <<px << "," <<py<<"," <<pz<<")"<<std::endl;
 			
 			double lx,ly,lz;
 			get_angular_momentum(particles,lx,ly,lz);
-			std::cout << "Angular momentum=(" <<lx << "," <<ly<<"," <<lz<<")"<<std::endl;
+			logfile << "Angular momentum=(" <<lx << "," <<ly<<"," <<lz<<")"<<std::endl;
 			
-			std::cout << "Energy " << E << std::endl;
+			logfile << "Energy " << E << std::endl;
 		}
 	}
 }
@@ -228,7 +244,7 @@ void report_configuration(std::vector<Particle*> particles,int iter) {
   * Create all bodies needed at start of run
   */
  std::vector<Particle*>  createParticles(int numbodies,double inivel,double ini_radius,double mass ){
-	std::cout<<__FILE__ <<", " <<__LINE__<< ": Initializing " << numbodies << " bodies, radius=" <<ini_radius<< std::endl;
+	logfile<<__FILE__ <<", " <<__LINE__<< ": Initializing " << numbodies << " bodies, radius=" <<ini_radius<< std::endl;
 	std::vector<std::vector<double>> positions=direct_sphere(3,numbodies);
 	std::vector<Particle*> product;
 	
@@ -274,7 +290,7 @@ void report_configuration(std::vector<Particle*> particles,int iter) {
 		(*it)->setVel(vx,vy,vz);
 	}
 
-	std::cout<<__FILE__ <<", " <<__LINE__<< ": Initialized " << numbodies << " bodies"<<std::endl;
+	logfile<<__FILE__ <<", " <<__LINE__<< ": Initialized " << numbodies << " bodies"<<std::endl;
  }
  
 /**
