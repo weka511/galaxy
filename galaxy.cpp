@@ -388,7 +388,7 @@ bool extract_options(int argc, char **argv) {
   * Generate help text
   */
 void help() {
-	std::cout << "Galaxy Simulator based on Barnes Hut code from University of Geneva." << std::endl<<std::endl;
+	std::cout << "Galaxy Simulator based on Barnes Hut algorithm." << std::endl<<std::endl;
 	std::cout << "Parameters, showing default values" <<std::endl;
 	std::cout << "\t-c,--config\t\tConfiguration file [" << config_file_name<<"]"<< std::endl;
 	std::cout << "\t-d,--dt\t\tTime Step for Integration [" << dt<<"]"<< std::endl;
