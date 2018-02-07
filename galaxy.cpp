@@ -25,6 +25,7 @@
 #include <getopt.h>
 #include <algorithm>
 #include <stdexcept>
+#include <stdlib.h> 
 #include "barnes-hut.h"
 #include "galaxy.h"
 #include "center-of-mass.h"
@@ -144,6 +145,7 @@ double softening_length=0.0001;
 int main(int argc, char **argv) {
 
 	if (extract_options(argc,argv)) {
+		std::system("rm configs/*");
 		const int max_imgs=std::ceil(((double)max_iter)/img_iter);
 		max_digits_config = std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
 		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
