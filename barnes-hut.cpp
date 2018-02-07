@@ -29,7 +29,7 @@
  * Calculate acceleration for all particles
  */
  
-void get_acceleration(std::vector<Particle*>& particles,double theta,double G) {
+void get_acceleration(std::vector<Particle*>& particles,const double theta,const double G,const double softening_length) {
 	assert(Node::_count==0);   // Tree should have been removed at end of previous call
 	Node * root=Node::create(particles);
 	CentreOfMassCalculator calculator(particles);
@@ -37,8 +37,8 @@ void get_acceleration(std::vector<Particle*>& particles,double theta,double G) {
 	calculator.check_all_paticles_processed();
 	std::for_each(particles.begin(),
 				particles.end(),
-				[root,theta,G](Particle*me){
-					BarnesHutVisitor visitor(me,theta,G);
+				[root,theta,G,softening_length](Particle*me){
+					BarnesHutVisitor visitor(me,theta,G,softening_length);
 					root->visit(visitor);
 					visitor.store_accelerations();
 				});
@@ -88,7 +88,7 @@ void BarnesHutVisitor::store_accelerations() {
  * acceleration is always zero at the start.
  */
 void BarnesHutVisitor::_accumulate_acceleration(double m,double x,double y,double z,double dsq){
-	const double d_factor=pow(dsq,-3/2);
+	const double d_factor=pow(dsq+_softening_length_sq,-3/2);
 	_acc_x+=_G*m*(x-_x)*d_factor;
 	_acc_y+=_G*m*(y-_y)*d_factor;
 	_acc_z+=_G*m*(z-_z)*d_factor;

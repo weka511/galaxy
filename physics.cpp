@@ -57,8 +57,8 @@ void get_acceleration_between_pair(Particle* p1,Particle* p2,double G) {
 /**
  *  Calculate total energy for a system of particles
  */
-double get_energy(std::vector<Particle*> particles,double G) {
-	return get_kinetic_energy(particles) + get_potential_energy(particles,G);
+double get_energy(std::vector<Particle*> particles,const double G,const double softening_length) {
+	return get_kinetic_energy(particles) + get_potential_energy(particles,G,softening_length);
 }
 
 /**
@@ -77,7 +77,7 @@ double get_kinetic_energy(std::vector<Particle*> particles) {
 /**
  *  Calculate gravitational potential energy for a system of particles
  */
-double get_potential_energy(std::vector<Particle*> particles,double G) {
+double get_potential_energy(std::vector<Particle*> particles,const double G,const double softening_length) {
 	double sum=0;
 	for (int i=1;i<particles.size();i++) {
 		double x0,y0,z0;
@@ -87,7 +87,7 @@ double get_potential_energy(std::vector<Particle*> particles,double G) {
 			double x1,y1,z1;
 			particles[j]->getPos(x1,y1,z1);
 			const double m1=particles[j]->getMass();
-			sum+=m0*m1/sqrt(dsq(x0,y0,z0,x1,y1,z1));
+			sum+=m0*m1/sqrt(dsq(x0,y0,z0,x1,y1,z1)+sqr(softening_length));
 		}
 	}
 	return -G*sum;

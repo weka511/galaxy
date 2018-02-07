@@ -57,6 +57,7 @@ struct option long_options[] = {
 	{"resume", 			no_argument,       	&resume_flag, 	1},
 	{"theta",  			required_argument, 	0, 				't'},
 	{"inivel",  		required_argument, 	0, 				'v'},
+	{"soften",  		required_argument, 	0, 				'f'},
 	{0, 				0, 					0, 				0}
 };	
 
@@ -135,6 +136,8 @@ double  E0 =0; // initial energy
 
 double maximum_energy_error=0;  //largest discrepancy in energy
 
+double softening_length=0.0001;
+
 /**
  * Main program. Parse command line options, create bodies, then run simulation.
  */
@@ -145,9 +148,9 @@ int main(int argc, char **argv) {
 		max_digits_config = std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
 		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
 		report_all(particles,0);
-		E0 = get_energy(particles,G);
+		E0 = get_energy(particles,G,softening_length);
 		try {
-			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,theta,G);},
+			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,theta,G,softening_length);},
 						max_iter,
 						dt,
 						particles,
@@ -176,7 +179,7 @@ bool report_all(std::vector<Particle*> particles,int iter){
   */
 void report_energy(std::vector<Particle*> particles,int iter) {
 		if (check_energy>0 ) {
-			const double E=get_energy(particles,G);
+			const double E=get_energy(particles,G,softening_length);
 			if (abs(E-E0)>maximum_energy_error)	
 				maximum_energy_error=abs(E-E0);
 			
@@ -279,7 +282,7 @@ bool extract_options(int argc, char **argv) {
 	int option_index = 0;
 	int c;
 	
-	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:m:n:p:r:Ss:t:v:",long_options, &option_index)) != -1)
+	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:m:n:p:r:Ss:t:v:f:",long_options, &option_index)) != -1)
     switch (c){
 		case 'c':{
 			std::stringstream param(optarg);
@@ -302,6 +305,13 @@ bool extract_options(int argc, char **argv) {
 			break;
 		}
 		
+		case 'f':{
+			std::stringstream param(optarg);
+			param>>softening_length;
+			std::cout<<"Softening Length="<<softening_length<<std::endl;
+			break;
+		}
+			
 		case 'G':{
 			std::stringstream param(optarg);
 			param>>G;
@@ -394,6 +404,7 @@ void help() {
 	std::cout << "\t-d,--dt\t\tTime Step for Integration [" << dt<<"]"<< std::endl;
 	std::cout << "\t-e,--check_energy\tCheck total energy every `check_energy` iterations[don't check]"<< std::endl;
 	std::cout << "\t--flat\t\tUsed to set z to origin for 3D only"<< std::endl;
+	std::cout << "\t-f,--soften\tSoftening Length[" << softening_length << "]"<<std::endl;
 	std::cout << "\t-G,--G\t\tGravitational Constant [" << G << "]"<<std::endl;
 	std::cout << "\t-h,--help\tShow help text" << std::endl;
 	std::cout << "\t-i,--img_iter\tFrequency for writing positions [" << img_iter << "]"<< std::endl;
