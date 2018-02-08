@@ -399,9 +399,10 @@ void save_bodies( std::vector<Body*>& bodies, int i)
     }
 	double E=0;
 	for (int i=0; i<bodies.size(); ++i) {
-		E+=0.5*bodies[i]->mass*(bodies[i]->vel_x*bodies[i]->vel_x+bodies[i]->vel_y*bodies[i]->vel_y);
+		E+=0.5*bodies[i]->mass*(sqr(bodies[i]->vel_x)+sqr(bodies[i]->vel_y));
 		for (int j=0;j<i;j++)
-	E-=G*bodies[i]->mass*bodies[j]->mass/std::sqrt(sqr(bodies[i]->pos_x-bodies[j]->pos_x)+sqr(bodies[i]->pos_y-bodies[j]->pos_y));
+			E-=G*bodies[i]->mass*bodies[j]->mass	/
+				std::sqrt(sqr(bodies[i]->pos_x-bodies[j]->pos_x)+sqr(bodies[i]->pos_y-bodies[j]->pos_y));
 	}
 	std::cout<<E<<std::endl;
 }
