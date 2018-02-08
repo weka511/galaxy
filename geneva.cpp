@@ -36,6 +36,9 @@
 #include <cmath>
 #include <cassert>
 
+    // The "gravitational constant" is chosen so as to get a pleasant output.
+    const double G = 4.e-6;
+	
 // Compute the square of a floating-point value.
 inline double sqr(double a) {
     return a*a;
@@ -191,7 +194,7 @@ public:
         pos_x += dt*vel_x;
         pos_y += dt*vel_y;
     }
-private:
+//private:
     double mass;
     double pos_x, pos_y;
     double vel_x, vel_y;
@@ -385,7 +388,7 @@ void verlet( std::vector<Body*>& bodies, Node* root,
 void save_bodies( std::vector<Body*>& bodies, int i)
 {
     std::stringstream fNameStream;
-    fNameStream << "body_" << std::setfill('0') << std::setw(6) << i << ".dat";
+    fNameStream << "./geneva/body_" << std::setfill('0') << std::setw(6) << i << ".dat";
     std::ofstream ofile(fNameStream.str().c_str());
     for (unsigned i=0; i<bodies.size(); ++i) {
         double px, py;
@@ -394,8 +397,17 @@ void save_bodies( std::vector<Body*>& bodies, int i)
               << std::setw(20) << px
               << std::setw(20) << py << "\n";
     }
+	double E=0;
+	for (int i=0; i<bodies.size(); ++i) {
+		E+=0.5*bodies[i]->mass*(bodies[i]->vel_x*bodies[i]->vel_x+bodies[i]->vel_y*bodies[i]->vel_y);
+		for (int j=0;j<i;j++)
+	E-=G*bodies[i]->mass*bodies[j]->mass/std::sqrt(sqr(bodies[i]->pos_x-bodies[j]->pos_x)+sqr(bodies[i]->pos_y-bodies[j]->pos_y));
+	}
+	std::cout<<E<<std::endl;
 }
 
+
+	
 int main() {
     // Theta-criterion of the Barnes-Hut algorithm.
     const double theta = 0.5;
@@ -405,8 +417,7 @@ int main() {
     const double ini_radius = 0.1;
     // Initial maximum velocity of the bodies.
     const double inivel = 0.1;
-    // The "gravitational constant" is chosen so as to get a pleasant output.
-    const double G = 4.e-6;
+
     // Discrete time step.
     const double dt = 1.e-3;
     // outside the initial radius are removed).
