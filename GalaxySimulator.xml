@@ -27,4 +27,7 @@
     <Project name="Helpers">
         <File name="make_3d.py" />
     </Project>
+    <Project name="Geneva">
+        <File name="geneva.cpp" />
+    </Project>
 </NotepadPlus>
