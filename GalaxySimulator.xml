@@ -26,6 +26,8 @@
     </Project>
     <Project name="Helpers">
         <File name="make_3d.py" />
+        <File name="make_img.py" />
+        <File name="plot_orbits.py" />
     </Project>
     <Project name="Geneva">
         <File name="geneva.cpp" />
