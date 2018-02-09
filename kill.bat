@@ -1,0 +1,1 @@
+copy kill.bat kill
