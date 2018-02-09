@@ -15,7 +15,7 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 | |catch.hpp | [Catch2](https://github.com/catchorg/Catch2) Unit testing framework |
 | center-of-mass.cpp |center-of-mass.h| Find centre of mass for internal nodes|
 | galaxy.cpp |galaxy.h| Simulate Galaxy using Barnes Hut|
-| geneva.cpp | |2D Barnes Hut code from University of Geneva, modified to calculate total energy |
+| geneva.cpp | |[2D Barnes Hut code from University of Geneva](https://www.coursera.org/learn/modeling-simulation-natural-processes/home/info), modified to calculate total energy |
 |Galaxy Simulator.xml||Notepad++ Workspace|
 | Makefile || Build Barnes Hut simulation |
 | make_3d.py | |Plot output from galaxy |
