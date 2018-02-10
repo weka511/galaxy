@@ -37,16 +37,17 @@
 #include "verlet.h"
 #include "physics.h"
 
+Configuration configuration; 
 /**
  *  Long version of command line options.
  */
 
-static int flat_flag = 0;
+
 
 static int resume_flag = 0;
 
 struct option long_options[] = {
-	{"flat", 			no_argument,       	&flat_flag, 	1},
+	{"flat", 			no_argument,       	&configuration.flat_flag, 	1},
 	{"config",  		required_argument,	0, 				'c'},
 	{"dt",  			required_argument,	0, 				'd'},
 	{"check_energy",  	required_argument,	0, 				'e'},
@@ -157,7 +158,7 @@ int main(int argc, char **argv) {
 		std::system("rm configs/*");  // Issue #5 - remove old config files
 		const int max_imgs=std::ceil(((double)max_iter)/img_iter);
 		max_digits_config = std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
-		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass,logfile,flat_flag );
+		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass,logfile,configuration );
 		report_all(particles,0);
 		E0 = get_energy(particles,G,softening_length);
 		try {
