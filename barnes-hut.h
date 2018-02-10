@@ -39,8 +39,8 @@ class BarnesHutVisitor :  public Node::Visitor{
    /**
    * Initialize BarnesHutVisitor for a specific particle
    */
-	BarnesHutVisitor(Particle* me,const double theta, const double G,const double softening_length) :
-	  _me(me),_theta_squared(sqr(theta)),_G(G),_acc_x(0),_acc_y(0),_acc_z(0),_softening_length_sq(sqr(softening_length)) {
+	BarnesHutVisitor(const int index,Particle* me,const double theta, const double G,const double softening_length) :
+	  _me(me),_theta_squared(sqr(theta)),_G(G),_acc_x(0),_acc_y(0),_acc_z(0),_softening_length_sq(sqr(softening_length)),_index(index) {
 		_me->getPos(_x,_y,_z);
 	}
 	
@@ -55,6 +55,11 @@ class BarnesHutVisitor :  public Node::Visitor{
 	void store_accelerations();
 	
   private:
+  
+	/**
+	 * Keep track of particle index so we don't calculate acceleration of particle caused by itself!
+	 */
+	const int _index;
 	/**
 	 * Used to add in the contribution to the acceleration from one Node
 	 */

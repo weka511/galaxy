@@ -35,13 +35,18 @@ void get_acceleration(std::vector<Particle*>& particles,const double theta,const
 	CentreOfMassCalculator calculator(particles);
 	root->visit(calculator);
 	calculator.check_all_paticles_processed();
-	std::for_each(particles.begin(),
-				particles.end(),
-				[root,theta,G,softening_length](Particle*me){
-					BarnesHutVisitor visitor(me,theta,G,softening_length);
-					root->visit(visitor);
-					visitor.store_accelerations();
-				});
+	for (int i=0;i<particles.size();i++)	{
+		BarnesHutVisitor visitor(i,particles[i],theta,G,softening_length);
+		root->visit(visitor);
+		visitor.store_accelerations();
+	}
+	// std::for_each(particles.begin(),
+				// particles.end(),
+				// [root,theta,G,softening_length](Particle*me){
+					// BarnesHutVisitor visitor(me,theta,G,softening_length);
+					// root->visit(visitor);
+					// visitor.store_accelerations();
+				// });
 	delete root;
 }
 
@@ -53,7 +58,8 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 	node->getPhysics(m,x,y,z);
 	double dsq_node;
 	double l_sqr;
-	switch (node->getStatus()) {
+	const int status = node->getStatus();
+	switch (status) {
 		case Node::Internal:
 			dsq_node=dsq(x,y,z,_x,_y,_z);
 			/*
@@ -67,10 +73,9 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 				return Node::Visitor::Status::Continue;
 		case Node::Unused:
 			return Node::Visitor::Status::Continue;
-		default: // External Node
-			dsq_node=dsq(x,y,z,_x,_y,_z);
-			if (dsq_node>0)   // FIXME: find nicer way to avoid accumulating "me"
-				_accumulate_acceleration(m,x,y,z,dsq_node); 
+		default: // External Node - accumulate except don't accumulate self!
+			if (status!=_index) 
+				_accumulate_acceleration(m,x,y,z,dsq(x,y,z,_x,_y,_z)); 			
 			return Node::Visitor::Status::Continue;
 	}
 }
