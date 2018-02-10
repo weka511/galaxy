@@ -29,6 +29,7 @@
 #include <stdexcept>
 #include <stdlib.h> 
 #include "barnes-hut.h"
+#include "configs.h"
 #include "galaxy.h"
 #include "center-of-mass.h"
 #include "treecode.h"
@@ -156,7 +157,7 @@ int main(int argc, char **argv) {
 		std::system("rm configs/*");  // Issue #5 - remove old config files
 		const int max_imgs=std::ceil(((double)max_iter)/img_iter);
 		max_digits_config = std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
-		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass );
+		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass,logfile,flat_flag );
 		report_all(particles,0);
 		E0 = get_energy(particles,G,softening_length);
 		try {
@@ -240,58 +241,7 @@ void report_configuration(std::vector<Particle*> particles,int iter) {
 
 }
 
- /**
-  * Create all bodies needed at start of run
-  */
- std::vector<Particle*>  createParticles(int numbodies,double inivel,double ini_radius,double mass ){
-	logfile<<__FILE__ <<", " <<__LINE__<< ": Initializing " << numbodies << " bodies, radius=" <<ini_radius<< std::endl;
-	std::vector<std::vector<double>> positions=direct_sphere(3,numbodies);
-	std::vector<Particle*> product;
-	
-	for (std::vector<std::vector<double>>::iterator it = positions.begin() ; it != positions.end(); ++it) {
-        const double x     = (*it)[0] * ini_radius;
-        const double y     = (*it)[1] * ini_radius ;
-		const double z     = flat_flag==0 ? (*it)[2] * ini_radius :0;
-        const double rnorm = std::sqrt(sqr(x)+sqr(y)+sqr(z));
-		const double v     = 2*M_PI/std::sqrt(rnorm*rnorm*rnorm);
-        const double vx    = -y *v;
-        const double vy    =  x *v;
-		const double vz    = flat_flag==0 ? (std::rand()%2==0 ? 0.1*vx : -0.1*vx) : 0;
-        product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
-    }
-	zero_centre_mass_and_linear_momentum(product);
-	return product;
- }
  
- 
-/**
- * Set centre of mass and total linear momentum to (0,0,0) by adjusting
- * the position and velocity of each point
- */
- void zero_centre_mass_and_linear_momentum(std::vector<Particle*> particles) {
-	double x0,y0,z0;
-	get_centre_of_mass(particles,x0,y0,z0);
-
-	double total_mass=0;
-	for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {
-		double x,y,z;
-		(*it)->getPos(x,y,z);
-		x-=x0;y-=y0;z-=z0;
-		(*it)->setPos(x,y,z);
-		total_mass+=(*it)->getMass();
-	}
-	
-	double px0,py0,pz0;
-	get_momentum(particles,px0,py0,pz0);
-	for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {	
-		double vx,vy,vz;
-		(*it)->getVel(vx,vy,vz);
-		vx-=px0/total_mass;vy-=py0/total_mass;vz-=pz0/total_mass;
-		(*it)->setVel(vx,vy,vz);
-	}
-
-	logfile<<__FILE__ <<", " <<__LINE__<< ": Initialized " << numbodies << " bodies"<<std::endl;
- }
  
 /**
  *  Process command line options. Returns `true` iff execution is to continue.

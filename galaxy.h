@@ -25,10 +25,7 @@
  */
 bool extract_options(int argc, char **argv);
 
- /**
-  * Create all bodies needed at start of run
-  */
-std::vector<Particle*>  createParticles(int numbodies,double inivel,double ini_radius,double mass);
+ 
 
 /**
   * Generate help text
@@ -50,10 +47,6 @@ void help();
   */
 void report_energy(std::vector<Particle*> particles,int iter);
 
-/**
- * Set centre of mass and total linear momentum to (0,0,0)
- */
-void zero_centre_mass_and_linear_momentum(std::vector<Particle*> particles);
 
  //----------------------------------------------------------------------------------------------------
  

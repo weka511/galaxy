@@ -5,6 +5,8 @@
         <File name="catch.hpp" />
         <File name="center-of-mass.cpp" />
         <File name="center-of-mass.h" />
+        <File name="configs.cpp" />
+        <File name="configs.h" />
         <File name="galaxy.cpp" />
         <File name="galaxy.h" />
         <File name="Makefile" />

@@ -24,6 +24,7 @@ RM=rm -f
 MKDIR=mkdir
 SRCS=	barnes-hut.cpp		\
 		center-of-mass.cpp	\
+		configs.cpp			\
 		physics.cpp         \
 		treecode.cpp		\
 		utils.cpp			\
