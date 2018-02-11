@@ -21,7 +21,7 @@
  /**
   * Create all bodies needed at start of run
   */
- std::vector<Particle*>  createParticles(int numbodies,double inivel,double ini_radius,double mass , std::ofstream& logfile,Configuration& configuration){
+ std::vector<Particle*>  Configuration::createParticles(int numbodies,double inivel,double ini_radius,double mass , std::ofstream& logfile){
 	logfile<<__FILE__ <<", " <<__LINE__<< ": Initializing " << numbodies << " bodies, radius=" <<ini_radius<< std::endl;
 	std::vector<std::vector<double>> positions=direct_sphere(3,numbodies);
 	std::vector<Particle*> product;
@@ -29,12 +29,12 @@
 	for (std::vector<std::vector<double>>::iterator it = positions.begin() ; it != positions.end(); ++it) {
         const double x     = (*it)[0] * ini_radius;
         const double y     = (*it)[1] * ini_radius ;
-		const double z     = configuration.flat_flag==0 ? (*it)[2] * ini_radius :0;
+		const double z     = flat_flag==0 ? (*it)[2] * ini_radius :0;
         const double rnorm = std::sqrt(sqr(x)+sqr(y)+sqr(z));
 		const double v     = 2*M_PI/std::sqrt(rnorm*rnorm*rnorm);
         const double vx    = -y *v;
         const double vy    =  x *v;
-		const double vz    = configuration.flat_flag==0 ? (std::rand()%2==0 ? 0.1*vx : -0.1*vx) : 0;
+		const double vz    = flat_flag==0 ? (std::rand()%2==0 ? 0.1*vx : -0.1*vx) : 0;
         product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
     }
 	zero_centre_mass_and_linear_momentum(product);
@@ -47,7 +47,7 @@
  * Set centre of mass and total linear momentum to (0,0,0) by adjusting
  * the position and velocity of each point
  */
- void zero_centre_mass_and_linear_momentum(std::vector<Particle*> particles) {
+ void Configuration::zero_centre_mass_and_linear_momentum(std::vector<Particle*> particles) {
 	double x0,y0,z0;
 	get_centre_of_mass(particles,x0,y0,z0);
 

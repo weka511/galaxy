@@ -66,82 +66,7 @@ struct option long_options[] = {
 	{0, 				0, 					0, 				0}
 };	
 
-/**
- *  Theta-criterion of the Barnes-Hut algorithm.
- *  I had to move this outside `main` so the lambda in `run_verlet` would compile.
- */
-double theta = 0.5;
 
-/**
-* The "gravitational constant" is chosen so as to get a pleasant output.
-*/
-double G = G_solar_system;
-	
-/**
- * Mass of a body.
- */
-double mass = 1.0;
-
-/**
- * Initially, the bodies are distributed inside a circle of radius ini_radius.
- */
-double ini_radius = 1.0;
-
-/** 
- * Initial maximum velocity of the bodies.
- */
-double inivel = 0.1;
-
-/**
- * Discrete time step.
- */
-double dt = 1.e-3;
-
-/**
- * Number of bodies
- */
-int numbodies = 1000;
-
-/**
- * Number of time-iterations executed by the program.
- */
-int max_iter = 10000;
-
-/**
- * Frequency at which configuration records are written.
- */
-int img_iter = 20;
-
- /**
-  * Frequency for checking total energy
-  */
-int check_energy = -1;
-
-/**
- * File Name for configuration records
- */
-std::string config_file_name="config.txt";
-
-/**
- * Folder for configuration records
- */
-std::string path = "./configs";
-
-/**
- * Version number for configuration records
- */
-double config_version=0.0;
-
-/**
- * Length of sequence number for config files
- */
-int max_digits_config=5;
-
-double  E0 =0; // initial energy
-
-double maximum_energy_error=0;  //largest discrepancy in energy
-
-double softening_length=0.0001;  // Used to handle collisions
 
 std::ofstream logfile;
 
@@ -156,19 +81,19 @@ int main(int argc, char **argv) {
 	
 	if (extract_options(argc,argv)) {
 		std::system("rm configs/*");  // Issue #5 - remove old config files
-		const int max_imgs=std::ceil(((double)max_iter)/img_iter);
-		max_digits_config = std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
-		std::vector<Particle*> particles = createParticles( numbodies, inivel, ini_radius, mass,logfile,configuration );
+		const int max_imgs=std::ceil(((double)configuration.max_iter)/configuration.img_iter);
+		configuration.max_digits_config = std::max((int)std::ceil(std::log10(max_imgs)),configuration.max_digits_config);
+		std::vector<Particle*> particles = configuration.createParticles( configuration.numbodies, configuration.inivel, configuration.ini_radius, configuration.mass,logfile );
 		report_all(particles,0);
-		E0 = get_energy(particles,G,softening_length);
+		configuration.E0 = get_energy(particles,configuration.G,configuration.softening_length);
 		try {
-			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,theta,G,softening_length);},
-						max_iter,
-						dt,
+			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,configuration.theta,configuration.G,configuration.softening_length);},
+						configuration.max_iter,
+						configuration.dt,
 						particles,
 						&report_all);
-			if (check_energy>0 )
-				logfile << "Energy Error=" << maximum_energy_error << ", " <<(int)(100*maximum_energy_error/abs(E0)) << "%" <<std::endl;
+			if (configuration.check_energy>0 )
+				logfile << "Energy Error=" << configuration.maximum_energy_error << ", " <<(int)(100*configuration.maximum_energy_error/abs(configuration.E0)) << "%" <<std::endl;
 		} catch(const std::logic_error& e) {
 			std::cout << e.what() << std::endl;
 			logfile << e.what() << std::endl;
@@ -199,12 +124,12 @@ bool report_all(std::vector<Particle*> particles,int iter){
   * Write out energy and other conserved quantities
   */
 void report_energy(std::vector<Particle*> particles,int iter) {
-	if (check_energy>0 ) {
-		const double E=get_energy(particles,G,softening_length);
-		if (abs(E-E0)>maximum_energy_error)	
-			maximum_energy_error=abs(E-E0);
+	if (configuration.check_energy>0 ) {
+		const double E=get_energy(particles,configuration.G,configuration.softening_length);
+		if (abs(E-configuration.E0)>configuration.maximum_energy_error)	
+			configuration.maximum_energy_error=abs(E-configuration.E0);
 		
-		if (iter%check_energy==0) {
+		if (iter%configuration.check_energy==0) {
 			logfile << "Conserved quantities for iteration " << iter << std::endl;
 			double x0,y0,z0;
 			get_centre_of_mass(particles,x0,y0,z0);
@@ -227,10 +152,10 @@ void report_energy(std::vector<Particle*> particles,int iter) {
   * Write out configuration
   */
 void report_configuration(std::vector<Particle*> particles,int iter) {
-	if (iter%img_iter==0) {
+	if (iter%configuration.img_iter==0) {
 		std::cout << "Writing configuration for iteration " << iter << std::endl;
 		std::stringstream file_name;
-		file_name << path<< "bodies" << std::setw(max_digits_config) << std::setfill('0') <<iter/img_iter << ".csv";
+		file_name << configuration.path<< "bodies" << std::setw(configuration.max_digits_config) << std::setfill('0') <<iter/configuration.img_iter << ".csv";
 		std::ofstream ofile(file_name.str().c_str());
 		for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {
 			double x,y,z;
@@ -255,36 +180,36 @@ bool extract_options(int argc, char **argv) {
     switch (c){
 		case 'c':{
 			std::stringstream param(optarg);
-			param>>config_file_name;
-			std::cout<<"Configuration File:="<<config_file_name<<std::endl;
+			param>>configuration.config_file_name;
+			std::cout<<"Configuration File:="<<configuration.config_file_name<<std::endl;
 			break;
 		}
 		
 		case 'd':{
 			std::stringstream param(optarg);
-			param>>dt;
-			std::cout<<"dt="<<dt<<std::endl;
+			param>>configuration.dt;
+			std::cout<<"dt="<<configuration.dt<<std::endl;
 			break;
 		}
 		
 		case 'e':{
 			std::stringstream param(optarg);
-			param>>check_energy;
-			std::cout<<"check_energy="<<check_energy <<std::endl;
+			param>>configuration.check_energy;
+			std::cout<<"check_energy="<<configuration.check_energy <<std::endl;
 			break;
 		}
 		
 		case 'f':{
 			std::stringstream param(optarg);
-			param>>softening_length;
-			std::cout<<"Softening Length="<<softening_length<<std::endl;
+			param>>configuration.softening_length;
+			std::cout<<"Softening Length="<<configuration.softening_length<<std::endl;
 			break;
 		}
 			
 		case 'G':{
 			std::stringstream param(optarg);
-			param>>G;
-			std::cout<<"G="<<G<<std::endl;
+			param>>configuration.G;
+			std::cout<<"G="<<configuration.G<<std::endl;
 			break;
 		}
 		
@@ -295,36 +220,36 @@ bool extract_options(int argc, char **argv) {
 		
 		case 'i':{
 			std::stringstream param(optarg);
-			param>>img_iter;
-			std::cout<<"Frequency at which PNG images are written="<<img_iter<<std::endl;
+			param>>configuration.img_iter;
+			std::cout<<"Frequency at which PNG images are written="<<configuration.img_iter<<std::endl;
 			break;
 		}
 		
 		case 'm':{
 			std::stringstream param(optarg);
-			param>>max_iter;
-			std::cout<<"Number of iterations="<<max_iter<<std::endl;
+			param>>configuration.max_iter;
+			std::cout<<"Number of iterations="<<configuration.max_iter<<std::endl;
 			break;
 		}
 		
 		case 'n':{
 			std::stringstream param(optarg);
-			param>>numbodies;
-			std::cout<<"Number of bodies="<<numbodies<<std::endl;
+			param>>configuration.numbodies;
+			std::cout<<"Number of bodies="<<configuration.numbodies<<std::endl;
 			break;
 		}
 		
 		case 'p':{
 			std::stringstream param(optarg);
-			param>>path;
-			std::cout<<"Path="<<path<<std::endl;
+			param>>configuration.path;
+			std::cout<<"Path="<<configuration.path<<std::endl;
 			break;
 		}
 		
 		case 'r':{
 			std::stringstream param(optarg);
-			param>>ini_radius;
-			std::cout<<"Initial radius="<<ini_radius<<std::endl;
+			param>>configuration.ini_radius;
+			std::cout<<"Initial radius="<<configuration.ini_radius<<std::endl;
 			break;
 		}
 		
@@ -336,27 +261,27 @@ bool extract_options(int argc, char **argv) {
 		
 		case 's':{
 			std::stringstream param(optarg);
-			param>>mass;
-			std::cout<<"mass="<<mass<<std::endl;
+			param>>configuration.mass;
+			std::cout<<"mass="<<configuration.mass<<std::endl;
 			break;
 		}
 			
 		case 't':{
 			std::stringstream param(optarg);
-			param>>theta;
-			std::cout<<"Theta="<<theta<<std::endl;
+			param>>configuration.theta;
+			std::cout<<"Theta="<<configuration.theta<<std::endl;
 			break;
 		}
 		
 		case 'v':{
 			std::stringstream param(optarg);
-			param>>inivel;
-			std::cout<<"Velocity="<<inivel<<std::endl;
+			param>>configuration.inivel;
+			std::cout<<"Velocity="<<configuration.inivel<<std::endl;
 			break;
 		}
 	}
-	if (!ends_with(path,"/"))
-		path.append("/");
+	if (!ends_with(configuration.path,"/"))
+		configuration.path.append("/");
 
 	return true;
 }	
@@ -369,22 +294,22 @@ bool extract_options(int argc, char **argv) {
 void help() {
 	std::cout << "Galaxy Simulator based on Barnes Hut algorithm." << std::endl<<std::endl;
 	std::cout << "Parameters, showing default values" <<std::endl;
-	std::cout << "\t-c,--config\t\tConfiguration file [" << config_file_name<<"]"<< std::endl;
-	std::cout << "\t-d,--dt\t\tTime Step for Integration [" << dt<<"]"<< std::endl;
+	std::cout << "\t-c,--config\t\tConfiguration file [" << configuration.config_file_name<<"]"<< std::endl;
+	std::cout << "\t-d,--dt\t\tTime Step for Integration [" << configuration.dt<<"]"<< std::endl;
 	std::cout << "\t-e,--check_energy\tCheck total energy every `check_energy` iterations[don't check]"<< std::endl;
 	std::cout << "\t--flat\t\tUsed to set z to origin for 3D only"<< std::endl;
-	std::cout << "\t-f,--soften\tSoftening Length[" << softening_length << "]"<<std::endl;
-	std::cout << "\t-G,--G\t\tGravitational Constant [" << G << "]"<<std::endl;
+	std::cout << "\t-f,--soften\tSoftening Length[" << configuration.softening_length << "]"<<std::endl;
+	std::cout << "\t-G,--G\t\tGravitational Constant [" << configuration.G << "]"<<std::endl;
 	std::cout << "\t-h,--help\tShow help text" << std::endl;
-	std::cout << "\t-i,--img_iter\tFrequency for writing positions [" << img_iter << "]"<< std::endl;
-	std::cout << "\t-m,--max_iter\tMaximum number of iterations [" << max_iter << "]"<< std::endl;
-	std::cout << "\t-n,--numbodies\tNumber of bodies [" << numbodies<< "]"<<std::endl;
-	std::cout << "\t-p,--path\tPath for writing configurations [" << path << "]"<< std::endl;
-	std::cout << "\t-r,--ini_radius\tInitial Radius [" << ini_radius << "]"<<std::endl;
+	std::cout << "\t-i,--img_iter\tFrequency for writing positions [" << configuration.img_iter << "]"<< std::endl;
+	std::cout << "\t-m,--max_iter\tMaximum number of iterations [" << configuration.max_iter << "]"<< std::endl;
+	std::cout << "\t-n,--numbodies\tNumber of bodies [" << configuration.numbodies<< "]"<<std::endl;
+	std::cout << "\t-p,--path\tPath for writing configurations [" << configuration.path << "]"<< std::endl;
+	std::cout << "\t-r,--ini_radius\tInitial Radius [" << configuration.ini_radius << "]"<<std::endl;
 	std::cout << "\t--resume\tResume previous run"<<std::endl;
-	std::cout << "\t-s,--mass\tMass of bodies [" << mass << "]"<<std::endl;
-	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" << theta << "]"<< std::endl;
-	std::cout << "\t-v,--inivel\tInitial velocities [" << inivel << "]"<<std::endl;
+	std::cout << "\t-s,--mass\tMass of bodies [" << configuration.mass << "]"<<std::endl;
+	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" << configuration.theta << "]"<< std::endl;
+	std::cout << "\t-v,--inivel\tInitial velocities [" << configuration.inivel << "]"<<std::endl;
 }
 
 // --------------------------------------Old code that might be useful one day ------------------------------------------------
