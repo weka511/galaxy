@@ -69,3 +69,9 @@
 		(*it)->setVel(vx,vy,vz);
 	}
  }
+ 
+ int Configuration::get_max_digits_config(){
+	int max_digits_config=5;
+	const int max_imgs=std::ceil(((double)max_iter)/img_iter);
+	return std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
+ }

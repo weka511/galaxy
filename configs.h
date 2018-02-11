@@ -37,6 +37,8 @@ class Configuration {
 	*/
 	void zero_centre_mass_and_linear_momentum(std::vector<Particle*> particles);
 	
+	int get_max_digits_config();
+	
 	int flat_flag;
 
 	/**
@@ -104,11 +106,6 @@ class Configuration {
 	 * Version number for configuration records
 	 */
 	double config_version=0.0;
-
-	/**
-	 * Length of sequence number for config files
-	 */
-	int max_digits_config=5;
 
 	double  E0 =0; // initial energy
 

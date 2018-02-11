@@ -81,8 +81,7 @@ int main(int argc, char **argv) {
 	
 	if (extract_options(argc,argv)) {
 		std::system("rm configs/*");  // Issue #5 - remove old config files
-		const int max_imgs=std::ceil(((double)configuration.max_iter)/configuration.img_iter);
-		configuration.max_digits_config = std::max((int)std::ceil(std::log10(max_imgs)),configuration.max_digits_config);
+
 		std::vector<Particle*> particles = configuration.createParticles( configuration.numbodies, configuration.inivel, configuration.ini_radius, configuration.mass,logfile );
 		report_all(particles,0);
 		configuration.E0 = get_energy(particles,configuration.G,configuration.softening_length);
@@ -155,7 +154,7 @@ void report_configuration(std::vector<Particle*> particles,int iter) {
 	if (iter%configuration.img_iter==0) {
 		std::cout << "Writing configuration for iteration " << iter << std::endl;
 		std::stringstream file_name;
-		file_name << configuration.path<< "bodies" << std::setw(configuration.max_digits_config) << std::setfill('0') <<iter/configuration.img_iter << ".csv";
+		file_name << configuration.path<< "bodies" << std::setw(configuration.get_max_digits_config()) << std::setfill('0') <<iter/configuration.img_iter << ".csv";
 		std::ofstream ofile(file_name.str().c_str());
 		for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {
 			double x,y,z;
