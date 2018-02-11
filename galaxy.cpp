@@ -36,7 +36,8 @@
 #include "utils.h"
 #include "verlet.h"
 #include "physics.h"
-
+#include "spdlog/spdlog.h"
+namespace spd = spdlog;
 Configuration configuration; 
 /**
  *  Long version of command line options.
@@ -74,6 +75,9 @@ std::ofstream logfile;
  * Main program. Parse command line options, create bodies, then run simulation.
  */
 int main(int argc, char **argv) {
+	   auto console = spd::stdout_color_mt("console");
+        console->info("Welcome to spdlog!");
+        console->error("Some error message with arg{}..", 1);
 	logfile.open("galaxy.log", std::ios_base::app);
 	auto start = std::chrono::system_clock::now();
 	std::time_t start_time = std::chrono::system_clock::to_time_t(start);

@@ -65,7 +65,8 @@ depend: .depend
 .depend: $(SRCS)  galaxy.cpp $(TESTS) tests.cpp
 	$(RM) ./.depend
 	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
-	
+	sed -i -e 's/\/home\/Weka\/galaxy\///$g' .depend
+
 $(MAIN): $(OBJS) galaxy.o
 	${CXX} $(LDFLAGS) -o $(MAIN) galaxy.o ${OBJS} ${LDLIBS}
 	
