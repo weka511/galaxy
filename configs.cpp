@@ -15,6 +15,7 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
+#include <sstream>
 #include "configs.h"
 #include "physics.h"
 #include "spdlog/spdlog.h"
@@ -79,3 +80,28 @@ namespace spd = spdlog;
 	const int max_imgs=std::ceil(((double)max_iter)/img_iter);
 	return std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
  }
+ 
+ 
+ /**
+  * Save configuration so it can be restarted later
+  */
+ void  Configuration::save_config( std::vector<Particle*>& bodies, int iter) {
+	std::stringstream file_name;
+    file_name << path<< config_file_name;
+	backup(file_name.str().c_str());
+    std::ofstream ofile(file_name.str().c_str());
+	ofile << "Version="<<config_version<<"\n";
+	ofile << "iteration=" << iter  << "\n";
+	ofile << "theta=" << encode(theta)  << "\n";
+	ofile << "G=" << encode(G)  << "\n";
+	ofile << "dt=" << encode(dt)  << "\n";
+    for (unsigned i=0; i<bodies.size(); ++i) {
+		double px, py, pz;
+		bodies[i] -> getPos(px, py,pz);
+		double vx, vy,vz;
+		bodies[i] -> getVel(vx, vy,vz);
+		double m=bodies[i]->getMass();
+		ofile <<i<<","<< encode(px)<<","<< encode(py)<<","<< encode(pz)<<","<< encode(m) <<","<< encode(vx)<<","<< encode(vy)<<","<< encode(vz)<<"\n";
+	}
+	ofile << "End\n";
+}

@@ -39,8 +39,15 @@ class Configuration {
 	
 	int get_max_digits_config();
 	
+	void save_config( std::vector<Particle*>& particles,int iter);
+	
 	int flat_flag;
 
+	/**
+	 * Version number for configuration records
+	 */
+	std::string config_version="0.0";
+	
 	/**
 	 *  Theta-criterion of the Barnes-Hut algorithm.
 	 *  I had to move this outside `main` so the lambda in `run_verlet` would compile.
@@ -102,10 +109,7 @@ class Configuration {
 	 */
 	std::string path = "./configs";
 
-	/**
-	 * Version number for configuration records
-	 */
-	double config_version=0.0;
+
 
 	double  E0 =0; // initial energy
 

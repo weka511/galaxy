@@ -168,6 +168,7 @@ void report_configuration(std::vector<Particle*> particles,int iter) {
 			ofile<<x <<"," <<y <<","<<z <<std::endl;
 		}
 		ofile.close();
+		configuration.save_config(particles,iter);
 	}
 
 }
@@ -504,28 +505,6 @@ void help() {
 // }
 
 
-// void save_config( std::vector<Body*>& bodies, int iter, double theta, double G, double dt, std::string path,std::string name) {
-	// std::stringstream file_name;
-    // file_name << path<< name;
-// /**
- // * Save configuration so it can be restarted later
- // */	backup(file_name.str().c_str());
-    // std::ofstream ofile(file_name.str().c_str());
-	// ofile << "Version="<<config_version<<"\n";
-	// ofile << "iteration=" << iter  << "\n";
-	// ofile << "theta=" << encode(theta)  << "\n";
-	// ofile << "G=" << encode(G)  << "\n";
-	// ofile << "dt=" << encode(dt)  << "\n";
-    // for (unsigned i=0; i<bodies.size(); ++i) {
-		// double px, py, pz;
-		// bodies[i] -> getPos(px, py,pz);
-		// double vx, vy,vz;
-		// bodies[i] -> getVel(vx, vy,vz);
-		// double m=bodies[i]->getMass();
-		// ofile <<i<<","<< encode(px)<<","<< encode(py)<<","<< encode(pz)<<","<< encode(m) <<","<< encode(vx)<<","<< encode(vy)<<","<< encode(vz)<<"\n";
-	// }
-	// ofile << "End\n";
-// }
 
 
 

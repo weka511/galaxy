@@ -61,10 +61,7 @@ void report_energy(std::vector<Particle*> particles,int iter);
   */
 // bool restore_config(std::string path,std::string name,std::vector<Body*>& bodies, int &iter, double &theta, double &G, double& dt);
 
- /**
-  * Restore value stored by encode
-  */
-// void save_config( std::vector<Body*>& bodies, int iter, double theta, double G, double dt, std::string path,std::string name="config.txt");
+
 
 /**
  * Retrieve position, mass, and velocities stored for one Body
