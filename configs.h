@@ -39,10 +39,19 @@ class Configuration {
 	
 	int get_max_digits_config();
 	
+	/**
+	 * Save configuration for restart.
+	 */
 	void save_config( std::vector<Particle*>& particles,int iter);
 	
+	/**
+	 * Used to retrieve one saved particle. 
+	 */
 	Particle * extract_particle(std::string line);
 	
+	/**
+	 * Restore saved configuration
+	 */
 	bool restore_config(std::vector<Particle*>& bodies,int& iter);
 	
 	int flat_flag;
