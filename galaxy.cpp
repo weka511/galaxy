@@ -40,15 +40,13 @@
 
 namespace spd = spdlog;
 
-Configuration configuration; 
+Configuration configuration;
+
+static int resume_flag = 0;
+ 
 /**
  *  Long version of command line options.
  */
-
-
-
-static int resume_flag = 0;
-
 struct option long_options[] = {
 	{"flat", 			no_argument,       	&configuration.flat_flag, 	1},
 	{"config",  		required_argument,	0, 				'c'},
@@ -84,9 +82,21 @@ int main(int argc, char **argv) {
 	std::time_t start_time = std::chrono::system_clock::to_time_t(start);
 	
 	if (extract_options(argc,argv)) {
-		std::system("rm configs/*");  // Issue #5 - remove old config files
-
-		std::vector<Particle*> particles = configuration.createParticles( configuration.numbodies, configuration.inivel, configuration.ini_radius, configuration.mass );
+		std::vector<Particle*> particles;
+		int start_iterations=0;
+		if (resume_flag) {
+			if (configuration.restore_config(particles,start_iterations))
+				logger->info("Restarted from {0} {1} at {2}",configuration.path,configuration.config_file_name,start_iterations);
+			else {
+				particles = configuration.createParticles( configuration.numbodies, configuration.inivel, configuration.ini_radius, configuration.mass );
+				start_iterations=0;
+				logger->info("Failed to restart from {0} {1}",configuration.path,configuration.config_file_name);
+			}
+		} else {
+			std::system("rm configs/*");  // Issue #5 - remove old config files
+			particles = configuration.createParticles( configuration.numbodies, configuration.inivel, configuration.ini_radius, configuration.mass );
+		}
+	
 		report_all(particles,0);
 		configuration.E0 = get_energy(particles,configuration.G,configuration.softening_length);
 		try {
@@ -94,7 +104,8 @@ int main(int argc, char **argv) {
 						configuration.max_iter,
 						configuration.dt,
 						particles,
-						&report_all);
+						&report_all,
+						start_iterations);
 			if (configuration.check_energy>0 )
 				logger->info("Energy Error={0}, {1}%",
 							configuration.maximum_energy_error,
@@ -318,69 +329,3 @@ void help() {
 	std::cout << "\t-v,--inivel\tInitial velocities [" << configuration.inivel << "]"<<std::endl;
 }
 
-// --------------------------------------Old code that might be useful one day ------------------------------------------------
-
-	// run_verlet(&get_acceleration_shm, max_iter, dt,	particles,	&print_values);
-	// for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) 
-		// delete (*it);
-	
-	// std::vector<Body*> bodies; 
-	// int iter=0;
-    // if (resume_flag && restore_config(path,config_file_name, bodies,  iter,  theta,  G,  dt)) {
-		// std::cout <<"Resume at "<<iter <<  ", theta="<<theta<<", G="<< G <<", dt="<<  dt << ", size="<< bodies.size() << std::endl;
-		// simulate(iter, max_iter, bodies,  theta,  G,  dt,  img_iter, path,config_file_name,check_energy);
-	// } else {
-		// if (resume_flag)
-			// std::cout << "Configuration file not found: starting from a new configuration" << std::endl;
-		// else
-			// std::cout << "Starting from a new configuration" << std::endl;
-		// remove_old_configs(path);
-		// bodies=createBodies(numbodies, inivel, ini_radius, mass );
-		// simulate(0, max_iter, bodies,  theta,  G,  dt,  img_iter, path,config_file_name,check_energy);
-	// }
-
-  /**
-  * Execute simulation
-  */
- // void simulate(int start_iter,int max_iter,std::vector<Body*> bodies, double theta, double G, double dt, int img_iter,std::string path,std::string config_file_name,int check_energy) {
-	// bool exiting=false;
-	
-	// double initial_energy=check_energy>0?get_kinetic_energy(bodies) + get_potential_energy(bodies,G) : -1;
-	// double total_energy=initial_energy;
-    // for (int iter=start_iter; iter<max_iter+start_iter && !exiting; ++iter) {
-        // Node* root = NULL;    // The oct-tree is recomputed at each iteration.
-        // for (unsigned i=0; i<bodies.size(); ++i) {
-            // bodies[i] -> resetToZerothOctant();
-            // root = add(bodies[i], root);
-        // }
- 
-        // verlet(bodies, root, theta, G, dt); // Compute forces and advance bodies.
- 
-        // delete root;  // De-allocate the oct-tree.
-		
-		// exiting=killed();
-        // if (iter%img_iter==0||exiting) {
-            // std::cout << "Writing images at iteration " << iter << std::endl;
-            // save_bodies(bodies, iter/img_iter,path);
-			// save_config(bodies, iter, theta, G, dt,path,config_file_name);
-        // }
-		// if (check_energy>0 && iter%check_energy==0){
-			// double energy=get_kinetic_energy(bodies) + get_potential_energy(bodies,G);
-			// print_energy(energy, total_energy,initial_energy);
-			// total_energy=energy;
-		// }
-    // }
-	// if (check_energy>0 ){
-		// double energy=get_kinetic_energy(bodies) + get_potential_energy(bodies,G);
-		// print_energy(energy, total_energy,initial_energy);
-		// total_energy=energy;
-	// }
-// }
-
-
-
-
-
-
- 
- 

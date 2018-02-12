@@ -43,7 +43,7 @@ class Configuration {
 	
 	Particle * extract_body(std::string line);
 	
-	bool restore_config(std::string path,std::string name,std::vector<Particle*>& bodies,int& iter);
+	bool restore_config(std::vector<Particle*>& bodies,int& iter);
 	
 	int flat_flag;
 

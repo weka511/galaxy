@@ -43,8 +43,10 @@ void  verlet_velocities(Particle* p,double dt);
  * Integrate by taking one Euler step, followed by repeated Verlet steps
  */
 void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
-				int max_iter,double dt,
+				int max_iter,
+				double dt,
 				std::vector<Particle*> particles,
-				bool (*shouldContinue)(std::vector<Particle*>,int iter ));
+				bool (*shouldContinue)(std::vector<Particle*>,int iter),
+				int start_iterations);
 
 #endif

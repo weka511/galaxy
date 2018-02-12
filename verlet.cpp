@@ -24,6 +24,7 @@
 #include <iostream>
 #include "verlet.h"
 
+
 /**
  *  Use Euler algorithm for first step. NB: this updates velocity only, so x
  *  remains at its initial value, which is what Verlet needs.
@@ -66,11 +67,15 @@ void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
 				int max_iter,
 				double dt,
 				std::vector<Particle*> particles,
-				bool (*shouldContinue)(std::vector<Particle*> particles,int iter)) {
-	get_acceleration(particles);
-	// Take a half step, so acceleration corresponds to 0.5dt, 1.5dt, etc.
-	std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
-	for (int iter=1;iter<max_iter && shouldContinue(particles,iter);iter++) {
+				bool (*shouldContinue)(std::vector<Particle*> particles,int iter),
+				int start_iterations) {
+	if (start_iterations==0){
+		get_acceleration(particles);
+		// Take a half step, so acceleration corresponds to 0.5dt, 1.5dt, etc.
+		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
+	}
+	
+	for (int iter=1+start_iterations;iter<max_iter+start_iterations && shouldContinue(particles,iter);iter++) {
 		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_positions(particle,dt);});
 		get_acceleration(particles);
 		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_velocities(particle,dt);});

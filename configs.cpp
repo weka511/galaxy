@@ -109,9 +109,10 @@ namespace spd = spdlog;
 /**
   * Restore configuration from saved file
   */
-bool Configuration::restore_config(std::string path,std::string name,std::vector<Particle*>& bodies,int& iter) {
+bool Configuration::restore_config(std::vector<Particle*>& bodies,int& iter) {
+	auto logger=spdlog::get("galaxy");
 	std::stringstream file_name;
-    file_name << path<< name;
+    file_name << path<< config_file_name;
 	std::ifstream config_file(file_name.str().c_str());
 
     if(! config_file.is_open())
@@ -126,31 +127,31 @@ bool Configuration::restore_config(std::string path,std::string name,std::vector
 		switch(state) {
 			case State::expect_version:
 				token = line.substr(1+line.find("="));
-				std::cout << token << std::endl;
+				logger->info("Version {0}",token);
 				state=State::expect_iteration;
 				break;
 			case State::expect_iteration:
 				token = line.substr(1+line.find("="));
 				iter=atoi(token.c_str());
-				std::cout << iter << std::endl;
+				logger->info("Iter = {0}",iter);
 				state=State::expect_theta;
 				break;
 			case State::expect_theta:
 				token = line.substr(1+line.find("="));
-				std::cout << decode(token) << std::endl;
 				theta=decode(token);
+				logger->info("Theta={0}",theta);
 				state=State::expect_g;
 				break;
 			case State::expect_g:
 				token = line.substr(1+line.find("="));
-				std::cout << decode(token) << std::endl;
 				G=decode(token);
+				logger->info("G={0}",G);
 				state=State::expect_dt;
 				break;
 			case State::expect_dt:
 				token = line.substr(1+line.find("="));
-				std::cout << decode(token) << std::endl;
 				dt=decode(token);
+				logger->info("dt={0}",dt);
 				state=State::expect_body;
 				break;
 			case State::expect_body:
@@ -161,13 +162,12 @@ bool Configuration::restore_config(std::string path,std::string name,std::vector
 				break;
 			case State::expect_eof:
 				if (line.length()>0){
-					std::cout<<"Unexpected text following end"<<std::endl;
-					std::cout<<line<<std::endl;
+					logger->info("Unexpected text following end={0}",line);
 					return false;
 				}
 			default:
 				if (line.length()>0){
-					std::cout<<"Unexpected state: "<<state<<std::endl;
+					logger->info("Unexpected state {0}",state);
 					return false;
 				}
 		}
