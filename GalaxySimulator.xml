@@ -34,4 +34,12 @@
     <Project name="Geneva">
         <File name="geneva.cpp" />
     </Project>
+    <Project name="Loggers">
+        <File name="spdlog\async_logger.h" />
+        <File name="spdlog\common.h" />
+        <File name="spdlog\formatter.h" />
+        <File name="spdlog\logger.h" />
+        <File name="spdlog\spdlog.h" />
+        <File name="spdlog\tweakme.h" />
+    </Project>
 </NotepadPlus>

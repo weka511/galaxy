@@ -24,6 +24,7 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 || particles.h | Represents the particles whose motion is being simulated|
 |physics.cpp| physics.h |Physical constants, law of gravitation, etc|
 | plot_orbits.py || Select a few stars at random and plot their orbits |
+|  |spdlog| Header files for [spdlog](https://github.com/gabime/spdlog) super fast C++ logging library.  |
 | tests.cpp || Test harness |
 | test-kepler.cpp| | Test for Kepler problem |
 | treecode.cpp | treecode.h | Barnes-Hut Tree|

@@ -15,14 +15,18 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
- #include "configs.h"
- #include "physics.h"
- 
+#include "configs.h"
+#include "physics.h"
+#include "spdlog/spdlog.h"
+
+namespace spd = spdlog;
+
  /**
   * Create all bodies needed at start of run
   */
- std::vector<Particle*>  Configuration::createParticles(int numbodies,double inivel,double ini_radius,double mass , std::ofstream& logfile){
-	logfile<<__FILE__ <<", " <<__LINE__<< ": Initializing " << numbodies << " bodies, radius=" <<ini_radius<< std::endl;
+ std::vector<Particle*>  Configuration::createParticles(int numbodies,double inivel,double ini_radius,double mass ){
+	spdlog::get("galaxy")->info("{0} {1}: initializing {2} bodies, radius={3}",__FILE__,__LINE__,numbodies,ini_radius);
+
 	std::vector<std::vector<double>> positions=direct_sphere(3,numbodies);
 	std::vector<Particle*> product;
 	
@@ -38,7 +42,7 @@
         product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
     }
 	zero_centre_mass_and_linear_momentum(product);
-	logfile<<__FILE__ <<", " <<__LINE__<< ": Initialized " << numbodies << " bodies"<<std::endl;
+	spdlog::get("galaxy")->info("{0} {1}: initialized {2} bodies.",__FILE__,__LINE__,numbodies);
 	return product;
  }
  

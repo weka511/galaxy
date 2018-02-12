@@ -37,7 +37,9 @@
 #include "verlet.h"
 #include "physics.h"
 #include "spdlog/spdlog.h"
+
 namespace spd = spdlog;
+
 Configuration configuration; 
 /**
  *  Long version of command line options.
@@ -69,24 +71,22 @@ struct option long_options[] = {
 
 
 
-std::ofstream logfile;
-
 /**
  * Main program. Parse command line options, create bodies, then run simulation.
  */
 int main(int argc, char **argv) {
-	   auto console = spd::stdout_color_mt("console");
-        console->info("Welcome to spdlog!");
-        console->error("Some error message with arg{}..", 1);
-	logfile.open("galaxy.log", std::ios_base::app);
+	auto daily_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("logfile", 23, 59);
+	auto logger = std::make_shared<spdlog::logger>("galaxy", daily_sink);
+	logger->set_level(spdlog::level::info);
+	spdlog::register_logger(logger);
+	
 	auto start = std::chrono::system_clock::now();
 	std::time_t start_time = std::chrono::system_clock::to_time_t(start);
-    logfile << "Started at " << std::ctime(&start_time)<<std::endl;
 	
 	if (extract_options(argc,argv)) {
 		std::system("rm configs/*");  // Issue #5 - remove old config files
 
-		std::vector<Particle*> particles = configuration.createParticles( configuration.numbodies, configuration.inivel, configuration.ini_radius, configuration.mass,logfile );
+		std::vector<Particle*> particles = configuration.createParticles( configuration.numbodies, configuration.inivel, configuration.ini_radius, configuration.mass );
 		report_all(particles,0);
 		configuration.E0 = get_energy(particles,configuration.G,configuration.softening_length);
 		try {
@@ -96,10 +96,12 @@ int main(int argc, char **argv) {
 						particles,
 						&report_all);
 			if (configuration.check_energy>0 )
-				logfile << "Energy Error=" << configuration.maximum_energy_error << ", " <<(int)(100*configuration.maximum_energy_error/abs(configuration.E0)) << "%" <<std::endl;
-		} catch(const std::logic_error& e) {
-			std::cout << e.what() << std::endl;
-			logfile << e.what() << std::endl;
+				logger->info("Energy Error={0}, {1}%",
+							configuration.maximum_energy_error,
+							(int)(100*configuration.maximum_energy_error/abs(configuration.E0)));
+			} catch(const std::logic_error& e) {
+				std::cerr << e.what() << std::endl;
+				logger->info(e.what());
 		}
 	}
 	
@@ -108,8 +110,7 @@ int main(int argc, char **argv) {
     std::chrono::duration<double> elapsed_seconds = end-start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
  
-    logfile << "finished computation at " << std::ctime(&end_time)
-              << "elapsed time: " << elapsed_seconds.count() << "s\n";
+    logger->info("finished computation at {0}, elapsed time: {1} seconds", std::ctime(&end_time), elapsed_seconds.count());
 			  
 	return EXIT_SUCCESS;
 }
@@ -128,25 +129,26 @@ bool report_all(std::vector<Particle*> particles,int iter){
   */
 void report_energy(std::vector<Particle*> particles,int iter) {
 	if (configuration.check_energy>0 ) {
+		auto logger=spdlog::get("galaxy");
 		const double E=get_energy(particles,configuration.G,configuration.softening_length);
 		if (abs(E-configuration.E0)>configuration.maximum_energy_error)	
 			configuration.maximum_energy_error=abs(E-configuration.E0);
 		
 		if (iter%configuration.check_energy==0) {
-			logfile << "Conserved quantities for iteration " << iter << std::endl;
+			logger->info("Conserved quantities for iteration {0}", iter);
 			double x0,y0,z0;
 			get_centre_of_mass(particles,x0,y0,z0);
-			logfile << "Centre of mass=(" <<x0 << "," <<y0<<"," <<z0<<")"<<std::endl;	
+			logger->info("Centre of mass=({0},{1},{2})", x0,y0,z0);	
 			
 			double px,py,pz;
 			get_momentum(particles,px,py,pz);
-			logfile << "Momentum=(" <<px << "," <<py<<"," <<pz<<")"<<std::endl;
+			logger->info("Momentum=({0},{1},{2})",px,py,pz);
 			
 			double lx,ly,lz;
 			get_angular_momentum(particles,lx,ly,lz);
-			logfile << "Angular momentum=(" <<lx << "," <<ly<<"," <<lz<<")"<<std::endl;
+			logger->info("Angular momentum=({0},{1},{2})",lx,ly,lz);
 			
-			logfile << "Energy " << E << std::endl;
+			logger->info("Energy {0}", E);
 		}
 	}
 }
