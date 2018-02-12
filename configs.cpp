@@ -224,5 +224,6 @@ Particle * Configuration::extract_particle(std::string line){
 				state=end_line;
 		}
 	}
-	return new Particle(m,px,py,pz,vx,vy,vz);
+	
+	return new Particle(px,py,pz,vx,vy,vz,m);
 }

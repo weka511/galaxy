@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
 			particles = configuration.createParticles(  );
 		}
 	
-		report_all(particles,0);
+		report_all(particles,start_iterations);
 		configuration.E0 = get_energy(particles,configuration.G,configuration.softening_length);
 		try {
 			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,configuration.theta,configuration.G,configuration.softening_length);},
