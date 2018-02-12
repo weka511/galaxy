@@ -17,7 +17,7 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 | configs.cpp | configs.h| Factory for creating configurations of particles, plus configuration management |
 | galaxy.cpp |galaxy.h| Simulate Galaxy using Barnes Hut|
 | geneva.cpp | |[2D Barnes Hut code from University of Geneva](https://www.coursera.org/learn/modeling-simulation-natural-processes/home/info), modified to calculate total energy |
-|Galaxy Simulator.xml||Notepad++ Workspace|
+|GalaxySimulator.xml||Notepad++ Workspace|
 | Makefile || Build Barnes Hut simulation |
 | make_3d.py | |Plot output from galaxy |
 | make_img.py || Plot output from galaxy |
