@@ -88,13 +88,13 @@ int main(int argc, char **argv) {
 			if (configuration.restore_config(particles,start_iterations))
 				logger->info("Restarted from {0} {1} at {2}",configuration.path,configuration.config_file_name,start_iterations);
 			else {
-				particles = configuration.createParticles( configuration.numbodies, configuration.inivel, configuration.ini_radius, configuration.mass );
+				particles = configuration.createParticles(  );
 				start_iterations=0;
 				logger->info("Failed to restart from {0} {1}",configuration.path,configuration.config_file_name);
 			}
 		} else {
 			std::system("rm configs/*");  // Issue #5 - remove old config files
-			particles = configuration.createParticles( configuration.numbodies, configuration.inivel, configuration.ini_radius, configuration.mass );
+			particles = configuration.createParticles(  );
 		}
 	
 		report_all(particles,0);

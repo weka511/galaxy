@@ -30,7 +30,7 @@ class Configuration {
    /**
 	* Create all bodies needed at start of run
 	*/
-	std::vector<Particle*>  createParticles(int numbodies,double inivel,double ini_radius,double mass);
+	std::vector<Particle*>  createParticles();
 
 	/**
 	* Set centre of mass and total linear momentum to (0,0,0)
@@ -41,7 +41,7 @@ class Configuration {
 	
 	void save_config( std::vector<Particle*>& particles,int iter);
 	
-	Particle * extract_body(std::string line);
+	Particle * extract_particle(std::string line);
 	
 	bool restore_config(std::vector<Particle*>& bodies,int& iter);
 	

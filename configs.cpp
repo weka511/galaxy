@@ -25,7 +25,7 @@ namespace spd = spdlog;
  /**
   * Create all bodies needed at start of run
   */
- std::vector<Particle*>  Configuration::createParticles(int numbodies,double inivel,double ini_radius,double mass ){
+ std::vector<Particle*>  Configuration::createParticles( ){
 	spdlog::get("galaxy")->info("{0} {1}: initializing {2} bodies, radius={3}",__FILE__,__LINE__,numbodies,ini_radius);
 
 	std::vector<std::vector<double>> positions=direct_sphere(3,numbodies);
@@ -109,7 +109,7 @@ namespace spd = spdlog;
 /**
   * Restore configuration from saved file
   */
-bool Configuration::restore_config(std::vector<Particle*>& bodies,int& iter) {
+bool Configuration::restore_config(std::vector<Particle*>& particles,int& iter) {
 	auto logger=spdlog::get("galaxy");
 	std::stringstream file_name;
     file_name << path<< config_file_name;
@@ -158,7 +158,7 @@ bool Configuration::restore_config(std::vector<Particle*>& bodies,int& iter) {
 				if (line.find("End")==0)
 					state=State::expect_eof;
 				else
-					bodies.push_back(extract_body(line));
+					particles.push_back(extract_particle(line));
 				break;
 			case State::expect_eof:
 				if (line.length()>0){
@@ -182,7 +182,7 @@ bool Configuration::restore_config(std::vector<Particle*>& bodies,int& iter) {
 /**
  * Retrieve position, mass, and velocities stored for one Body
  */
-Particle * Configuration::extract_body(std::string line){
+Particle * Configuration::extract_particle(std::string line){
 	enum State {expect_i,expect_x,expect_y,expect_z,expect_m,expect_vx,expect_vy,expect_vz,end_line};
 	State state=expect_i;
 	double px, py, pz, m, vx,vy,vz;
