@@ -114,16 +114,19 @@ int main(int argc, char **argv) {
 				std::cerr << e.what() << std::endl;
 				logger->info(e.what());
 		}
-	}
 	
-	auto end = std::chrono::system_clock::now();
- 
-    std::chrono::duration<double> elapsed_seconds = end-start;
-    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
- 
-    logger->info("finished computation at {0}, elapsed time: {1} seconds", std::ctime(&end_time), elapsed_seconds.count());
-			  
-	return EXIT_SUCCESS;
+		auto end = std::chrono::system_clock::now();
+	 
+		std::chrono::duration<double> elapsed_seconds = end-start;
+		std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+	 
+		logger->info("finished computation at {0}, elapsed time: {1} seconds", std::ctime(&end_time), elapsed_seconds.count());
+				  
+		return EXIT_SUCCESS;
+	} else {
+		logger->error("Terminating");
+		return EXIT_FAILURE;
+	}
 }
 
 /**
@@ -296,6 +299,9 @@ bool extract_options(int argc, char **argv) {
 			std::cout<<"Velocity="<<configuration.inivel<<std::endl;
 			break;
 		}
+		
+		case '?':
+			return false;
 	}
 	if (!ends_with(configuration.path,"/"))
 		configuration.path.append("/");
