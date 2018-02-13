@@ -54,7 +54,7 @@ void CentreOfMassCalculator::propagate(Node * node,Node * child){
 /**
  * Make sure every node was processed
  */
-void CentreOfMassCalculator::check_all_paticles_processed() {
+void CentreOfMassCalculator::check_all_particles_processed() {
 	for (int i =0;i<_processed_particle.size();i++)
 		if (!_processed_particle[i]) {
 			std::stringstream message;

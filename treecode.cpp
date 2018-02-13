@@ -245,7 +245,7 @@ bool Node::visit(Visitor & visitor) {
  *   We accumulate mx,my,mz, so we need to treat External nodes differently
  */
 void Node::accumulatePhysics(Node* other) {
-	_m+=other->_m;
+	_m += other->_m;
 	_x += other->_m * other->_x;
 	_y += other->_m * other->_y;
 	_z += other->_m * other->_z;

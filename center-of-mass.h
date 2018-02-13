@@ -50,7 +50,7 @@ class CentreOfMassCalculator : public Node::Visitor {
 	/**
 	 * Make sure every node was processed.
 	*/
-	void check_all_paticles_processed();
+	void check_all_particles_processed();
 	
   private:
   

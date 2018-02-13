@@ -34,19 +34,13 @@ void get_acceleration(std::vector<Particle*>& particles,const double theta,const
 	Node * root=Node::create(particles);
 	CentreOfMassCalculator calculator(particles);
 	root->visit(calculator);
-	calculator.check_all_paticles_processed();
+	calculator.check_all_particles_processed();
 	for (int i=0;i<particles.size();i++)	{
 		BarnesHutVisitor visitor(i,particles[i],theta,G,softening_length);
 		root->visit(visitor);
 		visitor.store_accelerations();
 	}
-	// std::for_each(particles.begin(),
-				// particles.end(),
-				// [root,theta,G,softening_length](Particle*me){
-					// BarnesHutVisitor visitor(me,theta,G,softening_length);
-					// root->visit(visitor);
-					// visitor.store_accelerations();
-				// });
+	
 	delete root;
 }
 
