@@ -11,6 +11,7 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 
 | File | Header | Purpose |
 |---------------------|------------------|---------------------------------------------------------------------|
+| adze.py | |Cut logfiles up and analyze data |
 | barnes-hut.cpp |barnes-hut.h| Calculate accelerations using Barnes Hut|
 | |catch.hpp | [Catch2](https://github.com/catchorg/Catch2) Unit testing framework |
 | center-of-mass.cpp |center-of-mass.h| Find centre of mass for internal nodes|
