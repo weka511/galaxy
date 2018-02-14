@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <stdlib.h> 
+#include <time.h> 
 #include "barnes-hut.h"
 #include "configs.h"
 #include "galaxy.h"
@@ -73,6 +74,7 @@ struct option long_options[] = {
  * Main program. Parse command line options, create bodies, then run simulation.
  */
 int main(int argc, char **argv) {
+	std::srand(time(NULL));
 	auto daily_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("logfile", 23, 59);
 	auto logger = std::make_shared<spdlog::logger>("galaxy", daily_sink);
 	logger->set_level(spdlog::level::info);
