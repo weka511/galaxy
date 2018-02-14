@@ -19,23 +19,29 @@
 
 import re,matplotlib.pyplot as plt
 
+
 def process(file_names,colours=['r','g','b','m','c','y']):
     for i in range(len(file_names)):
         energies=[]
         dt=0
-        m=0       
+        m=0
+        n=0
         for line in open(file_names[i]):
             match=re.match(r'.*dt=([-+e\.0-9]+)',line.strip())
             if match:
                 dt=float(match.group(1))
             match=re.match(r'.* Number of iterations=([-+e\.0-9]+)',line.strip())
             if match:
-                m=int(match.group(1))                
+                m=int(match.group(1))
+            match=re.match(r'.* Number of bodies=([-+e\.0-9]+)',line.strip())
+            if match:
+                n=int(match.group(1))            
             match=re.match(r'.*Energy +([-+e\.0-9]+)',line.strip())
             if match:
                 energies.append(float(match.group(1)))
-        plt.plot(energies,c=colours[i],label='dt={0},m={1}'.format(dt,m))
+        plt.plot(energies,c=colours[i],label='dt={0},m={1},n={1}'.format(dt,m,n))
         plt.scatter(0,energies[0],c=colours[i])
+    plt.title('Total Energy')
     plt.legend(loc='best')
     plt.savefig('energies.png')
     
