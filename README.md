@@ -18,7 +18,7 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 | configs.cpp | configs.h| Factory for creating configurations of particles, plus configuration management |
 | galaxy.cpp |galaxy.h| Simulate Galaxy using Barnes Hut|
 | geneva.cpp | |[2D Barnes Hut code from University of Geneva](https://www.coursera.org/learn/modeling-simulation-natural-processes/home/info), modified to calculate total energy |
-|Galaxy Simulator.xml||Notepad++ Workspace|
+|GalaxySimulator.xml||Notepad++ Workspace|
 | Makefile || Build Barnes Hut simulation |
 | make_3d.py | |Plot output from galaxy |
 | make_img.py || Plot output from galaxy |
@@ -41,3 +41,4 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 | 6_Feb_2018 | Reset centre of mass and linear momentum to (0,0,0) at start of run, and checked code. Configuration still drifts. Need to construct simplest possible case that exhibits error. | 
 | 7_Feb_2018 | I have done some more checking by adding tracing statements, and code appears to be working, albeit with large error. I am studying [ Error analysis of a tree code by Barnes and Hut.](http://adsabs.harvard.edu/full/1989ApJS...70..389B) Do errors decrease for very many particles? What if we soften gravitational potential? Another thought: what is error in Geneva code?|
 | 8_Feb_2018 | Downloaded Geneva version and modified to display energy. At present this does not appear to be conserved |
+| 13_Feb_2018| I am logging parameters, so can now investigate dependence of energy anomaly on dt, softening, and theta. I'm also doing some long runs to study long-term behaviour.|
