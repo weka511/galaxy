@@ -23,6 +23,8 @@ import re,matplotlib.pyplot as plt
 def process(file_names,colours=['r','g','b','m','c','y']):
     for i in range(len(file_names)):
         energies=[]
+        t=[]
+        j=0
         dt=0
         m=0
         n=0
@@ -39,12 +41,19 @@ def process(file_names,colours=['r','g','b','m','c','y']):
             match=re.match(r'.*Energy +([-+e\.0-9]+)',line.strip())
             if match:
                 energies.append(float(match.group(1)))
-        plt.plot(energies,c=colours[i],label='dt={0},m={1},n={1}'.format(dt,m,n))
-        plt.scatter(0,energies[0],c=colours[i])
+                j+=1
+                t.append(j*dt)
+        plt.plot(t,energies,c=colours[i],label='dt={0},m={1},n={2}'.format(dt,m,n))
+        plt.plot([t[0],t[-1]],[energies[0],energies[0]],c=colours[i],linestyle=':')
     plt.title('Total Energy')
     plt.legend(loc='best')
     plt.savefig('energies.png')
     
 if __name__=='__main__':
-    process(['logfile_2018-02-14_09-19','logfile_2018-02-14_10-46','logfile_2018-02-14_17-23','logfile_2018-02-13_14-31'])
+    import argparse
+    parser = argparse.ArgumentParser(description='Extract energy from logfiles and plot it')
+    parser.add_argument('--logs', '-l',metavar='N', type=str, nargs='+',help='Logfiles to be plotted')    
+    args = parser.parse_args()
+       
+    process(args.logs)
     plt.show()
