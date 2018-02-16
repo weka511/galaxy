@@ -80,10 +80,13 @@ bool CentreOfMassCalculator::depart(Node * node)  {
 		default: ;
 	}
 	if (x<node->_xmin || node->_xmax<x || y<node->_ymin || node->_ymax<y || z<node->_zmin || node->_zmax<z) {
-		std::cout<<__FILE__ <<", " <<__LINE__<< "Status: "<< node->getStatus()<<std::endl;   // FIXME - throw exception
-		std::cout << node->getStatus()<< " "<<node->_xmin << ", " << x << ", " << node->_xmax << std::endl;
-		std::cout << node->getStatus()<< " "<<node->_ymin << ", " << y << ", " << node->_ymax << std::endl;
-		std::cout << node->getStatus()<< " "<<node->_zmin << ", " << z << ", " << node->_zmax << std::endl;
+		std::cerr<<__FILE__ <<", " <<__LINE__<< "Status: "<< node->getStatus()<<std::endl;   // FIXME - throw exception
+		std::cerr << node->getStatus()<< " "<<node->_xmin << ", " << x << ", " << node->_xmax << std::endl;
+		std::cerr << node->getStatus()<< " "<<node->_ymin << ", " << y << ", " << node->_ymax << std::endl;
+		std::cerr << node->getStatus()<< " "<<node->_zmin << ", " << z << ", " << node->_zmax << std::endl;
+		std::stringstream message;
+		message<<__FILE__ <<", " <<__LINE__<<" Centre of mass out of range - see logfile."<<std::endl; 
+		throw std::logic_error(message.str().c_str()); 
 	}
 	return true;
 }
