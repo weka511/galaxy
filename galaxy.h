@@ -17,6 +17,7 @@
 
 #ifndef _GALAXY_H
 #define _GALAXY_H
+#include <limits>
 
 #include "particle.h"
 
@@ -48,27 +49,9 @@ void help();
 void report_energy(std::vector<Particle*> particles,int iter);
 
 
- //----------------------------------------------------------------------------------------------------
- 
- /**
-  * Execute simulation
-  */
-// void simulate(int start_iter,int max_iter,std::vector<Body*> bodies, double theta, double G, double dt, int img_iter,std::string path,std::string config_file_name,int check_energy);
- 
- 
- /**
-  * Restore configuration from saved file
-  */
-// bool restore_config(std::string path,std::string name,std::vector<Body*>& bodies, int &iter, double &theta, double &G, double& dt);
 
 
-
-/**
- * Retrieve position, mass, and velocities stored for one Body
- */
-// Body * extract_body(std::string line);
-
-
+double get_double(std::string name,char * param, double high=std::numeric_limits<double>::max(),double low=0);
 
 #endif
 

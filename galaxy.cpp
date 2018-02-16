@@ -82,8 +82,13 @@ int main(int argc, char **argv) {
 	
 	auto start = std::chrono::system_clock::now();
 	std::time_t start_time = std::chrono::system_clock::to_time_t(start);
-	
-	if (extract_options(argc,argv)) {
+	bool parsed=false;
+	try {
+		parsed=extract_options(argc,argv);
+	} catch (const std::out_of_range& oor) {
+		std::cerr << "Out of Range error: " << oor.what() << '\n';
+	}
+	if (parsed) {
 		std::vector<Particle*> particles;
 		int start_iterations=0;
 		if (resume_flag) {
@@ -189,7 +194,7 @@ void report_configuration(std::vector<Particle*> particles,int iter) {
 
 }
 
- 
+
  
 /**
  *  Process command line options. Returns `true` iff execution is to continue.
@@ -198,114 +203,92 @@ bool extract_options(int argc, char **argv) {
 	auto logger=spdlog::get("galaxy");
 	int option_index = 0;
 	int c;
-	
+
 	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:m:n:p:r:Ss:t:v:f:",long_options, &option_index)) != -1)
-    switch (c){
-		case 'c':{
-			std::stringstream param(optarg);
-			param>>configuration.config_file_name;
-			logger->info("Configuration File={0}",configuration.config_file_name);
-			break;
-		}
-		
-		case 'd':{
-			std::stringstream param(optarg);
-			param>>configuration.dt;
-			logger->info("dt={0}",configuration.dt);
-			break;
-		}
-		
-		case 'e':{
-			std::stringstream param(optarg);
-			param>>configuration.check_energy;
-			logger->info("check_energy={0}",configuration.check_energy);
-			break;
-		}
-		
-		case 'f':{
-			std::stringstream param(optarg);
-			param>>configuration.softening_length;
-			logger->info("Softening Length={0}",configuration.softening_length);
-			break;
-		}
+		switch (c){
+			case 'c':{
+				std::stringstream param(optarg);
+				param>>configuration.config_file_name;
+				logger->info("Configuration File={0}",configuration.config_file_name);
+				break;
+			}
 			
-		case 'G':{
-			std::stringstream param(optarg);
-			param>>configuration.G;
-			logger->info("G={0}",configuration.G);
-			break;
-		}
-		
-		case 'h':{
-			help( );
-			return false;
-		}
-		
-		case 'i':{
-			std::stringstream param(optarg);
-			param>>configuration.img_iter;
-			logger->info("Frequency at which PNG images are written={0}",configuration.img_iter);
-			break;
-		}
-		
-		case 'm':{
-			std::stringstream param(optarg);
-			param>>configuration.max_iter;
-			logger->info("Number of iterations={0}",configuration.max_iter);
-			break;
-		}
-		
-		case 'n':{
-			std::stringstream param(optarg);
-			param>>configuration.numbodies;
-			logger->info("Number of bodies={0}",configuration.numbodies);
-			break;
-		}
-		
-		case 'p':{
-			std::stringstream param(optarg);
-			param>>configuration.path;
-			logger->info("Path={0}",configuration.path);
-			break;
-		}
-		
-		case 'r':{
-			std::stringstream param(optarg);
-			param>>configuration.ini_radius;
-			logger->info("Initial radius={0}",configuration.ini_radius);
-			break;
-		}
-		
-		case 'S':{
-			logger->info("Seed random number generator");
-			std::srand(1);
-			break;
-		}
-		
-		case 's':{
-			std::stringstream param(optarg);
-			param>>configuration.mass;
-			logger->info("mass={0}",configuration.mass);
-			break;
-		}
+			case 'd':
+				configuration.dt=get_double("dt",optarg,0.5);
+				break;
 			
-		case 't':{
-			std::stringstream param(optarg);
-			param>>configuration.theta;
-			logger->info("Theta={0}",configuration.theta);
-			break;
+			case 'e':{
+				std::stringstream param(optarg);
+				param>>configuration.check_energy;
+				logger->info("check_energy={0}",configuration.check_energy);
+				break;
+			}
+			
+			case 'f':
+				configuration.softening_length=get_double("Softening Length",optarg);
+				break;
+				
+			case 'G':
+				configuration.G=get_double("G",optarg);
+			
+			case 'h':{
+				help( );
+				return false;
+			}
+			
+			case 'i':{
+				std::stringstream param(optarg);
+				param>>configuration.img_iter;
+				logger->info("Frequency at which PNG images are written={0}",configuration.img_iter);
+				break;
+			}
+			
+			case 'm':{
+				std::stringstream param(optarg);
+				param>>configuration.max_iter;
+				logger->info("Number of iterations={0}",configuration.max_iter);
+				break;
+			}
+			
+			case 'n':{
+				std::stringstream param(optarg);
+				param>>configuration.numbodies;
+				logger->info("Number of bodies={0}",configuration.numbodies);
+				break;
+			}
+			
+			case 'p':{
+				std::stringstream param(optarg);
+				param>>configuration.path;
+				logger->info("Path={0}",configuration.path);
+				break;
+			}
+			
+			case 'r':
+				configuration.ini_radius= get_double("Initial radius",optarg);
+				break;
+			
+			case 'S':
+				logger->info("Seed random number generator");
+				std::srand(1);
+				break;
+			
+			case 's':
+				configuration.mass=get_double("mass",optarg);
+				break;
+				
+			case 't':
+				configuration.theta=get_double("Theta",optarg);
+				break;
+			
+			case 'v':
+				configuration.inivel=get_double("Velocity",optarg);
+				break;
+			
+			case '?':
+				return false;
 		}
 		
-		case 'v':{
-			std::stringstream param(optarg);
-			param>>configuration.inivel;
-			logger->info("Velocity={0}",configuration.inivel);
-			break;
-		}
-		
-		case '?':
-			return false;
-	}
 	if (!ends_with(configuration.path,"/"))
 		configuration.path.append("/");
 
@@ -337,4 +320,19 @@ void help() {
 	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" << configuration.theta << "]"<< std::endl;
 	std::cout << "\t-v,--inivel\tInitial velocities [" << configuration.inivel << "]"<<std::endl;
 }
+
+double get_double(std::string name, char * param, double high,double low){
+	auto logger=spdlog::get("galaxy");
+	std::string::size_type sz;	
+	const double retval = std::stod (param,&sz);
+	std::cout << retval << "," << sz << strlen(param)<<std::endl;
+	if (sz==strlen(param) && low<retval && retval<high){
+		logger->info("name={0}",retval);
+		return retval;
+	}	else{
+		std::stringstream err;
+		err<< name <<"=" <<retval<<". Should be in range ("<< low <<"," <<high <<")" <<std::endl;
+		throw std::out_of_range(err.str());
+	}
+} 
 
