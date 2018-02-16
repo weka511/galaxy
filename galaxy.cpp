@@ -82,13 +82,13 @@ int main(int argc, char **argv) {
 	
 	auto start = std::chrono::system_clock::now();
 	std::time_t start_time = std::chrono::system_clock::to_time_t(start);
-	bool parsed=false;
+	bool have_parsed_command_line_parameters=false;
 	try {
-		parsed=extract_options(argc,argv);
+		have_parsed_command_line_parameters=extract_options(argc,argv);
 	} catch (const std::out_of_range& oor) {
 		std::cerr << "Out of Range error: " << oor.what() << '\n';
 	}
-	if (parsed) {
+	if (have_parsed_command_line_parameters) {
 		std::vector<Particle*> particles;
 		int start_iterations=0;
 		if (resume_flag) {
@@ -206,23 +206,18 @@ bool extract_options(int argc, char **argv) {
 
 	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:m:n:p:r:Ss:t:v:f:",long_options, &option_index)) != -1)
 		switch (c){
-			case 'c':{
-				std::stringstream param(optarg);
-				param>>configuration.config_file_name;
+			case 'c':
+				configuration.config_file_name=optarg;
 				logger->info("Configuration File={0}",configuration.config_file_name);
 				break;
-			}
 			
 			case 'd':
 				configuration.dt=get_double("dt",optarg,0.5);
 				break;
 			
-			case 'e':{
-				std::stringstream param(optarg);
-				param>>configuration.check_energy;
-				logger->info("check_energy={0}",configuration.check_energy);
+			case 'e':
+				configuration.check_energy=get_number("check_energy",optarg);
 				break;
-			}
 			
 			case 'f':
 				configuration.softening_length=get_double("Softening Length",optarg);
@@ -231,38 +226,26 @@ bool extract_options(int argc, char **argv) {
 			case 'G':
 				configuration.G=get_double("G",optarg);
 			
-			case 'h':{
+			case 'h':
 				help( );
 				return false;
-			}
 			
-			case 'i':{
-				std::stringstream param(optarg);
-				param>>configuration.img_iter;
-				logger->info("Frequency at which PNG images are written={0}",configuration.img_iter);
+			case 'i':
+				configuration.img_iter=get_number("Frequency at which configs are written",optarg);
 				break;
-			}
 			
-			case 'm':{
-				std::stringstream param(optarg);
-				param>>configuration.max_iter;
-				logger->info("Number of iterations={0}",configuration.max_iter);
+			case 'm':
+				configuration.max_iter=get_number("Number of iterations",optarg);
 				break;
-			}
 			
-			case 'n':{
-				std::stringstream param(optarg);
-				param>>configuration.numbodies;
-				logger->info("Number of bodies={0}",configuration.numbodies);
+			case 'n':
+				configuration.numbodies=get_number("Number of bodies",optarg);
 				break;
-			}
 			
-			case 'p':{
-				std::stringstream param(optarg);
-				param>>configuration.path;
+			case 'p':
+				configuration.path=optarg;
 				logger->info("Path={0}",configuration.path);
 				break;
-			}
 			
 			case 'r':
 				configuration.ini_radius= get_double("Initial radius",optarg);
@@ -321,13 +304,38 @@ void help() {
 	std::cout << "\t-v,--inivel\tInitial velocities [" << configuration.inivel << "]"<<std::endl;
 }
 
+/**
+ * Parse numeric command line parameter and validate:
+ * 1. any extraneous parameters
+ * 2. are value within range?
+ */
 double get_double(std::string name, char * param, double high,double low){
 	auto logger=spdlog::get("galaxy");
 	std::string::size_type sz;	
 	const double retval = std::stod (param,&sz);
 	std::cout << retval << "," << sz << strlen(param)<<std::endl;
 	if (sz==strlen(param) && low<retval && retval<high){
-		logger->info("name={0}",retval);
+		logger->info("{0}={1}",name,retval);
+		return retval;
+	}	else{
+		std::stringstream err;
+		err<< name <<"=" <<retval<<". Should be in range ("<< low <<"," <<high <<")" <<std::endl;
+		throw std::out_of_range(err.str());
+	}
+} 
+
+/**
+ * Parse numeric command line parameter and validate:
+ * 1. any extraneous parameters
+ * 2. are value within range?
+ */
+int get_number(std::string name, char * param, int high,int low){
+	auto logger=spdlog::get("galaxy");
+	std::string::size_type sz;	
+	const int retval = std::stoi (param,&sz);
+	std::cout << retval << "," << sz << strlen(param)<<std::endl;
+	if (sz==strlen(param) && low<retval && retval<high){
+		logger->info("{0}={1}",name,retval);
 		return retval;
 	}	else{
 		std::stringstream err;

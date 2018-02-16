@@ -48,9 +48,18 @@ void help();
   */
 void report_energy(std::vector<Particle*> particles,int iter);
 
+/**
+ * Parse numeric command line parameter and validate:
+ * 1. any extraneous parameters
+ * 2. are value within range?
+ */
+int get_number(std::string name, char * param, int high=std::numeric_limits<int>::max(),int low=0);
 
-
-
+/**
+ * Parse numeric command line parameter and validate:
+ * 1. any extraneous parameters
+ * 2. are value within range?
+ */
 double get_double(std::string name,char * param, double high=std::numeric_limits<double>::max(),double low=0);
 
 #endif
