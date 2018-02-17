@@ -138,7 +138,10 @@ class Configuration {
   private:
 	std::vector<Particle*>  createParticlesSimple( );
 	
-	std::vector<Particle*>  createParticlesPlummer( );
+	
+	std::vector<std::vector<double>> create_plummer_positions();
+	
+	std::vector<Particle*>  createParticles( std::vector<std::vector<double>> positions); 
 };
 
 /**

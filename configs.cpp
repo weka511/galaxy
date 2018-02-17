@@ -21,7 +21,7 @@
 #include "physics.h"
 #include "spdlog/spdlog.h"
 #include <cmath>
-
+#include <random>
 namespace spd = spdlog;
 
 const double pi=4*atan(1);
@@ -37,7 +37,7 @@ double a=0.01;
 		case Configuration::Simple:
 			return createParticlesSimple( );
 		case Configuration::Plummer:
-			return createParticlesSimple( );
+			return createParticles(create_plummer_positions());
 		default:
 			std::stringstream message;
 			message<<__FILE__ <<", " <<__LINE__<<" Invalid model "<<std::endl; 
@@ -45,41 +45,62 @@ double a=0.01;
 	 }
  }	 
 
- 
-std::vector<Particle*>  Configuration::createParticlesPlummer( ){
-	spdlog::get("galaxy")->info("{0} {1}: initializing {2} bodies, radius={3}",__FILE__,__LINE__,numbodies,ini_radius);
-	std::vector<Particle*> product;
-	M=numbodies;
-	a=0.01;
-	std::vector<double>r= reject_continuous([&](double r)->double{return plummer3d_density( r);},
-											0,
-											0,
-											1,
-											numbodies);
+std::vector<std::vector<double>> Configuration::create_plummer_positions() {
+	std::cout<<__FILE__ <<" " <<__LINE__ <<std::endl;
+	M=numbodies;   // FIXME
+	a=softening_length;
+	std::vector<double>r= reject_continuous(
+							[&](double r)->double{return plummer3d_density( r);},
+							0,
+							1,
+							plummer3d_density( 0),
+							numbodies);
 	std::vector<std::vector<double>> positions=direct_surface(3,numbodies);
-	std::vector<std::vector<double>> plummer_positions;
+	std::vector<std::vector<double>> product;
 	for (int i=0;i<numbodies;i++){
 		std::vector<double> pos=positions[i];
 		for (int j=0;j<pos.size();j++)
 			pos[j]*=r[i];
-		plummer_positions.push_back(pos);
+		std::cout<<__FILE__ <<" " <<__LINE__ <<pos[0]<< "," << pos[1] << ","<< pos[2]<<std::endl;
+		product.push_back(pos);
 	}
-	for (std::vector<std::vector<double>>::iterator it = plummer_positions.begin() ; it != plummer_positions.end(); ++it) {  // FIXME
-        const double x     = (*it)[0] * ini_radius;
-        const double y     = (*it)[1] * ini_radius ;
-		const double z     = flat_flag==0 ? (*it)[2] * ini_radius :0;
-        const double rnorm = std::sqrt(sqr(x)+sqr(y)+sqr(z));
-		const double v     = 2*M_PI/std::sqrt(rnorm*rnorm*rnorm);
-        const double vx    = -y *v;
-        const double vy    =  x *v;
-		const double vz    = flat_flag==0 ? (std::rand()%2==0 ? 0.1*vx : -0.1*vx) : 0;
-        product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
-    }
-	zero_centre_mass_and_linear_momentum(product);
-	spdlog::get("galaxy")->info("{0} {1}: initialized {2} bodies.",__FILE__,__LINE__,numbodies);
-	return product;
+	std::cout<<__FILE__ <<" " <<__LINE__ <<std::endl;
 	return product;
 }
+
+std::vector<Particle*>  Configuration::createParticles( std::vector<std::vector<double>> positions) {
+	std::cout<<__FILE__ <<" " <<__LINE__ <<std::endl;
+	std::vector<Particle*> product;
+	std::vector<std::vector<double>> scale =direct_surface(3,positions.size());
+	int i=0;
+	std::default_random_engine generator;
+	std::uniform_real_distribution<double> uniform_distribution_theta(-1,1);
+	std::uniform_real_distribution<double> uniform_distribution_phi(0,2*pi);
+	for (std::vector<std::vector<double>>::iterator it = positions.begin() ; it != positions.end(); ++it,i++) {
+		std::cout<<__FILE__ <<" " <<__LINE__ <<std::endl;
+        const double x     = (*it)[0] * ini_radius;
+        const double y     = (*it)[1] * ini_radius ;
+		const double z     = (*it)[2] * ini_radius;
+        const double rnorm = std::sqrt(sqr(x)+sqr(y)+sqr(z));
+		const double v     = 2*M_PI/std::sqrt(rnorm*rnorm*rnorm);
+		const double theta = std::acos(uniform_distribution_theta(generator));// https://physics.stackexchange.com/questions/94845/velocity-distribution-in-plummers-models-and-others-mass-distributions
+		const double phi = uniform_distribution_phi(generator);
+        const double vx    = v*std::sin(theta)*std::cos(phi);//scale[i][0]*v;
+        const double vy    = v*std::sin(theta)*std::sin(phi);//scale[i][1]*v;
+		const double vz    = v*std::cos(theta);//scale[i][2]*v;
+		std::cout<<__FILE__ <<" " <<__LINE__ <<vx<< "," << vy << ","<< vz<<","
+				<<sqr(scale[i][0])+sqr(scale[i][1])+sqr(scale[i][2])<<std::endl;
+        product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
+    }
+	std::cout<<__FILE__ <<" " <<__LINE__ <<std::endl;
+	zero_centre_mass_and_linear_momentum(product);
+	std::cout<<__FILE__ <<" " <<__LINE__ <<std::endl;
+	spdlog::get("galaxy")->info("{0} {1}: initialized {2} bodies.",__FILE__,__LINE__,numbodies);
+	std::cout<<__FILE__ <<" " <<__LINE__ <<std::endl;
+	return product;
+}
+
+
 	
 std::vector<Particle*>  Configuration::createParticlesSimple( ){
 	spdlog::get("galaxy")->info("{0} {1}: initializing {2} bodies, radius={3}",__FILE__,__LINE__,numbodies,ini_radius);
