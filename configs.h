@@ -23,7 +23,7 @@
 #include <vector>
 #include "particle.h"
 #include "physics.h"
-
+#include <random>
 
 class Configuration {
   public:
@@ -38,7 +38,7 @@ class Configuration {
 	/**
 	* Set centre of mass and total linear momentum to (0,0,0)
 	*/
-	void zero_centre_mass_and_linear_momentum(std::vector<Particle*> particles);
+	void zero_centre_mass_and_linear_momentum(std::vector<Particle*> particles,int iter);
 	
 	int get_max_digits_config();
 	
@@ -135,13 +135,17 @@ class Configuration {
 
 	double a=0.01;   // FIXME - Plummer
 	
+	int needToZero = 2;
   private:
 	std::vector<Particle*>  createParticlesSimple( );
 	
+	double get_velocity(double radius);
 	
 	std::vector<std::vector<double>> create_plummer_positions();
 	
 	std::vector<Particle*>  createParticles( std::vector<std::vector<double>> positions); 
+	
+	std::default_random_engine generator;
 };
 
 /**

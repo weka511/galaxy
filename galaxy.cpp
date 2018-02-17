@@ -237,6 +237,7 @@ bool report_all(std::vector<Particle*> particles,int iter){
 void report_energy(std::vector<Particle*> particles,int iter) {
 	if (configuration.check_energy>0 ) {
 		auto logger=spdlog::get("galaxy");
+		configuration.zero_centre_mass_and_linear_momentum(particles,iter);
 		const double E=get_energy(particles,configuration.G,configuration.softening_length);
 		if (abs(E-configuration.E0)>configuration.maximum_energy_error)	
 			configuration.maximum_energy_error=abs(E-configuration.E0);
@@ -265,6 +266,7 @@ void report_energy(std::vector<Particle*> particles,int iter) {
   */
 void report_configuration(std::vector<Particle*> particles,int iter) {
 	if (iter%configuration.img_iter==0) {
+		configuration.zero_centre_mass_and_linear_momentum(particles,iter);
 		std::cout << "Writing configuration for iteration " << iter << std::endl;
 		std::stringstream file_name;
 		file_name << configuration.path<< "bodies" << std::setw(configuration.get_max_digits_config()) << std::setfill('0') <<iter/configuration.img_iter << ".csv";
