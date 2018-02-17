@@ -319,7 +319,6 @@ double get_double(std::string name, char * param, double high,double low){
 	auto logger=spdlog::get("galaxy");
 	std::string::size_type sz;	
 	const double retval = std::stod (param,&sz);
-	std::cout << retval << "," << sz << strlen(param)<<std::endl;
 	if (sz==strlen(param) && low<retval && retval<high){
 		logger->info("{0}={1}",name,retval);
 		return retval;
@@ -339,7 +338,6 @@ int get_number(std::string name, char * param, int high,int low){
 	auto logger=spdlog::get("galaxy");
 	std::string::size_type sz;	
 	const int retval = std::stoi (param,&sz);
-	std::cout << retval << "," << sz << strlen(param)<<std::endl;
 	if (sz==strlen(param) && low<retval && retval<high){
 		logger->info("{0}={1}",name,retval);
 		return retval;
