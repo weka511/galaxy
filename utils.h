@@ -40,9 +40,14 @@
  void backup(std::string file_name, std::string backup="~");
  
  /**
+  *  Sample points from surface of hypersphere
+  */
+ std::vector<std::vector<double>> direct_surface(int d=3,int n=1);
+ 
+ /**
   *  Sample points from hypersphere
   */
- std::vector<std::vector<double>> direct_sphere(int d=3,int n=1,double mean=0);
+ std::vector<std::vector<double>> direct_sphere(int d=3,int n=1);
  
 bool ends_with(std::string const & value, std::string const & ending);
 

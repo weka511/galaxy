@@ -28,6 +28,7 @@
 #include <getopt.h>
 #include <random>
 #include <algorithm>
+#include "utils.h"
 
 /**
  * Encode a floating value so it can be stored and retrieved without loss of significant digits
@@ -79,7 +80,35 @@ void backup(std::string file_name, std::string backup) {
 	}
 	return result;
  }
- 
+
+ /**
+  *  Sample points from surface of hypersphere
+  *
+  *  Use algorithm 1.22 from Werner Krauth, Statistical Mechanics: Algorithms and Computations,
+  *  http://blancopeck.net/Statistics.pdf and http://www.oupcanada.com/catalog/9780198515364.html
+  *
+  */
+std::vector<std::vector<double>> direct_surface(int d,int n){
+	std::default_random_engine generator;
+	std::normal_distribution<double> gaussian_distribution(0.0,1.0/std::sqrt(d));
+	std::uniform_real_distribution<double> uniform_distribution(0.0,1.0);
+	std::vector<std::vector<double>> samples;
+
+	for (int i=0;i<n;i++){
+		std::vector<double> x;
+		double Sigma=0;
+		for (int i=0;i<d;i++){
+			const double xk=gaussian_distribution(generator);
+			x.push_back(xk);
+			Sigma+=sqr(xk);
+		}
+		for (std::vector<double>::iterator iter =x.begin();iter!=x.end();iter++)
+			(*iter)/=std::sqrt(Sigma);
+
+		samples.push_back(x);
+	} 
+	return samples;
+}
  /**
   *  Sample points from hypersphere
   *
@@ -87,30 +116,30 @@ void backup(std::string file_name, std::string backup) {
   *  http://blancopeck.net/Statistics.pdf and http://www.oupcanada.com/catalog/9780198515364.html
   *
   */
-  std::vector<std::vector<double>> direct_sphere(int d,int n,double mean){
-	  std::default_random_engine generator;
-	  std::normal_distribution<double> gaussian_distribution(mean,1.0/std::sqrt(d));
-	  std::uniform_real_distribution<double> uniform_distribution(0.0,1.0);
-	  std::vector<std::vector<double>> samples;
-	  for (int i=0;i<n;i++){
-		std::vector<double> x;
-		double Sigma=0;
+std::vector<std::vector<double>> direct_sphere(int d,int n){
+  std::default_random_engine generator;
+  std::normal_distribution<double> gaussian_distribution(0.0,1.0/std::sqrt(d));
+  std::uniform_real_distribution<double> uniform_distribution(0.0,1.0);
+  std::vector<std::vector<double>> samples;
+  for (int i=0;i<n;i++){
+	std::vector<double> x;
+	double Sigma=0;
 
-		for (int i=0;i<d;i++){
-			const double xk=gaussian_distribution(generator);
-			x.push_back(xk);
-			Sigma+=xk*xk;
-		}
+	for (int i=0;i<d;i++){
+		const double xk=gaussian_distribution(generator);
+		x.push_back(xk);
+		Sigma+=sqr(xk);
+	}
 
-		const double upsilon=pow(uniform_distribution(generator),1.0/d);
-		for (std::vector<double>::iterator iter =x.begin();iter!=x.end();iter++)
-			(*iter)*=upsilon/std::sqrt(Sigma);
+	const double upsilon=pow(uniform_distribution(generator),1.0/d);
+	for (std::vector<double>::iterator iter =x.begin();iter!=x.end();iter++)
+		(*iter)*=upsilon/std::sqrt(Sigma);
 
-		samples.push_back(x);
-	  }
-
-	  return samples;
+	samples.push_back(x);
   }
+
+  return samples;
+}
   
  void remove_old_configs(std::string path) {
 	std::stringstream command;
