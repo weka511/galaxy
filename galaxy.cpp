@@ -74,66 +74,72 @@ struct option long_options[] = {
  * Main program. Parse command line options, create bodies, then run simulation.
  */
 int main(int argc, char **argv) {
-	std::srand(time(NULL));
-	auto daily_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("logfile", 23, 59);
-	auto logger = std::make_shared<spdlog::logger>("galaxy", daily_sink);
-	logger->set_level(spdlog::level::info);
-	spdlog::register_logger(logger);
-	
-	auto start = std::chrono::system_clock::now();
-	std::time_t start_time = std::chrono::system_clock::to_time_t(start);
-	bool have_parsed_command_line_parameters=false;
 	try {
-		have_parsed_command_line_parameters=extract_options(argc,argv);
-	} catch (const std::out_of_range& oor) {
-		std::cerr << "Out of Range error: " << oor.what() << '\n';
-	}
-	if (have_parsed_command_line_parameters) {
-		std::vector<Particle*> particles;
-		int start_iterations=0;
-		if (resume_flag) {
-			if (configuration.restore_config(particles,start_iterations))
-				logger->info("Restarted from {0} {1} at {2}",configuration.path,configuration.config_file_name,start_iterations);
-			else {
-				particles = configuration.createParticles(  );
-				start_iterations=0;
-				logger->info("Failed to restart from {0} {1}",configuration.path,configuration.config_file_name);
-			}
-		} else {
-			std::system("rm configs/*");  // Issue #5 - remove old config files
-			particles = configuration.createParticles(  );
-		}
-	
-		report_all(particles,start_iterations);
-		configuration.E0 = get_energy(particles,configuration.G,configuration.softening_length);
+		auto daily_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("./logs/logfile", 23, 59);
+		auto logger = std::make_shared<spdlog::logger>("galaxy", daily_sink);
+		logger->set_level(spdlog::level::info);
+		spdlog::register_logger(logger);
+			std::srand(time(NULL));
+		auto start = std::chrono::system_clock::now();
+		std::time_t start_time = std::chrono::system_clock::to_time_t(start);
+		bool have_parsed_command_line_parameters=false;
 		try {
-			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,configuration.theta,configuration.G,configuration.softening_length);},
-						configuration.max_iter,
-						configuration.dt,
-						particles,
-						&report_all,
-						start_iterations);
-			if (configuration.check_energy>0 )
-				logger->info("Energy Error={0}, {1}%",
-							configuration.maximum_energy_error,
-							(int)(100*configuration.maximum_energy_error/abs(configuration.E0)));
-			} catch(const std::logic_error& e) {
-				std::cerr << e.what() << std::endl;
-				logger->info(e.what());
+			have_parsed_command_line_parameters=extract_options(argc,argv);
+		} catch (const std::out_of_range& oor) {
+			std::cerr << "Out of Range error: " << oor.what() << '\n';
 		}
-	
-		auto end = std::chrono::system_clock::now();
-	 
-		std::chrono::duration<double> elapsed_seconds = end-start;
-		std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-	 
-		logger->info("finished computation at {0}, elapsed time: {1} seconds", std::ctime(&end_time), elapsed_seconds.count());
-				  
-		return EXIT_SUCCESS;
-	} else {
-		logger->error("Terminating");
+		if (have_parsed_command_line_parameters) {
+			std::vector<Particle*> particles;
+			int start_iterations=0;
+			if (resume_flag) {
+				if (configuration.restore_config(particles,start_iterations))
+					logger->info("Restarted from {0} {1} at {2}",configuration.path,configuration.config_file_name,start_iterations);
+				else {
+					particles = configuration.createParticles(  );
+					start_iterations=0;
+					logger->info("Failed to restart from {0} {1}",configuration.path,configuration.config_file_name);
+				}
+			} else {
+				std::system("rm configs/*");  // Issue #5 - remove old config files
+				particles = configuration.createParticles(  );
+			}
+		
+			report_all(particles,start_iterations);
+			configuration.E0 = get_energy(particles,configuration.G,configuration.softening_length);
+			try {
+				run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,configuration.theta,configuration.G,configuration.softening_length);},
+							configuration.max_iter,
+							configuration.dt,
+							particles,
+							&report_all,
+							start_iterations);
+				if (configuration.check_energy>0 )
+					logger->info("Energy Error={0}, {1}%",
+								configuration.maximum_energy_error,
+								(int)(100*configuration.maximum_energy_error/abs(configuration.E0)));
+				} catch(const std::logic_error& e) {
+					std::cerr << e.what() << std::endl;
+					logger->info(e.what());
+			}
+		
+			auto end = std::chrono::system_clock::now();
+		 
+			std::chrono::duration<double> elapsed_seconds = end-start;
+			std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+		 
+			logger->info("finished computation at {0}, elapsed time: {1} seconds", std::ctime(&end_time), elapsed_seconds.count());
+					  
+			return EXIT_SUCCESS;
+		} else {
+			logger->error("Terminating");
+			return EXIT_FAILURE;
+		}
+	} catch (const spdlog::spdlog_ex& ex){
+		std::cerr << "Log initialization failed: " << ex.what() << std::endl;
 		return EXIT_FAILURE;
 	}
+	
+
 }
 
 /**

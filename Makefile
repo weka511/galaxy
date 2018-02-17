@@ -79,5 +79,6 @@ distclean: clean
 setup:
 	-$(MKDIR) configs
 	-$(MKDIR) imgs
+	-$(MKDIR) logs
 	
 include .depend
