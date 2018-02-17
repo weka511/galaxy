@@ -61,7 +61,7 @@ std::vector<std::vector<double>> Configuration::create_plummer_positions() {
 		std::vector<double> pos=positions[i];
 		for (int j=0;j<pos.size();j++)
 			pos[j]*=r[i];
-		std::cout<<__FILE__ <<" " <<__LINE__ <<pos[0]<< "," << pos[1] << ","<< pos[2]<<std::endl;
+		std::cout<<__FILE__ <<" " <<__LINE__ <<" "<<pos[0]<< "," << pos[1] << ","<< pos[2]<<std::endl;
 		product.push_back(pos);
 	}
 	std::cout<<__FILE__ <<" " <<__LINE__ <<std::endl;
@@ -76,19 +76,32 @@ std::vector<Particle*>  Configuration::createParticles( std::vector<std::vector<
 	std::default_random_engine generator;
 	std::uniform_real_distribution<double> uniform_distribution_theta(-1,1);
 	std::uniform_real_distribution<double> uniform_distribution_phi(0,2*pi);
+	std::uniform_real_distribution<double> uniform_distribution_x(0,1);
 	for (std::vector<std::vector<double>>::iterator it = positions.begin() ; it != positions.end(); ++it,i++) {
 		std::cout<<__FILE__ <<" " <<__LINE__ <<std::endl;
         const double x     = (*it)[0] * ini_radius;
         const double y     = (*it)[1] * ini_radius ;
 		const double z     = (*it)[2] * ini_radius;
-        const double rnorm = std::sqrt(sqr(x)+sqr(y)+sqr(z));
-		const double v     = 2*M_PI/std::sqrt(rnorm*rnorm*rnorm);
-		const double theta = std::acos(uniform_distribution_theta(generator));// https://physics.stackexchange.com/questions/94845/velocity-distribution-in-plummers-models-and-others-mass-distributions
-		const double phi = uniform_distribution_phi(generator);
-        const double vx    = v*std::sin(theta)*std::cos(phi);//scale[i][0]*v;
-        const double vy    = v*std::sin(theta)*std::sin(phi);//scale[i][1]*v;
-		const double vz    = v*std::cos(theta);//scale[i][2]*v;
-		std::cout<<__FILE__ <<" " <<__LINE__ <<vx<< "," << vy << ","<< vz<<","
+        const double radius = std::sqrt(sqr(x)+sqr(y)+sqr(z));
+		double x0=0;
+		double y0=0.1;
+		while (y0 > x0*x0*std::pow(1.0-x0*x0,3.5)){
+			x0=uniform_distribution_x(generator);
+			y0=0.1*uniform_distribution_x(generator);
+		}
+		const double v = x0 * std::sqrt(2.0) * std::pow( 1.0 + sqr(radius),-0.25);
+		// const double v     = std::sqrt(G * numbodies*mass/rnorm);//2*M_PI/std::sqrt(rnorm*rnorm*rnorm);
+//		https://physics.stackexchange.com/questions/94845/velocity-distribution-in-plummers-models-and-others-mass-distributions
+		const double acos_theta=uniform_distribution_theta(generator);
+		const double theta = std::acos(acos_theta);
+		const double phi   = uniform_distribution_phi(generator);
+        const double vx    = v*std::sin(theta)*std::cos(phi);
+        const double vy    = v*std::sin(theta)*std::sin(phi);
+		const double vz    = v*acos_theta;
+		// const double vx    = scale[i][0]*v;
+        // const double vy    = scale[i][1]*v;
+		// const double vz    = scale[i][2]*v;
+		std::cout<<__FILE__ <<" " <<__LINE__ << " "<<vx<< "," << vy << ","<< vz<<","
 				<<sqr(scale[i][0])+sqr(scale[i][1])+sqr(scale[i][2])<<std::endl;
         product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
     }
