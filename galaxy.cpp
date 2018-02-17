@@ -83,13 +83,9 @@ int main(int argc, char **argv) {
 			std::srand(time(NULL));
 		auto start = std::chrono::system_clock::now();
 		std::time_t start_time = std::chrono::system_clock::to_time_t(start);
-		bool have_parsed_command_line_parameters=false;
-		try {
-			have_parsed_command_line_parameters=extract_options(argc,argv);
-		} catch (const std::out_of_range& oor) {
-			std::cerr << "Out of Range error: " << oor.what() << '\n';
-		}
-		if (have_parsed_command_line_parameters) {
+
+
+		if (extract_options(argc,argv)) {
 			std::vector<Particle*> particles;
 			int start_iterations=0;
 			if (resume_flag) {
@@ -104,25 +100,21 @@ int main(int argc, char **argv) {
 				std::system("rm configs/*");  // Issue #5 - remove old config files
 				particles = configuration.createParticles(  );
 			}
-		
+	
 			report_all(particles,start_iterations);
 			configuration.E0 = get_energy(particles,configuration.G,configuration.softening_length);
-			try {
-				run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,configuration.theta,configuration.G,configuration.softening_length);},
-							configuration.max_iter,
-							configuration.dt,
-							particles,
-							&report_all,
-							start_iterations);
-				if (configuration.check_energy>0 )
-					logger->info("Energy Error={0}, {1}%",
-								configuration.maximum_energy_error,
-								(int)(100*configuration.maximum_energy_error/abs(configuration.E0)));
-				} catch(const std::logic_error& e) {
-					std::cerr << e.what() << std::endl;
-					logger->info(e.what());
-			}
-		
+
+			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,configuration.theta,configuration.G,configuration.softening_length);},
+						configuration.max_iter,
+						configuration.dt,
+						particles,
+						&report_all,
+						start_iterations);
+			if (configuration.check_energy>0 )
+				logger->info("Energy Error={0}, {1}%",
+							configuration.maximum_energy_error,
+							(int)(100*configuration.maximum_energy_error/abs(configuration.E0)));
+						
 			auto end = std::chrono::system_clock::now();
 		 
 			std::chrono::duration<double> elapsed_seconds = end-start;
@@ -132,11 +124,12 @@ int main(int argc, char **argv) {
 					  
 			return EXIT_SUCCESS;
 		} else {
-			logger->error("Terminating");
+			logger->error("Terminating: failed to parse command line parameters.");
 			return EXIT_FAILURE;
 		}
-	} catch (const spdlog::spdlog_ex& ex){
-		std::cerr << "Log initialization failed: " << ex.what() << std::endl;
+		
+	} catch (const std::exception& ex){
+		std::cerr << argv[0]<< " halted following an exception: " << ex.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }
@@ -306,6 +299,7 @@ void help() {
 	std::cout << "\t-G,--G\t\tGravitational Constant [" << configuration.G << "]"<<std::endl;
 	std::cout << "\t-h,--help\tShow help text" << std::endl;
 	std::cout << "\t-i,--img_iter\tFrequency for writing positions [" << configuration.img_iter << "]"<< std::endl;
+	std::cout << "\t-l,--plummer\tUse a Plummer model for starting positions and velocities" << std::endl;
 	std::cout << "\t-m,--max_iter\tMaximum number of iterations [" << configuration.max_iter << "]"<< std::endl;
 	std::cout << "\t-n,--numbodies\tNumber of bodies [" << configuration.numbodies<< "]"<<std::endl;
 	std::cout << "\t-p,--path\tPath for writing configurations [" << configuration.path << "]"<< std::endl;
