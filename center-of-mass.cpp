@@ -58,7 +58,7 @@ void CentreOfMassCalculator::check_all_particles_processed() {
 	for (int i =0;i<_processed_particle.size();i++)
 		if (!_processed_particle[i]) {
 			std::stringstream message;
-			std::cout<<__FILE__ <<", " <<__LINE__<<" Missing index: "<<_processed_particle[i]<<std::endl; 
+			message<<__FILE__ <<", " <<__LINE__<<" Missing index: "<<_processed_particle[i]<<std::endl; 
 			throw std::logic_error(message.str().c_str());
 		}
 }

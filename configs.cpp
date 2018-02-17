@@ -16,16 +16,59 @@
  */
  
 #include <sstream>
+#include <stdexcept>
 #include "configs.h"
 #include "physics.h"
 #include "spdlog/spdlog.h"
+#include <cmath>
 
 namespace spd = spdlog;
+
+const double pi=4*atan(1);
+
+double M=1;
+double a=0.01;
 
  /**
   * Create all bodies needed at start of run
   */
  std::vector<Particle*>  Configuration::createParticles( ){
+	 switch(model) {
+		case Configuration::Simple:
+			return createParticlesSimple( );
+		case Configuration::Plummer:
+			return createParticlesSimple( );
+		default:
+			std::stringstream message;
+			message<<__FILE__ <<", " <<__LINE__<<" Invalid model "<<std::endl; 
+			throw std::logic_error(message.str().c_str());
+	 }
+ }	 
+
+ 
+std::vector<Particle*>  Configuration::createParticlesPlummer( ){
+	spdlog::get("galaxy")->info("{0} {1}: initializing {2} bodies, radius={3}",__FILE__,__LINE__,numbodies,ini_radius);
+	std::vector<Particle*> product;
+	M=numbodies;
+	a=0.01;
+	std::vector<double>r= reject_continuous([&](double r)->double{return plummer3d_density( r);},
+											0,
+											0,
+											1,
+											numbodies);
+	std::vector<std::vector<double>> positions=direct_surface(3,numbodies);
+	std::vector<std::vector<double>> plummer_positions;
+	for (int i=0;i<numbodies;i++){
+		std::vector<double> pos=positions[i];
+		for (int j=0;j<pos.size();j++)
+			pos[j]*=r[i];
+		plummer_positions.push_back(pos);
+	}
+		
+	return product;
+}
+	
+std::vector<Particle*>  Configuration::createParticlesSimple( ){
 	spdlog::get("galaxy")->info("{0} {1}: initializing {2} bodies, radius={3}",__FILE__,__LINE__,numbodies,ini_radius);
 
 	std::vector<std::vector<double>> positions=direct_sphere(3,numbodies);
@@ -226,4 +269,13 @@ Particle * Configuration::extract_particle(std::string line){
 	}
 	
 	return new Particle(px,py,pz,vx,vy,vz,m);
+}
+
+
+/**
+ * The Plummer 3-dimensional density profile after
+ * https://en.wikipedia.org/wiki/Plummer_model
+ */
+double plummer3d_density( double r) {
+	return (3*M/(4*pi*pow(a,3)))+pow(1+sqr(r/a),5/2);
 }

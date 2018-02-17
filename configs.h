@@ -32,6 +32,8 @@ class Configuration {
 	* Create all bodies needed at start of run
 	*/
 	std::vector<Particle*>  createParticles();
+	
+
 
 	/**
 	* Set centre of mass and total linear momentum to (0,0,0)
@@ -130,8 +132,19 @@ class Configuration {
 	double maximum_energy_error=0;  //largest discrepancy in energy
 
 	double softening_length=0.0001;  // Used to handle collisions
+
+	double a=0.01;   // FIXME - Plummer
 	
+  private:
+	std::vector<Particle*>  createParticlesSimple( );
+	
+	std::vector<Particle*>  createParticlesPlummer( );
 };
 
-
+/**
+ * The Plummer 3-dimensional density profile after
+ * https://en.wikipedia.org/wiki/Plummer_model
+ */
+ double plummer3d_density(double r);
+ 
 #endif
