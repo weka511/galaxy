@@ -27,6 +27,7 @@
 
 class Configuration {
   public:
+    enum Model {Simple,Plummer};
    /**
 	* Create all bodies needed at start of run
 	*/
@@ -122,7 +123,7 @@ class Configuration {
 	 */
 	std::string path = "./configs";
 
-
+	Model model=Simple;
 
 	double  E0 =0; // initial energy
 

@@ -59,6 +59,7 @@ struct option long_options[] = {
 	{"max_iter",  		required_argument, 	0, 				'm'},
 	{"numbodies",  		required_argument, 	0, 				'n'},
 	{"path",  			required_argument, 	0, 				'p'},
+	{"plummer",  		no_argument, 		0, 				'l'},
 	{"ini_radius",  	required_argument, 	0, 				'r'},
 	{"mass",  			required_argument, 	0, 				's'},
 	{"resume", 			no_argument,       	&resume_flag, 	1},
@@ -138,9 +139,95 @@ int main(int argc, char **argv) {
 		std::cerr << "Log initialization failed: " << ex.what() << std::endl;
 		return EXIT_FAILURE;
 	}
-	
-
 }
+
+/**
+ *  Process command line options. Returns `true` iff execution is to continue.
+ */
+bool extract_options(int argc, char **argv) {
+	auto logger=spdlog::get("galaxy");
+	int option_index = 0;
+	int c;
+
+	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:lm:n:p:r:Ss:t:v:f:",long_options, &option_index)) != -1)
+		switch (c){
+			case 'c':
+				configuration.config_file_name=optarg;
+				logger->info("Configuration File={0}",configuration.config_file_name);
+				break;
+			
+			case 'd':
+				configuration.dt=get_double("dt",optarg,0.5);
+				break;
+			
+			case 'e':
+				configuration.check_energy=get_number("check_energy",optarg);
+				break;
+			
+			case 'f':
+				configuration.softening_length=get_double("Softening Length",optarg);
+				break;
+				
+			case 'G':
+				configuration.G=get_double("G",optarg);
+			
+			case 'h':
+				help( );
+				return false;
+			
+			case 'i':
+				configuration.img_iter=get_number("Frequency at which configs are written",optarg);
+				break;
+				
+			case 'l':
+				configuration.model = Configuration::Plummer;
+				logger->info("Plummer Model");
+				break;
+			
+			case 'm':
+				configuration.max_iter=get_number("Number of iterations",optarg);
+				break;
+			
+			case 'n':
+				configuration.numbodies=get_number("Number of bodies",optarg);
+				break;
+			
+			case 'p':
+				configuration.path=optarg;
+				logger->info("Path={0}",configuration.path);
+				break;
+			
+			case 'r':
+				configuration.ini_radius= get_double("Initial radius",optarg);
+				break;
+			
+			case 'S':
+				logger->info("Seed random number generator");
+				std::srand(1);
+				break;
+			
+			case 's':
+				configuration.mass=get_double("mass",optarg);
+				break;
+				
+			case 't':
+				configuration.theta=get_double("Theta",optarg);
+				break;
+			
+			case 'v':
+				configuration.inivel=get_double("Velocity",optarg);
+				break;
+			
+			case '?':
+				return false;
+		}
+		
+	if (!ends_with(configuration.path,"/"))
+		configuration.path.append("/");
+
+	return true;
+}	
+
 
 /**
  * Used after iteration to write out data
@@ -202,87 +289,6 @@ void report_configuration(std::vector<Particle*> particles,int iter) {
 
 
  
-/**
- *  Process command line options. Returns `true` iff execution is to continue.
- */
-bool extract_options(int argc, char **argv) {
-	auto logger=spdlog::get("galaxy");
-	int option_index = 0;
-	int c;
-
-	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:m:n:p:r:Ss:t:v:f:",long_options, &option_index)) != -1)
-		switch (c){
-			case 'c':
-				configuration.config_file_name=optarg;
-				logger->info("Configuration File={0}",configuration.config_file_name);
-				break;
-			
-			case 'd':
-				configuration.dt=get_double("dt",optarg,0.5);
-				break;
-			
-			case 'e':
-				configuration.check_energy=get_number("check_energy",optarg);
-				break;
-			
-			case 'f':
-				configuration.softening_length=get_double("Softening Length",optarg);
-				break;
-				
-			case 'G':
-				configuration.G=get_double("G",optarg);
-			
-			case 'h':
-				help( );
-				return false;
-			
-			case 'i':
-				configuration.img_iter=get_number("Frequency at which configs are written",optarg);
-				break;
-			
-			case 'm':
-				configuration.max_iter=get_number("Number of iterations",optarg);
-				break;
-			
-			case 'n':
-				configuration.numbodies=get_number("Number of bodies",optarg);
-				break;
-			
-			case 'p':
-				configuration.path=optarg;
-				logger->info("Path={0}",configuration.path);
-				break;
-			
-			case 'r':
-				configuration.ini_radius= get_double("Initial radius",optarg);
-				break;
-			
-			case 'S':
-				logger->info("Seed random number generator");
-				std::srand(1);
-				break;
-			
-			case 's':
-				configuration.mass=get_double("mass",optarg);
-				break;
-				
-			case 't':
-				configuration.theta=get_double("Theta",optarg);
-				break;
-			
-			case 'v':
-				configuration.inivel=get_double("Velocity",optarg);
-				break;
-			
-			case '?':
-				return false;
-		}
-		
-	if (!ends_with(configuration.path,"/"))
-		configuration.path.append("/");
-
-	return true;
-}	
 
 
 
