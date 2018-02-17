@@ -109,6 +109,7 @@ std::vector<std::vector<double>> direct_surface(int d,int n){
 	} 
 	return samples;
 }
+
  /**
   *  Sample points from hypersphere
   *
@@ -140,7 +141,28 @@ std::vector<std::vector<double>> direct_sphere(int d,int n){
 
   return samples;
 }
-  
+
+ /**
+  *  Sample points a continuous distribution
+  *
+  *  Use algorithm 1.16 from Werner Krauth, Statistical Mechanics: Algorithms and Computations,
+  *  http://blancopeck.net/Statistics.pdf and http://www.oupcanada.com/catalog/9780198515364.html
+  *
+  */
+double reject_continuous(double (*pi)(double x),double x_min, double x_max, double pi_max) {
+	std::default_random_engine generator;
+	std::uniform_real_distribution<double> uniform_distribution_x(x_min,x_max);
+	std::uniform_real_distribution<double> uniform_distribution_upsilon(0,pi_max);
+	double x;
+	bool not_found=true;
+	while (not_found) {
+		x=uniform_distribution_x(generator);
+		const double upsilon=uniform_distribution_upsilon(generator);
+		not_found=upsilon>pi(x);
+	}
+	return x;
+}
+
  void remove_old_configs(std::string path) {
 	std::stringstream command;
 	command<<"exec rm -r " << path << "*";

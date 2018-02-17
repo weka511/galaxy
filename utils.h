@@ -49,6 +49,16 @@
   */
  std::vector<std::vector<double>> direct_sphere(int d=3,int n=1);
  
+/**
+ *  Sample points a continuous distribution
+ *
+ *  Use algorithm 1.16 from Werner Krauth, Statistical Mechanics: Algorithms and Computations,
+ *  http://blancopeck.net/Statistics.pdf and http://www.oupcanada.com/catalog/9780198515364.html
+ *
+ */
+
+double reject_continuous(double (*pi)(double x),double x_min, double x_max, double pi_max);
+ 
 bool ends_with(std::string const & value, std::string const & ending);
 
 void remove_old_configs(std::string path);
