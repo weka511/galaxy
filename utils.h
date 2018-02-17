@@ -57,7 +57,7 @@
  *
  */
 
-double reject_continuous(double (*pi)(double x),double x_min, double x_max, double pi_max);
+std::vector<double> reject_continuous(double (*pi)(double x),double x_min, double x_max, double pi_max,int n=1);
  
 bool ends_with(std::string const & value, std::string const & ending);
 
