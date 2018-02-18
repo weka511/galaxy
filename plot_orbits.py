@@ -71,7 +71,7 @@ def extract(config_path = './configs/',selector=[0,1,2,55,100,400],maxsamples=10
     result=[]
     n=len(os.listdir(config_path))   # Total number of points
     skip=1                           # Used to skip over data so number of points won't exceed maxsamples
-    while n//skip>maxsamples:
+    while maxsamples>0 and n//skip>maxsamples:
         skip*=10
     i=0
     for file_name in os.listdir(config_path):
@@ -92,7 +92,7 @@ if __name__=='__main__':
     parser.add_argument('--norbits','-n', type=int,action='store',
                         help='Number of orbits',default=6)
     parser.add_argument('--maxsamples','-m', type=int,action='store',
-                        help='Maximum number of sample per orbit',default=1000)    
+                        help='Maximum number of sample per orbit (-1 to process all samples)',default=1000)    
     parser.add_argument('--prefix','-p', action='store',
                         help='Prefix for configuration files',default='bodies') 
     parser.add_argument('--suffix','-s', action='store',
@@ -103,7 +103,14 @@ if __name__=='__main__':
                         help='Number of standard deviations to use for scaling',default=3)    
     args = parser.parse_args()    
     selector=random.sample(range(args.bodies),args.norbits) 
-    data=extract(selector=selector,maxsamples=args.maxsamples,prefix=args.prefix,suffix=args.suffix,delimiter=args.delimiter)
-    plot(data,selector=selector,n=args.nsigma)
+    plot(
+        extract(
+            selector=selector,
+            maxsamples=args.maxsamples,
+            prefix=args.prefix,
+            suffix=args.suffix,
+            delimiter=args.delimiter),
+        selector=selector,
+        n=args.nsigma)
     plt.show()
   
