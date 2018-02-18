@@ -25,7 +25,7 @@ def process(file_names,colours=['r','g','b','m','c','y']):
         energies=[]
         t=[]
         j=0
-        dt=0
+        dt=0.001
         m=0
         n=0
         for line in open(file_names[i]):
