@@ -65,7 +65,9 @@ struct option long_options[] = {
 	{"resume", 			no_argument,       	&resume_flag, 	1},
 	{"theta",  			required_argument, 	0, 				't'},
 	{"inivel",  		required_argument, 	0, 				'v'},
+	{"seed",  			no_argument, 		0, 				'S'},
 	{"soften",  		required_argument, 	0, 				'f'},
+	{"zero",  			required_argument, 	0, 				'z'},
 	{0, 				0, 					0, 				0}
 };	
 
@@ -211,6 +213,10 @@ bool extract_options(int argc, char **argv) {
 				configuration.inivel=get_double("Velocity",optarg);
 				break;
 			
+			case 'z':
+				configuration.needToZero=get_number("Need to zero",optarg,3,-1);
+				break;
+				
 			case '?':
 				return false;
 		}
@@ -308,8 +314,10 @@ void help() {
 	std::cout << "\t-r,--ini_radius\tInitial Radius [" << configuration.ini_radius << "]"<<std::endl;
 	std::cout << "\t--resume\tResume previous run"<<std::endl;
 	std::cout << "\t-s,--mass\tMass of bodies [" << configuration.mass << "]"<<std::endl;
+	std::cout << "\t-S,--seed\tSeed random number generator"<<std::endl;
 	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" << configuration.theta << "]"<< std::endl;
 	std::cout << "\t-v,--inivel\tInitial velocities [" << configuration.inivel << "]"<<std::endl;
+	std::cout << "\t-z,--zero\tReset centre of mass and momentum [" << configuration.needToZero << "]"<<std::endl;
 }
 
 /**
