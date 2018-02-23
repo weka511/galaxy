@@ -33,8 +33,6 @@ class Configuration {
 	*/
 	std::vector<Particle*>  createParticles();
 	
-
-
 	/**
 	* Set centre of mass and total linear momentum to (0,0,0)
 	*/
@@ -139,11 +137,11 @@ class Configuration {
   private:
 	std::vector<Particle*>  createParticlesSimple( );
 	
-	double get_velocity(double radius);
-	
-	std::vector<std::vector<double>> create_plummer_positions();
-	
-	std::vector<Particle*>  createParticles( std::vector<std::vector<double>> positions); 
+	/**
+	 *   Create particles satisfying Plummer distribution, following the derivateion in Hut & Makino
+	 *   http://www.artcompsci.org/kali/vol/plummer/volume9.pdf
+	 */
+	std::vector<Particle*>  createPlummerDistribution( ); 
 	
 	std::default_random_engine generator;
 };

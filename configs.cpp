@@ -37,7 +37,7 @@ double a=0.01;
 		case Configuration::Simple:
 			return createParticlesSimple( );
 		case Configuration::Plummer:
-			return createParticles(create_plummer_positions());
+			return createPlummerDistribution();
 		default:
 			std::stringstream message;
 			message<<__FILE__ <<", " <<__LINE__<<" Invalid model "<<std::endl; 
@@ -45,69 +45,43 @@ double a=0.01;
 	 }
  }	 
 
-std::vector<std::vector<double>> Configuration::create_plummer_positions() {
-	M=numbodies;   // FIXME
-	a=softening_length;
-	std::vector<double>r= reject_continuous(
-							[&](double r)->double{return plummer3d_density( r);},
-							0,
-							1,
-							plummer3d_density( 0),
-							numbodies);
-	std::vector<std::vector<double>> positions=direct_surface(3,numbodies);
-	std::vector<std::vector<double>> product;
-	for (int i=0;i<numbodies;i++){
-		std::vector<double> pos=positions[i];
-		for (int j=0;j<pos.size();j++)
-			pos[j]*=r[i];
-		product.push_back(pos);
-	}
-	spdlog::get("galaxy")->info("{0} {1}: assigned positions for {2} bodies.",__FILE__,__LINE__,numbodies);
-	return product;
-}
+
 
 /**
- * Calculate velocity using Hut & Makino
- *
- * http://www.artcompsci.org/kali/vol/plummer/volume9.pdf
+ *   Create particles satisfying Plummer distribution, following the derivateion in Hut & Makino
+ *   http://www.artcompsci.org/kali/vol/plummer/volume9.pdf
  */
-double Configuration::get_velocity(double radius_sqr) {
+std::vector<Particle*>  Configuration::createPlummerDistribution( ){
+	std::vector<Particle*> product;
 
+	std::uniform_real_distribution<double> uniform_distribution_theta(-1,1);
+	std::uniform_real_distribution<double> uniform_distribution_phi(0,2*pi);
+	std::uniform_real_distribution<double> uniform_distribution_radius(0.00001,1);  //FIXME - GLB?
 	std::uniform_real_distribution<double> uniform_distribution_x(0,1);
 	std::uniform_real_distribution<double> uniform_distribution_y(0,.01);
 	
-	double x=0;
-	double y=0.1;
-	while (y > sqr(x)*std::pow(1.0-sqr(x),3.5)){
-		x=uniform_distribution_x(generator);
-		y=uniform_distribution_y(generator);
-	}
-	return x * std::sqrt(2.0) * std::pow( 1.0 + radius_sqr,-0.25);
-}
-
-std::vector<Particle*>  Configuration::createParticles( std::vector<std::vector<double>> positions) {
-	std::vector<Particle*> product;
-	std::vector<std::vector<double>> scale =direct_surface(3,positions.size());
-	int i=0;
+	for (int i;i<numbodies;i++) {
+		const double radius = ini_radius/(std::sqrt(std::pow(uniform_distribution_radius(generator),-2.0/3.0)));
+		double acos_theta   = uniform_distribution_theta(generator);
+		double theta        = std::acos(acos_theta);
+		double phi          = uniform_distribution_phi(generator);
+        const double x      = radius * std::sin(theta)*std::cos(phi);
+        const double y      = radius * std::sin(theta)*std::sin(phi);
+		const double z      = radius * acos_theta;
 	
-	std::uniform_real_distribution<double> uniform_distribution_theta(-1,1);
-	std::uniform_real_distribution<double> uniform_distribution_phi(0,2*pi);
-
-	for (std::vector<std::vector<double>>::iterator it = positions.begin() ; it != positions.end(); ++it,i++) {
-        const double x     = (*it)[0] * ini_radius;
-        const double y     = (*it)[1] * ini_radius ;
-		const double z     = (*it)[2] * ini_radius;
-		const double v     = get_velocity(sqr(x)+sqr(y)+sqr(z));
-	
-		const double acos_theta =uniform_distribution_theta(generator);
-		const double theta      = std::acos(acos_theta);
-		const double phi        = uniform_distribution_phi(generator);
-        const double vx         = v*std::sin(theta)*std::cos(phi);
-        const double vy         = v*std::sin(theta)*std::sin(phi);
-		const double vz         = v*acos_theta;
-		// const double vx    = scale[i][0]*v;
-        // const double vy    = scale[i][1]*v;
-		// const double vz    = scale[i][2]*v;
+		double xv=0;
+		double yv=0.1;
+	 	while (yv > sqr(xv)*std::pow(1.0-sqr(xv),3.5)){
+			xv=uniform_distribution_x(generator);
+			yv=uniform_distribution_y(generator);
+		}
+		const double v  = xv * std::sqrt(2.0) * std::pow( 1.0 + sqr(radius),-0.25);
+		acos_theta 		= uniform_distribution_theta(generator);
+		theta      		= std::acos(acos_theta);
+		phi        		= uniform_distribution_phi(generator);
+        const double vx = v*std::sin(theta)*std::cos(phi);
+        const double vy = v*std::sin(theta)*std::sin(phi);
+		const double vz = v*acos_theta;
 
         product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
     }
@@ -116,6 +90,7 @@ std::vector<Particle*>  Configuration::createParticles( std::vector<std::vector<
 	spdlog::get("galaxy")->info("{0} {1}: initialized {2} bodies.",__FILE__,__LINE__,numbodies);
 	return product;
 }
+
 
 
 	
