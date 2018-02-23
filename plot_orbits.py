@@ -53,7 +53,7 @@ def plot(data,selector=[],colours=['r','g','b','m','c','y'],n=2):
     z0,z1=get_limits(xs,n=n)
     ax.set_zlim(z0,z1)
     plt.legend(loc='best')
-    plt.title('Orbits of randomly selected stars')
+    plt.title('Orbits of {0} randomly selected stars'.format(len(data[0])))
     plt.savefig('orbits.png')
 
 '''
