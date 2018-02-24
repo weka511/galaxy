@@ -29,7 +29,7 @@
 
 class Configuration {
   public:
-    enum Model {Simple,Plummer};
+    enum Model {Plummer};
 	
 	Configuration();
 	
@@ -128,7 +128,7 @@ class Configuration {
 	 */
 	std::string path = "./configs";
 
-	Model model=Simple;
+	Model model=Plummer;
 
 	double  E0 =0; // initial energy
 
@@ -140,7 +140,6 @@ class Configuration {
 	
 	int needToZero = 2;
   private:
-	std::vector<Particle*>  createParticlesSimple( );
 	
 	/**
 	 *   Create particles satisfying Plummer distribution, following the derivateion in Hut & Makino
