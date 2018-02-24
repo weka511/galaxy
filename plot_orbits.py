@@ -31,7 +31,7 @@ Plot orbits
         selector  Used to selectd which points will be plotted
         colours   Colours used to distinguish orbits
 '''
-def plot(rr,selector=[],colours=['r','g','b','m','c','y','k'],n=2,images='.',linestyles = ['-', '--', '-.', ':']):
+def plot(rr,selector=[],colours=['r','g','b','m','c','y','k'],n=2,images='.',linestyles = ['-', '--', '-.', ':'],dpi=300):
     (m,data)=rr
     def get_coordinates(body,i):
         return [d[body][i] for d in data]
@@ -57,7 +57,7 @@ def plot(rr,selector=[],colours=['r','g','b','m','c','y','k'],n=2,images='.',lin
     ax.set_zlim(z0,z1)
     plt.legend(loc='best')
     plt.title('Orbits of {0} randomly selected stars out of {1}'.format(len(data[0]),m))
-    plt.savefig(os.path.join(images,'orbits-{1}-{0}.png'.format(len(data[0]),m)))
+    plt.savefig(os.path.join(images,'orbits-{1}-{0}.png'.format(len(data[0]),m)), dpi=dpi)
 
 '''
 Extract data from configuration files
@@ -93,7 +93,9 @@ if __name__=='__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Plot orbits from Barnes Hut Galaxy Simulator, galaxy.exe')
     parser.add_argument('--bodies','-b', type=int,action='store',
-                        help='Number of bodies from simulation',default=1000)    
+                        help='Number of bodies from simulation',default=1000)
+    parser.add_argument('--dpi', type=int,action='store',
+                        help='Dots per inch for displaying and saving figure',default=300)      
     parser.add_argument('--norbits','-n', type=int,action='store',
                         help='Number of orbits',default=7)
     parser.add_argument('--maxsamples','-m', type=int,action='store',
@@ -118,6 +120,7 @@ if __name__=='__main__':
             delimiter=args.delimiter),
         selector=selector,
         n=args.nsigma,
-        images=args.images)
+        images=args.images,
+        dpi=args.dpi)
     plt.show()
   
