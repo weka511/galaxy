@@ -17,10 +17,12 @@
  
 #include <sstream>
 #include <stdexcept>
+#include <cmath>
+
 #include "configs.h"
 #include "physics.h"
 #include "spdlog/spdlog.h"
-#include <cmath>
+
 
 namespace spd = spdlog;
 
@@ -29,6 +31,13 @@ const double pi=4*atan(1);
 double M=1;
 double a=0.01;
 
+Configuration::Configuration() 
+ : 	uniform_distribution_theta(std::uniform_real_distribution<double>(-1,1)),
+	uniform_distribution_phi(std::uniform_real_distribution<double>(0,pi)),
+	uniform_distribution_radius(std::uniform_real_distribution<double>(0.02,1)),  // FIXME
+	uniform_distribution_x(std::uniform_real_distribution<double>(0,1)),
+	uniform_distribution_y(std::uniform_real_distribution<double>(0,0.1)){}
+	
  /**
   * Create all bodies needed at start of run
   */
@@ -54,34 +63,13 @@ double a=0.01;
 std::vector<Particle*>  Configuration::createPlummerDistribution( ){
 	std::vector<Particle*> product;
 
-	std::uniform_real_distribution<double> uniform_distribution_theta(-1,1);
-	std::uniform_real_distribution<double> uniform_distribution_phi(0,2*pi);
-	std::uniform_real_distribution<double> uniform_distribution_radius(0.00001,1);  //FIXME - GLB?
-	std::uniform_real_distribution<double> uniform_distribution_x(0,1);
-	std::uniform_real_distribution<double> uniform_distribution_y(0,.01);
+	for (int i=0;i<numbodies;i++) {
+		const double radius=ini_radius/(std::sqrt(std::pow(uniform_distribution_radius(generator),-2.0/3.0)));
+        double x; double y; double z;
+		randomize_theta_phi(radius,x,y,z);
 	
-	for (int i;i<numbodies;i++) {
-		const double radius = ini_radius/(std::sqrt(std::pow(uniform_distribution_radius(generator),-2.0/3.0)));
-		double acos_theta   = uniform_distribution_theta(generator);
-		double theta        = std::acos(acos_theta);
-		double phi          = uniform_distribution_phi(generator);
-        const double x      = radius * std::sin(theta)*std::cos(phi);
-        const double y      = radius * std::sin(theta)*std::sin(phi);
-		const double z      = radius * acos_theta;
-	
-		double xv=0;
-		double yv=0.1;
-	 	while (yv > sqr(xv)*std::pow(1.0-sqr(xv),3.5)){
-			xv=uniform_distribution_x(generator);
-			yv=uniform_distribution_y(generator);
-		}
-		const double v  = xv * std::sqrt(2.0) * std::pow( 1.0 + sqr(radius),-0.25);
-		acos_theta 		= uniform_distribution_theta(generator);
-		theta      		= std::acos(acos_theta);
-		phi        		= uniform_distribution_phi(generator);
-        const double vx = v*std::sin(theta)*std::cos(phi);
-        const double vy = v*std::sin(theta)*std::sin(phi);
-		const double vz = v*acos_theta;
+		double vx; double vy;double vz  ;
+		randomize_theta_phi(sample_velocity(radius),vx,vy,vz);
 
         product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
     }
@@ -91,7 +79,31 @@ std::vector<Particle*>  Configuration::createPlummerDistribution( ){
 	return product;
 }
 
+/**
+ * Sample velocities, ensuring that the initial velocity of any
+ * star does not exceed escape velocity
+ */
+double Configuration::sample_velocity(const double radius) {
+	double x=0;
+	double y=0.1;
+	while (y > sqr(x)*std::pow(1.0-sqr(x),3.5)){
+		x=uniform_distribution_x(generator);
+		y=uniform_distribution_y(generator);
+	}
+	return  x * std::sqrt(2.0) * std::pow( 1.0 + sqr(radius),-0.25);
+}
 
+/**
+ * Convert a scalar, r, into a vector with the same length, and a random orientation
+ */
+void Configuration::randomize_theta_phi(const double r,double & x,double & y,double z) {
+	const double acos_theta   = uniform_distribution_theta(generator);
+	const double theta        = std::acos(acos_theta);
+	const double phi          = uniform_distribution_phi(generator);
+	x      = r * std::sin(theta)*std::cos(phi);
+	y      = r * std::sin(theta)*std::sin(phi);
+	z      = r * acos_theta;
+}
 
 	
 std::vector<Particle*>  Configuration::createParticlesSimple( ){
@@ -297,13 +309,4 @@ Particle * Configuration::extract_particle(std::string line){
 	}
 	
 	return new Particle(px,py,pz,vx,vy,vz,m);
-}
-
-
-/**
- * The Plummer 3-dimensional density profile after
- * https://en.wikipedia.org/wiki/Plummer_model
- */
-double plummer3d_density( double r) {
-	return (3*M/(4*pi*pow(a,3)))+pow(1+sqr(r/a),5/2);
 }

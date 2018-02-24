@@ -21,13 +21,18 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <random>
+
 #include "particle.h"
 #include "physics.h"
-#include <random>
+
 
 class Configuration {
   public:
     enum Model {Simple,Plummer};
+	
+	Configuration();
+	
    /**
 	* Create all bodies needed at start of run
 	*/
@@ -144,12 +149,23 @@ class Configuration {
 	std::vector<Particle*>  createPlummerDistribution( ); 
 	
 	std::default_random_engine generator;
+	std::uniform_real_distribution<double> uniform_distribution_theta;
+	std::uniform_real_distribution<double> uniform_distribution_phi;
+	std::uniform_real_distribution<double> uniform_distribution_radius;
+	std::uniform_real_distribution<double> uniform_distribution_x;
+	std::uniform_real_distribution<double> uniform_distribution_y;
+	
+	/**
+	 * Convert a scalar, r, into a vector with the same length, and a random orientation
+	 */
+	void randomize_theta_phi(const double r,double & x,double & y,double z) ;
+	
+	/**
+	 * Sample velocities, ensuring that the initial velocity of any
+	 * star does not exceed escape velocity
+	 */
+	double sample_velocity(const double radius);
 };
 
-/**
- * The Plummer 3-dimensional density profile after
- * https://en.wikipedia.org/wiki/Plummer_model
- */
- double plummer3d_density(double r);
  
 #endif
