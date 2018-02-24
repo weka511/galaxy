@@ -39,25 +39,6 @@
  */
  void backup(std::string file_name, std::string backup="~");
  
- /**
-  *  Sample points from surface of hypersphere
-  */
- std::vector<std::vector<double>> direct_surface(int d=3,int n=1);
- 
- /**
-  *  Sample points from hypersphere
-  */
- std::vector<std::vector<double>> direct_sphere(int d=3,int n=1);
- 
-/**
- *  Sample points a continuous distribution
- *
- *  Use algorithm 1.16 from Werner Krauth, Statistical Mechanics: Algorithms and Computations,
- *  http://blancopeck.net/Statistics.pdf and http://www.oupcanada.com/catalog/9780198515364.html
- *
- */
-
-std::vector<double> reject_continuous(double (*pi)(double x),double x_min, double x_max, double pi_max,int n=1);
  
 bool ends_with(std::string const & value, std::string const & ending);
 
