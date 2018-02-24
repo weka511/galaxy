@@ -158,7 +158,7 @@ class Configuration {
 	/**
 	 * Convert a scalar, r, into a vector with the same length, and a random orientation
 	 */
-	void randomize_theta_phi(const double r,double & x,double & y,double z) ;
+	void randomize_theta_phi(const double r,double & x,double & y,double& z) ;
 	
 	/**
 	 * Sample velocities, ensuring that the initial velocity of any

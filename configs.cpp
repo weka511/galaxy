@@ -71,7 +71,7 @@ std::vector<Particle*>  Configuration::createPlummerDistribution( ){
 		double vx; double vy;double vz  ;
 		randomize_theta_phi(sample_velocity(radius),vx,vy,vz);
 
-        product.push_back( new Particle( x, y, z, vx, vy,vz, mass) );
+        product.push_back( new Particle( x, y, z, vx, vy,vz, mass/numbodies) );
     }
 
 	zero_centre_mass_and_linear_momentum(product,0);
@@ -96,7 +96,7 @@ double Configuration::sample_velocity(const double radius) {
 /**
  * Convert a scalar, r, into a vector with the same length, and a random orientation
  */
-void Configuration::randomize_theta_phi(const double r,double & x,double & y,double z) {
+void Configuration::randomize_theta_phi(const double r,double & x,double & y,double& z) {
 	const double acos_theta   = uniform_distribution_theta(generator);
 	const double theta        = std::acos(acos_theta);
 	const double phi          = uniform_distribution_phi(generator);
