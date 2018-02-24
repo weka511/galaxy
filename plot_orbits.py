@@ -31,7 +31,8 @@ Plot orbits
         selector  Used to selectd which points will be plotted
         colours   Colours used to distinguish orbits
 '''
-def plot(data,selector=[],colours=['r','g','b','m','c','y'],n=2):
+def plot(rr,selector=[],colours=['r','g','b','m','c','y'],n=2):
+    (m,data)=rr
     def get_coordinates(body,i):
         return [d[body][i] for d in data]
     plt.figure(figsize=(20,20)) 
@@ -53,7 +54,7 @@ def plot(data,selector=[],colours=['r','g','b','m','c','y'],n=2):
     z0,z1=get_limits(xs,n=n)
     ax.set_zlim(z0,z1)
     plt.legend(loc='best')
-    plt.title('Orbits of {0} randomly selected stars'.format(len(data[0])))
+    plt.title('Orbits of {0} randomly selected stars out of {1}'.format(len(data[0]),m))
     plt.savefig('orbits.png')
 
 '''
@@ -68,6 +69,7 @@ Extract data from configuration files
         delimiter       Delimiter for fields in config file
 '''
 def extract(config_path = './configs/',selector=[0,1,2,55,100,400],maxsamples=1000,prefix='bodies',suffix='csv',delimiter=','):
+    m=None
     result=[]
     n=len(os.listdir(config_path))   # Total number of points
     skip=1                           # Used to skip over data so number of points won't exceed maxsamples
@@ -75,13 +77,14 @@ def extract(config_path = './configs/',selector=[0,1,2,55,100,400],maxsamples=10
         skip*=10
     i=0
     for file_name in os.listdir(config_path):
-        m = re.search(r'{0}[0-9]+\.{1}'.format(prefix,suffix),file_name)
-        if m:
+        match = re.search(r'{0}[0-9]+\.{1}'.format(prefix,suffix),file_name)
+        if match:
             if i%skip == 0:
-                positions = np.loadtxt(os.path.join(config_path,m.group(0)),delimiter=delimiter)
+                positions = np.loadtxt(os.path.join(config_path,match.group(0)),delimiter=delimiter)
+                m=len(positions)
                 result.append([positions[i] for i in selector])
             i+=1
-    return result
+    return (m,result)
 
 
 if __name__=='__main__':
