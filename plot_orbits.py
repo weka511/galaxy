@@ -16,7 +16,7 @@
 
  Companion to galaxy.exe - plot orbits of randomly selected stars
 '''
-import os, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d,random
+import os, os.path, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d,random
 
 def get_limits(bodies,n=1):
     m=np.mean(bodies)
@@ -31,7 +31,7 @@ Plot orbits
         selector  Used to selectd which points will be plotted
         colours   Colours used to distinguish orbits
 '''
-def plot(rr,selector=[],colours=['r','g','b','m','c','y'],n=2):
+def plot(rr,selector=[],colours=['r','g','b','m','c','y','k'],n=2,images='.',linestyles = ['-', '--', '-.', ':']):
     (m,data)=rr
     def get_coordinates(body,i):
         return [d[body][i] for d in data]
@@ -41,7 +41,9 @@ def plot(rr,selector=[],colours=['r','g','b','m','c','y'],n=2):
     ys=[]
     zs=[]
     for body in range(len(data[0])):
-        ax.plot(get_coordinates(body,0),get_coordinates(body,1),get_coordinates(body,2),c=colours[body%len(colours)]) 
+        ax.plot(get_coordinates(body,0),get_coordinates(body,1),get_coordinates(body,2),
+                c=colours[body%len(colours)],
+                linestyle=linestyles[(body//len(colours))%len(linestyles)]) 
         ax.scatter(get_coordinates(body,0)[0],get_coordinates(body,1)[0],get_coordinates(body,2)[0],c=colours[body%len(colours)],
                        label="Body: {0}".format(selector[body]),s=50,marker='x')
         xs.append(get_coordinates(body,0))
@@ -55,7 +57,7 @@ def plot(rr,selector=[],colours=['r','g','b','m','c','y'],n=2):
     ax.set_zlim(z0,z1)
     plt.legend(loc='best')
     plt.title('Orbits of {0} randomly selected stars out of {1}'.format(len(data[0]),m))
-    plt.savefig('orbits.png')
+    plt.savefig(os.path.join(images,'orbits-{1}-{0}.png'.format(len(data[0]),m)))
 
 '''
 Extract data from configuration files
@@ -93,7 +95,7 @@ if __name__=='__main__':
     parser.add_argument('--bodies','-b', type=int,action='store',
                         help='Number of bodies from simulation',default=1000)    
     parser.add_argument('--norbits','-n', type=int,action='store',
-                        help='Number of orbits',default=6)
+                        help='Number of orbits',default=7)
     parser.add_argument('--maxsamples','-m', type=int,action='store',
                         help='Maximum number of sample per orbit (-1 to process all samples)',default=1000)    
     parser.add_argument('--prefix','-p', action='store',
@@ -103,8 +105,9 @@ if __name__=='__main__':
     parser.add_argument('--delimiter','-d', action='store',
                         help='Delimiter for fields in config file',default=',')
     parser.add_argument('--nsigma','-g', type=int,action='store',
-                        help='Number of standard deviations to use for scaling',default=3)    
-    args = parser.parse_args()    
+                        help='Number of standard deviations to use for scaling',default=3) 
+    parser.add_argument('--images','-i',action='store',help='Path to store images',default='./imgs')
+    args = parser.parse_args()
     selector=random.sample(range(args.bodies),args.norbits) 
     plot(
         extract(
@@ -114,6 +117,7 @@ if __name__=='__main__':
             suffix=args.suffix,
             delimiter=args.delimiter),
         selector=selector,
-        n=args.nsigma)
+        n=args.nsigma,
+        images=args.images)
     plt.show()
   
