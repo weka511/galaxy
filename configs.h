@@ -139,6 +139,9 @@ class Configuration {
 	double a=0.01;   // FIXME - Plummer
 	
 	int needToZero = 2;
+	
+	unsigned int seed=time(NULL);
+	
   private:
 	
 	/**

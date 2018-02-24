@@ -65,7 +65,7 @@ struct option long_options[] = {
 	{"resume", 			no_argument,       	&resume_flag, 	1},
 	{"theta",  			required_argument, 	0, 				't'},
 	{"inivel",  		required_argument, 	0, 				'v'},
-	{"seed",  			no_argument, 		0, 				'S'},
+	{"seed",  			required_argument, 	0, 				'S'},
 	{"soften",  		required_argument, 	0, 				'f'},
 	{"zero",  			required_argument, 	0, 				'z'},
 	{0, 				0, 					0, 				0}
@@ -82,12 +82,14 @@ int main(int argc, char **argv) {
 		auto logger = std::make_shared<spdlog::logger>("galaxy", daily_sink);
 		logger->set_level(spdlog::level::info);
 		spdlog::register_logger(logger);
-			std::srand(time(NULL));
+
 		auto start = std::chrono::system_clock::now();
 		std::time_t start_time = std::chrono::system_clock::to_time_t(start);
 
 
 		if (extract_options(argc,argv)) {
+			std::srand(configuration.seed);
+			logger->info("Random number seed={0}", configuration.seed);	
 			std::vector<Particle*> particles;
 			int start_iterations=0;
 			if (resume_flag) {
@@ -144,7 +146,7 @@ bool extract_options(int argc, char **argv) {
 	int option_index = 0;
 	int c;
 
-	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:lm:n:p:r:Ss:t:v:f:",long_options, &option_index)) != -1)
+	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:lm:n:p:r:S:s:t:v:f:",long_options, &option_index)) != -1)
 		switch (c){
 			case 'c':
 				configuration.config_file_name=optarg;
@@ -197,8 +199,7 @@ bool extract_options(int argc, char **argv) {
 				break;
 			
 			case 'S':
-				logger->info("Seed random number generator");
-				std::srand(1);
+				configuration.seed= get_double("Random number seed",optarg);
 				break;
 			
 			case 's':
