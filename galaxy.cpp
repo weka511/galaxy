@@ -103,6 +103,7 @@ int main(int argc, char **argv) {
 				const double T=get_kinetic_energy(particles);
 				const double V=get_potential_energy(particles,configuration.G,configuration.softening_length);
 				const double E=T+V;
+				logger->info("T={0}, V={1}, E={2}, T/V={3}",T,V,E,T/V);
 				std::cout<< "T="<<T <<", V=" << V << ", E=" << E << std::endl;
 			}
 	
