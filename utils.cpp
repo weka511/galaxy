@@ -28,7 +28,9 @@
 #include <getopt.h>
 #include <random>
 #include <algorithm>
+#include <stdlib.h>
 #include "utils.h"
+#include "spdlog/spdlog.h"
 
 /**
  * Encode a floating value so it can be stored and retrieved without loss of significant digits
@@ -94,3 +96,40 @@ bool ends_with(std::string const & value, std::string const & ending){
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
+/**
+ * Parse numeric command line parameter and validate:
+ * 1. any extraneous parameters
+ * 2. are value within range?
+ */
+double get_double(std::string name, char * param, double high,double low){
+	auto logger=spdlog::get("galaxy");
+	std::string::size_type sz;	
+	const double retval = std::stod (param,&sz);
+	if (sz==strlen(param) && low<retval && retval<high){
+		logger->info("{0}={1}",name,retval);
+		return retval;
+	}	else{
+		std::stringstream err;
+		err<< name <<"=" <<retval<<". Should be in range ("<< low <<"," <<high <<")" <<std::endl;
+		throw std::out_of_range(err.str());
+	}
+} 
+
+/**
+ * Parse numeric command line parameter and validate:
+ * 1. any extraneous parameters
+ * 2. are value within range?
+ */
+int get_number(std::string name, char * param, int high,int low){
+	auto logger=spdlog::get("galaxy");
+	std::string::size_type sz;	
+	const int retval = std::stoi (param,&sz);
+	if (sz==strlen(param) && low<retval && retval<high){
+		logger->info("{0}={1}",name,retval);
+		return retval;
+	}	else{
+		std::stringstream err;
+		err<< name <<"=" <<retval<<". Should be in range ("<< low <<"," <<high <<")" <<std::endl;
+		throw std::out_of_range(err.str());
+	}
+} 

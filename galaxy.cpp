@@ -43,30 +43,6 @@ namespace spd = spdlog;
 
 Configuration configuration;
 
-static int resume_flag = 0;
- 
-/**
- *  Long version of command line options.
- */
-struct option long_options[] = {
-	{"config",  		required_argument,	0, 				'c'},
-	{"dt",  			required_argument,	0, 				'd'},
-	{"check_energy",  	required_argument,	0, 				'e'},
-    {"help",  			no_argument, 		0, 				'h'},
-	{"img_iter",		required_argument, 	0, 				'i'},
-	{"max_iter",  		required_argument, 	0, 				'm'},
-	{"numbodies",  		required_argument, 	0, 				'n'},
-	{"path",  			required_argument, 	0, 				'p'},
-	{"plummer",  		no_argument, 		0, 				'l'},
-	{"ini_radius",  	required_argument, 	0, 				'r'},
-	{"resume", 			no_argument,       	&resume_flag, 	1},
-	{"theta",  			required_argument, 	0, 				't'},
-	{"seed",  			required_argument, 	0, 				'S'},
-	{"soften",  		required_argument, 	0, 				'f'},
-	{"zero",  			required_argument, 	0, 				'z'},
-	{0, 				0, 					0, 				0}
-};	
-
 
 
 /**
@@ -82,12 +58,12 @@ int main(int argc, char **argv) {
 		auto start = std::chrono::system_clock::now();
 		std::time_t start_time = std::chrono::system_clock::to_time_t(start);
 
-		if (extract_options(argc,argv)) {
+		if (configuration.extract_options(argc,argv)) {
 			std::srand(configuration.seed);
 			logger->info("Random number seed={0}", configuration.seed);	
 			std::vector<Particle*> particles;
 			int start_iterations=0;
-			if (resume_flag) {
+			if (get_resume_flag()) {
 				if (configuration.restore_config(particles,start_iterations))
 					logger->info("Restarted from {0} {1} at {2}",configuration.path,configuration.config_file_name,start_iterations);
 				else {
@@ -138,84 +114,6 @@ int main(int argc, char **argv) {
 	}
 }
 
-/**
- *  Process command line options. Returns `true` iff execution is to continue.
- */
-bool extract_options(int argc, char **argv) {
-	auto logger=spdlog::get("galaxy");
-	int option_index = 0;
-	int c;
-
-	while ((c = getopt_long (argc, argv, "c:d:e:hi:lm:n:p:r:S:t:f:",long_options, &option_index)) != -1)
-		switch (c){
-			case 'c':
-				configuration.config_file_name=optarg;
-				logger->info("Configuration File={0}",configuration.config_file_name);
-				break;
-			
-			case 'd':
-				configuration.dt=get_double("dt",optarg,0.5);
-				break;
-			
-			case 'e':
-				configuration.check_energy=get_number("check_energy",optarg);
-				break;
-			
-			case 'f':
-				configuration.softening_length=get_double("Softening Length",optarg);
-				break;
-				
-			case 'h':
-				help( );
-				return false;
-			
-			case 'i':
-				configuration.img_iter=get_number("Frequency at which configs are written",optarg);
-				break;
-				
-			case 'l':
-				configuration.model = Configuration::Plummer;
-				logger->info("Plummer Model");
-				break;
-			
-			case 'm':
-				configuration.max_iter=get_number("Number of iterations",optarg);
-				break;
-			
-			case 'n':
-				configuration.numbodies=get_number("Number of bodies",optarg);
-				break;
-			
-			case 'p':
-				configuration.path=optarg;
-				logger->info("Path={0}",configuration.path);
-				break;
-			
-			case 'r':
-				configuration.ini_radius= get_double("Initial radius",optarg);
-				break;
-			
-			case 'S':
-				configuration.seed= get_double("Random number seed",optarg);
-				break;
-				
-			case 't':
-				configuration.theta=get_double("Theta",optarg);
-				break;
-			
-			case 'z':
-				configuration.needToZero=get_number("Need to zero",optarg,3,-1);
-				break;
-				
-			case '?':
-				return false;
-		}
-		
-	if (!ends_with(configuration.path,"/"))
-		configuration.path.append("/");
-
-	return true;
-}	
 
 
 /**
@@ -281,69 +179,5 @@ void report_configuration(std::vector<Particle*> particles,int iter) {
 }
 
 
- 
 
-
-
-/**
-  * Generate help text
-  */
-void help() {
-	std::cout << "Galaxy Simulator based on Barnes Hut algorithm." << std::endl<<std::endl;
-	std::cout << "Parameters, showing default values" <<std::endl;
-	std::cout << "\t-c,--config\t\tConfiguration file [" << configuration.config_file_name<<"]"<< std::endl;
-	std::cout << "\t-d,--dt\t\tTime Step for Integration [" << configuration.dt<<"]"<< std::endl;
-	std::cout << "\t-e,--check_energy\tCheck total energy every `check_energy` iterations[don't check]"<< std::endl;
-	std::cout << "\t--flat\t\tUsed to set z to origin for 3D only"<< std::endl;
-	std::cout << "\t-f,--soften\tSoftening Length[" << configuration.softening_length << "]"<<std::endl;
-	std::cout << "\t-h,--help\tShow help text" << std::endl;
-	std::cout << "\t-i,--img_iter\tFrequency for writing positions [" << configuration.img_iter << "]"<< std::endl;
-	std::cout << "\t-l,--plummer\tUse a Plummer model for starting positions and velocities" << std::endl;
-	std::cout << "\t-m,--max_iter\tMaximum number of iterations [" << configuration.max_iter << "]"<< std::endl;
-	std::cout << "\t-n,--numbodies\tNumber of bodies [" << configuration.numbodies<< "]"<<std::endl;
-	std::cout << "\t-p,--path\tPath for writing configurations [" << configuration.path << "]"<< std::endl;
-	std::cout << "\t-r,--ini_radius\tInitial Radius [" << configuration.ini_radius << "]"<<std::endl;
-	std::cout << "\t--resume\tResume previous run"<<std::endl;
-	std::cout << "\t-S,--seed\tSeed random number generator"<<std::endl;
-	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" << configuration.theta << "]"<< std::endl;
-	std::cout << "\t-z,--zero\tReset centre of mass and momentum [" << configuration.needToZero << "]"<<std::endl;
-}
-
-/**
- * Parse numeric command line parameter and validate:
- * 1. any extraneous parameters
- * 2. are value within range?
- */
-double get_double(std::string name, char * param, double high,double low){
-	auto logger=spdlog::get("galaxy");
-	std::string::size_type sz;	
-	const double retval = std::stod (param,&sz);
-	if (sz==strlen(param) && low<retval && retval<high){
-		logger->info("{0}={1}",name,retval);
-		return retval;
-	}	else{
-		std::stringstream err;
-		err<< name <<"=" <<retval<<". Should be in range ("<< low <<"," <<high <<")" <<std::endl;
-		throw std::out_of_range(err.str());
-	}
-} 
-
-/**
- * Parse numeric command line parameter and validate:
- * 1. any extraneous parameters
- * 2. are value within range?
- */
-int get_number(std::string name, char * param, int high,int low){
-	auto logger=spdlog::get("galaxy");
-	std::string::size_type sz;	
-	const int retval = std::stoi (param,&sz);
-	if (sz==strlen(param) && low<retval && retval<high){
-		logger->info("{0}={1}",name,retval);
-		return retval;
-	}	else{
-		std::stringstream err;
-		err<< name <<"=" <<retval<<". Should be in range ("<< low <<"," <<high <<")" <<std::endl;
-		throw std::out_of_range(err.str());
-	}
-} 
 

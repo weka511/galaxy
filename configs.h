@@ -26,6 +26,7 @@
 #include "particle.h"
 #include "physics.h"
 
+int get_resume_flag();
 
 class Configuration {
   public:
@@ -37,6 +38,8 @@ class Configuration {
 	};
 	
 	Configuration();
+	
+	bool extract_options(int argc, char **argv);
 	
    /**
 	* Create all bodies needed at start of run
@@ -164,6 +167,12 @@ class Configuration {
 	 * star does not exceed escape velocity
 	 */
 	double sample_velocity(const double radius);
+	
+	/**
+	 * Generate help text
+	 */
+	void help();
+	
 };
 
  

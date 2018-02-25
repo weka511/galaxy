@@ -18,14 +18,37 @@
 #include <sstream>
 #include <stdexcept>
 #include <cmath>
-
+#include <getopt.h>
 #include "configs.h"
 #include "physics.h"
 #include "spdlog/spdlog.h"
 
 
 namespace spd = spdlog;
+static int resume_flag = 0;
 
+int get_resume_flag(){return resume_flag;}
+/**
+ *  Long version of command line options.
+ */
+struct option long_options[] = {
+	{"config",  		required_argument,	0, 				'c'},
+	{"dt",  			required_argument,	0, 				'd'},
+	{"check_energy",  	required_argument,	0, 				'e'},
+    {"help",  			no_argument, 		0, 				'h'},
+	{"img_iter",		required_argument, 	0, 				'i'},
+	{"max_iter",  		required_argument, 	0, 				'm'},
+	{"numbodies",  		required_argument, 	0, 				'n'},
+	{"path",  			required_argument, 	0, 				'p'},
+	{"plummer",  		no_argument, 		0, 				'l'},
+	{"ini_radius",  	required_argument, 	0, 				'r'},
+	{"resume", 			no_argument,       	&resume_flag, 	1},
+	{"theta",  			required_argument, 	0, 				't'},
+	{"seed",  			required_argument, 	0, 				'S'},
+	{"soften",  		required_argument, 	0, 				'f'},
+	{"zero",  			required_argument, 	0, 				'z'},
+	{0, 				0, 					0, 				0}
+};	
 
 Configuration::Configuration() 
  : 	uniform_distribution_theta(std::uniform_real_distribution<double>(-1,1)),
@@ -33,7 +56,86 @@ Configuration::Configuration()
 	uniform_distribution_radius(std::uniform_real_distribution<double>(0.0,1)),
 	uniform_distribution_x(std::uniform_real_distribution<double>(0,1)),
 	uniform_distribution_y(std::uniform_real_distribution<double>(0,0.1)){}
-	
+
+
+/**
+ *  Process command line options. Returns `true` iff execution is to continue.
+ */
+bool Configuration::extract_options(int argc, char **argv) {
+	auto logger=spdlog::get("galaxy");
+	int option_index = 0;
+	int c;
+
+	while ((c = getopt_long (argc, argv, "c:d:e:hi:lm:n:p:r:S:t:f:",long_options, &option_index)) != -1)
+		switch (c){
+			case 'c':
+				config_file_name=optarg;
+				logger->info("Configuration File={0}",config_file_name);
+				break;
+			
+			case 'd':
+				dt=get_double("dt",optarg,0.5);
+				break;
+			
+			case 'e':
+				check_energy=get_number("check_energy",optarg);
+				break;
+			
+			case 'f':
+				softening_length=get_double("Softening Length",optarg);
+				break;
+				
+			case 'h':
+				help( );
+				return false;
+			
+			case 'i':
+				img_iter=get_number("Frequency at which configs are written",optarg);
+				break;
+				
+			case 'l':
+				model = Configuration::Plummer;
+				logger->info("Plummer Model");
+				break;
+			
+			case 'm':
+				max_iter=get_number("Number of iterations",optarg);
+				break;
+			
+			case 'n':
+				numbodies=get_number("Number of bodies",optarg);
+				break;
+			
+			case 'p':
+				path=optarg;
+				logger->info("Path={0}",path);
+				break;
+			
+			case 'r':
+				ini_radius= get_double("Initial radius",optarg);
+				break;
+			
+			case 'S':
+				seed= get_double("Random number seed",optarg);
+				break;
+				
+			case 't':
+				theta=get_double("Theta",optarg);
+				break;
+			
+			case 'z':
+				needToZero=get_number("Need to zero",optarg,3,-1);
+				break;
+				
+			case '?':
+				return false;
+		}
+		
+	if (!ends_with(path,"/"))
+		path.append("/");
+
+	return true;
+}		
  /**
   * Create all bodies needed at start of run
   */
@@ -284,4 +386,29 @@ Particle * Configuration::extract_particle(std::string line){
 	}
 	
 	return new Particle(px,py,pz,vx,vy,vz,m);
+}
+
+
+/**
+  * Generate help text
+  */
+void Configuration::help() {
+	std::cout << "Galaxy Simulator based on Barnes Hut algorithm." << std::endl<<std::endl;
+	std::cout << "Parameters, showing default values" <<std::endl;
+	std::cout << "\t-c,--config\t\tConfiguration file [" <<config_file_name<<"]"<< std::endl;
+	std::cout << "\t-d,--dt\t\tTime Step for Integration [" <<dt<<"]"<< std::endl;
+	std::cout << "\t-e,--check_energy\tCheck total energy every `check_energy` iterations[don't check]"<< std::endl;
+	std::cout << "\t--flat\t\tUsed to set z to origin for 3D only"<< std::endl;
+	std::cout << "\t-f,--soften\tSoftening Length[" <<softening_length << "]"<<std::endl;
+	std::cout << "\t-h,--help\tShow help text" << std::endl;
+	std::cout << "\t-i,--img_iter\tFrequency for writing positions [" <<img_iter << "]"<< std::endl;
+	std::cout << "\t-l,--plummer\tUse a Plummer model for starting positions and velocities" << std::endl;
+	std::cout << "\t-m,--max_iter\tMaximum number of iterations [" <<max_iter << "]"<< std::endl;
+	std::cout << "\t-n,--numbodies\tNumber of bodies [" <<numbodies<< "]"<<std::endl;
+	std::cout << "\t-p,--path\tPath for writing configurations [" <<path << "]"<< std::endl;
+	std::cout << "\t-r,--ini_radius\tInitial Radius [" <<ini_radius << "]"<<std::endl;
+	std::cout << "\t--resume\tResume previous run"<<std::endl;
+	std::cout << "\t-S,--seed\tSeed random number generator"<<std::endl;
+	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" <<theta << "]"<< std::endl;
+	std::cout << "\t-z,--zero\tReset centre of mass and momentum [" <<needToZero << "]"<<std::endl;
 }

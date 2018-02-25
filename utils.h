@@ -18,6 +18,7 @@
 #ifndef _UTILS_H
 #define _UTILS_H
 #include <string>
+#include <limits>
 
  /**
   * Encode a floating value so it can be stored and retrieved without loss of significant digits
@@ -45,6 +46,20 @@ bool ends_with(std::string const & value, std::string const & ending);
 void remove_old_configs(std::string path);
  
 inline double sqr(double x) {return x*x;}
+
+/**
+ * Parse numeric command line parameter and validate:
+ * 1. any extraneous parameters
+ * 2. are value within range?
+ */
+int get_number(std::string name, char * param, int high=std::numeric_limits<int>::max(),int low=0);
+
+/**
+ * Parse numeric command line parameter and validate:
+ * 1. any extraneous parameters
+ * 2. are value within range?
+ */
+double get_double(std::string name,char * param, double high=std::numeric_limits<double>::max(),double low=0);
 
 #endif
  
