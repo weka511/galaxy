@@ -123,7 +123,7 @@ class Particle {
 	/**
 	 * Mass
 	 */
-	double _m;
+	const double _m;
 	
 	/**
 	 * Acceleration

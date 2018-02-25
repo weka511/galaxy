@@ -240,32 +240,31 @@ bool report_all(std::vector<Particle*> particles,int iter){
   * Write out energy and other conserved quantities
   */
 void report_energy(std::vector<Particle*> particles,int iter) {
-	if (configuration.check_energy>0 ) {
+	if (configuration.check_energy>0 &&iter%configuration.check_energy==0) {
 		auto logger=spdlog::get("galaxy");
 		configuration.zero_centre_mass_and_linear_momentum(particles,iter);
 		const double T=get_kinetic_energy(particles);
 		const double V=get_potential_energy(particles,configuration.G,configuration.softening_length);
 		const double E=T+V;
-
+		logger->info("T={0}, V={1}, E={2}, T/V={3}",T,V,E,T/V);
+		std::cout<< "T="<<T <<", V=" << V << ", E=" << E << std::endl;
 		if (abs(E-configuration.E0)>configuration.maximum_energy_error)	
 			configuration.maximum_energy_error=abs(E-configuration.E0);
 		
-		if (iter%configuration.check_energy==0) {
-			logger->info("Conserved quantities for iteration {0}", iter);
-			double x0,y0,z0;
-			get_centre_of_mass(particles,x0,y0,z0);
-			logger->info("Centre of mass=({0},{1},{2})", x0,y0,z0);	
-			
-			double px,py,pz;
-			get_momentum(particles,px,py,pz);
-			logger->info("Momentum=({0},{1},{2})",px,py,pz);
-			
-			double lx,ly,lz;
-			get_angular_momentum(particles,lx,ly,lz);
-			logger->info("Angular momentum=({0},{1},{2})",lx,ly,lz);
-			
-			logger->info("Energy {0}", E);
-		}
+		logger->info("Conserved quantities for iteration {0}", iter);
+		double x0,y0,z0;
+		get_centre_of_mass(particles,x0,y0,z0);
+		logger->info("Centre of mass=({0},{1},{2})", x0,y0,z0);	
+		
+		double px,py,pz;
+		get_momentum(particles,px,py,pz);
+		logger->info("Momentum=({0},{1},{2})",px,py,pz);
+		
+		double lx,ly,lz;
+		get_angular_momentum(particles,lx,ly,lz);
+		logger->info("Angular momentum=({0},{1},{2})",lx,ly,lz);
+		
+		logger->info("Energy {0}", E);	
 	}
 }
 

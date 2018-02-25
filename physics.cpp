@@ -60,10 +60,10 @@ void get_acceleration_between_pair(Particle* p1,Particle* p2,double G) {
  */
 double get_kinetic_energy(std::vector<Particle*> particles) {
 	double sum=0;
-	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
+	for (int i=0;i<particles.size();i++) {
 		double vx,vy,vz;
-		(*iter)->getVel(vy,vz,vz);
-		sum+=(*iter)->getMass()*(sqr(vx)+sqr(vy)+sqr(vz));
+		particles[i]->getVel(vy,vz,vz);
+		sum+=particles[i]->getMass()*(sqr(vx)+sqr(vy)+sqr(vz));
 	}
 	return 0.5*sum;
 }

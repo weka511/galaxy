@@ -128,7 +128,7 @@ class Configuration {
 
 	double maximum_energy_error=0;  //largest discrepancy in energy
 
-	double softening_length=0.0001;  // Used to handle collisions
+	double softening_length=1;  // Used to handle collisions
 	
 	int needToZero = 2;
 	
