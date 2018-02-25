@@ -134,6 +134,9 @@ bool Configuration::extract_options(int argc, char **argv) {
 	if (!ends_with(path,"/"))
 		path.append("/");
 
+	std::srand(seed);
+	logger->info("Random number seed={0}", seed);	
+	
 	return true;
 }		
  /**

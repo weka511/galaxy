@@ -74,6 +74,8 @@ class Configuration {
 	 */
 	std::string config_version="0.0";
 	
+	inline double get_softening_length() {return softening_length;}
+	
 	/**
 	 *  Theta-criterion of the Barnes-Hut algorithm.
 	 *  I had to move this outside `main` so the lambda in `run_verlet` would compile.
@@ -130,11 +132,9 @@ class Configuration {
 	 */
 	std::string path = "./configs";
 
+  private:
+  
 	Model model=Plummer;
-
-	double  E0 =0; // initial energy
-
-	double maximum_energy_error=0;  //largest discrepancy in energy
 
 	double softening_length=1;  // Used to handle collisions
 	
@@ -142,7 +142,7 @@ class Configuration {
 	
 	unsigned int seed=time(NULL);
 	
-  private:
+  
 	
 	/**
 	 *   Create particles satisfying Plummer distribution, following the derivateion in Hut & Makino

@@ -59,8 +59,7 @@ int main(int argc, char **argv) {
 		std::time_t start_time = std::chrono::system_clock::to_time_t(start);
 
 		if (configuration.extract_options(argc,argv)) {
-			std::srand(configuration.seed);
-			logger->info("Random number seed={0}", configuration.seed);	
+
 			std::vector<Particle*> particles;
 			int start_iterations=0;
 			if (get_resume_flag()) {
@@ -75,25 +74,24 @@ int main(int argc, char **argv) {
 				std::system("rm configs/*");  // Issue #5 - remove old config files
 				particles = configuration.createParticles(  );
 				const double T=get_kinetic_energy(particles);
-				const double V=get_potential_energy(particles,configuration.G,configuration.softening_length);
+				const double V=get_potential_energy(particles,configuration.G,configuration.get_softening_length());
 				const double E=T+V;
 				logger->info("T={0}, V={1}, E={2}, T/V={3}",T,V,E,T/V);
 				std::cout<< "T="<<T <<", V=" << V << ", E=" << E << std::endl;
 			}
 	
 			report_all(particles,start_iterations);
-			configuration.E0 = get_kinetic_energy(particles) + get_potential_energy(particles,configuration.G,configuration.softening_length);
 
-			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,configuration.theta,configuration.G,configuration.softening_length);},
+			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(
+																		particles,
+																		configuration.theta,
+																		configuration.G,
+																		configuration.get_softening_length());},
 						configuration.max_iter,
 						configuration.dt,
 						particles,
 						&report_all,
 						start_iterations);
-			if (configuration.check_energy>0 )
-				logger->info("Energy Error={0}, {1}%",
-							configuration.maximum_energy_error,
-							(int)(100*configuration.maximum_energy_error/abs(configuration.E0)));
 						
 			auto end = std::chrono::system_clock::now();
 		 
@@ -133,12 +131,10 @@ void report_energy(std::vector<Particle*> particles,int iter) {
 		auto logger=spdlog::get("galaxy");
 		configuration.zero_centre_mass_and_linear_momentum(particles,iter);
 		const double T=get_kinetic_energy(particles);
-		const double V=get_potential_energy(particles,configuration.G,configuration.softening_length);
+		const double V=get_potential_energy(particles,configuration.G,configuration.get_softening_length());
 		const double E=T+V;
 		logger->info("T={0}, V={1}, E={2}, T/V={3}",T,V,E,T/V);
 		std::cout<< "T="<<T <<", V=" << V << ", E=" << E << std::endl;
-		if (abs(E-configuration.E0)>configuration.maximum_energy_error)	
-			configuration.maximum_energy_error=abs(E-configuration.E0);
 		
 		logger->info("Conserved quantities for iteration {0}", iter);
 		double x0,y0,z0;
