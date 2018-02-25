@@ -31,9 +31,6 @@
         <File name="make_img.py" />
         <File name="plot_orbits.py" />
     </Project>
-    <Project name="Geneva">
-        <File name="geneva.cpp" />
-    </Project>
     <Project name="Loggers">
         <File name="spdlog\async_logger.h" />
         <File name="spdlog\common.h" />
