@@ -29,7 +29,12 @@
 
 class Configuration {
   public:
-    enum Model {Plummer};
+  /**
+   * Used to select model for initial conditions, e.g. Plummer, King, etc
+   */
+    enum Model {
+		Plummer     // at present Plummer is the only model
+	};
 	
 	Configuration();
 	
@@ -73,14 +78,14 @@ class Configuration {
 	double theta = 0.5;
 
 	/**
-	* The "gravitational constant" is chosen so as to get a pleasant output.
+	* The gravitational constant is 1 in Heggie units - https://link.springer.com/chapter/10.1007%2FBFb0116419
 	*/
-	double G = 1.0;//G_solar_system;
+	double G = 1.0;
 		
 	/**
-	 * Mass of a body.
+	 * The Mass of the system is 1 in Heggie units - https://link.springer.com/chapter/10.1007%2FBFb0116419
 	 */
-	double mass = 1.0;
+	double M = 1.0;
 
 	/**
 	 * Initially, the bodies are distributed inside a circle of radius ini_radius.

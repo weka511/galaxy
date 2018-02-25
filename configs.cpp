@@ -66,7 +66,7 @@ std::vector<Particle*>  Configuration::createPlummerDistribution( ){
 		double vx; double vy;double vz  ;
 		randomize_theta_phi(sample_velocity(radius),vx,vy,vz);
 
-        product.push_back( new Particle( x, y, z, vx, vy,vz, mass/numbodies) );
+        product.push_back( new Particle( x, y, z, vx, vy,vz, M/numbodies) );
     }
 
 	zero_centre_mass_and_linear_momentum(product,0);

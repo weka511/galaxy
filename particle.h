@@ -44,8 +44,7 @@ class Particle {
 				throw std::logic_error("Attempt to create pos from to NAN");				
 		}
 	
-	virtual ~Particle() {
-	}
+
 
 	/**
 	 *  Accessor for current position

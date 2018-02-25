@@ -52,7 +52,6 @@ struct option long_options[] = {
 	{"config",  		required_argument,	0, 				'c'},
 	{"dt",  			required_argument,	0, 				'd'},
 	{"check_energy",  	required_argument,	0, 				'e'},
-	{"G",  				required_argument, 	0, 				'G'},
     {"help",  			no_argument, 		0, 				'h'},
 	{"img_iter",		required_argument, 	0, 				'i'},
 	{"max_iter",  		required_argument, 	0, 				'm'},
@@ -60,7 +59,6 @@ struct option long_options[] = {
 	{"path",  			required_argument, 	0, 				'p'},
 	{"plummer",  		no_argument, 		0, 				'l'},
 	{"ini_radius",  	required_argument, 	0, 				'r'},
-	{"mass",  			required_argument, 	0, 				's'},
 	{"resume", 			no_argument,       	&resume_flag, 	1},
 	{"theta",  			required_argument, 	0, 				't'},
 	{"seed",  			required_argument, 	0, 				'S'},
@@ -148,7 +146,7 @@ bool extract_options(int argc, char **argv) {
 	int option_index = 0;
 	int c;
 
-	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:lm:n:p:r:S:s:t:f:",long_options, &option_index)) != -1)
+	while ((c = getopt_long (argc, argv, "c:d:e:hi:lm:n:p:r:S:t:f:",long_options, &option_index)) != -1)
 		switch (c){
 			case 'c':
 				configuration.config_file_name=optarg;
@@ -167,9 +165,6 @@ bool extract_options(int argc, char **argv) {
 				configuration.softening_length=get_double("Softening Length",optarg);
 				break;
 				
-			case 'G':
-				configuration.G=get_double("G",optarg);
-			
 			case 'h':
 				help( );
 				return false;
@@ -202,10 +197,6 @@ bool extract_options(int argc, char **argv) {
 			
 			case 'S':
 				configuration.seed= get_double("Random number seed",optarg);
-				break;
-			
-			case 's':
-				configuration.mass=get_double("mass",optarg);
 				break;
 				
 			case 't':
@@ -305,7 +296,6 @@ void help() {
 	std::cout << "\t-e,--check_energy\tCheck total energy every `check_energy` iterations[don't check]"<< std::endl;
 	std::cout << "\t--flat\t\tUsed to set z to origin for 3D only"<< std::endl;
 	std::cout << "\t-f,--soften\tSoftening Length[" << configuration.softening_length << "]"<<std::endl;
-	std::cout << "\t-G,--G\t\tGravitational Constant [" << configuration.G << "]"<<std::endl;
 	std::cout << "\t-h,--help\tShow help text" << std::endl;
 	std::cout << "\t-i,--img_iter\tFrequency for writing positions [" << configuration.img_iter << "]"<< std::endl;
 	std::cout << "\t-l,--plummer\tUse a Plummer model for starting positions and velocities" << std::endl;
@@ -314,7 +304,6 @@ void help() {
 	std::cout << "\t-p,--path\tPath for writing configurations [" << configuration.path << "]"<< std::endl;
 	std::cout << "\t-r,--ini_radius\tInitial Radius [" << configuration.ini_radius << "]"<<std::endl;
 	std::cout << "\t--resume\tResume previous run"<<std::endl;
-	std::cout << "\t-s,--mass\tMass of bodies [" << configuration.mass << "]"<<std::endl;
 	std::cout << "\t-S,--seed\tSeed random number generator"<<std::endl;
 	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" << configuration.theta << "]"<< std::endl;
 	std::cout << "\t-z,--zero\tReset centre of mass and momentum [" << configuration.needToZero << "]"<<std::endl;
