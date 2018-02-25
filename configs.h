@@ -76,7 +76,7 @@ class Configuration {
 	/**
 	* The "gravitational constant" is chosen so as to get a pleasant output.
 	*/
-	double G = G_solar_system;
+	double G = 1.0;//G_solar_system;
 		
 	/**
 	 * Mass of a body.

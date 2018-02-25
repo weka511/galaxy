@@ -54,12 +54,6 @@ void get_acceleration_between_pair(Particle* p1,Particle* p2,double G) {
 	assert( std::fabs(p1->getMass()*acc_z1+p2->getMass()*acc_z2)<=epsilon*(std::fabs(p1->getMass()*acc_z1)+std::fabs(p2->getMass()*acc_z2)));
 }
 
-/**
- *  Calculate total energy for a system of particles
- */
-double get_energy(std::vector<Particle*> particles,const double G,const double softening_length) {
-	return get_kinetic_energy(particles) + get_potential_energy(particles,G,softening_length);
-}
 
 /**
  *  Calculate kinetic energy for a system of particles
@@ -82,12 +76,12 @@ double get_potential_energy(std::vector<Particle*> particles,const double G,cons
 	for (int i=1;i<particles.size();i++) {
 		double x0,y0,z0;
 		particles[i]->getPos(x0,y0,z0);
-		const double m0=particles[i]->getMass();
+		const double m_i = particles[i]->getMass();
 		for (int j=0;j<i;j++) {
 			double x1,y1,z1;
 			particles[j]->getPos(x1,y1,z1);
-			const double m1=particles[j]->getMass();
-			sum+=m0*m1/sqrt(dsq(x0,y0,z0,x1,y1,z1)+sqr(softening_length));
+			const double m_j = particles[j]->getMass();
+			sum += m_i*m_j/sqrt(dsq(x0,y0,z0,x1,y1,z1)+sqr(softening_length));
 		}
 	}
 	return -G*sum;

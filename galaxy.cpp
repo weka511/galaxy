@@ -103,10 +103,14 @@ int main(int argc, char **argv) {
 			} else {
 				std::system("rm configs/*");  // Issue #5 - remove old config files
 				particles = configuration.createParticles(  );
+				const double T=get_kinetic_energy(particles);
+				const double V=get_potential_energy(particles,configuration.G,configuration.softening_length);
+				const double E=T+V;
+				std::cout<< T <<"," << V << "," << E << std::endl;
 			}
 	
 			report_all(particles,start_iterations);
-			configuration.E0 = get_energy(particles,configuration.G,configuration.softening_length);
+			configuration.E0 = get_kinetic_energy(particles) + get_potential_energy(particles,configuration.G,configuration.softening_length);
 
 			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(particles,configuration.theta,configuration.G,configuration.softening_length);},
 						configuration.max_iter,
@@ -245,7 +249,10 @@ void report_energy(std::vector<Particle*> particles,int iter) {
 	if (configuration.check_energy>0 ) {
 		auto logger=spdlog::get("galaxy");
 		configuration.zero_centre_mass_and_linear_momentum(particles,iter);
-		const double E=get_energy(particles,configuration.G,configuration.softening_length);
+		const double T=get_kinetic_energy(particles);
+		const double V=get_potential_energy(particles,configuration.G,configuration.softening_length);
+		const double E=T+V;
+
 		if (abs(E-configuration.E0)>configuration.maximum_energy_error)	
 			configuration.maximum_energy_error=abs(E-configuration.E0);
 		

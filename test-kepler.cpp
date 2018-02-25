@@ -46,7 +46,7 @@ bool record_orbit(std::vector<Particle*> particles,int iter) {
 			double x,y,z;
 			particles[i]->getPos(x,y,z);
 			logger << x << "," << y << "," << z << std::endl;
-			std::cout <<  "E: " << get_energy( particles, G_solar_system,0) << std::endl;
+			std::cout <<  "E: " << get_kinetic_energy(particles) + get_potential_energy(particles,G_solar_system,0) << std::endl;
 			double px,py,pz;
 			get_momentum(particles,px,py,pz);
 			std::cout<< "P: (" <<px << ", " <<py << ", " <<pz << ")" << std::endl;

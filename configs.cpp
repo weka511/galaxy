@@ -26,14 +26,10 @@
 
 namespace spd = spdlog;
 
-const double pi=4*atan(1);
-
-double M=1;
-double a=0.01;
 
 Configuration::Configuration() 
  : 	uniform_distribution_theta(std::uniform_real_distribution<double>(-1,1)),
-	uniform_distribution_phi(std::uniform_real_distribution<double>(0,pi)),
+	uniform_distribution_phi(std::uniform_real_distribution<double>(0,M_PI)),
 	uniform_distribution_radius(std::uniform_real_distribution<double>(0.02,1)),  // FIXME
 	uniform_distribution_x(std::uniform_real_distribution<double>(0,1)),
 	uniform_distribution_y(std::uniform_real_distribution<double>(0,0.1)){}
@@ -98,6 +94,7 @@ void Configuration::randomize_theta_phi(const double r,double & x,double & y,dou
 	const double acos_theta   = uniform_distribution_theta(generator);
 	const double theta        = std::acos(acos_theta);
 	const double phi          = uniform_distribution_phi(generator);
+	
 	x      = r * std::sin(theta)*std::cos(phi);
 	y      = r * std::sin(theta)*std::sin(phi);
 	z      = r * acos_theta;
