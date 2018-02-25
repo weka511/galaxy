@@ -52,9 +52,6 @@ tests : $(TEST_MAIN)
 	python make_3d.py kepler.csv
 	python make_3d.py -n 3 lagrange.csv
 
-geneva: geneva.cpp
-	g++ -O3 -g -o geneva geneva.cpp
-
 clean :
 	${RM} *.o *.stackdump
 
