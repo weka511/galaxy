@@ -49,7 +49,6 @@ static int resume_flag = 0;
  *  Long version of command line options.
  */
 struct option long_options[] = {
-	{"flat", 			no_argument,       	&configuration.flat_flag, 	1},
 	{"config",  		required_argument,	0, 				'c'},
 	{"dt",  			required_argument,	0, 				'd'},
 	{"check_energy",  	required_argument,	0, 				'e'},
@@ -64,7 +63,6 @@ struct option long_options[] = {
 	{"mass",  			required_argument, 	0, 				's'},
 	{"resume", 			no_argument,       	&resume_flag, 	1},
 	{"theta",  			required_argument, 	0, 				't'},
-	{"inivel",  		required_argument, 	0, 				'v'},
 	{"seed",  			required_argument, 	0, 				'S'},
 	{"soften",  		required_argument, 	0, 				'f'},
 	{"zero",  			required_argument, 	0, 				'z'},
@@ -86,7 +84,6 @@ int main(int argc, char **argv) {
 		auto start = std::chrono::system_clock::now();
 		std::time_t start_time = std::chrono::system_clock::to_time_t(start);
 
-
 		if (extract_options(argc,argv)) {
 			std::srand(configuration.seed);
 			logger->info("Random number seed={0}", configuration.seed);	
@@ -106,7 +103,7 @@ int main(int argc, char **argv) {
 				const double T=get_kinetic_energy(particles);
 				const double V=get_potential_energy(particles,configuration.G,configuration.softening_length);
 				const double E=T+V;
-				std::cout<< T <<"," << V << "," << E << std::endl;
+				std::cout<< "T="<<T <<", V=" << V << ", E=" << E << std::endl;
 			}
 	
 			report_all(particles,start_iterations);
@@ -150,7 +147,7 @@ bool extract_options(int argc, char **argv) {
 	int option_index = 0;
 	int c;
 
-	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:lm:n:p:r:S:s:t:v:f:",long_options, &option_index)) != -1)
+	while ((c = getopt_long (argc, argv, "c:d:e:G:hi:lm:n:p:r:S:s:t:f:",long_options, &option_index)) != -1)
 		switch (c){
 			case 'c':
 				configuration.config_file_name=optarg;
@@ -212,10 +209,6 @@ bool extract_options(int argc, char **argv) {
 				
 			case 't':
 				configuration.theta=get_double("Theta",optarg);
-				break;
-			
-			case 'v':
-				configuration.inivel=get_double("Velocity",optarg);
 				break;
 			
 			case 'z':
@@ -324,7 +317,6 @@ void help() {
 	std::cout << "\t-s,--mass\tMass of bodies [" << configuration.mass << "]"<<std::endl;
 	std::cout << "\t-S,--seed\tSeed random number generator"<<std::endl;
 	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" << configuration.theta << "]"<< std::endl;
-	std::cout << "\t-v,--inivel\tInitial velocities [" << configuration.inivel << "]"<<std::endl;
 	std::cout << "\t-z,--zero\tReset centre of mass and momentum [" << configuration.needToZero << "]"<<std::endl;
 }
 

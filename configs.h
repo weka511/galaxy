@@ -60,7 +60,6 @@ class Configuration {
 	 */
 	bool restore_config(std::vector<Particle*>& bodies,int& iter);
 	
-	int flat_flag;
 
 	/**
 	 * Version number for configuration records
@@ -87,11 +86,6 @@ class Configuration {
 	 * Initially, the bodies are distributed inside a circle of radius ini_radius.
 	 */
 	double ini_radius = 1.0;
-
-	/** 
-	 * Initial maximum velocity of the bodies.
-	 */
-	double inivel = 0.1;
 
 	/**
 	 * Discrete time step.
@@ -135,8 +129,6 @@ class Configuration {
 	double maximum_energy_error=0;  //largest discrepancy in energy
 
 	double softening_length=0.0001;  // Used to handle collisions
-
-	double a=0.01;   // FIXME - Plummer
 	
 	int needToZero = 2;
 	

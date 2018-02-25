@@ -84,7 +84,7 @@ double Configuration::sample_velocity(const double radius) {
 		x=uniform_distribution_x(generator);
 		y=uniform_distribution_y(generator);
 	}
-	return  x * std::sqrt(2.0) * std::pow( 1.0 + sqr(radius),-0.25);
+	return  x * std::sqrt(2.0) * std::pow( sqr(softening_length) + sqr(radius),-0.25);
 }
 
 /**
