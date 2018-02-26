@@ -21,15 +21,14 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
-#include <random>
+
 #include "catch.hpp"
 #include "plummer.h"
 #include "utils.h"
 
 TEST_CASE( "Plummer Tests", "[plummer]" ) {
-	std::default_random_engine generator;
-	std::srand(time(NULL));
-	PlummerFactory factory (10000,1,  1,  1);
+
+	PlummerFactory factory (10000,1,  1,  1,time(NULL));
 	std::vector<Particle*> particles = factory.create( );
 	double x0=0,y0=0,z0=0,m_total=0;
 	for (int i=0;i<particles.size();i++){

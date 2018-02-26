@@ -150,7 +150,7 @@ bool Configuration::extract_options(int argc, char **argv) {
  Factory * Configuration::createFactory() {
 	 switch(model) {
 		case Plummer:
-			return new PlummerFactory(numbodies,ini_radius,  softening_length,  M);
+			return new PlummerFactory(numbodies,ini_radius,  softening_length,  M,seed);
 		default:
 			std::stringstream message;
 			message<<__FILE__ <<", " <<__LINE__<<" Invalid model "<<std::endl; 

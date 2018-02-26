@@ -19,8 +19,8 @@
 #define _PLUMMER_H
 
 #include <vector>
-#include <random>
 
+#include "mt.h"
 #include "particle.h"
 
 /**
@@ -41,7 +41,7 @@ class Factory {
  */
 class PlummerFactory : public Factory {
   public:
-	PlummerFactory(const int numbodies,const double ini_radius, const double softening_length, const double M);
+	PlummerFactory(const int numbodies,const double ini_radius, const double softening_length, const double M,long int seed);
 	
 	/**
 	 * Create a selection of particles that satisfies Plummer distribution
@@ -54,18 +54,11 @@ class PlummerFactory : public Factory {
 	
 	double sample_velocity(const double radius);
 	
-	const int    _numbodies;
-	const double _ini_radius;
-	const double _softening_length;
-	const double _M;
-
-  	std::default_random_engine generator;
-	std::uniform_real_distribution<double> _uniform_distribution_theta;
-	std::uniform_real_distribution<double> _uniform_distribution_phi;
-	std::uniform_real_distribution<double> _uniform_distribution_radius;
-	std::uniform_real_distribution<double> _uniform_distribution_x;
-	std::uniform_real_distribution<double> _uniform_distribution_y;
-	
+	const int    	_numbodies;
+	const double 	_ini_radius;
+	const double 	_softening_length;
+	const double 	_M;
+  	MersenneTwister _mt;	
 };
 
 #endif
