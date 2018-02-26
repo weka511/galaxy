@@ -23,6 +23,7 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 | make_img.py || Plot output from galaxy |
 || particles.h | Represents the particles whose motion is being simulated|
 |physics.cpp| physics.h |Physical constants, law of gravitation, etc|
+|plummer.cpp | plummer.h |Factory for creating particles |
 | plot_orbits.py || Select a few stars at random and plot their orbits |
 |  |spdlog| Header files for [spdlog](https://github.com/gabime/spdlog) super fast C++ logging library.  |
 | tests.cpp || Test harness |

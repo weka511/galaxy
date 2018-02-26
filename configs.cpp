@@ -140,8 +140,11 @@ bool Configuration::extract_options(int argc, char **argv) {
  std::vector<Particle*>  Configuration::createParticles( ){
 	 switch(model) {
 		case Plummer: {
-			PlummerFactory factory;
-			return factory.create(numbodies,ini_radius,  softening_length,  M);}
+				PlummerFactory factory;
+				std::vector<Particle*> product= factory.create(numbodies,ini_radius,  softening_length,  M);
+				zero_centre_mass_and_linear_momentum(product,0);
+				return product;
+			}
 		default:
 			std::stringstream message;
 			message<<__FILE__ <<", " <<__LINE__<<" Invalid model "<<std::endl; 

@@ -28,7 +28,10 @@ PlummerFactory::PlummerFactory()
 	uniform_distribution_radius(std::uniform_real_distribution<double>(0.0,1)),
 	uniform_distribution_x(std::uniform_real_distribution<double>(0,1)),
 	uniform_distribution_y(std::uniform_real_distribution<double>(0,0.1)){}
-	
+
+/**
+ * Create a selection of particles that satisifes Plummer distribution
+ */	
 std::vector<Particle*>  PlummerFactory::create(const int numbodies,const double ini_radius, const double softening_length, const double M ){
 	std::vector<Particle*> product;
 	for (int i=0;i<numbodies;i++) {
@@ -43,7 +46,6 @@ std::vector<Particle*>  PlummerFactory::create(const int numbodies,const double 
         product.push_back( new Particle( x, y, z, vx, vy,vz, M/numbodies) );
     }
 
-//	zero_centre_mass_and_linear_momentum(product,0);
 	spdlog::get("galaxy")->info("{0} {1}: initialized {2} bodies.",__FILE__,__LINE__,numbodies);
 	return product;
 }

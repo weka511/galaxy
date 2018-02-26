@@ -21,7 +21,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <random>
 
 #include "particle.h"
 #include "physics.h"

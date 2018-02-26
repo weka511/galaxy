@@ -23,9 +23,15 @@
 
 #include "particle.h"
 
+/**
+ * Factory for instantiating configurations of particles
+ */
 class PlummerFactory {
   public:
 	PlummerFactory();
+	/**
+	 * Create a selection of particles that satisifes Plummer distribution
+	 */
 	std::vector<Particle*>  create(const int numbodies,const double ini_radius, const double softening_length, const double M );
 	
   private:

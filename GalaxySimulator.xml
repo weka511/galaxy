@@ -13,6 +13,8 @@
         <File name="particle.h" />
         <File name="physics.cpp" />
         <File name="physics.h" />
+        <File name="plummer.cpp" />
+        <File name="plummer.h" />
         <File name="README.md" />
         <File name="treecode.cpp" />
         <File name="treecode.h" />
