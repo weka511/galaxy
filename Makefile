@@ -25,6 +25,7 @@ MKDIR=mkdir
 SRCS=	barnes-hut.cpp		\
 		center-of-mass.cpp	\
 		configs.cpp			\
+		mt.cc				\
 		physics.cpp         \
 		plummer.cpp			\
 		treecode.cpp		\
@@ -35,7 +36,7 @@ TESTS= 	test-kepler.cpp		\
 		test-plummer.cpp	\
 		test-tree.cpp
 		
-OBJS=$(subst .cpp,.o,$(SRCS))
+OBJS=$(subst .cpp,.o,$(SRCS)) 
 
 TEST_OBJS=$(subst .cpp,.o,$(TESTS))
 
@@ -54,6 +55,16 @@ tests : $(TEST_MAIN)
 	python make_3d.py kepler.csv
 	python make_3d.py -n 3 lagrange.csv
 
+mersenne : mtex.exe mttest.exe
+
+mtex.o :  mtex.cc
+
+mtex.exe : mt.o mtex.o
+	${CXX} $(LDFLAGS) -o mtex.exe mt.o mtex.o ${LDLIBS}
+
+mttest.exe : mttest.o mt.o
+	${CXX} $(LDFLAGS) -o mttest.exe mt.o mttest.o ${LDLIBS}	
+	
 clean :
 	${RM} *.o *.stackdump
 
@@ -65,8 +76,8 @@ depend: .depend
 	$(RM) ./.depend
 	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
 	sed -i -e 's/\/home\/Weka\/galaxy\///$g' .depend
-
-$(MAIN): $(OBJS) galaxy.o
+	
+$(MAIN): $(OBJS) galaxy.o mt.o
 	${CXX} $(LDFLAGS) -o $(MAIN) galaxy.o ${OBJS} ${LDLIBS}
 	
 $(TEST_MAIN): $(OBJS) tests.o $(TEST_OBJS)

@@ -42,4 +42,10 @@
         <File name="spdlog\spdlog.h" />
         <File name="spdlog\tweakme.h" />
     </Project>
+    <Project name="Random">
+        <File name="mt.cc" />
+        <File name="mt.h" />
+        <File name="mtex.cc" />
+        <File name="mttest.cc" />
+    </Project>
 </NotepadPlus>

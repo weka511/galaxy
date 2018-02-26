@@ -18,10 +18,38 @@
  */
  
 #include <vector>
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+#include <random>
 #include "catch.hpp"
 #include "plummer.h"
+#include "utils.h"
 
 TEST_CASE( "Plummer Tests", "[plummer]" ) {
-	PlummerFactory factory (100,1,  1,  1);
+	std::default_random_engine generator;
+	std::srand(time(NULL));
+	PlummerFactory factory (10000,1,  1,  1);
 	std::vector<Particle*> particles = factory.create( );
+	double x0=0,y0=0,z0=0,m_total=0;
+	for (int i=0;i<particles.size();i++){
+		double x,y,z;
+		particles[i]->getPos(x,y,z);
+		const double m=particles[i]->getMass();
+		x0+=m*x;y0+=m*y;z0+=m*z;m_total+=m;
+	}
+	x0/=m_total;y0/=m_total;z0/=m_total;
+	std::cout << "Centre of mass=(" << x0 << "," << y0 << "," << z0 << ")" << std::endl;
+	std::vector<double> distances;
+	for (int i=0;i<particles.size();i++){
+		double x,y,z;
+		particles[i]->getPos(x,y,z);
+		distances.push_back(std::sqrt(sqr(x-x0)+sqr(y-y0)+sqr(z-z0)));
+	}
+	std::sort (distances.begin(), distances.end()); 
+	// for (int i=0;i<distances.size();i++)
+		// std::cout<< distances[i]<<std::endl;
+	std::cout << "Q1="<<distances[distances.size()/4] << std::endl;
+	std::cout << "Q2="<<distances[distances.size()/2] << std::endl;
+	std::cout << "Q3="<<distances[3*distances.size()/4] << std::endl;
 }
