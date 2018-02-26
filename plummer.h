@@ -23,20 +23,26 @@
 
 #include "particle.h"
 
+/**
+ * Factory for instantiating configurations of particles
+ */
 class Factory {
   public:
+  	/**
+	 * Create a selection of particles
+	 */
 	virtual std::vector<Particle*>  create()=0;
 };
 
 /**
- * Factory for instantiating configurations of particles
+ * Factory for instantiating configurations of particles in accordance with Plummer model
  */
 class PlummerFactory : public Factory {
   public:
 	PlummerFactory(const int numbodies,const double ini_radius, const double softening_length, const double M);
 	
 	/**
-	 * Create a selection of particles that satisifes Plummer distribution
+	 * Create a selection of particles that satisfies Plummer distribution
 	 */
 	std::vector<Particle*>  create( );
 	
