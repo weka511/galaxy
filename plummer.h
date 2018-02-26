@@ -1,0 +1,45 @@
+/**
+ * Copyright (C) 2018 Greenweaves Software Limited
+ *
+ * This is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software.  If not, see <http://www.gnu.org/licenses/>
+ */
+ 
+#ifndef _PLUMMER_H
+#define _PLUMMER_H
+
+#include <vector>
+#include <random>
+
+#include "particle.h"
+
+class PlummerFactory {
+  public:
+	PlummerFactory();
+	std::vector<Particle*>  create(const int numbodies,const double ini_radius, const double softening_length, const double M );
+	
+  private:
+	void randomize_theta_phi(const double r,double & x,double & y,double& z);
+	
+	double sample_velocity(const double radius,const double softening_length);
+	
+  	std::default_random_engine generator;
+	std::uniform_real_distribution<double> uniform_distribution_theta;
+	std::uniform_real_distribution<double> uniform_distribution_phi;
+	std::uniform_real_distribution<double> uniform_distribution_radius;
+	std::uniform_real_distribution<double> uniform_distribution_x;
+	std::uniform_real_distribution<double> uniform_distribution_y;
+	
+};
+
+#endif

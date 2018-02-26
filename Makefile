@@ -26,6 +26,7 @@ SRCS=	barnes-hut.cpp		\
 		center-of-mass.cpp	\
 		configs.cpp			\
 		physics.cpp         \
+		plummer.cpp			\
 		treecode.cpp		\
 		utils.cpp			\
 		verlet.cpp

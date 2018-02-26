@@ -22,6 +22,7 @@
 #include <getopt.h>
 #include "configs.h"
 #include "physics.h"
+#include "plummer.h"
 #include "spdlog/spdlog.h"
 
 
@@ -50,13 +51,6 @@ struct option long_options[] = {
 	{"zero",  			required_argument, 	0, 				'z'},
 	{0, 				0, 					0, 				0}
 };	
-
-Configuration::Configuration() 
- : 	uniform_distribution_theta(std::uniform_real_distribution<double>(-1,1)),
-	uniform_distribution_phi(std::uniform_real_distribution<double>(0,2*M_PI)),
-	uniform_distribution_radius(std::uniform_real_distribution<double>(0.0,1)),
-	uniform_distribution_x(std::uniform_real_distribution<double>(0,1)),
-	uniform_distribution_y(std::uniform_real_distribution<double>(0,0.1)){}
 
 
 /**
@@ -145,8 +139,9 @@ bool Configuration::extract_options(int argc, char **argv) {
   */
  std::vector<Particle*>  Configuration::createParticles( ){
 	 switch(model) {
-		case Configuration::Plummer:
-			return createPlummerDistribution();
+		case Plummer: {
+			PlummerFactory factory;
+			return factory.create(numbodies,ini_radius,  softening_length,  M);}
 		default:
 			std::stringstream message;
 			message<<__FILE__ <<", " <<__LINE__<<" Invalid model "<<std::endl; 
@@ -156,58 +151,6 @@ bool Configuration::extract_options(int argc, char **argv) {
 
 
 
-/**
- *   Create particles satisfying Plummer distribution, following the derivation in Hut & Makino
- *   http://www.artcompsci.org/kali/vol/plummer/volume9.pdf
- */
-std::vector<Particle*>  Configuration::createPlummerDistribution( ){
-	std::vector<Particle*> product;
-
-	for (int i=0;i<numbodies;i++) {
-		const double radius=ini_radius*softening_length / 
-		(std::sqrt(std::pow(uniform_distribution_radius(generator),-(2.0/3.0))-1.0)); 
-        double x; double y; double z;
-		randomize_theta_phi(radius,x,y,z);
-	
-		double vx; double vy;double vz  ;
-		randomize_theta_phi(sample_velocity(radius),vx,vy,vz);
-
-        product.push_back( new Particle( x, y, z, vx, vy,vz, M/numbodies) );
-    }
-
-	zero_centre_mass_and_linear_momentum(product,0);
-	spdlog::get("galaxy")->info("{0} {1}: initialized {2} bodies.",__FILE__,__LINE__,numbodies);
-	return product;
-}
-
-/**
- * Sample velocities, ensuring that the initial velocity of any
- * star does not exceed escape velocity
- */
-double Configuration::sample_velocity(const double radius) {
-	double x=0;
-	double y=0.1;
-	while (y > sqr(x)*std::pow(1.0-sqr(x),3.5)){
-		x=uniform_distribution_x(generator);
-		y=uniform_distribution_y(generator);
-	}
-	return  x * M_SQRT2 * std::pow( sqr(softening_length) + sqr(radius),-0.25);
-}
-
-/**
- * Convert a scalar, r, into a vector with the same length, and a random orientation
- */
-void Configuration::randomize_theta_phi(const double r,double & x,double & y,double& z) {
-	const double acos_theta   = uniform_distribution_theta(generator);
-	const double theta        = std::acos(acos_theta);
-	const double phi          = uniform_distribution_phi(generator);
-	
-	x = r * std::sin(theta)*std::cos(phi);
-	y = r * std::sin(theta)*std::sin(phi);
-	z = r * acos_theta;
-}
-
-	
 
  
 /**

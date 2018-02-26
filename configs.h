@@ -37,8 +37,6 @@ class Configuration {
 		Plummer     // at present Plummer is the only model
 	};
 	
-	Configuration();
-	
 	bool extract_options(int argc, char **argv);
 	
    /**
@@ -164,29 +162,7 @@ class Configuration {
 	  */
 	int check_energy = -1;
 	
-	/**
-	 *   Create particles satisfying Plummer distribution, following the derivateion in Hut & Makino
-	 *   http://www.artcompsci.org/kali/vol/plummer/volume9.pdf
-	 */
-	std::vector<Particle*>  createPlummerDistribution( ); 
-	
-	std::default_random_engine generator;
-	std::uniform_real_distribution<double> uniform_distribution_theta;
-	std::uniform_real_distribution<double> uniform_distribution_phi;
-	std::uniform_real_distribution<double> uniform_distribution_radius;
-	std::uniform_real_distribution<double> uniform_distribution_x;
-	std::uniform_real_distribution<double> uniform_distribution_y;
-	
-	/**
-	 * Convert a scalar, r, into a vector with the same length, and a random orientation
-	 */
-	void randomize_theta_phi(const double r,double & x,double & y,double& z) ;
-	
-	/**
-	 * Sample velocities, ensuring that the initial velocity of any
-	 * star does not exceed escape velocity
-	 */
-	double sample_velocity(const double radius);
+
 	
 	/**
 	 * Generate help text
