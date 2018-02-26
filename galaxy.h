@@ -21,24 +21,17 @@
 
 #include "particle.h"
 
- 
- 
  /**
   * Used after iteration to write out data
   */
  bool report_all(std::vector<Particle*> particles,int iter);
  
- /**
-  * Write out configuration
-  */
- void report_configuration(std::vector<Particle*> particles,int iter);
+ 
  
  /**
   * Write out energy and other conserved quantities
   */
 void report_energy(std::vector<Particle*> particles,int iter);
-
-
 
 #endif
 

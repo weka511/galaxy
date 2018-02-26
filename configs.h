@@ -68,7 +68,15 @@ class Configuration {
 	 */
 	bool restore_config(std::vector<Particle*>& bodies,int& iter);
 	
+	/**
+	 * Write out configuration
+	 */
+	void report_configuration(std::vector<Particle*> particles,int iter);
+	 
+	std::string get_config_file_name() {return config_file_name;}
 
+	std::string get_path() {return path;};
+	 
 	/**
 	 * Version number for configuration records
 	 */
@@ -76,12 +84,48 @@ class Configuration {
 	
 	inline double get_softening_length() {return softening_length;}
 	
+	inline double getG() {return G;}
+
+	/**
+	 * Discrete time step.
+	 */	
+	inline double get_dt() { return dt;}
+	
+	inline double get_max_iter() {return max_iter;}
+
 	/**
 	 *  Theta-criterion of the Barnes-Hut algorithm.
-	 *  I had to move this outside `main` so the lambda in `run_verlet` would compile.
+	 */
+	inline double get_theta() {return theta;}
+	
+	inline bool should_check_energy(const int iter) {return check_energy>0 &&iter%check_energy==0;}
+	
+ private:
+	
+	/**
+	 *  Theta-criterion of the Barnes-Hut algorithm.
 	 */
 	double theta = 0.5;
+	/**
+	 * Discrete time step.
+	 */
+	double dt = 1.e-3;
 
+	/**
+	 * Number of bodies
+	 
+	 */
+	int numbodies = 1000;
+
+	/**
+	 * Number of time-iterations executed by the program.
+	 */
+	int max_iter = 10000;
+
+	/**
+	 * Frequency at which configuration records are written.
+	 */
+	int img_iter = 20;
 	/**
 	* The gravitational constant is 1 in Heggie units - https://link.springer.com/chapter/10.1007%2FBFb0116419
 	*/
@@ -96,32 +140,7 @@ class Configuration {
 	 * Initially, the bodies are distributed inside a circle of radius ini_radius.
 	 */
 	double ini_radius = 1.0;
-
-	/**
-	 * Discrete time step.
-	 */
-	double dt = 1.e-3;
-
-	/**
-	 * Number of bodies
-	 */
-	int numbodies = 1000;
-
-	/**
-	 * Number of time-iterations executed by the program.
-	 */
-	int max_iter = 10000;
-
-	/**
-	 * Frequency at which configuration records are written.
-	 */
-	int img_iter = 20;
-
-	 /**
-	  * Frequency for checking total energy
-	  */
-	int check_energy = -1;
-
+	
 	/**
 	 * File Name for configuration records
 	 */
@@ -132,8 +151,6 @@ class Configuration {
 	 */
 	std::string path = "./configs";
 
-  private:
-  
 	Model model=Plummer;
 
 	double softening_length=1;  // Used to handle collisions
@@ -142,7 +159,10 @@ class Configuration {
 	
 	unsigned int seed=time(NULL);
 	
-  
+  	 /**
+	  * Frequency for checking total energy
+	  */
+	int check_energy = -1;
 	
 	/**
 	 *   Create particles satisfying Plummer distribution, following the derivateion in Hut & Makino

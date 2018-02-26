@@ -18,6 +18,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <cmath>
+#include <iomanip>
 #include <getopt.h>
 #include "configs.h"
 #include "physics.h"
@@ -414,4 +415,25 @@ void Configuration::help() {
 	std::cout << "\t-S,--seed\tSeed random number generator"<<std::endl;
 	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" <<theta << "]"<< std::endl;
 	std::cout << "\t-z,--zero\tReset centre of mass and momentum [" <<needToZero << "]"<<std::endl;
+}
+
+/**
+  * Write out configuration
+  */
+void Configuration::report_configuration(std::vector<Particle*> particles,int iter) {
+	if (iter%img_iter==0) {
+		zero_centre_mass_and_linear_momentum(particles,iter);
+		std::cout << "Writing configuration for iteration " << iter << std::endl;
+		std::stringstream file_name;
+		file_name << path<< "bodies" << std::setw(get_max_digits_config()) << std::setfill('0') <<iter/img_iter << ".csv";
+		std::ofstream ofile(file_name.str().c_str());
+		for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {
+			double x,y,z;
+			(*it)->getPos(x,y,z);
+			ofile<<x <<"," <<y <<","<<z <<std::endl;
+		}
+		ofile.close();
+		save_config(particles,iter);
+	}
+
 }

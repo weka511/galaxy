@@ -64,17 +64,17 @@ int main(int argc, char **argv) {
 			int start_iterations=0;
 			if (get_resume_flag()) {
 				if (configuration.restore_config(particles,start_iterations))
-					logger->info("Restarted from {0} {1} at {2}",configuration.path,configuration.config_file_name,start_iterations);
+					logger->info("Restarted from {0} {1} at {2}",configuration.get_path(),configuration.get_config_file_name(),start_iterations);
 				else {
 					particles = configuration.createParticles(  );
 					start_iterations=0;
-					logger->info("Failed to restart from {0} {1}",configuration.path,configuration.config_file_name);
+					logger->info("Failed to restart from {0} {1}",configuration.get_path(),configuration.get_config_file_name());
 				}
 			} else {
 				std::system("rm configs/*");  // Issue #5 - remove old config files
 				particles = configuration.createParticles(  );
 				const double T=get_kinetic_energy(particles);
-				const double V=get_potential_energy(particles,configuration.G,configuration.get_softening_length());
+				const double V=get_potential_energy(particles,configuration.getG(),configuration.get_softening_length());
 				const double E=T+V;
 				logger->info("T={0}, V={1}, E={2}, T/V={3}",T,V,E,T/V);
 				std::cout<< "T="<<T <<", V=" << V << ", E=" << E << std::endl;
@@ -84,11 +84,11 @@ int main(int argc, char **argv) {
 
 			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(
 																		particles,
-																		configuration.theta,
-																		configuration.G,
+																		configuration.get_theta(),
+																		configuration.getG(),
 																		configuration.get_softening_length());},
-						configuration.max_iter,
-						configuration.dt,
+						configuration.get_max_iter(),
+						configuration.get_dt(),
 						particles,
 						&report_all,
 						start_iterations);
@@ -119,19 +119,19 @@ int main(int argc, char **argv) {
 */
 bool report_all(std::vector<Particle*> particles,int iter){
 	report_energy(particles,iter);
-	report_configuration(particles,iter);
+	configuration.report_configuration(particles,iter);
 	return !killed();
 }
 
 /**
   * Write out energy and other conserved quantities
   */
-void report_energy(std::vector<Particle*> particles,int iter) {
-	if (configuration.check_energy>0 &&iter%configuration.check_energy==0) {
+void report_energy(std::vector<Particle*> particles,const int iter) {
+	if (configuration.should_check_energy(iter)) {
 		auto logger=spdlog::get("galaxy");
 		configuration.zero_centre_mass_and_linear_momentum(particles,iter);
 		const double T=get_kinetic_energy(particles);
-		const double V=get_potential_energy(particles,configuration.G,configuration.get_softening_length());
+		const double V=get_potential_energy(particles,configuration.getG(),configuration.get_softening_length());
 		const double E=T+V;
 		logger->info("T={0}, V={1}, E={2}, T/V={3}",T,V,E,T/V);
 		std::cout<< "T="<<T <<", V=" << V << ", E=" << E << std::endl;
@@ -153,26 +153,7 @@ void report_energy(std::vector<Particle*> particles,int iter) {
 	}
 }
 
-/**
-  * Write out configuration
-  */
-void report_configuration(std::vector<Particle*> particles,int iter) {
-	if (iter%configuration.img_iter==0) {
-		configuration.zero_centre_mass_and_linear_momentum(particles,iter);
-		std::cout << "Writing configuration for iteration " << iter << std::endl;
-		std::stringstream file_name;
-		file_name << configuration.path<< "bodies" << std::setw(configuration.get_max_digits_config()) << std::setfill('0') <<iter/configuration.img_iter << ".csv";
-		std::ofstream ofile(file_name.str().c_str());
-		for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {
-			double x,y,z;
-			(*it)->getPos(x,y,z);
-			ofile<<x <<"," <<y <<","<<z <<std::endl;
-		}
-		ofile.close();
-		configuration.save_config(particles,iter);
-	}
 
-}
 
 
 
