@@ -34,10 +34,11 @@ SRCS=	barnes-hut.cpp		\
 
 TESTS= 	test-kepler.cpp		\
 		test-plummer.cpp	\
+		test-random.cpp     \
 		test-tree.cpp
 		
-OBJS=$(subst .cpp,.o,$(SRCS)) 
-
+OBJS1=$(subst .cpp,.o,$(SRCS)) 
+OBJS=$(subst .cc,.o,$(OBJS1)) 
 TEST_OBJS=$(subst .cpp,.o,$(TESTS))
 
 MAIN=galaxy.exe

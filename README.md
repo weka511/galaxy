@@ -21,6 +21,9 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 | Makefile || Build galaxy simulation |
 | make_3d.py | |Plot output from galaxy |
 | make_img.py || Plot output from galaxy |
+| mt.cc |mt.h| Mersenne twister|
+| mtex.cc || Test code for Mersenne twister |
+| mttest.cc || Test code for Mersenne twister  |
 || particles.h | Represents the particles whose motion is being simulated|
 | physics.cpp| physics.h |Physical constants, law of gravitation, etc|
 | plummer.cpp | plummer.h |Factory for creating particles |
@@ -29,6 +32,7 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 | tests.cpp || Test harness |
 | test-kepler.cpp| | Test for Kepler problem |
 | test-plummer.cpp| | Test for Plummer model |
+| test-random.cpp| | Test for Various random number generators |
 | test-tree.cpp| | Test treecode |
 | treecode.cpp | treecode.h | Barnes-Hut Tree|
 | utils.cpp | utils.h | Assorted utility functions|

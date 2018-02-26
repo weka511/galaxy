@@ -28,6 +28,7 @@
         <File name="test-kepler.cpp" />
         <File name="test-plummer.cpp" />
         <File name="test-tree.cpp" />
+        <File name="test-random.cpp" />
     </Project>
     <Project name="Helpers">
         <File name="make_3d.py" />
