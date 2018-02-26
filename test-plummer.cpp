@@ -19,8 +19,9 @@
  
 #include <vector>
 #include "catch.hpp"
-
+#include "plummer.h"
 
 TEST_CASE( "Plummer Tests", "[plummer]" ) {
-
+	PlummerFactory factory (100,1,  1,  1);
+	std::vector<Particle*> particles = factory.create( );
 }

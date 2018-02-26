@@ -46,16 +46,16 @@ bool record_orbit(std::vector<Particle*> particles,int iter) {
 			double x,y,z;
 			particles[i]->getPos(x,y,z);
 			logger << x << "," << y << "," << z << std::endl;
-			std::cout <<  "E: " << get_kinetic_energy(particles) + get_potential_energy(particles,G_solar_system,0) << std::endl;
+			// std::cout <<  "E: " << get_kinetic_energy(particles) + get_potential_energy(particles,G_solar_system,0) << std::endl;
 			double px,py,pz;
 			get_momentum(particles,px,py,pz);
-			std::cout<< "P: (" <<px << ", " <<py << ", " <<pz << ")" << std::endl;
+			// std::cout<< "P: (" <<px << ", " <<py << ", " <<pz << ")" << std::endl;
 			double cx,cy,cz;
 			get_centre_of_mass(particles,cx,cy,cz);
-			std::cout<< "C: (" <<cx << ", " <<cy << ", " <<cz << ")" << std::endl;
+			// std::cout<< "C: (" <<cx << ", " <<cy << ", " <<cz << ")" << std::endl;
 			double lx,ly,lz;
 			get_angular_momentum(particles,lx,ly,lz);
-			std::cout<< "L: (" <<lx << ", " <<ly << ", " <<lz << ")" << std::endl;
+			// std::cout<< "L: (" <<lx << ", " <<ly << ", " <<lz << ")" << std::endl;
 		}
 	iter++;
 	return true;
@@ -67,13 +67,13 @@ bool record_all(std::vector<Particle*> particles,int iter) {
 			std::cout<<i<<std::endl;
 			double x,y,z;
 			particles[i]->getPos(x,y,z);
-			std::cout << x << "," << y << "," << z << std::endl;
+			// std::cout << x << "," << y << "," << z << std::endl;
 			double vx,vy,vz;
 			particles[i]->getVel(vx,vy,vz);
-			std::cout << vx << "," << vy << "," << vz << std::endl;
+			// std::cout << vx << "," << vy << "," << vz << std::endl;
 			double ax,ay,az;
 			particles[i]->getAcc(ax,ay,az);
-			std::cout << ax << "," << ay << "," << az << std::endl;
+			// std::cout << ax << "," << ay << "," << az << std::endl;
 		}
 	iter++;
 	return true;

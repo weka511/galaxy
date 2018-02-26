@@ -50,7 +50,6 @@ std::vector<Particle*>  PlummerFactory::create(){
         product.push_back( new Particle( x, y, z, vx, vy,vz, _M/_numbodies) );
     }
 
-	spdlog::get("galaxy")->info("{0} {1}: initialized {2} bodies.",__FILE__,__LINE__,_numbodies);
 	return product;
 }
 

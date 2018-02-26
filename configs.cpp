@@ -141,6 +141,7 @@ bool Configuration::extract_options(int argc, char **argv) {
  std::vector<Particle*>  Configuration::createParticles( ){
 	Factory * factory=createFactory();
 	std::vector<Particle*> product=factory->create();
+	spdlog::get("galaxy")->info("{0} {1}: initialized {2} bodies.",__FILE__,__LINE__,numbodies);
 	delete factory;
 	zero_centre_mass_and_linear_momentum(product,0);
 	return product;

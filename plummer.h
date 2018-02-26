@@ -32,6 +32,8 @@ class Factory {
 	 * Create a selection of particles
 	 */
 	virtual std::vector<Particle*>  create()=0;
+	
+	virtual ~Factory() {;}
 };
 
 /**
