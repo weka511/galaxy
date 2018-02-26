@@ -17,17 +17,19 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 | center-of-mass.cpp |center-of-mass.h| Find centre of mass for internal nodes|
 | configs.cpp | configs.h| Factory for creating configurations of particles, plus configuration management |
 | galaxy.cpp |galaxy.h| Simulate Galaxy using Barnes Hut|
-|GalaxySimulator.xml||Notepad++ Workspace|
+| GalaxySimulator.xml||Notepad++ Workspace|
 | Makefile || Build galaxy simulation |
 | make_3d.py | |Plot output from galaxy |
 | make_img.py || Plot output from galaxy |
 || particles.h | Represents the particles whose motion is being simulated|
-|physics.cpp| physics.h |Physical constants, law of gravitation, etc|
-|plummer.cpp | plummer.h |Factory for creating particles |
+| physics.cpp| physics.h |Physical constants, law of gravitation, etc|
+| plummer.cpp | plummer.h |Factory for creating particles |
 | plot_orbits.py || Select a few stars at random and plot their orbits |
-|  |spdlog| Header files for [spdlog](https://github.com/gabime/spdlog) super fast C++ logging library.  |
+| |spdlog| Header files for [spdlog](https://github.com/gabime/spdlog) super fast C++ logging library.  |
 | tests.cpp || Test harness |
 | test-kepler.cpp| | Test for Kepler problem |
+| test-plummer.cpp| | Test for Plummer model |
+| test-tree.cpp| | Test treecode |
 | treecode.cpp | treecode.h | Barnes-Hut Tree|
 | utils.cpp | utils.h | Assorted utility functions|
 | verlet.cpp | verlet.h | [Verlet "leapfrog"](http://physics.ucsc.edu/~peter/242/leapfrog.pdf) integrator|
