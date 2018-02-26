@@ -107,9 +107,15 @@ if __name__=='__main__':
     parser.add_argument('--delimiter','-d', action='store',
                         help='Delimiter for fields in config file',default=',')
     parser.add_argument('--nsigma','-g', type=int,action='store',
-                        help='Number of standard deviations to use for scaling',default=3) 
+                        help='Number of standard deviations to use for scaling',default=3)
+    parser.add_argument('--seed',type=int,action='store',default=None,help='Seed for random number generator')
     parser.add_argument('--images','-i',action='store',help='Path to store images',default='./imgs')
     args = parser.parse_args()
+    if args.seed==None:
+        random.seed()
+    else:
+        random.seed(args.seed)
+        
     selector=random.sample(range(args.bodies),args.norbits) 
     plot(
         extract(
