@@ -20,9 +20,9 @@
 #include <cmath>
 #include <iomanip>
 #include <getopt.h>
+#include <memory>
 #include "configs.h"
 #include "physics.h"
-#include "plummer.h"
 #include "spdlog/spdlog.h"
 
 
@@ -133,18 +133,23 @@ bool Configuration::extract_options(int argc, char **argv) {
 	logger->info("Random number seed={0}", seed);	
 	
 	return true;
-}		
+}
+		
  /**
   * Create all bodies needed at start of run
   */
  std::vector<Particle*>  Configuration::createParticles( ){
+	Factory * factory=createFactory();
+	std::vector<Particle*> product=factory->create();
+	delete factory;
+	zero_centre_mass_and_linear_momentum(product,0);
+	return product;
+ }
+ 
+ Factory * Configuration::createFactory() {
 	 switch(model) {
-		case Plummer: {
-				PlummerFactory factory;
-				std::vector<Particle*> product= factory.create(numbodies,ini_radius,  softening_length,  M);
-				zero_centre_mass_and_linear_momentum(product,0);
-				return product;
-			}
+		case Plummer:
+			return new PlummerFactory(numbodies,ini_radius,  softening_length,  M);
 		default:
 			std::stringstream message;
 			message<<__FILE__ <<", " <<__LINE__<<" Invalid model "<<std::endl; 

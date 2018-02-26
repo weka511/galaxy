@@ -23,28 +23,40 @@
 
 #include "particle.h"
 
+class Factory {
+  public:
+	virtual std::vector<Particle*>  create()=0;
+};
+
 /**
  * Factory for instantiating configurations of particles
  */
-class PlummerFactory {
+class PlummerFactory : public Factory {
   public:
-	PlummerFactory();
+	PlummerFactory(const int numbodies,const double ini_radius, const double softening_length, const double M);
+	
 	/**
 	 * Create a selection of particles that satisifes Plummer distribution
 	 */
-	std::vector<Particle*>  create(const int numbodies,const double ini_radius, const double softening_length, const double M );
+	std::vector<Particle*>  create( );
 	
   private:
+
 	void randomize_theta_phi(const double r,double & x,double & y,double& z);
 	
-	double sample_velocity(const double radius,const double softening_length);
+	double sample_velocity(const double radius);
 	
+	const int    _numbodies;
+	const double _ini_radius;
+	const double _softening_length;
+	const double _M;
+
   	std::default_random_engine generator;
-	std::uniform_real_distribution<double> uniform_distribution_theta;
-	std::uniform_real_distribution<double> uniform_distribution_phi;
-	std::uniform_real_distribution<double> uniform_distribution_radius;
-	std::uniform_real_distribution<double> uniform_distribution_x;
-	std::uniform_real_distribution<double> uniform_distribution_y;
+	std::uniform_real_distribution<double> _uniform_distribution_theta;
+	std::uniform_real_distribution<double> _uniform_distribution_phi;
+	std::uniform_real_distribution<double> _uniform_distribution_radius;
+	std::uniform_real_distribution<double> _uniform_distribution_x;
+	std::uniform_real_distribution<double> _uniform_distribution_y;
 	
 };
 

@@ -23,7 +23,7 @@
 #include <vector>
 
 #include "particle.h"
-#include "physics.h"
+#include "plummer.h"
 
 int get_resume_flag();
 
@@ -161,7 +161,7 @@ class Configuration {
 	  */
 	int check_energy = -1;
 	
-
+	Factory * createFactory();
 	
 	/**
 	 * Generate help text
