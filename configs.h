@@ -109,8 +109,7 @@ class Configuration {
 	double dt = 1.e-3;
 
 	/**
-	 * Number of bodies
-	 
+	 * Number of bodies 
 	 */
 	int numbodies = 1000;
 

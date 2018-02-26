@@ -41,7 +41,7 @@ class Factory {
  */
 class PlummerFactory : public Factory {
   public:
-	PlummerFactory(const int numbodies,const double ini_radius, const double softening_length, const double M,long int seed);
+	PlummerFactory(const int numbodies,const double ini_radius, const double a, const double M,long int seed);
 	
 	/**
 	 * Create a selection of particles that satisfies Plummer distribution
@@ -50,14 +50,40 @@ class PlummerFactory : public Factory {
 	
   private:
 
-	void randomize_theta_phi(const double r,double & x,double & y,double& z);
+	/**
+	 * Convert a scalar, r, into a vector with the same length, and a random orientation
+	 */
+	void 			_randomize_theta_phi(const double r,double & x,double & y,double& z);
 	
-	double sample_velocity(const double radius);
+	/**
+	 * Sample velocities, ensuring that the initial velocity of any
+	 * star does not exceed escape velocity
+	 */
+	double 			_sample_velocity(const double radius);
 	
+	/**
+	 * Number of bodies 
+	 */
 	const int    	_numbodies;
-	const double 	_ini_radius;
-	const double 	_softening_length;
+	
+	/**
+	 * Initially, the bodies are distributed inside a circle of radius ini_radius.
+	 */
+	const double 	_ini_radius; 
+	
+	/**
+	 * Softening length
+	 */
+	const double 	_a; 
+	
+	/**
+	 * Total mass
+	 */
 	const double 	_M;
+	
+	/**
+	 * Random number generator
+	 */
   	MersenneTwister _mt;	
 };
 
