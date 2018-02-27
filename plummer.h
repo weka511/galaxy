@@ -67,7 +67,7 @@ class PlummerFactory : public Factory {
 	const int    	_numbodies;
 	
 	/**
-	 * Initially, the bodies are distributed inside a circle of radius ini_radius.
+	 * Initially, the bodies are distributed inside a sphere of radius ini_radius.
 	 */
 	const double 	_ini_radius; 
 	

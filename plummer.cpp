@@ -25,7 +25,7 @@ PlummerFactory::PlummerFactory(const int numbodies,const double ini_radius, cons
 	_a(a),
 	_M(M) {
 		_mt.init_genrand(seed);
-		_mt.print();
+//		_mt.print();
 	}
 
 /**
@@ -51,13 +51,13 @@ std::vector<Particle*>  PlummerFactory::create(){
  * Convert a scalar, r, into a vector with the same length, and a random orientation
  */
 void PlummerFactory::_randomize_theta_phi(const double r,double & x,double & y,double& z) {
-	const double acos_theta   = -1+2.0*_mt.random();
-	const double theta        = std::acos(acos_theta);
+	const double cos_theta   = -1+2.0*_mt.random();
+	const double theta        = std::acos(cos_theta);
 	const double phi          = 2*M_PI*_mt.random();
 	
 	x = r * std::sin(theta)*std::cos(phi);
 	y = r * std::sin(theta)*std::sin(phi);
-	z = r * acos_theta;
+	z = r * cos_theta;
 }
 
 /**
