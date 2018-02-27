@@ -25,7 +25,6 @@ PlummerFactory::PlummerFactory(const int numbodies,const double ini_radius, cons
 	_a(a),
 	_M(M) {
 		_mt.init_genrand(seed);
-//		_mt.print();
 	}
 
 /**
@@ -67,9 +66,9 @@ void PlummerFactory::_randomize_theta_phi(const double r,double & x,double & y,d
 double PlummerFactory::_sample_velocity(const double radius) {
 	double x=0;
 	double y=0.1;
-	while (y > sqr(x)*std::pow(1.0-sqr(x),3.5)){
+	while (y > x*x*std::pow(1.0-x*x,3.5)){
 		x=_mt.random();
 		y=0.1*_mt.random();
 	}
-	return  x * M_SQRT2 * std::pow( sqr(_a) + sqr(radius),-0.25);
+	return  x * M_SQRT2 * std::pow( _a*_a + radius*radius,-0.25);
 }

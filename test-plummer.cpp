@@ -22,7 +22,9 @@
 #include <cmath>
 #include <algorithm>
 #include <numeric>
+
 #include "catch.hpp"
+#include "physics.h"
 #include "plummer.h"
 #include "utils.h"
 
@@ -34,6 +36,10 @@ double stdev(std::vector<double> q1s,double mean1) {
 	return std::sqrt(sq_sum / q1s.size());
 }
 
+double mean(std::vector<double> values) {
+	return  std::accumulate(values.begin(), values.end(), 0.0) / values.size();
+}
+
 TEST_CASE( "Plummer Tests", "[plummer]" ) {
 	const double q1=std::pow(std::pow(2.0,4.0/3.0)-1,-0.5);
 	const double q2=std::pow(std::pow(2.0,2.0/3.0)-1,-0.5);
@@ -41,8 +47,11 @@ TEST_CASE( "Plummer Tests", "[plummer]" ) {
 	std::vector<double> q1s;
 	std::vector<double> q2s;
 	std::vector<double> q3s;
+	std::vector<double> Ts;
+	std::vector<double> Vs;
+	
 	for (int i=0;i<100;i++){
-		PlummerFactory factory (10000,1,  1,  1,i);
+		PlummerFactory factory (1000,1,  1,  1,i);
 		std::vector<Particle*> particles = factory.create( );
 		double x0=0,y0=0,z0=0,m_total=0;
 		for (int i=0;i<particles.size();i++){
@@ -67,13 +76,22 @@ TEST_CASE( "Plummer Tests", "[plummer]" ) {
 		q1s.push_back(std::sqrt(distances[distances.size()/4-1]) );
 		q2s.push_back(std::sqrt(distances[distances.size()/2-1]) );
 		q3s.push_back(std::sqrt(distances[3*distances.size()/4-1]) );
+		const double T=get_kinetic_energy(particles);
+		const double V=get_potential_energy(particles,1,1);
+		std::cout << "T="<<T << ", \tV=" << V << ", \t-V/T="<< -V/T<<std::endl;
+		Ts.push_back(T);
+		Vs.push_back(V);
 	}
-	double mean1 = std::accumulate(q1s.begin(), q1s.end(), 0.0) / q1s.size();
+	const double mean1 = mean(q1s);
 
-	double mean2 = std::accumulate(q2s.begin(), q2s.end(), 0.0) / q2s.size();
-	double mean3 = std::accumulate(q3s.begin(), q3s.end(), 0.0) / q3s.size();
+	const double mean2 = mean(q2s);
+	const double mean3 = mean(q3s);
 	
 	std::cout << "Expected quartiles: "<< q1 << ", " << q2 << ", " << q3 << ", " <<std::endl;
 
 	std::cout << mean1 << "("<< stdev(q1s,mean1)<<"), "<<mean2 << "("<< stdev(q2s,mean2)<<"), " << mean3<< "("<< stdev(q3s,mean3)<<")"<< std::endl;
+	
+	const double meanT=mean(Ts);
+	const double meanV=mean(Vs);
+	std::cout << meanT << "("<< stdev(Ts,meanT)<<"), "<<  meanV <<  "("<< stdev(Vs,meanV)<<"), "<< std::endl;
 }
