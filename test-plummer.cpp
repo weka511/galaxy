@@ -27,7 +27,7 @@
 #include "plummer.h"
 #include "utils.h"
 
-TEST_CASE( "Plummer Tests for mass distribution", "[plummer_quartiles]" ) {
+TEST_CASE( "Plummer Tests for mass distribution", "[plummer]" ) {
 	const double q1=std::pow(std::pow(2.0,4.0/3.0)-1,-0.5);
 	const double q2=std::pow(std::pow(2.0,2.0/3.0)-1,-0.5);
 	const double q3=std::pow(std::pow(2.0,4.0/3.0)*std::pow(3.0,-2.0/3.0)-1,-0.5);

@@ -14,84 +14,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  *
- * This file exercises the random number generators. It shows that the build-in
- * generators ignore the seed, but that Matsumoto & Nishimura's MersenneTwister does use seed.
+ * This file exercises the random number generators. It shows that Matsumoto & Nishimura's MersenneTwister does use seed.
  *
  */
  
 
-#include <random>
 #include <iostream>
 #include "catch.hpp"
 #include "mt.h"
 
-TEST_CASE( "Random number generator Tests1", "[random1]" ) {
-	std::mt19937_64 generator;
-	std::srand(1);
-	std::cout << "A time seed produced: " << generator() << std::endl;
-	std::cout << "A time seed produced: " << generator() << std::endl;
-	std::cout << "A time seed produced: " << generator() << std::endl;
-}
 
-TEST_CASE( "Random number generator Tests2", "[random2]" ) {
-	std::mt19937_64 generator;
-	std::srand(2);
-	std::cout << "A time seed produced: " << generator() << std::endl;
-	std::cout << "A time seed produced: " << generator() << std::endl;
-	std::cout << "A time seed produced: " << generator() << std::endl;
+TEST_CASE( "MersenneTwister Tests1", "[mersennetwister]" ) {
+	MersenneTwister mt0;
+	mt0.init_genrand(1);
+
+	double x01=mt0.random();
+	double x02=mt0.random();
+	double x03=mt0.random();
+	SECTION( "Repeat seed" ) { // same seed -> same sequence
+		MersenneTwister mt1;
+		mt1.init_genrand(1);
+		double x1=mt1.random();
+		REQUIRE(x1==Approx(x01).epsilon(1.0e-12));
 	}
-	
-TEST_CASE( "Random number generator Tests3", "[random3]" ) {
-	std::mt19937_64 generator;
-	std::srand(time(NULL));
-	std::cout << "A time seed produced: " << generator() << std::endl;
-	std::cout << "A time seed produced: " << generator() << std::endl;
-	std::cout << "A time seed produced: " << generator() << std::endl;
+	SECTION( "Change seed" ) { // different seed -> different sequence
+		MersenneTwister mt2;
+		mt2.init_genrand(2);
+		double x21=mt2.random();
+		double x22=mt2.random();
+		double x23=mt2.random();
+		REQUIRE(std::abs(x21-x01)>0.01);
+		REQUIRE(std::abs(x21-x02)>0.5);
+		REQUIRE(std::abs(x23-x03)>0.5);
 	}
-	
-TEST_CASE( "Random number generator Tests4", "[random4]" ) {
-	std::mt19937_64 generator;
-	std::srand(time(NULL));
-	std::cout << "A time seed produced: " << generator() << std::endl;
-	std::cout << "A time seed produced: " << generator() << std::endl;
-	std::cout << "A time seed produced: " << generator() << std::endl;
-	
 }
 
-TEST_CASE( "MersenneTwister Tests1", "[mersenne1]" ) {
-	MersenneTwister mt;
-	mt.init_genrand(1);
-    mt.print();
-	std::cout << "Seed 1 produced: " << mt.random() << std::endl;
-	std::cout << "Seed 1 produced:  " << mt.random() << std::endl;
-	std::cout << "Seed 1 produced:  " << mt.random() << std::endl;
-}
-
-TEST_CASE( "MersenneTwister Tests2", "[mersenne2]" ) {
-	MersenneTwister mt;
-	mt.init_genrand(1);
-    mt.print();
-	std::cout << "Seed 1 produced: " << mt.random() << std::endl;
-	std::cout << "Seed 1 produced:  " << mt.random() << std::endl;
-	std::cout << "Seed 1 produced:  " << mt.random() << std::endl;
-}
-
-TEST_CASE( "MersenneTwister Tests3", "[mersenne3]" ) {
-	MersenneTwister mt;
-	mt.init_genrand(2);
-    mt.print();
-
-	std::cout << "Seed 2 produced: " << mt.random() << std::endl;
-	std::cout << "Seed 2 produced:  " << mt.random() << std::endl;
-	std::cout << "Seed 2 produced:  " << mt.random() << std::endl;
-}
-
-TEST_CASE( "MersenneTwister Tests4", "[mersenne4]" ) {
-	MersenneTwister mt;
-	mt.init_genrand(time(NULL));
-    mt.print();
-
-	std::cout << "Time Seed produced: " << mt.random() << std::endl;
-	std::cout << "Time Seed  produced:  " << mt.random() << std::endl;
-	std::cout << "Time Seed  produced:  " << mt.random() << std::endl;
-}
