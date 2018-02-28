@@ -139,3 +139,11 @@ void get_angular_momentum(std::vector<Particle*> particles,double& lx,double& ly
 		lz+=m*(rx*vy-ry*vx);
 	}
 }
+
+void get_acceleration(double m,double x,double y,double z,double _x,double _y,double _z,double dsq,double a, double G,
+					double& acc_x, double& acc_y, double& acc_z){
+	const double d_factor=pow(dsq+a*a,-3/2);
+	acc_x=G*m*(x-_x)*d_factor;
+	acc_y=G*m*(y-_y)*d_factor;
+	acc_z=G*m*(z-_z)*d_factor;
+}

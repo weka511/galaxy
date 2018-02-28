@@ -39,6 +39,8 @@ void get_acceleration(std::vector<Particle*> particles,double G);
 
 void get_acceleration_between_pair(Particle* p_i,Particle* p_j,double G);
 
+void get_acceleration(double m,double x,double y,double z,double _x,double _y,double _z,double dsq,double a, double G,
+					double& acc_x, double& acc_y, double& acc_z);
 /**
  *  Calculate kinetic energy for a system of particles
  */

@@ -87,8 +87,9 @@ void BarnesHutVisitor::store_accelerations() {
  * acceleration is always zero at the start.
  */
 void BarnesHutVisitor::_accumulate_acceleration(double m,double x,double y,double z,double dsq){
-	const double d_factor=pow(dsq+_softening_length_sq,-3/2);
-	_acc_x+=_G*m*(x-_x)*d_factor;
-	_acc_y+=_G*m*(y-_y)*d_factor;
-	_acc_z+=_G*m*(z-_z)*d_factor;
+	double acc_x, acc_y, acc_z;
+	get_acceleration( m, x, y, z, _x, _y, _z, dsq,_a, _G, acc_x,  acc_y,  acc_z);
+	_acc_x+=acc_x;
+	_acc_y+=acc_y;
+	_acc_z+=acc_z;
 }
