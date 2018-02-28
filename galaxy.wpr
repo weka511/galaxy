@@ -482,7 +482,7 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                                 'selection_end': 5154L,
                                 'selection_start': 5154L,
                                 'zoom': 0L})],
-        'has-focus': True,
+        'has-focus': False,
         'locked': False},
         [loc('adze.py'),
          loc('plot_orbits.py')]),
@@ -504,7 +504,7 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                          726)}]}
 guimgr.recent-documents = [loc('plot_orbits.py'),
                            loc('adze.py')]
-guimgr.visual-state = {loc('../../../../Anaconda3/Lib/random.py'): {'attrib-'\
+guimgr.visual-state = {loc('../../../../Anaconda3/lib/random.py'): {'attrib-'\
         'starts': [('Random',
                     67),
                    ('Random.sample',
