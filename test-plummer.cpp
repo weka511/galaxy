@@ -21,35 +21,19 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
-#include <numeric>
 
 #include "catch.hpp"
 #include "physics.h"
 #include "plummer.h"
 #include "utils.h"
 
-double stdev(std::vector<double> q1s,double mean1) {
-	std::vector<double> diff(q1s.size());
-	std::transform(q1s.begin(), q1s.end(), diff.begin(),
-	std::bind2nd(std::minus<double>(), mean1));
-	double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
-	return std::sqrt(sq_sum / q1s.size());
-}
-
-double mean(std::vector<double> values) {
-	return  std::accumulate(values.begin(), values.end(), 0.0) / values.size();
-}
-
-TEST_CASE( "Plummer Tests", "[plummer]" ) {
+TEST_CASE( "Plummer Tests for mass distribution", "[plummer_quartiles]" ) {
 	const double q1=std::pow(std::pow(2.0,4.0/3.0)-1,-0.5);
 	const double q2=std::pow(std::pow(2.0,2.0/3.0)-1,-0.5);
 	const double q3=std::pow(std::pow(2.0,4.0/3.0)*std::pow(3.0,-2.0/3.0)-1,-0.5);
 	std::vector<double> q1s;
 	std::vector<double> q2s;
 	std::vector<double> q3s;
-	std::vector<double> Ts;
-	std::vector<double> Vs;
-	
 	for (int i=0;i<100;i++){
 		PlummerFactory factory (1000,1,  1,  1,i);
 		std::vector<Particle*> particles = factory.create( );
@@ -61,7 +45,7 @@ TEST_CASE( "Plummer Tests", "[plummer]" ) {
 			x0+=m*x;y0+=m*y;z0+=m*z;m_total+=m;
 		}
 		x0/=m_total;y0/=m_total;z0/=m_total;
-		// std::cout << "Centre of mass=(" << x0 << "," << y0 << "," << z0 << ")" << std::endl;
+
 		std::vector<double> distances;
 		for (int i=0;i<particles.size();i++){
 			double x,y,z;
@@ -70,28 +54,38 @@ TEST_CASE( "Plummer Tests", "[plummer]" ) {
 		}
 		std::sort (distances.begin(), distances.end()); 
 
-		// std::cout << "Q1="<<std::sqrt(distances[distances.size()/4-1]) << "," << q1<<std::endl;
-		// std::cout << "Q2="<<std::sqrt(distances[distances.size()/2-1]) << "," << q2<< std::endl;
-		// std::cout << "Q3="<<std::sqrt(distances[3*distances.size()/4-1]) << "," << q3<< std::endl;
 		q1s.push_back(std::sqrt(distances[distances.size()/4-1]) );
 		q2s.push_back(std::sqrt(distances[distances.size()/2-1]) );
 		q3s.push_back(std::sqrt(distances[3*distances.size()/4-1]) );
+	}
+	
+	const double mean1 = mean(q1s);
+	const double mean2 = mean(q2s);
+	const double mean3 = mean(q3s);
+	REQUIRE(mean1==Approx(q1).epsilon(stdev(q1s,q1)));
+	REQUIRE(mean2==Approx(q2).epsilon(stdev(q2s,q2)));
+	REQUIRE(mean3==Approx(q3).epsilon(stdev(q3s,q3)));
+}
+
+TEST_CASE( "Plummer Tests for energy", "[plummer]" ) {
+
+	std::vector<double> Ts;
+	std::vector<double> Vs;
+	
+	for (int i=0;i<100;i++){
+		PlummerFactory factory (1000,1,  1,  1,i);
+		std::vector<Particle*> particles = factory.create( );
+
 		const double T=get_kinetic_energy(particles);
 		const double V=get_potential_energy(particles,1,1);
-		std::cout << "T="<<T << ", \tV=" << V << ", \t-V/T="<< -V/T<<std::endl;
+		// std::cout << "T="<<T << ", \tV=" << V << ", \t-V/T="<< -V/T<<std::endl;
 		Ts.push_back(T);
 		Vs.push_back(V);
 	}
-	const double mean1 = mean(q1s);
 
-	const double mean2 = mean(q2s);
-	const double mean3 = mean(q3s);
-	
-	std::cout << "Expected quartiles: "<< q1 << ", " << q2 << ", " << q3 << ", " <<std::endl;
-
-	std::cout << mean1 << "("<< stdev(q1s,mean1)<<"), "<<mean2 << "("<< stdev(q2s,mean2)<<"), " << mean3<< "("<< stdev(q3s,mean3)<<")"<< std::endl;
-	
 	const double meanT=mean(Ts);
 	const double meanV=mean(Vs);
-	std::cout << meanT << "("<< stdev(Ts,meanT)<<"), "<<  meanV <<  "("<< stdev(Vs,meanV)<<"), "<< std::endl;
+	std::cout << "<T>=" << meanT << "("<< stdev(Ts,meanT)<<"), <V>="<<  meanV <<  "("<< stdev(Vs,meanV)<<"), "<< std::endl;
+	
+
 }

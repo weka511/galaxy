@@ -15,20 +15,20 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#include <vector>
-#include <iostream>
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstdlib>
 #include <fstream>
+#include <getopt.h>
+#include <iomanip>
+#include <iostream>
+#include <numeric>
 #include <ostream>
 #include <sstream>
-#include <iomanip>
-#include <cstdlib>
-#include <cmath>
-#include <cassert>
-#include <unistd.h>
-#include <getopt.h>
-
-#include <algorithm>
 #include <stdlib.h>
+#include <unistd.h>
+
 #include "utils.h"
 #include "spdlog/spdlog.h"
 
@@ -133,3 +133,22 @@ int get_number(std::string name, char * param, int high,int low){
 		throw std::out_of_range(err.str());
 	}
 } 
+
+/**
+ * Determine the standard deviation of observations stored in a vector
+ */
+double stdev(std::vector<double> values,double mu,bool bessel) {
+	double sq_sum=0;
+	for (int i=0;i<values.size();i++){
+		const double diff=values[i]-mu;
+		sq_sum+=diff*diff;
+	}
+	return std::sqrt(sq_sum / (bessel ? values.size()-1 :values.size()));
+}
+
+/**
+ * Determine the mean of observations stored in a vector
+ */
+double mean(std::vector<double> values) {
+	return  std::accumulate(values.begin(), values.end(), 0.0) / values.size();
+}

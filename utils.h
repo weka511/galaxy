@@ -19,6 +19,7 @@
 #define _UTILS_H
 #include <string>
 #include <limits>
+#include <vector>
 
  /**
   * Encode a floating value so it can be stored and retrieved without loss of significant digits
@@ -60,6 +61,16 @@ int get_number(std::string name, char * param, int high=std::numeric_limits<int>
  * 2. are value within range?
  */
 double get_double(std::string name,char * param, double high=std::numeric_limits<double>::max(),double low=0);
+
+/**
+ * Determine the mean of observations stored in a vector
+ */
+double mean(std::vector<double> values);
+
+/**
+ * Determine the standard deviation of observations stored in a vector
+ */
+double stdev(std::vector<double> q1s,double mean,bool bessel=false);
 
 #endif
  

@@ -33,7 +33,7 @@ PlummerFactory::PlummerFactory(const int numbodies,const double ini_radius, cons
 std::vector<Particle*>  PlummerFactory::create(){
 	std::vector<Particle*> product;
 	for (int i=0;i<_numbodies;i++) {
-		const double radius=_ini_radius*_a / (std::sqrt(std::pow(_mt.random(),-(2.0/3.0))-1.0)); 
+		const double radius=_ini_radius*_a / ( std::sqrt(std::pow(_mt.random(),-(2.0/3.0))-1.0) ); 
         double x; double y; double z;
 		_randomize_theta_phi(radius,x,y,z);
 	

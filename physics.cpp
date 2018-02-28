@@ -73,17 +73,11 @@ double get_kinetic_energy(std::vector<Particle*> particles) {
  */
 double get_potential_energy(std::vector<Particle*> particles,const double G,const double softening_length) {
 	double sum=0;
-	for (int i=1;i<particles.size();i++) {
-		double x0,y0,z0;
-		particles[i]->getPos(x0,y0,z0);
-		const double m_i = particles[i]->getMass();
-		for (int j=0;j<i;j++) {
-			double x1,y1,z1;
-			particles[j]->getPos(x1,y1,z1);
-			const double m_j = particles[j]->getMass();
-			sum += m_i*m_j/sqrt(dsq(x0,y0,z0,x1,y1,z1)+sqr(softening_length));
-		}
-	}
+	for (int i=1;i<particles.size();i++)
+		for (int j=0;j<i;j++)
+			sum += particles[i]->getMass() * particles[j]->getMass() /
+					std::sqrt( particles[i]->get_distance_sq(particles[j]) + sqr(softening_length) );
+
 	return -G*sum;
 }
 
