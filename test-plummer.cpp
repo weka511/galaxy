@@ -86,6 +86,8 @@ TEST_CASE( "Plummer Tests for energy", "[plummer]" ) {
 	const double meanT=mean(Ts);
 	const double meanV=mean(Vs);
 	std::cout << "<T>=" << meanT << "("<< stdev(Ts,meanT)<<"), <V>="<<  meanV <<  "("<< stdev(Vs,meanV)<<"), "<< std::endl;
-	
+	std::cout << "Ratio=(" << -2.0 * meanT/meanV - stdev(Ts,meanT)+stdev(Vs,meanV) << ","<<
+	-2.0 * meanT/meanV + stdev(Ts,meanT)+stdev(Vs,meanV)<< ")" << std::endl;
+	REQUIRE(meanT==Approx(-0.5*meanV).epsilon(stdev(Ts,meanT)+stdev(Vs,meanV)));
 
 }
