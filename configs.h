@@ -70,102 +70,106 @@ class Configuration {
 	 */
 	void report_configuration(std::vector<Particle*> particles,int iter);
 	 
-	std::string get_config_file_name() {return config_file_name;}
+	std::string get_config_file_name() {return _config_file_name;}
 
-	std::string get_path() {return path;};
-	 
-	/**
-	 * Version number for configuration records
-	 */
-	std::string config_version="0.0";
+	std::string get_path() {return _path;};
 	
-	inline double get_softening_length() {return softening_length;}
+	inline double get_a() {return _a;}
 	
-	inline double getG() {return G;}
+	inline double getG() {return _G;}
 
 	/**
 	 * Discrete time step.
 	 */	
-	inline double get_dt() { return dt;}
+	inline double get_dt() { return _dt;}
 	
-	inline double get_max_iter() {return max_iter;}
+	inline double get_max_iter() {return _max_iter;}
 
 	/**
 	 *  Theta-criterion of the Barnes-Hut algorithm.
 	 */
-	inline double get_theta() {return theta;}
+	inline double get_theta() {return _theta;}
 	
-	inline bool should_check_energy(const int iter) {return check_energy>0 &&iter%check_energy==0;}
+	inline bool should_check_energy(const int iter) {return _check_energy>0 &&iter%_check_energy==0;}
 	
  private:
-	
+ 
 	/**
-	 *  Theta-criterion of the Barnes-Hut algorithm.
+	 *  Instantiate Factory for setting up particles. This depends on the model.
 	 */
-	double theta = 0.5;
-	/**
-	 * Discrete time step.
-	 */
-	double dt = 1.e-3;
-
-	/**
-	 * Number of bodies 
-	 */
-	int numbodies = 1000;
-
-	/**
-	 * Number of time-iterations executed by the program.
-	 */
-	int max_iter = 10000;
-
-	/**
-	 * Frequency at which configuration records are written.
-	 */
-	int img_iter = 20;
-	/**
-	* The gravitational constant is 1 in Heggie units - https://link.springer.com/chapter/10.1007%2FBFb0116419
-	*/
-	double G = 1.0;
-		
-	/**
-	 * The Mass of the system is 1 in Heggie units - https://link.springer.com/chapter/10.1007%2FBFb0116419
-	 */
-	double M = 1.0;
-
-	/**
-	 * Initially, the bodies are distributed inside a circle of radius ini_radius.
-	 */
-	double ini_radius = 1.0;
-	
-	/**
-	 * File Name for configuration records
-	 */
-	std::string config_file_name="config.txt";
-
-	/**
-	 * Folder for configuration records
-	 */
-	std::string path = "./configs";
-
-	Model model=Plummer;
-
-	double softening_length=1;  // Used to handle collisions
-	
-	int needToZero = 2;
-	
-	unsigned int seed=time(NULL);
-	
-  	 /**
-	  * Frequency for checking total energy
-	  */
-	int check_energy = -1;
-	
-	Factory * createFactory();
+	Factory * _createFactory();
 	
 	/**
 	 * Generate help text
 	 */
-	void help();
+	void _help();
+	
+	/**
+	 * Version number for configuration records
+	 */
+	std::string _config_version="0.0";
+	
+	/**
+	 *  Theta-criterion of the Barnes-Hut algorithm.
+	 */
+	double _theta                 = 0.5;
+	
+	/**
+	 * Discrete time step.
+	 */
+	double _dt                    = 1.e-2;
+
+	/**
+	 * Number of bodies 
+	 */
+	int _numbodies                = 1000;
+
+	/**
+	 * Number of time-iterations executed by the program.
+	 */
+	int _max_iter                 = 10000;
+
+	/**
+	 * Frequency at which configuration records are written.
+	 */
+	int _img_iter                 = 20;
+	/**
+	* The gravitational constant is 1 in Heggie units - https://link.springer.com/chapter/10.1007%2FBFb0116419
+	*/
+	double _G                     = 1.0;
+		
+	/**
+	 * The Mass of the system is 1 in Heggie units - https://link.springer.com/chapter/10.1007%2FBFb0116419
+	 */
+	double _M                     = 1.0;
+
+	/**
+	 * Initially, the bodies are distributed inside a circle of radius ini_radius.
+	 */
+	double _ini_radius            = 1.0;
+	
+	/**
+	 * File Name for configuration records
+	 */
+	std::string _config_file_name = "config.txt";
+
+	/**
+	 * Folder for configuration records
+	 */
+	std::string _path             = "./configs";
+
+	Model _model                  = Plummer;
+
+	double _a                     = 1;  // Used to handle collisions
+	
+	int _needToZero               = 2;
+	
+	unsigned int _seed            = time(NULL);
+	
+  	 /**
+	  * Frequency for checking total energy
+	  */
+	int _check_energy             = -1;
 	
 };
 

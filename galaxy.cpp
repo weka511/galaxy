@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 				std::system("rm configs/*");  // Issue #5 - remove old config files
 				particles = configuration.createParticles(  );
 				const double T=get_kinetic_energy(particles);
-				const double V=get_potential_energy(particles,configuration.getG(),configuration.get_softening_length());
+				const double V=get_potential_energy(particles,configuration.getG(),configuration.get_a());
 				const double E=T+V;
 				logger->info("T={0}, V={1}, E={2}, T/V={3}",T,V,E,T/V);
 				std::cout<< "T="<<T <<", V=" << V << ", E=" << E << std::endl;
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
 																		particles,
 																		configuration.get_theta(),
 																		configuration.getG(),
-																		configuration.get_softening_length());},
+																		configuration.get_a());},
 						configuration.get_max_iter(),
 						configuration.get_dt(),
 						particles,
@@ -131,7 +131,7 @@ void report_energy(std::vector<Particle*> particles,const int iter) {
 		auto logger=spdlog::get("galaxy");
 		configuration.zero_centre_mass_and_linear_momentum(particles,iter);
 		const double T=get_kinetic_energy(particles);
-		const double V=get_potential_energy(particles,configuration.getG(),configuration.get_softening_length());
+		const double V=get_potential_energy(particles,configuration.getG(),configuration.get_a());
 		const double E=T+V;
 		logger->info("T={0}, V={1}, E={2}, T/V={3}",T,V,E,T/V);
 		std::cout<< "T="<<T <<", V=" << V << ", E=" << E << std::endl;

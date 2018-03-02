@@ -16,11 +16,12 @@
  */
  
 #include <sstream>
-#include <stdexcept>
 #include <cmath>
-#include <iomanip>
 #include <getopt.h>
+#include <iomanip>
 #include <memory>
+#include <stdexcept>
+
 #include "configs.h"
 #include "physics.h"
 #include "spdlog/spdlog.h"
@@ -47,7 +48,7 @@ struct option long_options[] = {
 	{"resume", 			no_argument,       	&resume_flag, 	1},
 	{"theta",  			required_argument, 	0, 				't'},
 	{"seed",  			required_argument, 	0, 				'S'},
-	{"soften",  		required_argument, 	0, 				'f'},
+	{"soften",  		required_argument, 	0, 				'a'},
 	{"zero",  			required_argument, 	0, 				'z'},
 	{0, 				0, 					0, 				0}
 };	
@@ -61,76 +62,75 @@ bool Configuration::extract_options(int argc, char **argv) {
 	int option_index = 0;
 	int c;
 
-	while ((c = getopt_long (argc, argv, "c:d:e:hi:lm:n:p:r:S:t:f:",long_options, &option_index)) != -1)
+	while ((c = getopt_long (argc, argv, "a:c:d:e:hi:lm:n:p:r:S:t:",long_options, &option_index)) != -1)
 		switch (c){
 			case 'c':
-				config_file_name=optarg;
-				logger->info("Configuration File={0}",config_file_name);
+				_config_file_name=optarg;
+				logger->info("Configuration File={0}",_config_file_name);
 				break;
 			
 			case 'd':
-				dt=get_double("dt",optarg,0.5);
+				_dt=get_double("dt",optarg,0.5);
 				break;
 			
 			case 'e':
-				check_energy=get_number("check_energy",optarg);
+				_check_energy=get_number("check_energy",optarg);
 				break;
 			
 			case 'f':
-				softening_length=get_double("Softening Length",optarg);
+				_a=get_double("Softening Length",optarg);
 				break;
 				
 			case 'h':
-				help( );
+				_help( );
 				return false;
 			
 			case 'i':
-				img_iter=get_number("Frequency at which configs are written",optarg);
+				_img_iter=get_number("Frequency at which configs are written",optarg);
 				break;
 				
 			case 'l':
-				model = Configuration::Plummer;
+				_model = Configuration::Plummer;
 				logger->info("Plummer Model");
 				break;
 			
 			case 'm':
-				max_iter=get_number("Number of iterations",optarg);
+				_max_iter=get_number("Number of iterations",optarg);
 				break;
 			
 			case 'n':
-				numbodies=get_number("Number of bodies",optarg);
+				_numbodies=get_number("Number of bodies",optarg);
 				break;
 			
 			case 'p':
-				path=optarg;
-				logger->info("Path={0}",path);
+				_path=optarg;
+				logger->info("Path={0}",_path);
 				break;
 			
 			case 'r':
-				ini_radius= get_double("Initial radius",optarg);
+				_ini_radius= get_double("Initial radius",optarg);
 				break;
 			
 			case 'S':
-				seed= get_double("Random number seed",optarg);
+				_seed= get_double("Random number seed",optarg);
 				break;
 				
 			case 't':
-				theta=get_double("Theta",optarg);
+				_theta=get_double("Theta",optarg);
 				break;
 			
 			case 'z':
-				needToZero=get_number("Need to zero",optarg,3,-1);
+				_needToZero=get_number("Need to zero",optarg,3,-1);
 				break;
 				
 			case '?':
 				return false;
 		}
 		
-	if (!ends_with(path,"/"))
-		path.append("/");
+	if (!ends_with(_path,"/"))
+		_path.append("/");
 
-	std::srand(seed);
-	logger->info("Random number seed={0}", seed);	
+	logger->info("Random number seed={0}", _seed);	
 	
 	return true;
 }
@@ -139,18 +139,18 @@ bool Configuration::extract_options(int argc, char **argv) {
   * Create all bodies needed at start of run
   */
  std::vector<Particle*>  Configuration::createParticles( ){
-	Factory * factory=createFactory();
+	Factory * factory=_createFactory();
 	std::vector<Particle*> product=factory->create();
-	spdlog::get("galaxy")->info("{0} {1}: initialized {2} bodies.",__FILE__,__LINE__,numbodies);
+	spdlog::get("galaxy")->info("{0} {1}: initialized {2} bodies.",__FILE__,__LINE__,_numbodies);
 	delete factory;
 	zero_centre_mass_and_linear_momentum(product,0);
 	return product;
  }
  
- Factory * Configuration::createFactory() {
-	 switch(model) {
+ Factory * Configuration::_createFactory() {
+	 switch(_model) {
 		case Plummer:
-			return new PlummerFactory(numbodies,ini_radius,  softening_length,  M,seed);
+			return new PlummerFactory(_numbodies,_ini_radius,  _a,  _M,_seed);
 		default:
 			std::stringstream message;
 			message<<__FILE__ <<", " <<__LINE__<<" Invalid model "<<std::endl; 
@@ -167,8 +167,8 @@ bool Configuration::extract_options(int argc, char **argv) {
  * the position and velocity of each point
  */
  void Configuration::zero_centre_mass_and_linear_momentum(std::vector<Particle*> particles, int iter) {
-	if (needToZero==0) return;
-	if (needToZero==1 and iter>0) return;
+	if (_needToZero==0) return;
+	if (_needToZero==1 and iter>0) return;
 	double x0,y0,z0;
 	get_centre_of_mass(particles,x0,y0,z0);
 
@@ -193,7 +193,7 @@ bool Configuration::extract_options(int argc, char **argv) {
  
  int Configuration::get_max_digits_config(){
 	int max_digits_config=5;
-	const int max_imgs=std::ceil(((double)max_iter)/img_iter);
+	const int max_imgs=std::ceil(((double)_max_iter)/_img_iter);
 	return std::max((int)std::ceil(std::log10(max_imgs)),max_digits_config);
  }
  
@@ -203,21 +203,22 @@ bool Configuration::extract_options(int argc, char **argv) {
   */
  void  Configuration::save_config( std::vector<Particle*>& bodies, int iter) {
 	std::stringstream file_name;
-    file_name << path<< config_file_name;
+    file_name << _path<< _config_file_name;
 	backup(file_name.str().c_str());
     std::ofstream ofile(file_name.str().c_str());
-	ofile << "Version="<<config_version<<"\n";
-	ofile << "iteration=" << iter  << "\n";
-	ofile << "theta=" << encode(theta)  << "\n";
-	ofile << "G=" << encode(G)  << "\n";
-	ofile << "dt=" << encode(dt)  << "\n";
+	ofile << "Version="   << _config_version  << "\n";
+	ofile << "iteration=" << iter             << "\n";
+	ofile << "theta="     << encode(_theta)   << "\n";
+	ofile << "G="         << encode(_G)       << "\n";
+	ofile << "dt="        << encode(_dt)      << "\n";
     for (unsigned i=0; i<bodies.size(); ++i) {
 		double px, py, pz;
 		bodies[i] -> getPos(px, py,pz);
 		double vx, vy,vz;
 		bodies[i] -> getVel(vx, vy,vz);
 		double m=bodies[i]->getMass();
-		ofile <<i<<","<< encode(px)<<","<< encode(py)<<","<< encode(pz)<<","<< encode(m) <<","<< encode(vx)<<","<< encode(vy)<<","<< encode(vz)<<"\n";
+		ofile << i << "," << encode(px) << "," << encode(py) << ","<< encode(pz) << "," << encode(m) << "," 
+				<< encode(vx) << "," << encode(vy )<< "," << encode(vz) << "\n";
 	}
 	ofile << "End\n";
 }
@@ -228,7 +229,7 @@ bool Configuration::extract_options(int argc, char **argv) {
 bool Configuration::restore_config(std::vector<Particle*>& particles,int& iter) {
 	auto logger=spdlog::get("galaxy");
 	std::stringstream file_name;
-    file_name << path<< config_file_name;
+    file_name << _path<< _config_file_name;
 	std::ifstream config_file(file_name.str().c_str());
 
     if(! config_file.is_open())
@@ -254,20 +255,20 @@ bool Configuration::restore_config(std::vector<Particle*>& particles,int& iter) 
 				break;
 			case State::expect_theta:
 				token = line.substr(1+line.find("="));
-				theta=decode(token);
-				logger->info("Theta={0}",theta);
+				_theta=decode(token);
+				logger->info("Theta={0}",_theta);
 				state=State::expect_g;
 				break;
 			case State::expect_g:
 				token = line.substr(1+line.find("="));
-				G=decode(token);
-				logger->info("G={0}",G);
+				_G=decode(token);
+				logger->info("G={0}",_G);
 				state=State::expect_dt;
 				break;
 			case State::expect_dt:
 				token = line.substr(1+line.find("="));
-				dt=decode(token);
-				logger->info("dt={0}",dt);
+				_dt=decode(token);
+				logger->info("dt={0}",_dt);
 				state=State::expect_body;
 				break;
 			case State::expect_body:
@@ -348,36 +349,36 @@ Particle * Configuration::extract_particle(std::string line){
 /**
   * Generate help text
   */
-void Configuration::help() {
+void Configuration::_help() {
 	std::cout << "Galaxy Simulator based on Barnes Hut algorithm." << std::endl<<std::endl;
 	std::cout << "Parameters, showing default values" <<std::endl;
-	std::cout << "\t-c,--config\t\tConfiguration file [" <<config_file_name<<"]"<< std::endl;
-	std::cout << "\t-d,--dt\t\tTime Step for Integration [" <<dt<<"]"<< std::endl;
+	std::cout << "\t-c,--config\t\tConfiguration file [" <<_config_file_name<<"]"<< std::endl;
+	std::cout << "\t-d,--dt\t\tTime Step for Integration [" <<_dt<<"]"<< std::endl;
 	std::cout << "\t-e,--check_energy\tCheck total energy every `check_energy` iterations[don't check]"<< std::endl;
 	std::cout << "\t--flat\t\tUsed to set z to origin for 3D only"<< std::endl;
-	std::cout << "\t-f,--soften\tSoftening Length[" <<softening_length << "]"<<std::endl;
+	std::cout << "\t-f,--soften\tSoftening Length[" <<_a << "]"<<std::endl;
 	std::cout << "\t-h,--help\tShow help text" << std::endl;
-	std::cout << "\t-i,--img_iter\tFrequency for writing positions [" <<img_iter << "]"<< std::endl;
+	std::cout << "\t-i,--img_iter\tFrequency for writing positions [" <<_img_iter << "]"<< std::endl;
 	std::cout << "\t-l,--plummer\tUse a Plummer model for starting positions and velocities" << std::endl;
-	std::cout << "\t-m,--max_iter\tMaximum number of iterations [" <<max_iter << "]"<< std::endl;
-	std::cout << "\t-n,--numbodies\tNumber of bodies [" <<numbodies<< "]"<<std::endl;
-	std::cout << "\t-p,--path\tPath for writing configurations [" <<path << "]"<< std::endl;
-	std::cout << "\t-r,--ini_radius\tInitial Radius [" <<ini_radius << "]"<<std::endl;
+	std::cout << "\t-m,--max_iter\tMaximum number of iterations [" <<_max_iter << "]"<< std::endl;
+	std::cout << "\t-n,--numbodies\tNumber of bodies [" <<_numbodies<< "]"<<std::endl;
+	std::cout << "\t-p,--path\tPath for writing configurations [" <<_path << "]"<< std::endl;
+	std::cout << "\t-r,--ini_radius\tInitial Radius [" <<_ini_radius << "]"<<std::endl;
 	std::cout << "\t--resume\tResume previous run"<<std::endl;
 	std::cout << "\t-S,--seed\tSeed random number generator"<<std::endl;
-	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" <<theta << "]"<< std::endl;
-	std::cout << "\t-z,--zero\tReset centre of mass and momentum [" <<needToZero << "]"<<std::endl;
+	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" <<_theta << "]"<< std::endl;
+	std::cout << "\t-z,--zero\tReset centre of mass and momentum [" <<_needToZero << "]"<<std::endl;
 }
 
 /**
   * Write out configuration
   */
 void Configuration::report_configuration(std::vector<Particle*> particles,int iter) {
-	if (iter%img_iter==0) {
+	if (iter%_img_iter==0) {
 		zero_centre_mass_and_linear_momentum(particles,iter);
 		std::cout << "Writing configuration for iteration " << iter << std::endl;
 		std::stringstream file_name;
-		file_name << path<< "bodies" << std::setw(get_max_digits_config()) << std::setfill('0') <<iter/img_iter << ".csv";
+		file_name << _path<< "bodies" << std::setw(get_max_digits_config()) << std::setfill('0') <<iter/_img_iter << ".csv";
 		std::ofstream ofile(file_name.str().c_str());
 		for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {
 			double x,y,z;

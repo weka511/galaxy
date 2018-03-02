@@ -71,12 +71,12 @@ double get_kinetic_energy(std::vector<Particle*> particles) {
 /**
  *  Calculate gravitational potential energy for a system of particles
  */
-double get_potential_energy(std::vector<Particle*> particles,const double G,const double softening_length) {
+double get_potential_energy(std::vector<Particle*> particles,const double G,const double a) {
 	double sum=0;
 	for (int i=1;i<particles.size();i++)
 		for (int j=0;j<i;j++)
 			sum += particles[i]->getMass() * particles[j]->getMass() /
-					std::sqrt( particles[i]->get_distance_sq(particles[j]) + sqr(softening_length) );
+					std::sqrt( particles[i]->get_distance_sq(particles[j]) + sqr(a) );
 
 	return -G*sum;
 }

@@ -71,14 +71,14 @@ TEST_CASE( "Plummer Tests for energy", "[plummer]" ) {
 
 	std::vector<double> Ts;
 	std::vector<double> Vs;
-	
+	std::vector<double> ratios;
 	for (int i=0;i<100;i++){
 		PlummerFactory factory (1000,1,  1,  1,i);
 		std::vector<Particle*> particles = factory.create( );
 
 		const double T=get_kinetic_energy(particles);
 		const double V=get_potential_energy(particles,1,1);
-		// std::cout << "T="<<T << ", \tV=" << V << ", \t-V/T="<< -V/T<<std::endl;
+		ratios.push_back(-V/T);
 		Ts.push_back(T);
 		Vs.push_back(V);
 	}
@@ -89,6 +89,11 @@ TEST_CASE( "Plummer Tests for energy", "[plummer]" ) {
 	std::cout << "Ratio=(" <<
 				-2.0 * meanT/meanV - stdev(Ts,meanT)+stdev(Vs,meanV) << ","<<
 				-2.0 * meanT/meanV + stdev(Ts,meanT)+stdev(Vs,meanV)<< ")" << std::endl;
+	std::cout << "Ratio =(" <<
+		mean(ratios)- stdev(ratios,mean(ratios),true) << "," <<
+		mean(ratios)+ stdev(ratios,mean(ratios),true) << ")"
+		<<std::endl;
+	REQUIRE(mean(ratios)==Approx(2).epsilon( stdev(ratios,2)) );
 	REQUIRE(meanT==Approx(-0.5*meanV).epsilon(stdev(Ts,meanT)+stdev(Vs,meanV)));
 
 }

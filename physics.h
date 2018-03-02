@@ -49,7 +49,7 @@ double get_kinetic_energy(std::vector<Particle*> particles);
 /**
  *  Calculate gravitational potential energy for a system of particles
  */
-double get_potential_energy(std::vector<Particle*> particles,const double G,const double softening_length);
+double get_potential_energy(std::vector<Particle*> particles,const double G,const double a);
 
 
 /**

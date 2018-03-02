@@ -17,12 +17,15 @@
  
 #ifndef _PARTICLE_H
 #define _PARTICLE_H
-#include <vector>
+
 #include <cmath>
+#include <iostream>
 #include <math.h>
 #include <stdexcept>
+#include <vector>
+
 #include "utils.h"
-#include <iostream>
+
 
 /**
  * A Particle represents one of the bodies whose motion is being simulated.
@@ -49,40 +52,42 @@ class Particle {
 	/**
 	 *  Accessor for current position
 	 */
-	void getPos(double& x,	double& y, double& z) {x=_x;y=_y;z=_z;}
+	inline void getPos(double& x,	double& y, double& z) {x=_x;y=_y;z=_z;}
 	
 	/**
 	 *  Set current position
 	 */
-	void setPos(double x, double y, double z) {
+	inline void setPos(double x, double y, double z) {
 		if (std::isnan(x) || std::isnan(y) || std::isnan(z))
 			throw std::logic_error("Attempt to setPos to NAN");
 		_x=x;
 		_y=y;
-		_z=z;}
+		_z=z;
+	}
 	
 	/**
 	 *  Accessor for current velocity
 	 */
-	void getVel(double& vx,	double& vy, double& vz) {vx=_vx;vy=_vy;vz=_vz;}
+	inline void getVel(double& vx,	double& vy, double& vz) {vx=_vx;vy=_vy;vz=_vz;}
 	
 	/**
 	 *  Set current velocity
 	 */
-	void setVel(double vx,	double vy, double vz) {
+	inline void setVel(double vx,	double vy, double vz) {
 		if (std::isnan(vx) || std::isnan(vy) || std::isnan(vz))
 			throw std::logic_error("Attempt to setVel to NAN");
-		_vx=vx;_vy=vy;_vz=vz;}
+		_vx=vx;_vy=vy;_vz=vz;
+	}
 	
 	/**
 	 *  Accessor for current acceleration
 	 */
-	void getAcc(double& ax,	double& ay, double& az) {ax=_ax;ay=_ay;az=_az;}
+	inline void getAcc(double& ax,	double& ay, double& az) {ax=_ax;ay=_ay;az=_az;}
 	
 	/**
 	 *  Set current acceleration
 	 */
-	void setAcc(double ax,	double ay, double az) {
+	inline void setAcc(double ax,	double ay, double az) {
 		if (std::isnan(ax) || std::isnan(ay) || std::isnan(az))
 			throw std::logic_error("Attempt to setAcc to NAN");
 		_ax=ax;_ay=ay;_az=az;}
@@ -90,19 +95,24 @@ class Particle {
 	/**
 	 *  Set current acceleration
 	 */
-	void resetAcc() {_ax=0;_ay=0;_az=0;}
+	inline void resetAcc() {_ax=0;_ay=0;_az=0;}
 	
 	/**
 	 *  Set current acceleration
 	 */
-	void accumulateAcc(double ax,	double ay, double az) {_ax+=ax;_ay+=ay;_az+=az;}
+	inline void accumulateAcc(double ax,	double ay, double az) {_ax+=ax;_ay+=ay;_az+=az;}
 	
 	/**
 	 *  Accessor for mass
 	 */
-	double getMass() {return _m;}
+	inline double getMass() {return _m;}
 	
-	inline double get_distance_sq(Particle*other)  {return sqr(_x-other->_x)+sqr(_y-other->_y)+sqr(_z-other->_z);}
+	/**
+	 * Squared distance to some other particle
+	 */
+	inline double get_distance_sq(Particle*other)  {
+		return sqr(_x - other->_x) + sqr(_y - other->_y) + sqr(_z - other->_z);
+	}
 	
   private:
 	/**
