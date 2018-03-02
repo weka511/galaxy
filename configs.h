@@ -107,7 +107,7 @@ class Configuration {
 	/**
 	 * Version number for configuration records
 	 */
-	std::string _config_version="0.0";
+	std::string _config_version   = "0.0";
 	
 	/**
 	 *  Theta-criterion of the Barnes-Hut algorithm.
