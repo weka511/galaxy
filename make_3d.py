@@ -53,8 +53,10 @@ def plot(fname_in='kepler.csv',n=len(colours),m=sys.maxsize,scale_to_cube=False,
     plt.xlabel('x')
     plt.ylabel('y')
     
-    ax.legend(scatterproxies,labels, numpoints = 1)    
-    plt.savefig(os.path.join(out,os.path.basename(fname_in).replace('.csv','.png')))
+    ax.legend(scatterproxies,labels, numpoints = 1) 
+    img_file=os.path.join(out,os.path.basename(fname_in).replace('.csv','.png'))
+    plt.savefig(img_file)
+    return img_file
     
 def usage():
     print ('python make_img.py -h -s [-m digits] [-n digits] file1.csv [file2.csv...]')
@@ -66,6 +68,8 @@ if __name__=='__main__':
         m=sys.maxsize
         show=False
         scale_to_cube=False
+        i=0
+        img_freq=20
         opts, args = getopt.getopt(sys.argv[1:], 'hm:n:sco', ['help', 'points','bodies=','show','cube','out'])
         for o,a in opts:
             if o in ['-h','--help']:
@@ -86,11 +90,21 @@ if __name__=='__main__':
                 sys.exit(2) 
         for fname_in in args:
             if os.path.isfile(fname_in):
-                plot(fname_in=fname_in,n=n,m=m,scale_to_cube=scale_to_cube)
+                img_file=plot(fname_in=fname_in,n=n,m=m,scale_to_cube=scale_to_cube)
+                if i%img_freq==0:
+                    print ('Created {0}'.format(img_file))
+                i+=1
+                if not show:
+                    plt.close()                
             elif os.path.isdir(fname_in):
                 for filename in os.listdir(fname_in):
                     if filename.endswith(".csv"):
-                        plot(fname_in=os.path.join(fname_in,filename),n=n,m=m,scale_to_cube=scale_to_cube,out=out)
+                        img_file=plot(fname_in=os.path.join(fname_in,filename),n=n,m=m,scale_to_cube=scale_to_cube,out=out)
+                        if i%img_freq==0:
+                            print ('Created {0}'.format(img_file))
+                        i+=1
+                        if not show:
+                            plt.close()
         if show:
             plt.show()
     except getopt.GetoptError as err:  # print help information and exit:      
