@@ -18,23 +18,9 @@
 #ifndef _PLUMMER_H
 #define _PLUMMER_H
 
-#include <vector>
 
+#include "factory.h"
 #include "mt.h"
-#include "particle.h"
-
-/**
- * Factory for instantiating configurations of particles
- */
-class Factory {
-  public:
-  	/**
-	 * Create a selection of particles
-	 */
-	virtual std::vector<Particle*>  create()=0;
-	
-	virtual ~Factory() {;}
-};
 
 /**
  * Factory for instantiating configurations of particles in accordance with Plummer model

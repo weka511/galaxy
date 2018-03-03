@@ -25,6 +25,7 @@ MKDIR=mkdir
 SRCS=	barnes-hut.cpp		\
 		center-of-mass.cpp	\
 		configs.cpp			\
+		factory.cpp			\
 		mt.cc				\
 		physics.cpp         \
 		plummer.cpp			\

@@ -75,7 +75,8 @@ TEST_CASE( "Plummer Tests for energy", "[plummer]" ) {
 	for (int i=0;i<100;i++){
 		PlummerFactory factory (1000,1,  1,  1,i);
 		std::vector<Particle*> particles = factory.create( );
-
+		double mass=factory.zero_centre_mass(particles);
+		factory.zero_linear_momentum(particles,mass);
 		const double T=get_kinetic_energy(particles);
 		const double V=get_potential_energy(particles,1,1);
 		ratios.push_back(-V/T);

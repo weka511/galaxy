@@ -15,7 +15,8 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 | barnes-hut.cpp |barnes-hut.h| Calculate accelerations using Barnes Hut|
 | |catch.hpp | [Catch2](https://github.com/catchorg/Catch2) Unit testing framework |
 | center-of-mass.cpp |center-of-mass.h| Find centre of mass for internal nodes|
-| configs.cpp | configs.h| Factory for creating configurations of particles, plus configuration management |
+| configs.cpp | configs.h| Configuration management |
+| factory.cpp } factory.h| Abstract Factory for creating configurations of particles |
 | galaxy.cpp |galaxy.h| Simulate Galaxy using Barnes Hut|
 | GalaxySimulator.xml||Notepad++ Workspace|
 | Makefile || Build galaxy simulation |

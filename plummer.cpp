@@ -18,6 +18,7 @@
 #include <cmath>
  
 #include "plummer.h"
+#include "physics.h"
 
 PlummerFactory::PlummerFactory(const int numbodies,const double ini_radius, const double a, const double M, long int seed) 
  : 	_numbodies(numbodies),
@@ -72,3 +73,7 @@ double PlummerFactory::_sample_velocity(const double radius) {
 	}
 	return  x * M_SQRT2 * std::pow( _a*_a + radius*radius,-0.25);
 }
+
+
+ 
+ 
