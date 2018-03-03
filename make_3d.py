@@ -18,7 +18,7 @@
 '''
 import os, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d as trid,getopt, matplotlib.lines as lines
 
-colours=['r','b','g']
+colours=['r','b','g','c','y','m']
 
 '''
 Plot points from input file
@@ -29,7 +29,7 @@ Plot points from input file
 I have had to workaround the problem of the legend function not supporting the type returned by a 3D scatter.
 See https://stackoverflow.com/questions/20505105/add-a-legend-in-a-3d-scatterplot-with-scatter-in-matplotlib for details.
 '''
-def plot(fname_in='kepler.csv',n=2,m=sys.maxsize,scale_to_cube=False):    
+def plot(fname_in='kepler.csv',n=len(colours),m=sys.maxsize,scale_to_cube=False,out='./imgs'):    
     pos = np.loadtxt(fname_in,delimiter=',')
     plt.figure(figsize=(20,10))
     ax = plt.gcf().add_subplot(111, aspect='equal', projection='3d')
@@ -54,18 +54,19 @@ def plot(fname_in='kepler.csv',n=2,m=sys.maxsize,scale_to_cube=False):
     plt.ylabel('y')
     
     ax.legend(scatterproxies,labels, numpoints = 1)    
-    plt.savefig(fname_in.replace('.csv','.png'))
+    plt.savefig(os.path.join(out,os.path.basename(fname_in).replace('.csv','.png')))
     
 def usage():
     print ('python make_img.py -h -s [-m digits] [-n digits] file1.csv [file2.csv...]')
 
 if __name__=='__main__':
     try:
-        n=2
+        out='./imgs'
+        n=len(colours)
         m=sys.maxsize
         show=False
         scale_to_cube=False
-        opts, args = getopt.getopt(sys.argv[1:], 'hm:n:sc', ['help', 'points','bodies=','show','cube'])
+        opts, args = getopt.getopt(sys.argv[1:], 'hm:n:sco', ['help', 'points','bodies=','show','cube','out'])
         for o,a in opts:
             if o in ['-h','--help']:
                 usage()
@@ -78,11 +79,18 @@ if __name__=='__main__':
                 show=True
             elif o in ['-c','--cube']:
                 scale_to_cube=True
+            elif o in ['-o','--out']:
+                out=a            
             else:
                 print ('Unexpected option {0} {1}'.format(o,a))
                 sys.exit(2) 
         for fname_in in args:
-            plot(fname_in=fname_in,n=n,m=m,scale_to_cube=scale_to_cube)
+            if os.path.isfile(fname_in):
+                plot(fname_in=fname_in,n=n,m=m,scale_to_cube=scale_to_cube)
+            elif os.path.isdir(fname_in):
+                for filename in os.listdir(fname_in):
+                    if filename.endswith(".csv"):
+                        plot(fname_in=os.path.join(fname_in,filename),n=n,m=m,scale_to_cube=scale_to_cube,out=out)
         if show:
             plt.show()
     except getopt.GetoptError as err:  # print help information and exit:      
