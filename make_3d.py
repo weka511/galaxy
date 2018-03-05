@@ -16,9 +16,14 @@
 
   Companion to test-kepler.cpp - plot images
 '''
-import os, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d as trid,getopt, matplotlib.lines as lines
+import os, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d as trid,getopt, matplotlib.lines as lines, scipy, random
 
 colours=['r','b','g','c','y','m']
+
+def get_limits(xs,nsigma=3):
+    mu=scipy.mean(xs)
+    sigma=scipy.std(xs)
+    return (mu-nsigma*sigma,mu+nsigma*sigma)
 
 '''
 Plot points from input file
@@ -29,8 +34,8 @@ Plot points from input file
 I have had to workaround the problem of the legend function not supporting the type returned by a 3D scatter.
 See https://stackoverflow.com/questions/20505105/add-a-legend-in-a-3d-scatterplot-with-scatter-in-matplotlib for details.
 '''
-def plot(fname_in='kepler.csv',n=len(colours),m=sys.maxsize,scale_to_cube=False,out='./imgs'):    
-    pos = np.loadtxt(fname_in,delimiter=',')
+def plot(fname_in='kepler.csv',n=len(colours),m=sys.maxsize,scale_to_cube=False,out='./imgs',nsigma=3,N=1000):    
+    pos = random.sample(np.loadtxt(fname_in,delimiter=','),N)
     plt.figure(figsize=(20,10))
     ax = plt.gcf().add_subplot(111, aspect='equal', projection='3d')
     scatterproxies=[]
@@ -44,9 +49,9 @@ def plot(fname_in='kepler.csv',n=len(colours),m=sys.maxsize,scale_to_cube=False,
         colour=colours[i%len(colours)]
         ax.scatter(xs,ys,zs,edgecolor=colour,s=1)
         if scale_to_cube:
-            ax.set_xlim(min_scale,max_scale)
-            ax.set_ylim(min_scale,max_scale)
-            ax.set_zbound(min_scale,max_scale)
+            ax.set_xlim(get_limits(xs,nsigma=nsigma))
+            ax.set_ylim(get_limits(ys,nsigma=nsigma))
+            ax.set_zbound(get_limits(zs,nsigma=nsigma))
         scatterproxies.append( lines.Line2D([0],[0], linestyle="none", c=colour, marker = 'o'))
         labels.append('{0}'.format(i))
     plt.title(fname_in.replace('.csv',''));
@@ -63,14 +68,15 @@ def usage():
 
 if __name__=='__main__':
     try:
-        out='./imgs'
-        n=len(colours)
-        m=sys.maxsize
-        show=False
-        scale_to_cube=False
-        i=0
-        img_freq=20
-        opts, args = getopt.getopt(sys.argv[1:], 'hm:n:sco', ['help', 'points','bodies=','show','cube','out'])
+        out           = './imgs'
+        n             = len(colours)
+        m             = sys.maxsize
+        show          = False
+        scale_to_cube = False
+        i             = 0
+        img_freq      = 20
+        nsigma        = 3
+        opts, args = getopt.getopt(sys.argv[1:], 'hm:n:scog:', ['help', 'points=','bodies=','show','cube','out=','nsigma='])
         for o,a in opts:
             if o in ['-h','--help']:
                 usage()
@@ -84,7 +90,9 @@ if __name__=='__main__':
             elif o in ['-c','--cube']:
                 scale_to_cube=True
             elif o in ['-o','--out']:
-                out=a            
+                out=a
+            elif o in ['-g','--nsigma']:
+                nsigma=float(a)              
             else:
                 print ('Unexpected option {0} {1}'.format(o,a))
                 sys.exit(2) 
