@@ -42,7 +42,7 @@ def plot(fname_in='kepler.csv',n=len(colours),m=sys.maxsize,scale_to_cube=False,
     labels=[]
     for i in range(n):
         full_range=list(range(i,min(len(pos),m),n))
-        sample=full_range if N==None else random.sample(full_range,N)
+        sample=full_range if N==None or N*n>=len(pos) else random.sample(full_range,N)
         xs=[pos[j,0] for j in sample]
         ys=[pos[j,1] for j in sample]
         zs=[pos[j,2] for j in sample]
