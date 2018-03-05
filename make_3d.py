@@ -35,17 +35,17 @@ I have had to workaround the problem of the legend function not supporting the t
 See https://stackoverflow.com/questions/20505105/add-a-legend-in-a-3d-scatterplot-with-scatter-in-matplotlib for details.
 '''
 def plot(fname_in='kepler.csv',n=len(colours),m=sys.maxsize,scale_to_cube=False,out='./imgs',nsigma=3,N=1000):    
-    pos = random.sample(np.loadtxt(fname_in,delimiter=','),N)
+    pos = np.loadtxt(fname_in,delimiter=',')
     plt.figure(figsize=(20,10))
     ax = plt.gcf().add_subplot(111, aspect='equal', projection='3d')
     scatterproxies=[]
     labels=[]
     for i in range(n):
-        xs=[pos[j,0] for j in range(i,min(len(pos),m),n)]
-        ys=[pos[j,1] for j in range(i,min(len(pos),m),n)]
-        zs=[pos[j,2] for j in range(i,min(len(pos),m),n)]
-        min_scale=min(min(xs),min(ys),min(zs))
-        max_scale=max(max(xs),max(ys),max(zs))
+        full_range=list(range(i,min(len(pos),m),n))
+        sample=full_range if N==None else random.sample(full_range,N)
+        xs=[pos[j,0] for j in sample]
+        ys=[pos[j,1] for j in sample]
+        zs=[pos[j,2] for j in sample]
         colour=colours[i%len(colours)]
         ax.scatter(xs,ys,zs,edgecolor=colour,s=1)
         if scale_to_cube:
@@ -76,13 +76,17 @@ if __name__=='__main__':
         i             = 0
         img_freq      = 20
         nsigma        = 3
-        opts, args = getopt.getopt(sys.argv[1:], 'hm:n:scog:', ['help', 'points=','bodies=','show','cube','out=','nsigma='])
+        N             = 1000
+        
+        opts, args = getopt.getopt(sys.argv[1:], 'hm:n:scog:N:', ['help', 'points=','bodies=','show','cube','out=','nsigma=','sample='])
         for o,a in opts:
             if o in ['-h','--help']:
                 usage()
                 sys.exit(0)
             elif o in ['-n','--bodies']:
                 n=int(a)
+            elif o in ['-N','--sample']:
+                N=None if a=='all' else int(a)            
             elif o in ['-m','--points']:
                 m=int(a)            
             elif o in ['-s','--show']:
@@ -98,7 +102,7 @@ if __name__=='__main__':
                 sys.exit(2) 
         for fname_in in args:
             if os.path.isfile(fname_in):
-                img_file=plot(fname_in=fname_in,n=n,m=m,scale_to_cube=scale_to_cube)
+                img_file=plot(fname_in=fname_in,n=n,m=m,scale_to_cube=scale_to_cube,out=out,N=N,nsigma=nsigma)
                 if i%img_freq==0:
                     print ('Created {0}'.format(img_file))
                 i+=1
@@ -107,7 +111,7 @@ if __name__=='__main__':
             elif os.path.isdir(fname_in):
                 for filename in os.listdir(fname_in):
                     if filename.endswith(".csv"):
-                        img_file=plot(fname_in=os.path.join(fname_in,filename),n=n,m=m,scale_to_cube=scale_to_cube,out=out)
+                        img_file=plot(fname_in=os.path.join(fname_in,filename),n=n,m=m,scale_to_cube=scale_to_cube,out=out,N=N,nsigma=nsigma)
                         if i%img_freq==0:
                             print ('Created {0}'.format(img_file))
                         i+=1
