@@ -20,22 +20,26 @@
 #include <thread>
 #include <time.h> 
 
+int N=std::numeric_limits<int>::max();
+
 int foo() {
 	std::cout<<"foo"<<std::endl;
-	for (int i=1;i< std::numeric_limits<int>::max();i++){
+	for (int i=1;i< N;i++){
 		double x=std::log(i);
 		double y=std::exp(x);
 	}
+	std::cout<<"oof"<<std::endl;
 }
 
 int main() {
-	for (int i=0;i<5;i++) {
+	for (int i=0;i<10;i++) {
 
 		auto start = std::chrono::system_clock::now();
 		std::time_t start_time = std::chrono::system_clock::to_time_t(start);
 		if (i==0)
 			foo();
 		else {
+			N=std::numeric_limits<int>::max()/i;
 			std::thread* ts[i];
 			for (int j=0;j<i;j++)
 				ts[j]=new std::thread(foo);
@@ -46,9 +50,8 @@ int main() {
 		}
 		auto end = std::chrono::system_clock::now();
 		std::chrono::duration<double> elapsed_seconds = end-start;
-		std::time_t end_time = std::chrono::system_clock::to_time_t(end);
 			 
-		std::cout<<i<<","<< std::ctime(&end_time)<< ","<< elapsed_seconds.count()<< std::endl;
+		std::cout<<i<<","<< i*N<<"," << elapsed_seconds.count()<< std::endl;
 	}
  
     std::cout << "done" << std::endl;
