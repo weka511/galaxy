@@ -23,12 +23,10 @@
 int N=std::numeric_limits<int>::max();
 
 int foo() {
-	std::cout<<"foo"<<std::endl;
 	for (int i=1;i< N;i++){
 		double x=std::log(i);
 		double y=std::exp(x);
 	}
-	std::cout<<"oof"<<std::endl;
 }
 
 int main() {
