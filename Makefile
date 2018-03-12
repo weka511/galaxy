@@ -42,6 +42,8 @@ OBJS1=$(subst .cpp,.o,$(SRCS))
 OBJS=$(subst .cc,.o,$(OBJS1)) 
 TEST_OBJS=$(subst .cpp,.o,$(TESTS))
 
+THREADING=threading.exe
+
 MAIN=galaxy.exe
 TEST_MAIN=tests.exe
 
@@ -57,6 +59,9 @@ tests : $(TEST_MAIN)
 	python make_3d.py kepler.csv
 	python make_3d.py -n 3 lagrange.csv
 
+threading : $(THREADING)
+	./$(THREADING)
+	
 mersenne : mtex.exe mttest.exe
 
 mtex.o :  mtex.cc
@@ -84,6 +89,9 @@ $(MAIN): $(OBJS) galaxy.o mt.o
 	
 $(TEST_MAIN): $(OBJS) tests.o $(TEST_OBJS)
 	${CXX} $(LDFLAGS) -o $(TEST_MAIN) tests.o ${OBJS} $(TEST_OBJS) ${LDLIBS}
+
+$(THREADING) : threading.o
+	${CXX} $(LDFLAGS) -o $(THREADING) threading.o ${LDLIBS}
 	
 distclean: clean
 	$(RM) *~ .depend
