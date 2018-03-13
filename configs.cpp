@@ -49,6 +49,7 @@ struct option long_options[] = {
 	{"theta",  			required_argument, 	0, 				't'},
 	{"seed",  			required_argument, 	0, 				'S'},
 	{"soften",  		required_argument, 	0, 				'a'},
+	{"threads",  		required_argument, 	0, 				'g'},
 	{"zero",  			required_argument, 	0, 				'z'},
 	{0, 				0, 					0, 				0}
 };	
@@ -62,7 +63,7 @@ bool Configuration::extract_options(int argc, char **argv) {
 	int option_index = 0;
 	int c;
 
-	while ((c = getopt_long (argc, argv, "a:c:d:e:hi:lm:n:p:r:S:t:",long_options, &option_index)) != -1)
+	while ((c = getopt_long (argc, argv, "a:c:d:e:hi:lm:n:p:r:S:s:t:",long_options, &option_index)) != -1)
 		switch (c){
 			case 'c':
 				_config_file_name=optarg;
@@ -79,6 +80,10 @@ bool Configuration::extract_options(int argc, char **argv) {
 			
 			case 'f':
 				_a=get_double("Softening Length",optarg);
+				break;
+				
+			case 'g':
+				_n_threads=get_number("Number of threads",optarg);
 				break;
 				
 			case 'h':
@@ -350,24 +355,25 @@ Particle * Configuration::extract_particle(std::string line){
   * Generate help text
   */
 void Configuration::_help() {
-	std::cout << "Galaxy Simulator based on Barnes Hut algorithm." << std::endl<<std::endl;
-	std::cout << "Parameters, showing default values" <<std::endl;
-	std::cout << "\t-c,--config\t\tConfiguration file [" <<_config_file_name<<"]"<< std::endl;
-	std::cout << "\t-d,--dt\t\tTime Step for Integration [" <<_dt<<"]"<< std::endl;
-	std::cout << "\t-e,--check_energy\tCheck total energy every `check_energy` iterations[don't check]"<< std::endl;
-	std::cout << "\t--flat\t\tUsed to set z to origin for 3D only"<< std::endl;
-	std::cout << "\t-f,--soften\tSoftening Length[" <<_a << "]"<<std::endl;
-	std::cout << "\t-h,--help\tShow help text" << std::endl;
-	std::cout << "\t-i,--img_iter\tFrequency for writing positions [" <<_img_iter << "]"<< std::endl;
-	std::cout << "\t-l,--plummer\tUse a Plummer model for starting positions and velocities" << std::endl;
-	std::cout << "\t-m,--max_iter\tMaximum number of iterations [" <<_max_iter << "]"<< std::endl;
-	std::cout << "\t-n,--numbodies\tNumber of bodies [" <<_numbodies<< "]"<<std::endl;
-	std::cout << "\t-p,--path\tPath for writing configurations [" <<_path << "]"<< std::endl;
-	std::cout << "\t-r,--ini_radius\tInitial Radius [" <<_ini_radius << "]"<<std::endl;
-	std::cout << "\t--resume\tResume previous run"<<std::endl;
-	std::cout << "\t-S,--seed\tSeed random number generator"<<std::endl;
-	std::cout << "\t-t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" <<_theta << "]"<< std::endl;
-	std::cout << "\t-z,--zero\tReset centre of mass and momentum [" <<_needToZero << "]"<<std::endl;
+	std::cout <<
+				"Galaxy Simulator based on Barnes Hut algorithm." << std::endl<<std::endl <<
+				"Parameters, showing default values" <<std::endl<<
+				"  -c,--config\tConfiguration file [" <<_config_file_name<<"]"<< std::endl <<
+				"  -d,--dt\t\tTime Step for Integration [" <<_dt<<"]"<< std::endl<<
+				"  -e,--check_energy Check total energy periodically iterations[don't check]"<< std::endl<<
+				"  -f,--soften\tSoftening Length[" <<_a << "]"<<std::endl<<
+				"  -h,--help\tShow help text" << std::endl<<
+				"  -i,--img_iter\tFrequency for writing positions [" <<_img_iter << "]"<< std::endl<<
+				"  -l,--plummer\tUse a Plummer model for starting positions and velocities" << std::endl<<
+				"  -m,--max_iter\tMaximum number of iterations [" <<_max_iter << "]"<< std::endl<<
+				"  -n,--numbodies\tNumber of bodies [" <<_numbodies<< "]"<<std::endl<<
+				"  -p,--path\tPath for writing configurations [" <<_path << "]"<< std::endl<<
+				"  -r,--ini_radius\tInitial Radius [" <<_ini_radius << "]"<<std::endl<<
+				"  --resume\tResume previous run"<<std::endl<<
+				"  -S,--seed\tSeed random number generator"<<std::endl<<
+				"  -s,--threads\tNumber of CPU threads[" <<_n_threads << "]"<<std::endl<<
+				"  -t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" <<_theta << "]"<< std::endl<<
+				"  -z,--zero\tReset centre of mass and momentum [" <<_needToZero << "]"<<std::endl;
 }
 
 /**

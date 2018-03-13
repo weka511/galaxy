@@ -92,6 +92,8 @@ class Configuration {
 	
 	inline bool should_check_energy(const int iter) {return _check_energy>0 &&iter%_check_energy==0;}
 	
+	inline int get_n_threads() {return _n_threads;}
+	
  private:
  
 	/**
@@ -170,6 +172,8 @@ class Configuration {
 	  * Frequency for checking total energy
 	  */
 	int _check_energy             = -1;
+	
+	int _n_threads					= 0;
 	
 };
 

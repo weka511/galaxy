@@ -82,7 +82,8 @@ int main(int argc, char **argv) {
 	
 			report_all(particles,start_iterations);
 
-			run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(
+			if (configuration.get_n_threads()==0)
+				run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(
 																		particles,
 																		configuration.get_theta(),
 																		configuration.getG(),
@@ -92,6 +93,18 @@ int main(int argc, char **argv) {
 						particles,
 						&report_all,
 						start_iterations);
+			else 
+				run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(
+																		particles,
+																		configuration.get_theta(),
+																		configuration.getG(),
+																		configuration.get_a());},
+						configuration.get_max_iter(),
+						configuration.get_dt(),
+						particles,
+						&report_all,
+						start_iterations,
+						configuration.get_n_threads());
 						
 			auto end = std::chrono::system_clock::now();
 		 

@@ -145,6 +145,7 @@ void step(int to) {
 		}
 	_mutex.unlock();
 }
+
 void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
 				int max_iter,
 				double dt,
@@ -157,19 +158,6 @@ void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
 	std::cout << "next index " << next_index <<std::endl;
 	for  (int i=0;i<nthreads;i++) 
 		worker[i]=new std::thread(step, particles.size());
-
-	
-	// if (start_iterations==0){
-		// get_acceleration(particles);
-//		Take a half step, so acceleration corresponds to 0.5dt, 1.5dt, etc.
-		// std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
-	// }
-	
-	// for (int iter=1+start_iterations;iter<max_iter+start_iterations && shouldContinue(particles,iter);iter++) {
-		// std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_positions(particle,dt);});
-		// get_acceleration(particles);
-		// std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_velocities(particle,dt);});
-	// }
 	
 	for (int i=0;i<nthreads;i++){
 		std::cout << "joining " << i <<std::endl;

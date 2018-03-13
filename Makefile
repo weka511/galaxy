@@ -36,8 +36,7 @@ SRCS=	barnes-hut.cpp		\
 TESTS= 	test-kepler.cpp			\
 		test-plummer.cpp		\
 		test-random.cpp    	 	\
-		test-tree.cpp			\
-		test-threaded-verlet.cpp
+		test-tree.cpp
 		
 OBJS1=$(subst .cpp,.o,$(SRCS)) 
 OBJS=$(subst .cc,.o,$(OBJS1)) 
