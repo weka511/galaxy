@@ -29,17 +29,25 @@
  * Calculate acceleration for all particles
  */
  
-void get_acceleration(std::vector<Particle*>& particles,const double theta,const double G,const double softening_length) {
+Node * create_tree(std::vector<Particle*>& particles) {
 	assert(Node::_count==0);   // Tree should have been removed at end of previous call
-	Node * root=Node::create(particles);
+	Node * product=Node::create(particles);
 	CentreOfMassCalculator calculator(particles);
-	root->visit(calculator);
+	product->visit(calculator);
 	calculator.check_all_particles_processed();
-	for (int i=0;i<particles.size();i++)	{
-		BarnesHutVisitor visitor(i,particles[i],theta,G,softening_length);
-		root->visit(visitor);
-		visitor.store_accelerations();
-	}
+	return product;
+}
+
+void get_acceleration(int i, std::vector<Particle*>& particles,const double theta,const double G,const double a,Node * root) {
+	BarnesHutVisitor visitor(i,particles[i],theta,G,a);
+	root->visit(visitor);
+	visitor.store_accelerations();
+} 
+ 
+void get_acceleration(std::vector<Particle*>& particles,const double theta,const double G,const double a) {
+	Node * root=create_tree(particles);
+	for (int i=0;i<particles.size();i++)
+		get_acceleration(i,particles,theta,G,a,root);
 	
 	delete root;
 }
