@@ -21,9 +21,11 @@
  
  
 #include <algorithm>
+#include <cmath>
 #include <iostream>
+#include <mutex>
+#include <thread>
 #include "verlet.h"
-
 
 /**
  *  Use Euler algorithm for first step. NB: this updates velocity only, so x
@@ -96,4 +98,87 @@ void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
 		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_velocities(particle,dt);});
 	}
 }
+
+int next_index=0;
+std::mutex _mutex,_out_mutex;
+int active_threads=0;
+
+void process(int me,int index) {
+	_out_mutex.lock();
+	std::cout<<me<<" process: "<<index<<std::endl;
+	for (int i=0;i< 10000;i++){
+		double x=std::log(i);
+		double y=std::exp(x);
+	}
+	_out_mutex.unlock();
+}
+
+void step(int to) {
+	std::this_thread::yield();
+	_mutex.lock();
+	const int me=active_threads;
+	active_threads++;
+	_out_mutex.lock();
+	std::cout<<"step: "<<active_threads<<std::endl;
+	_out_mutex.unlock();
+	int index = next_index;
+	next_index++;
+	_mutex.unlock();
+	
+	while (index<to) {
+		process(me,index);
+		_mutex.lock();
+		index = next_index;
+		next_index++;
+		_mutex.unlock();
+	}
+	_mutex.lock();
+	active_threads--;
+		_out_mutex.lock();
+	std::cout<<"step: "<<active_threads<<std::endl;
+		_out_mutex.unlock();
+	if (active_threads>0)
+		while (active_threads>0){
+			_mutex.unlock();
+			std::this_thread::yield();
+			_mutex.lock();
+		}
+	_mutex.unlock();
+}
+void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
+				int max_iter,
+				double dt,
+				std::vector<Particle*> particles,
+				bool (*shouldContinue)(std::vector<Particle*> particles,int iter),
+				int start_iterations,
+				int nthreads) {
+	std::thread* worker[nthreads];
+	next_index=0;
+	std::cout << "next index " << next_index <<std::endl;
+	for  (int i=0;i<nthreads;i++) 
+		worker[i]=new std::thread(step, particles.size());
+
+	
+	// if (start_iterations==0){
+		// get_acceleration(particles);
+//		Take a half step, so acceleration corresponds to 0.5dt, 1.5dt, etc.
+		// std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
+	// }
+	
+	// for (int iter=1+start_iterations;iter<max_iter+start_iterations && shouldContinue(particles,iter);iter++) {
+		// std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_positions(particle,dt);});
+		// get_acceleration(particles);
+		// std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_velocities(particle,dt);});
+	// }
+	
+	for (int i=0;i<nthreads;i++){
+		std::cout << "joining " << i <<std::endl;
+		worker[i]->join();
+		delete worker[i];
+	}
+	
+
+}
+
+
 

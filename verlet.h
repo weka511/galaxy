@@ -63,5 +63,15 @@ void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
 				std::vector<Particle*> particles,
 				bool (*shouldContinue)(std::vector<Particle*>,int iter),
 				int start_iterations);
+				
+void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
+				int max_iter,
+				double dt,
+				std::vector<Particle*> particles,
+				bool (*shouldContinue)(std::vector<Particle*>,int iter),
+				int start_iterations,
+				int nthreads);
+
+void step(int to);
 
 #endif
