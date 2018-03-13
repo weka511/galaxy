@@ -29,10 +29,10 @@
         <File name="test-plummer.cpp" />
         <File name="test-tree.cpp" />
         <File name="test-random.cpp" />
+        <File name="test-threaded-verlet.cpp" />
     </Project>
     <Project name="Helpers">
         <File name="make_3d.py" />
-        <File name="make_img.py" />
         <File name="plot_orbits.py" />
     </Project>
     <Project name="Loggers">
@@ -48,5 +48,8 @@
         <File name="mt.h" />
         <File name="mtex.cc" />
         <File name="mttest.cc" />
+    </Project>
+    <Project name="Spikes">
+        <File name="threading.cpp" />
     </Project>
 </NotepadPlus>
