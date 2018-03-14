@@ -29,6 +29,7 @@ SRCS=	barnes-hut.cpp		\
 		mt.cc				\
 		physics.cpp         \
 		plummer.cpp			\
+		stepper.cpp			\
 		treecode.cpp		\
 		utils.cpp			\
 		verlet.cpp

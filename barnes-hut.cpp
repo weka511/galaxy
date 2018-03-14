@@ -29,8 +29,16 @@
  * Calculate acceleration for all particles
  */
  
+ void get_acceleration(std::vector<Particle*>& particles,const double theta,const double G,const double a) {
+	Node * root=create_tree(particles);
+	for (int i=0;i<particles.size();i++)
+		get_acceleration(i,particles,root,theta,G,a);
+	
+	delete root;
+}
+
 Node * create_tree(std::vector<Particle*>& particles) {
-	assert(Node::_count==0);   // Tree should have been removed at end of previous call
+	assert(Node::_count==0 && "Oct Tree should have been removed at end of previous call"); 
 	Node * product=Node::create(particles);
 	CentreOfMassCalculator calculator(particles);
 	product->visit(calculator);
@@ -38,19 +46,13 @@ Node * create_tree(std::vector<Particle*>& particles) {
 	return product;
 }
 
-void get_acceleration(int i, std::vector<Particle*>& particles,const double theta,const double G,const double a,Node * root) {
+void get_acceleration(int i, std::vector<Particle*>& particles,Node * root,const double theta,const double G,const double a) {
 	BarnesHutVisitor visitor(i,particles[i],theta,G,a);
 	root->visit(visitor);
 	visitor.store_accelerations();
 } 
  
-void get_acceleration(std::vector<Particle*>& particles,const double theta,const double G,const double a) {
-	Node * root=create_tree(particles);
-	for (int i=0;i<particles.size();i++)
-		get_acceleration(i,particles,theta,G,a,root);
-	
-	delete root;
-}
+
 
 /**
  * Used to accumulate accelerations for each node

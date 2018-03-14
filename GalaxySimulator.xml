@@ -16,6 +16,8 @@
         <File name="plummer.cpp" />
         <File name="plummer.h" />
         <File name="README.md" />
+        <File name="stepper.cpp" />
+        <File name="stepper.h" />
         <File name="treecode.cpp" />
         <File name="treecode.h" />
         <File name="utils.cpp" />
@@ -29,7 +31,6 @@
         <File name="test-plummer.cpp" />
         <File name="test-tree.cpp" />
         <File name="test-random.cpp" />
-        <File name="test-threaded-verlet.cpp" />
     </Project>
     <Project name="Helpers">
         <File name="make_3d.py" />

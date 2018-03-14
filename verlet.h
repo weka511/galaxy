@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "particle.h"
+#include "treecode.h"
 
 /**
  *  Use Euler algorithm for first step. NB: this updates velocity only, so x
@@ -64,7 +65,8 @@ void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
 				bool (*shouldContinue)(std::vector<Particle*>,int iter),
 				int start_iterations);
 				
-void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
+void run_verlet(Node * (*precondition)(std::vector<Particle*>),
+				void (*get_acceleration)(int i, std::vector<Particle*> particles,Node * root),
 				int max_iter,
 				double dt,
 				std::vector<Particle*> particles,

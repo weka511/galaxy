@@ -30,7 +30,7 @@ void get_acceleration(std::vector<Particle*>&,const double theta,const double G,
 
 Node * create_tree(std::vector<Particle*>& particles);
 
-void get_acceleration(int i, std::vector<Particle*>& particles,const double theta,const double G,const double a,Node * root);
+void get_acceleration(int i, std::vector<Particle*>& particles,Node * root,const double theta,const double G,const double a);
 
 /**
  *  This class is used to calculate the acceleration of one particle 

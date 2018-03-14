@@ -25,6 +25,7 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
+#include "stepper.h"
 #include "verlet.h"
 
 /**
@@ -99,6 +100,8 @@ void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
 	}
 }
 
+
+
 int next_index=0;
 std::mutex _mutex,_out_mutex;
 int active_threads=0;
@@ -146,24 +149,39 @@ void step(int to) {
 	_mutex.unlock();
 }
 
-void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
+void run_verlet(Node * (*precondition)(std::vector<Particle*>),
+				void (*get_acceleration)(int i, std::vector<Particle*> particles,Node * root),
 				int max_iter,
 				double dt,
 				std::vector<Particle*> particles,
 				bool (*shouldContinue)(std::vector<Particle*> particles,int iter),
 				int start_iterations,
 				int nthreads) {
-	std::thread* worker[nthreads];
-	next_index=0;
-	std::cout << "next index " << next_index <<std::endl;
-	for  (int i=0;i<nthreads;i++) 
-		worker[i]=new std::thread(step, particles.size());
+					
+	if (start_iterations==0){
+		Node * root=precondition(particles);
+		for (int i=0;i<particles.size();i++)
+			get_acceleration(i,particles,root);
 	
-	for (int i=0;i<nthreads;i++){
-		std::cout << "joining " << i <<std::endl;
-		worker[i]->join();
-		delete worker[i];
+		delete root;
+		// Take a half step, so acceleration corresponds to 0.5dt, 1.5dt, etc.
+		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
+
 	}
+	Stepper stepper(nthreads,1+start_iterations,max_iter+start_iterations,particles);
+	stepper.start();
+	// std::thread* worker[nthreads];
+	// next_index=0;
+	// std::cout << "next index " << next_index <<std::endl;
+	
+	// for  (int i=0;i<nthreads;i++) 
+		// worker[i]=new std::thread(step, particles.size());
+	
+	// for (int i=0;i<nthreads;i++){
+		// std::cout << "joining " << i <<std::endl;
+		// worker[i]->join();
+		// delete worker[i];
+	// }
 	
 
 }
