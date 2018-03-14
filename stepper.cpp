@@ -37,33 +37,19 @@ Stepper::Stepper(const int nthreads, const int from, const int to,std::vector<Pa
  * 3. Wait again until all threads are quiescent
  */
 void Stepper::start(){
-	_out_mutex.lock();
-		std::cout<<"S0 "<<_active_threads<<std::endl;
-	_out_mutex.unlock();
-	
+
 	for  (int i=0;i<_nthreads;i++) 
 		_worker[i]=new std::thread(&Stepper::step,this); 
 	
-	_out_mutex.lock();
-		std::cout<<"S1 "<<_active_threads<<std::endl;
-	_out_mutex.unlock();
-	
-	std::unique_lock<std::mutex> lck(_mtx);
-    _cv.wait(lck,[this]{return this->_active_threads >0;});
+	std::unique_lock<std::mutex> lck_starting(_mtx_starting);
+    _cv_starting.wait(lck_starting,[this]{return this->_active_threads >0;});
 
-	_out_mutex.lock();
-		std::cout<<"S2 "<<_active_threads<<std::endl;
-	_out_mutex.unlock();
-	std::unique_lock<std::mutex> lck2(_mtx2);
-	_cv2.wait(lck2,[this]{return this->_active_threads <=0;});
+	std::unique_lock<std::mutex> lck_ending(_mtx_ending);
+	_cv_ending.wait(lck_ending,[this]{return this->_active_threads <=0;});
 
-	_out_mutex.lock();
-		std::cout<<"S3 "<<_active_threads<<std::endl;
-	_out_mutex.unlock();
 }
 	  
 void Stepper::step() {
-	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	_mutex.lock();
 		_active_threads++;
 		_out_mutex.lock();
@@ -71,8 +57,9 @@ void Stepper::step() {
 		_out_mutex.unlock();
 		int index = _next_index;
 		_next_index++;
-	_mutex.unlock(); 
-	_cv.notify_one();
+	_mutex.unlock();
+	
+	_cv_starting.notify_one();
 	while (index<_particles.size()) {
 		_process(index);
 		_mutex.lock();
@@ -80,22 +67,19 @@ void Stepper::step() {
 			_next_index++;
 		_mutex.unlock();
 	}
+	
 	_mutex.lock();
 		_active_threads--;
 		_out_mutex.lock();
 			std::cout<<"step: b "<<_active_threads<<std::endl;
 		_out_mutex.unlock();
-		if (_active_threads>0)
-			while (_active_threads>0){
-				_mutex.unlock();
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				_mutex.lock();
-			}
 	_mutex.unlock();
+	
 	_out_mutex.lock();
 		std::cout<<"step: c "<<_active_threads<<std::endl;
 	_out_mutex.unlock();
-	_cv2.notify_all();
+	
+	_cv_ending.notify_all();
 }
 
 void Stepper::_process(int index) {

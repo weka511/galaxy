@@ -49,16 +49,19 @@ class Stepper {
 	bool _shouldContinue();
 	void _process(int index);
 	
-  	const int 		_nthreads;
-	const int 		_from;
-	const int 		_to;
-	int 			_ii;
-	std::thread** 	_worker ;
-	int 			_next_index=0;
-	std::mutex 		_mutex,_out_mutex;
-	int 			_active_threads=0;
+  	const int 				_nthreads;
+	const int 				_from;
+	const int 				_to;
+	int 					_ii;
+	std::thread** 			_worker;
+	int 					_next_index=0;
+	std::mutex 				_mutex;
+	std::mutex				_out_mutex;
+	int 					_active_threads=0;
 	std::vector<Particle*> _particles;
-	std::mutex _mtx,_mtx2;
-	std::condition_variable _cv,_cv2;	
+	std::mutex 				_mtx_starting;
+	std::mutex 				_mtx_ending;
+	std::condition_variable _cv_starting;
+	std::condition_variable _cv_ending;	
 
 };
