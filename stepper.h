@@ -46,13 +46,26 @@ class Stepper {
 	  ~Stepper() ;
 	  
   private:
+	int _increment_active_threads();
+	
 	bool _shouldContinue();
 	void _process(int index);
 	
   	const int 				_nthreads;
-	const int 				_from;
+	
+	/**
+	 *  Iteration Control: finish value
+	 */
 	const int 				_to;
-	int 					_ii;
+	
+	/**
+	 *  Iteration Control: current state
+	 */
+	int 					_iter;
+	
+	/**
+	 *  Worker threads
+	 */
 	std::thread** 			_worker;
 	int 					_next_index;
 	

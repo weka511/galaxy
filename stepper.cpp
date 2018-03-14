@@ -25,9 +25,8 @@
  
 Stepper::Stepper(const int nthreads, const int from, const int to,std::vector<Particle*> particles)
 	: _nthreads(nthreads),
-		_from(from),
 		_to(to),
-		_ii(from),
+		_iter(from),
 		_particles(particles),
 		_next_index(0) {
 	_worker = new std::thread*[_nthreads];
@@ -55,18 +54,25 @@ void Stepper::start(){
 	_cv_ending.wait(lck_ending,[this]{return this->_active_threads <=0;});
 
 }
-	  
-void Stepper::step() {
+
+int Stepper::_increment_active_threads() {
 	_mutex_state.lock();
 		_active_threads++;
 		_out_mutex.lock();
-			std::cout<<"step: a "<<_active_threads<<std::endl;
+			std::cout<<"step: incremented active threads"<<_active_threads<<std::endl;
 		_out_mutex.unlock();
 		int index = _next_index;
 		_next_index++;
 	_mutex_state.unlock();
 	
 	_cv_starting.notify_one();
+	
+	return index;
+}	
+  
+void Stepper::step() {
+	int index=_increment_active_threads();
+	
 	while (index<_particles.size()) {
 		_process(index);
 		_mutex_state.lock();
@@ -78,13 +84,9 @@ void Stepper::step() {
 	_mutex_state.lock();
 		_active_threads--;
 		_out_mutex.lock();
-			std::cout<<"step: b "<<_active_threads<<std::endl;
+			std::cout<<"step: decrementing active "<<_active_threads<<std::endl;
 		_out_mutex.unlock();
 	_mutex_state.unlock();
-	
-	_out_mutex.lock();
-		std::cout<<"step: c "<<_active_threads<<std::endl;
-	_out_mutex.unlock();
 	
 	_cv_ending.notify_all();
 }
@@ -100,7 +102,7 @@ void Stepper::_process(int index) {
 }
 
 bool Stepper::_shouldContinue() {
-	return _ii<_to;
+	return _iter<_to;
 }
 	  
 Stepper::~Stepper() {
