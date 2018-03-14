@@ -54,14 +54,39 @@ class Stepper {
 	const int 				_to;
 	int 					_ii;
 	std::thread** 			_worker;
-	int 					_next_index=0;
-	std::mutex 				_mutex;
+	int 					_next_index;
+	
+	/**
+	 * Used to synchronize access to state variables
+	 */
+	std::mutex 				_mutex_state;
+	
+	/**
+	 * Used to synchronize access to console for debugging
+	 */
 	std::mutex				_out_mutex;
+	
 	int 					_active_threads=0;
-	std::vector<Particle*> _particles;
+	std::vector<Particle*> 	_particles;
+	
+	/**
+	 *  Used to let main know that threads have started
+	 */
 	std::mutex 				_mtx_starting;
+	
+	/**
+	 *  Used to let main know that threads have started
+	 */
 	std::mutex 				_mtx_ending;
+	
+	/**
+	 *  Used to let main know that threads are ending
+	 */
 	std::condition_variable _cv_starting;
+	
+	/**
+	 *  Used to let main know that threads are ending
+	 */
 	std::condition_variable _cv_ending;	
 
 };

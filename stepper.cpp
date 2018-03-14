@@ -24,9 +24,16 @@
  #include "stepper.h"
  
 Stepper::Stepper(const int nthreads, const int from, const int to,std::vector<Particle*> particles)
-	: _nthreads(nthreads),_from(from),_to(to),_ii(from),_particles(particles) {
+	: _nthreads(nthreads),
+		_from(from),
+		_to(to),
+		_ii(from),
+		_particles(particles),
+		_next_index(0) {
 	_worker = new std::thread*[_nthreads];
-	std::cout << "Processing " << particles.size() << " particles" << std::endl;
+	_out_mutex.lock();
+		std::cout << "Processing " << particles.size() << " particles" << std::endl;
+	_out_mutex.unlock();
 }
 
 /**
@@ -50,30 +57,30 @@ void Stepper::start(){
 }
 	  
 void Stepper::step() {
-	_mutex.lock();
+	_mutex_state.lock();
 		_active_threads++;
 		_out_mutex.lock();
 			std::cout<<"step: a "<<_active_threads<<std::endl;
 		_out_mutex.unlock();
 		int index = _next_index;
 		_next_index++;
-	_mutex.unlock();
+	_mutex_state.unlock();
 	
 	_cv_starting.notify_one();
 	while (index<_particles.size()) {
 		_process(index);
-		_mutex.lock();
+		_mutex_state.lock();
 			index = _next_index;
 			_next_index++;
-		_mutex.unlock();
+		_mutex_state.unlock();
 	}
 	
-	_mutex.lock();
+	_mutex_state.lock();
 		_active_threads--;
 		_out_mutex.lock();
 			std::cout<<"step: b "<<_active_threads<<std::endl;
 		_out_mutex.unlock();
-	_mutex.unlock();
+	_mutex_state.unlock();
 	
 	_out_mutex.lock();
 		std::cout<<"step: c "<<_active_threads<<std::endl;
