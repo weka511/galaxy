@@ -29,28 +29,52 @@ Stepper::Stepper(const int nthreads, const int from, const int to,std::vector<Pa
 	std::cout << "Processing " << particles.size() << " particles" << std::endl;
 }
 
+/**
+ * Start processing.
+ * 1. Start all threads
+ *    ..see https://stackoverflow.com/questions/10673585/start-thread-with-member-function
+ * 2. Wait until at least one thread is active
+ * 3. Wait again until all threads are quiescent
+ */
 void Stepper::start(){
+	_out_mutex.lock();
+		std::cout<<"S0 "<<_active_threads<<std::endl;
+	_out_mutex.unlock();
+	
 	for  (int i=0;i<_nthreads;i++) 
-		_worker[i]=new std::thread(&Stepper::step,this); //https://stackoverflow.com/questions/10673585/start-thread-with-member-function
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	while (_active_threads>0){
-		std::this_thread::yield();
-	}
+		_worker[i]=new std::thread(&Stepper::step,this); 
+	
+	_out_mutex.lock();
+		std::cout<<"S1 "<<_active_threads<<std::endl;
+	_out_mutex.unlock();
+	
+	std::unique_lock<std::mutex> lck(_mtx);
+    _cv.wait(lck,[this]{return this->_active_threads >0;});
+
+	_out_mutex.lock();
+		std::cout<<"S2 "<<_active_threads<<std::endl;
+	_out_mutex.unlock();
+	std::unique_lock<std::mutex> lck2(_mtx2);
+	_cv2.wait(lck2,[this]{return this->_active_threads <=0;});
+
+	_out_mutex.lock();
+		std::cout<<"S3 "<<_active_threads<<std::endl;
+	_out_mutex.unlock();
 }
 	  
 void Stepper::step() {
-	std::this_thread::yield();
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	_mutex.lock();
-		const int me=_active_threads;
 		_active_threads++;
 		_out_mutex.lock();
-			std::cout<<"step: "<<_active_threads<<std::endl;
+			std::cout<<"step: a "<<_active_threads<<std::endl;
 		_out_mutex.unlock();
 		int index = _next_index;
 		_next_index++;
 	_mutex.unlock(); 
+	_cv.notify_one();
 	while (index<_particles.size()) {
-		_process(me,index);
+		_process(index);
 		_mutex.lock();
 			index = _next_index;
 			_next_index++;
@@ -59,20 +83,24 @@ void Stepper::step() {
 	_mutex.lock();
 		_active_threads--;
 		_out_mutex.lock();
-			std::cout<<"step: "<<_active_threads<<std::endl;
+			std::cout<<"step: b "<<_active_threads<<std::endl;
 		_out_mutex.unlock();
 		if (_active_threads>0)
 			while (_active_threads>0){
 				_mutex.unlock();
-				std::this_thread::yield();
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				_mutex.lock();
 			}
 	_mutex.unlock();
+	_out_mutex.lock();
+		std::cout<<"step: c "<<_active_threads<<std::endl;
+	_out_mutex.unlock();
+	_cv2.notify_all();
 }
 
-void Stepper::_process(int me,int index) {
+void Stepper::_process(int index) {
 	_out_mutex.lock();
-		std::cout<<me<<" process: "<<index<<std::endl;
+		std::cout<<std::this_thread::get_id()<<" process: "<<index <<std::endl;
 		for (int i=0;i< 10;i++){
 			double x=std::log(i);
 			double y=std::exp(x);
@@ -88,8 +116,8 @@ Stepper::~Stepper() {
 	for (int i=0;i<_nthreads;i++){
 		_out_mutex.lock();
 			std::cout << "joining " << i <<std::endl;
-			_worker[i]->join();
 		_out_mutex.unlock();
+		_worker[i]->join();
 	}
 	for (int i=0;i<_nthreads;i++)
 		delete _worker[i];

@@ -19,6 +19,7 @@
  * See http://physics.ucsc.edu/~peter/242/leapfrog.pdf
  */
  
+#include <condition_variable>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -28,14 +29,25 @@
 class Stepper {
   public:
 	  Stepper(const int nthreads, const int from, const int to,std::vector<Particle*> particles);
+	  
+	  /**
+	   * Start processing.
+	   * 1. Start all threads
+	   * 2. Wait until at least one thread is active
+	   * 3. Wait again until all threads are quiescent
+	   */	  
 	  void start();
+	  
+	  /**
+	   * Step through all the work that needs to be done
+	   */
 	  void step();
 	  
 	  ~Stepper() ;
 	  
   private:
 	bool _shouldContinue();
-	void _process(int me,int index);
+	void _process(int index);
 	
   	const int 		_nthreads;
 	const int 		_from;
@@ -46,4 +58,7 @@ class Stepper {
 	std::mutex 		_mutex,_out_mutex;
 	int 			_active_threads=0;
 	std::vector<Particle*> _particles;
+	std::mutex _mtx,_mtx2;
+	std::condition_variable _cv,_cv2;	
+
 };
