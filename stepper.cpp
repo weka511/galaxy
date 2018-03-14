@@ -55,31 +55,63 @@ void Stepper::start(){
 
 }
 
-int Stepper::_increment_active_threads() {
+void Stepper::_increment_active_threads() {
 	_mutex_state.lock();
 		_active_threads++;
 		_out_mutex.lock();
 			std::cout<<"step: incremented active threads"<<_active_threads<<std::endl;
 		_out_mutex.unlock();
-		int index = _next_index;
-		_next_index++;
 	_mutex_state.unlock();
 	
 	_cv_starting.notify_one();
-	
-	return index;
 }	
   
 void Stepper::step() {
-	int index=_increment_active_threads();
-	
-	while (index<_particles.size()) {
-		_process(index);
+	_increment_active_threads();
+
+	while (_iter<_to) {  // need to set index to 0 at end of iteration
+		_out_mutex.lock();
+			std::cout << "iter=" <<_iter << ",to=" << _to <<std::endl;
+		_out_mutex.unlock();
 		_mutex_state.lock();
-			index = _next_index;
+			int index = _next_index;
 			_next_index++;
 		_mutex_state.unlock();
+	
+		while (index<_particles.size()) {
+			_process(index);
+			_mutex_state.lock();
+				index = _next_index;
+				_next_index++;
+			_mutex_state.unlock();
+		}
+		_mutex_state.lock();
+			_waiting_threads++;
+			bool all_done=_waiting_threads==_nthreads;
+			if (all_done) {
+				_iter++;
+				_next_index=0;
+			}	
+		_mutex_state.unlock();
+		if (all_done){
+			_cv_end_iter.notify_all();
+		} else {
+			std::unique_lock<std::mutex> lck_iter(_mtx_end_iter);
+			_cv_end_iter.wait(lck_iter,[this]{return this->_waiting_threads==_nthreads;});
+			_mutex_state.lock();
+				_restarted++;
+				if (_restarted==_nthreads-1) {
+					_restarted=0;
+					_waiting_threads=0;
+					_out_mutex.lock();
+						std::cout<<"reset "<<std::endl;
+					_out_mutex.unlock();
+				}
+			_mutex_state.unlock();
+		}
+		
 	}
+
 	
 	_mutex_state.lock();
 		_active_threads--;

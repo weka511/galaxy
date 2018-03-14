@@ -46,13 +46,14 @@ class Stepper {
 	  ~Stepper() ;
 	  
   private:
-	int _increment_active_threads();
+	void _increment_active_threads();
 	
 	bool _shouldContinue();
 	void _process(int index);
 	
   	const int 				_nthreads;
-	
+	int 					_waiting_threads=0;
+	int						_restarted=0;
 	/**
 	 *  Iteration Control: finish value
 	 */
@@ -92,6 +93,7 @@ class Stepper {
 	 */
 	std::mutex 				_mtx_ending;
 	
+	std::mutex 				_mtx_end_iter;
 	/**
 	 *  Used to let main know that threads are ending
 	 */
@@ -101,5 +103,7 @@ class Stepper {
 	 *  Used to let main know that threads are ending
 	 */
 	std::condition_variable _cv_ending;	
+	
+	std::condition_variable _cv_end_iter;	
 
 };
