@@ -29,7 +29,8 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 | physics.cpp| physics.h |Physical constants, law of gravitation, etc|
 | plummer.cpp | plummer.h |Factory for creating particles |
 | plot_orbits.py || Select a few stars at random and plot their orbits |
-| |spdlog| Header files for [spdlog](https://github.com/gabime/spdlog) super fast C++ logging library.  |
+| |spdlog| Header files for [spdlog](https://github.com/gabime/spdlog) super fast C++ logging library.|
+| stepper.cpp| stepper.h | A class to support multi -threading |
 | tests.cpp || Test harness |
 | test-kepler.cpp| | Test for Kepler problem |
 | test-plummer.cpp| | Test for Plummer model |
