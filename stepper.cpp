@@ -19,16 +19,28 @@
  * See http://physics.ucsc.edu/~peter/242/leapfrog.pdf
  */
  
+ #include <algorithm>
  #include <chrono>
  #include <iostream>
  #include "stepper.h"
+ #include "verlet.h"
  
-Stepper::Stepper(const int nthreads, const int from, const int to,std::vector<Particle*> particles)
-	: _nthreads(nthreads),
+Stepper::Stepper(const int nthreads, 
+				const int from,
+				const int to,
+				std::vector<Particle*> particles,
+				Node * (*precondition)(std::vector<Particle*>),
+				void (*get_acceleration)(int i, std::vector<Particle*> particles,Node * root),
+				const double dt)
+	: 	_nthreads(nthreads),
 		_to(to),
 		_iter(from),
 		_particles(particles),
-		_next_index(0) {
+		_next_index(0),
+		_precondition(precondition),
+		_get_acceleration(get_acceleration),
+		_dt(dt),
+		_root(NULL) {
 	_worker = new std::thread*[_nthreads];
 	_out_mutex.lock();
 		std::cout << "Processing " << particles.size() << " particles" << std::endl;
@@ -68,14 +80,20 @@ void Stepper::_increment_active_threads() {
   
 void Stepper::step() {
 	_increment_active_threads();
-
+	const double dt=_dt;
 	while (_iter<_to) {  // need to set index to 0 at end of iteration
-		_out_mutex.lock();
-			std::cout << "iter=" <<_iter << ",to=" << _to <<std::endl;
-		_out_mutex.unlock();
+		// _out_mutex.lock();
+			// std::cout << "iter=" <<_iter << ",to=" << _to <<", index=" << _next_index<<std::endl;
+		// _out_mutex.unlock();
 		_mutex_state.lock();
 			int index = _next_index;
 			_next_index++;
+			if (index==0){
+				std::for_each(_particles.begin(),
+								_particles.end(),
+								[dt](Particle* particle){verlet_positions(particle,dt);});
+				_root=_precondition(_particles);		
+			}
 		_mutex_state.unlock();
 	
 		while (index<_particles.size()) {
@@ -88,12 +106,23 @@ void Stepper::step() {
 		_mutex_state.lock();
 			_waiting_threads++;
 			bool all_done=_waiting_threads==_nthreads;
-			if (all_done) {
+			// if (all_done) {
+				// _iter++;
+				// _next_index=0;
+			// }	
+		_mutex_state.unlock();
+		
+		if (all_done) {
+			std::for_each(_particles.begin(),
+							_particles.end(),
+							[dt](Particle* particle){verlet_velocities(particle,dt);});
+			_mutex_state.lock();
 				_iter++;
 				_next_index=0;
-			}	
-		_mutex_state.unlock();
-		if (all_done){
+				delete _root;
+				_root=NULL;
+			_mutex_state.unlock();
+
 			_cv_end_iter.notify_all();
 		} else {
 			std::unique_lock<std::mutex> lck_iter(_mtx_end_iter);
@@ -124,13 +153,11 @@ void Stepper::step() {
 }
 
 void Stepper::_process(int index) {
-	_out_mutex.lock();
-		std::cout<<std::this_thread::get_id()<<" process: "<<index <<std::endl;
-		for (int i=0;i< 10;i++){
-			double x=std::log(i);
-			double y=std::exp(x);
-		}
-	_out_mutex.unlock();
+	// _out_mutex.lock();
+		// std::cout<<std::this_thread::get_id()<<" process: "<<index <<std::endl;
+		_get_acceleration(index,_particles,_root);
+
+	// _out_mutex.unlock();
 }
 
 bool Stepper::_shouldContinue() {

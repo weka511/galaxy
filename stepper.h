@@ -25,10 +25,17 @@
 #include <vector>
 
 #include "particle.h"
+#include "treecode.h"
 
 class Stepper {
   public:
-	  Stepper(const int nthreads, const int from, const int to,std::vector<Particle*> particles);
+	  Stepper(const int nthreads,
+				const int from,
+				const int to,
+				std::vector<Particle*> particles,
+				Node * (*precondition)(std::vector<Particle*>),
+				void (*get_acceleration)(int i, std::vector<Particle*> particles,Node * root),
+				const double dt);
 	  
 	  /**
 	   * Start processing.
@@ -105,5 +112,12 @@ class Stepper {
 	std::condition_variable _cv_ending;	
 	
 	std::condition_variable _cv_end_iter;	
+	
+	Node * (*_precondition)(std::vector<Particle*>);
+	
+	void (*_get_acceleration)(int i, std::vector<Particle*> particles,Node * root);
+	
+	const double _dt;
 
+	Node * _root;
 };

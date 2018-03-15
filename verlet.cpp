@@ -121,7 +121,13 @@ void run_verlet(Node * (*precondition)(std::vector<Particle*>),
 		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
 
 	}
-	Stepper stepper(nthreads,1+start_iterations,max_iter+start_iterations,particles);
+	Stepper stepper(nthreads,
+					1+start_iterations,
+					max_iter+start_iterations,
+					particles,
+					precondition,
+					get_acceleration,
+					dt);
 	stepper.start();
 }
 

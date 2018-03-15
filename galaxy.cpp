@@ -94,11 +94,15 @@ int main(int argc, char **argv) {
 						&report_all,
 						start_iterations);
 			else //void (*get_acceleration)(int i, std::vector<Particle*>& particles,Node * root),
-				run_verlet([](	std::vector<Particle*> particles)->Node*{create_tree(particles);},
+				run_verlet(
+						[](	std::vector<Particle*> particles)->Node*{create_tree(particles);},
 						[](	int i,std::vector<Particle*> particles,Node* root)->
-							void{get_acceleration(i,particles,root,configuration.get_theta(),
-																		configuration.getG(),
-																		configuration.get_a());},
+							void{get_acceleration(i,
+													particles,
+													root,
+													configuration.get_theta(),
+													configuration.getG(),
+													configuration.get_a());},
 						configuration.get_max_iter(),
 						configuration.get_dt(),
 						particles,
