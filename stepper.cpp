@@ -25,6 +25,9 @@
  #include "stepper.h"
  #include "verlet.h"
  
+ /**
+  * Create worker threads and initialize state
+  */
 Stepper::Stepper(const int nthreads, 
 				const int from,
 				const int to,
@@ -42,7 +45,8 @@ Stepper::Stepper(const int nthreads,
 		_get_acceleration(get_acceleration),
 		_dt(dt),
 		_root(NULL),
-		_shouldContinue(shouldContinue) {
+		_shouldContinue(shouldContinue),
+		_active_threads(0)					{
 	_worker = new std::thread*[_nthreads];
 	_out_mutex.lock();
 		std::cout << "Processing " << particles.size() << " particles" << std::endl;
@@ -62,14 +66,29 @@ void Stepper::start(){
 		_worker[i]=new std::thread(&Stepper::step,this); 
 	
 	std::unique_lock<std::mutex> lck_starting(_mtx_starting);
-    _cv_starting.wait(lck_starting,[this]{return this->_active_threads >0;});
-
-	std::unique_lock<std::mutex> lck_ending(_mtx_ending);
-	_cv_ending.wait(lck_ending,[this]{return this->_active_threads <=0;});
-
+    _cv_starting.wait(lck_starting,[this]{return this->_exists_some_equal(Started);});
+	_out_mutex.lock();
+		for  (int i=0;i<_nthreads;i++){
+			std::thread::id id=_worker[i]->get_id();
+			std::cout<<__FILE__ << " "<< __LINE__ << 
+			" " << id << " "<<_thread_status[id]<< std::endl;
+		}
+	_out_mutex.unlock();
+	
+	std::unique_lock<std::mutex> lck_finishing(_mtx_finishing);
+	_cv_finishing.wait(lck_finishing,[this]{return this->_all_equal(Finishing);});
+	_out_mutex.lock();
+		for  (int i=0;i<_nthreads;i++){
+			std::thread::id id=_worker[i]->get_id();
+			std::cout<<__FILE__ << " "<< __LINE__ << 
+			" " << id << " "<<_thread_status[id]<< std::endl;
+		}
+	_out_mutex.unlock();
 }
 
-
+/**
+ *  Build tree at start of each iteration
+ */
 int Stepper::_start_iteration(std::thread::id id) {
 	_mutex_state.lock();
 
@@ -77,7 +96,7 @@ int Stepper::_start_iteration(std::thread::id id) {
 		_next_index++;
 		
 		if (index==0){
-			if (!_shouldContinue(_particles,_iter))   ; // FIXME
+
 			std::for_each(_particles.begin(),
 							_particles.end(),
 							[this](Particle* particle){verlet_positions(particle,this->_dt);});
@@ -85,14 +104,16 @@ int Stepper::_start_iteration(std::thread::id id) {
 			
 			_root=_precondition(_particles);
 			_thread_status[id]=Started;
+			_cv_tree_has_been_built.notify_all();
 			_cv_starting.notify_all();
 		} else {
-			if (_exists_some_equal(Started))
+			if (_exists_some_equal(Started)){
 				_thread_status[id]=Started;
-			else {
+				_cv_starting.notify_all();
+			} else {
 				_mutex_state.unlock();
-				std::unique_lock<std::mutex> lck_starting(_mtx_starting);
-				_cv_starting.wait(lck_starting,[this]{return this->_exists_some_equal(Started);});
+				std::unique_lock<std::mutex> lock(_mtx_tree_has_been_built);
+				_cv_tree_has_been_built.wait(lock,[this]{return this->_exists_some_equal(Started);});
 				_mutex_state.lock();
 				_thread_status[id]=Started;
 			}
@@ -110,26 +131,18 @@ void Stepper::step() {
 	std::thread::id id=std::this_thread::get_id();
 	_thread_status[id]=FreshlyCreated;
 	
-	// _out_mutex.lock();
-		// std::cout<<__FILE__ << " "<< __LINE__ << 
-		// " ,iter="<<_iter<< ", to=" << _to << std::endl;
-	// _out_mutex.unlock();
 	while (_iter<_to) {  // need to set index to 0 at end of iteration
+		// _out_mutex.lock();
+			// std::cout<<__FILE__ << " "<< __LINE__ << 
+			// " " << id <<" "<< _iter<< " " << _to << " "<<_thread_status[id]<< std::endl;
+		// _out_mutex.unlock();
 		switch(_thread_status[id]) {
 			case FreshlyCreated:
 				index=_start_iteration(id);
 				break;
 			case Started:
-							// _out_mutex.lock();
-					// std::cout<<__FILE__ << " "<< __LINE__ << 
-					// " unexpected state " << _thread_status[id]<< std::endl;
-				// _out_mutex.unlock();
 				break; 
 			case Waiting:
-							// _out_mutex.lock();
-					// std::cout<<__FILE__ << " "<< __LINE__ << 
-					// " unexpected state " << _thread_status[id]<< std::endl;
-				// _out_mutex.unlock();
 				break;
 			case Restarting:
 				index =_start_iteration(id);
@@ -140,13 +153,7 @@ void Stepper::step() {
 					" unexpected state " << _thread_status[id]<< std::endl;
 				_out_mutex.unlock();
 		};
-				// _out_mutex.lock();
-			// std::cout<<__FILE__ << " "<< __LINE__ << " " << id <<
-			// " ,iter="<<_iter<< ", to=" << _to << ", index=" << index <<std::endl;
-		// _out_mutex.unlock();
-			// _out_mutex.lock();
-			// std::cout<<__FILE__ << " "<< __LINE__ << 
-			// " ,iter="<<_iter<< ", to=" << _to << ", index=" << index <<std::endl;
+
 		_out_mutex.unlock();
 		while (index<_particles.size()) {
 			_process(index);
@@ -157,7 +164,7 @@ void Stepper::step() {
 		}
 		_mutex_state.lock();
 			_thread_status[id]=Waiting;
-			bool all_waiting = _all_equal(Waiting);
+			const bool all_waiting = _all_equal(Waiting);
 		_mutex_state.unlock();
 		
 		if (all_waiting) {
@@ -165,36 +172,65 @@ void Stepper::step() {
 							_particles.end(),
 							[this](Particle* particle){verlet_velocities(particle,this->_dt);});
 			_mutex_state.lock();
-				_iter++;
-				_next_index=0;
-				_thread_status[id]=Restarting;
-			_mutex_state.unlock();
 
+				if (!_shouldContinue(_particles,_iter))   {
+					_thread_status[id]=Finishing;
+					_out_mutex.lock();
+						std::cout<<__FILE__ << " "<< __LINE__ << 
+						" " << id <<_thread_status[id]<< std::endl;
+					_out_mutex.unlock();
+					_mutex_state.unlock();
+					_cv_finishing.notify_all();
+					_cv_end_iter.notify_all();
+					return;
+				} else {
+					_iter++;
+					_next_index=0;
+					_thread_status[id]=Restarting;
+				}
+			_mutex_state.unlock();
 			_cv_end_iter.notify_all();
+
 		} else {
 			std::unique_lock<std::mutex> lck_iter(_mtx_end_iter);
-			_cv_end_iter.wait(lck_iter,[this]{return this->_exists_some_equal(Restarting);});
+			_cv_end_iter.wait(lck_iter,[this]{
+												return this->_exists_some_equal(Restarting) ||
+															this->_exists_some_equal(Finishing);
+											});
 			_mutex_state.lock();
+				if (this->_exists_some_equal(Finishing)){
+					_thread_status[id]=Finishing;
+					_out_mutex.lock();
+						std::cout<<__FILE__ << " "<< __LINE__ << 
+						" " << id <<_thread_status[id]<< std::endl;
+					_out_mutex.unlock();
+					_mutex_state.unlock();
+					_cv_finishing.notify_all();
+					return;
+				}
 				_thread_status[id]=Restarting;
 				_next_index=0;
 			_mutex_state.unlock();
-			// _out_mutex.lock();
-				// std::cout<<__FILE__ << " "<< __LINE__ << " " << id <<
-				// " ,iter="<<_iter<< ", to=" << _to << ", next="<<_next_index<<std::endl;
-			// _out_mutex.unlock();
+
 		}
 		
 	}
 
+	_out_mutex.lock();
+		std::cout<<__FILE__ << " "<< __LINE__ << 
+		" " << id <<" "<< _iter<< " " << _to << " "<<_thread_status[id]<< std::endl;
+	_out_mutex.unlock();
 	
 	_mutex_state.lock();
-		_active_threads--;
-		_out_mutex.lock();
-			std::cout<<"step: decrementing active "<<_active_threads<<std::endl;
-		_out_mutex.unlock();
+		_thread_status[id]=Finishing;
 	_mutex_state.unlock();
+
+	_out_mutex.lock();
+		std::cout<<__FILE__ << " "<< __LINE__ << 
+		" " << id <<" "<< _iter<< " " << _to << " "<<_thread_status[id]<< std::endl;
+	_out_mutex.unlock();
 	
-	_cv_ending.notify_all();
+	_cv_finishing.notify_all();
 }
 
 void Stepper::_process(int index) {
@@ -215,5 +251,7 @@ Stepper::~Stepper() {
 	}
 	for (int i=0;i<_nthreads;i++)
 		delete _worker[i];
+	
+	delete [] _worker;
 }
 

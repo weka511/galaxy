@@ -135,6 +135,7 @@ int main(int argc, char **argv) {
  * Used after iteration to write out data
 */
 bool report_all(std::vector<Particle*> particles,int iter){
+	std::cout << __FILE__ << " " <<__LINE__ << " " <<iter <<std::endl;
 	report_energy(particles,iter);
 	configuration.report_configuration(particles,iter);
 	return !killed();

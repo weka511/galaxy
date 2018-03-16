@@ -30,13 +30,20 @@
 
 class Stepper {
   public:
+	/**
+	 *  Status of a thread
+	 */
     enum Status {
 			FreshlyCreated,
 			Started, 
 			Waiting,
-			Restarting
+			Restarting,
+			Finishing
 		};
-			
+		
+	/**
+	 * Create worker threads and initialize state
+	 */		
 	  Stepper(const int nthreads,
 				const int from,
 				const int to,
@@ -62,81 +69,17 @@ class Stepper {
 	  ~Stepper() ;
 	  
   private:
-	std::map<std::thread::id, Status> _thread_status;
 
+  /**
+	*  Build tree at start of each iteration
+	*/
 	int _start_iteration(std::thread::id id);
 	
 	void _process(int index);
-	
-  	const int 				_nthreads;
 
-	int						_restarted=0;
 	/**
-	 *  Iteration Control: finish value
+	 * Test: are all status values equal to specified value?
 	 */
-	const int 				_to;
-	
-	/**
-	 *  Iteration Control: current state
-	 */
-	int 					_iter;
-	
-	/**
-	 *  Worker threads
-	 */
-	std::thread** 			_worker;
-	int 					_next_index;
-	
-	/**
-	 * Used to synchronize access to state variables
-	 */
-	std::mutex 				_mutex_state;
-	
-	/**
-	 * Used to synchronize access to console for debugging
-	 */
-	std::mutex				_out_mutex;
-	
-	int 					_active_threads=0;
-	std::vector<Particle*> 	_particles;
-	
-	/**
-	 *  Used to let main know that threads have started
-	 */
-	std::mutex 				_mtx_starting;
-	
-	/**
-	 *  Used to let main know that threads have started
-	 */
-	std::mutex 				_mtx_ending;
-	
-	std::mutex 				_mtx_end_iter;
-	
-	std::mutex 				_mtx_init;
-	/**
-	 *  Used to let main know that threads are ending
-	 */
-	std::condition_variable _cv_starting;
-	
-	/**
-	 *  Used to let main know that threads are ending
-	 */
-	std::condition_variable _cv_ending;	
-	
-	std::condition_variable _cv_end_iter;
-
-	std::condition_variable _cv_init;	
-	
-	Node * (*_precondition)(std::vector<Particle*>);
-	
-	void (*_get_acceleration)(int i, std::vector<Particle*> particles,Node * root);
-	
-	const double _dt;
-
-	Node * _root;
-	
-	bool (*_shouldContinue)(std::vector<Particle*> particles,int iter);
-	
 	bool _all_equal(Status s) {
 		for ( const auto &p : _thread_status )
 			if (p.second!=s) return false;
@@ -144,11 +87,93 @@ class Stepper {
 		return true;		
 	}
 	
+	/**
+	 * Test: is any status value equal to specified value?
+	 */
 	bool _exists_some_equal(Status s) {
 		for ( const auto &p : _thread_status )
 			if (p.second==s) return true;
 
 		return false;		
 	}
+	
+	std::map<std::thread::id, Status> 	_thread_status;
+	
+  	const int 							_nthreads;
+
+	/**
+	 *  Iteration Control: finish value
+	 */
+	const int 							_to;
+	
+	/**
+	 *  Iteration Control: current state
+	 */
+	int 								_iter;
+	
+	/**
+	 *  Worker threads
+	 */
+	std::thread** 						_worker;
+	
+	/**
+	 *   Index of next particle to be worked on
+	 */
+	int 								_next_index;
+	
+	/**
+	 * Used to synchronize access to state variables
+	 */
+	std::mutex 							_mutex_state;
+	
+	/**
+	 * Used to synchronize access to console for debugging
+	 */
+	std::mutex							_out_mutex;
+	
+	int 								_active_threads;
+	
+	const double 						_dt;
+
+	Node * 								_root;
+	
+	std::vector<Particle*> 				_particles;
+	
+	/**
+	 *  Used to let main know that tree has been built
+	 */
+	std::mutex 							_mtx_tree_has_been_built;
+
+	std::condition_variable 			_cv_tree_has_been_built;
+	
+	/**
+	 *  Used to let main know that threads have started
+	 */
+	std::mutex 							_mtx_starting;
+	std::condition_variable 			_cv_starting;	
+
+	/**
+	 *  Used to let main know that threads are ending
+	 */	
+	std::mutex 							_mtx_finishing;
+	std::condition_variable 			_cv_finishing;	
+
+	/**
+	 *  Used at end of an iteration, to wait until all threads have processed
+	 *  their last particle
+	 */
+	std::mutex 				_mtx_end_iter;
+	std::condition_variable _cv_end_iter;
+		
+	
+	Node * (*_precondition)(std::vector<Particle*>);
+	
+	void (*_get_acceleration)(int i, std::vector<Particle*> particles,Node * root);
+	
+
+	
+	bool (*_shouldContinue)(std::vector<Particle*> particles,int iter);
+	
+
 	
 };
