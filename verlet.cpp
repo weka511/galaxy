@@ -127,7 +127,8 @@ void run_verlet(Node * (*precondition)(std::vector<Particle*>),
 					particles,
 					precondition,
 					get_acceleration,
-					dt);
+					dt,
+					shouldContinue);
 	stepper.start();
 }
 

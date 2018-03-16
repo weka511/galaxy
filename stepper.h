@@ -20,6 +20,7 @@
  */
  
 #include <condition_variable>
+#include <map>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -29,13 +30,21 @@
 
 class Stepper {
   public:
+    enum Status {
+			FreshlyCreated,
+			Started, 
+			Waiting,
+			Restarting
+		};
+			
 	  Stepper(const int nthreads,
 				const int from,
 				const int to,
 				std::vector<Particle*> particles,
 				Node * (*precondition)(std::vector<Particle*>),
 				void (*get_acceleration)(int i, std::vector<Particle*> particles,Node * root),
-				const double dt);
+				const double dt,
+				bool (*shouldContinue)(std::vector<Particle*> particles,int iter));
 	  
 	  /**
 	   * Start processing.
@@ -53,13 +62,16 @@ class Stepper {
 	  ~Stepper() ;
 	  
   private:
-	void _increment_active_threads();
+	std::map<std::thread::id, Status> _thread_status;
 	
-	bool _shouldContinue();
+//	void _increment_active_threads();
+	
+	int _start_iteration(std::thread::id id);
+	
 	void _process(int index);
 	
   	const int 				_nthreads;
-	int 					_waiting_threads=0;
+	//int 					_waiting_threads=0;
 	int						_restarted=0;
 	/**
 	 *  Iteration Control: finish value
@@ -101,6 +113,8 @@ class Stepper {
 	std::mutex 				_mtx_ending;
 	
 	std::mutex 				_mtx_end_iter;
+	
+	std::mutex 				_mtx_init;
 	/**
 	 *  Used to let main know that threads are ending
 	 */
@@ -111,7 +125,9 @@ class Stepper {
 	 */
 	std::condition_variable _cv_ending;	
 	
-	std::condition_variable _cv_end_iter;	
+	std::condition_variable _cv_end_iter;
+
+	std::condition_variable _cv_init;	
 	
 	Node * (*_precondition)(std::vector<Particle*>);
 	
@@ -120,4 +136,21 @@ class Stepper {
 	const double _dt;
 
 	Node * _root;
+	
+	bool (*_shouldContinue)(std::vector<Particle*> particles,int iter);
+	
+	bool _all_equal(Status s) {
+		for ( const auto &p : _thread_status )
+			if (p.second!=s) return false;
+
+		return true;		
+	}
+	
+	bool _exists_some_equal(Status s) {
+		for ( const auto &p : _thread_status )
+			if (p.second!=s) return true;
+
+		return false;		
+	}
+	
 };
