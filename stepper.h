@@ -63,15 +63,13 @@ class Stepper {
 	  
   private:
 	std::map<std::thread::id, Status> _thread_status;
-	
-//	void _increment_active_threads();
-	
+
 	int _start_iteration(std::thread::id id);
 	
 	void _process(int index);
 	
   	const int 				_nthreads;
-	//int 					_waiting_threads=0;
+
 	int						_restarted=0;
 	/**
 	 *  Iteration Control: finish value
@@ -148,7 +146,7 @@ class Stepper {
 	
 	bool _exists_some_equal(Status s) {
 		for ( const auto &p : _thread_status )
-			if (p.second!=s) return true;
+			if (p.second==s) return true;
 
 		return false;		
 	}
