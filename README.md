@@ -1,11 +1,7 @@
 # galaxy
 
 Implementation of the [Barnes Hut](https://en.wikipedia.org/wiki/Barnes%E2%80%93Hut_simulation) algorithm
-to simulate the evolution of a galaxy. This code has been compiled under [Cygwin](https://www.cygwin.com/), and it currently under test.
-
-## Disclaimer
-
-This code is under test, and should not be relied on. See [Implementation Notes](#notes)
+to simulate the evolution of a galaxy. This code has been compiled under [Cygwin](https://www.cygwin.com/), and is currently under test.
 
 ## Contents
 
