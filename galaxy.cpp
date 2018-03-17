@@ -119,6 +119,8 @@ int main(int argc, char **argv) {
 			return EXIT_SUCCESS;
 		} else {
 			logger->error("Terminating: failed to parse command line parameters.");
+			for (int i=0;i<argc;i++)
+				logger->info(argv[i]);
 			return EXIT_FAILURE;
 		}
 		
