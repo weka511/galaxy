@@ -50,3 +50,4 @@ to simulate the evolution of a galaxy. This code has been compiled under [Cygwin
 |13&nbsp;Feb&nbsp;18| I am logging parameters, so can now investigate dependence of energy anomaly on dt, softening, and theta. I'm also doing some long runs to study long-term behaviour.|
 |26 Feb 18| The kinetic energy and potential energy aren't following Virial theorem very well. I will check mass distribution first.|
 |17&nbsp;Mar&nbsp;18| After a week of development I now have a multithreaded version. I don't think I'd have started if I'd realized how much work it was. Just doing a few time comparisons. Later: very disappointing - multi-threaded is slower than single threaded.| 
+|18 Mar 18|What if there many more than 1000 bodies? We possibly need the accelaration calculation to be mauch loner to see the benefit of threads? Test this today.|
