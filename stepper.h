@@ -82,9 +82,9 @@ class Stepper {
 	  
   private:
 
-  /**
-	*  Build tree at start of each iteration
-	*/
+    /**
+	 *  Build tree at start of each iteration
+	 */
 	int _start_iteration(std::thread::id id);
 
 	/**

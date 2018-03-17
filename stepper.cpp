@@ -233,7 +233,6 @@ void Stepper::step() {
 }
 
 
-
 /**
 * Dispose of threads
 */	  
