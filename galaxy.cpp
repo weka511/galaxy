@@ -43,8 +43,6 @@ namespace spd = spdlog;
 
 Configuration configuration;
 
-
-
 /**
  * Main program. Parse command line options, create bodies, then run simulation.
  */
@@ -135,7 +133,7 @@ int main(int argc, char **argv) {
  * Used after iteration to write out data
 */
 bool report_all(std::vector<Particle*> particles,int iter){
-	std::cout << __FILE__ << " " <<__LINE__ << " " <<iter <<std::endl;
+	spdlog::get("galaxy")->info("{0} {1} : {2} ",__FILE__,__LINE__ ,iter);
 	report_energy(particles,iter);
 	configuration.report_configuration(particles,iter);
 	return !killed();

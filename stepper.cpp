@@ -24,7 +24,11 @@
  #include <iostream>
  #include "stepper.h"
  #include "verlet.h"
- 
+ #include "spdlog/spdlog.h"
+
+
+namespace spd = spdlog;
+
  /**
   * Create worker threads and initialize state
   */
@@ -45,12 +49,9 @@ Stepper::Stepper(const int nthreads,
 		_get_acceleration(get_acceleration),
 		_dt(dt),
 		_root(NULL),
-		_shouldContinue(shouldContinue),
-		_active_threads(0)					{
+		_shouldContinue(shouldContinue)	{
 	_worker = new std::thread*[_nthreads];
-	_out_mutex.lock();
-		std::cout << "Processing " << particles.size() << " particles" << std::endl;
-	_out_mutex.unlock();
+	std::cout << "Processing " << particles.size() << " particles" << std::endl;
 }
 
 /**
@@ -67,23 +68,20 @@ void Stepper::start(){
 	
 	std::unique_lock<std::mutex> lck_starting(_mtx_starting);
     _cv_starting.wait(lck_starting,[this]{return this->_exists_some_equal(Started);});
-	_out_mutex.lock();
-		for  (int i=0;i<_nthreads;i++){
-			std::thread::id id=_worker[i]->get_id();
-			std::cout<<__FILE__ << " "<< __LINE__ << 
-			" " << id << " "<<_thread_status[id]<< std::endl;
-		}
-	_out_mutex.unlock();
+
+	for  (int i=0;i<_nthreads;i++){
+		std::thread::id id=_worker[i]->get_id();
+		spdlog::get("galaxy")->info("{0} {1} {2} {3}",
+								__FILE__,__LINE__ ,_thread_index(id),_thread_status[id]);
+	}
 	
 	std::unique_lock<std::mutex> lck_finishing(_mtx_finishing);
 	_cv_finishing.wait(lck_finishing,[this]{return this->_all_equal(Finishing);});
-	_out_mutex.lock();
-		for  (int i=0;i<_nthreads;i++){
-			std::thread::id id=_worker[i]->get_id();
-			std::cout<<__FILE__ << " "<< __LINE__ << 
-			" " << id << " "<<_thread_status[id]<< std::endl;
-		}
-	_out_mutex.unlock();
+	for  (int i=0;i<_nthreads;i++){
+		std::thread::id id=_worker[i]->get_id();
+		spdlog::get("galaxy")->info("{0} {1} {2} {3}",
+								__FILE__,__LINE__ ,_thread_index(id),_thread_status[id]);
+	}
 }
 
 /**
@@ -124,38 +122,33 @@ int Stepper::_start_iteration(std::thread::id id) {
 	return index;
 }  
 void Stepper::step() {
-	_mutex_state.lock();
-		_active_threads++;
-	_mutex_state.unlock();
+	
 	int index=-1;
 	std::thread::id id=std::this_thread::get_id();
 	_thread_status[id]=FreshlyCreated;
 	
 	while (_iter<_to) {  // need to set index to 0 at end of iteration
-		// _out_mutex.lock();
-			// std::cout<<__FILE__ << " "<< __LINE__ << 
-			// " " << id <<" "<< _iter<< " " << _to << " "<<_thread_status[id]<< std::endl;
-		// _out_mutex.unlock();
+		spdlog::get("galaxy")->info("{0} {1} {2} {3}: {4}<{5}",
+									__FILE__,__LINE__ ,	_thread_index(id),_thread_status[id],
+									_iter, _to );
+
 		switch(_thread_status[id]) {
 			case FreshlyCreated:
 				index=_start_iteration(id);
-				break;
-			case Started:
-				break; 
-			case Waiting:
 				break;
 			case Restarting:
 				index =_start_iteration(id);
 				break;
 			default:
-				_out_mutex.lock();
-					std::cout<<__FILE__ << " "<< __LINE__ << 
-					" unexpected state " << _thread_status[id]<< std::endl;
-				_out_mutex.unlock();
+				spdlog::get("galaxy")->info("{0} {1} {2} {3}: unexpected",
+									__FILE__,__LINE__ ,_thread_index(id),_thread_status[id]);
 		};
 
-		_out_mutex.unlock();
 		while (index<_particles.size()) {
+			spdlog::get("galaxy")->info("{0} {1} {2} {3}: {4}<{5} ",
+										__FILE__,__LINE__ ,_thread_index(id),_thread_status[id], 
+										index,_particles.size());
+			
 			_process(index);
 			_mutex_state.lock();
 				index = _next_index;
@@ -175,10 +168,8 @@ void Stepper::step() {
 
 				if (!_shouldContinue(_particles,_iter))   {
 					_thread_status[id]=Finishing;
-					_out_mutex.lock();
-						std::cout<<__FILE__ << " "<< __LINE__ << 
-						" " << id <<_thread_status[id]<< std::endl;
-					_out_mutex.unlock();
+					spdlog::get("galaxy")->info("{0} {1} {2} {3}: ",
+										__FILE__,__LINE__ ,_thread_index(id),_thread_status[id]);
 					_mutex_state.unlock();
 					_cv_finishing.notify_all();
 					_cv_end_iter.notify_all();
@@ -200,10 +191,8 @@ void Stepper::step() {
 			_mutex_state.lock();
 				if (this->_exists_some_equal(Finishing)){
 					_thread_status[id]=Finishing;
-					_out_mutex.lock();
-						std::cout<<__FILE__ << " "<< __LINE__ << 
-						" " << id <<_thread_status[id]<< std::endl;
-					_out_mutex.unlock();
+					spdlog::get("galaxy")->info("{0} {1} {2} {3}",
+									__FILE__,__LINE__ ,_thread_index(id),_thread_status[id]);
 					_mutex_state.unlock();
 					_cv_finishing.notify_all();
 					return;
@@ -216,19 +205,15 @@ void Stepper::step() {
 		
 	}
 
-	_out_mutex.lock();
-		std::cout<<__FILE__ << " "<< __LINE__ << 
-		" " << id <<" "<< _iter<< " " << _to << " "<<_thread_status[id]<< std::endl;
-	_out_mutex.unlock();
+	spdlog::get("galaxy")->info("{0} {1} {2} {3}: {4} {5}",
+									__FILE__,__LINE__ ,_thread_index(id),_thread_status[id],_iter, _to);
 	
 	_mutex_state.lock();
 		_thread_status[id]=Finishing;
 	_mutex_state.unlock();
 
-	_out_mutex.lock();
-		std::cout<<__FILE__ << " "<< __LINE__ << 
-		" " << id <<" "<< _iter<< " " << _to << " "<<_thread_status[id]<< std::endl;
-	_out_mutex.unlock();
+	spdlog::get("galaxy")->info("{0} {1} {2} {3}: {4} {5}",
+									__FILE__,__LINE__ ,_thread_index(id),_thread_status[id],_iter,_to);
 	
 	_cv_finishing.notify_all();
 }
@@ -244,9 +229,8 @@ Stepper::~Stepper() {
 		delete _root;
 
 	for (int i=0;i<_nthreads;i++){
-		_out_mutex.lock();
-			std::cout << "joining " << i <<std::endl;
-		_out_mutex.unlock();
+		spdlog::get("galaxy")->info("{0} {1} {2}",
+									__FILE__,__LINE__ ,i);
 		_worker[i]->join();
 	}
 	for (int i=0;i<_nthreads;i++)

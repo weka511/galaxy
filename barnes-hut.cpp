@@ -37,6 +37,11 @@
 	delete root;
 }
 
+/**
+ *  Construct oct-tree from particles
+ *
+ *    particles
+ */
 Node * create_tree(std::vector<Particle*>& particles) {
 	assert(Node::_count==0 && "Oct Tree should have been removed at end of previous call"); 
 	Node * product=Node::create(particles);
@@ -46,6 +51,9 @@ Node * create_tree(std::vector<Particle*>& particles) {
 	return product;
 }
 
+/**
+ * Calculate acceleration for one specific particle
+ */
 void get_acceleration(int i, std::vector<Particle*>& particles,Node * root,const double theta,const double G,const double a) {
 	BarnesHutVisitor visitor(i,particles[i],theta,G,a);
 	root->visit(visitor);

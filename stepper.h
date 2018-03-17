@@ -97,6 +97,14 @@ class Stepper {
 		return false;		
 	}
 	
+	int _thread_index(std::thread::id id) {
+		int i=0;
+		for ( const auto &p : _thread_status )
+			if (p.first==id)
+				return i;
+			else i++;
+		return -1;
+	} 
 	std::map<std::thread::id, Status> 	_thread_status;
 	
   	const int 							_nthreads;
@@ -125,13 +133,6 @@ class Stepper {
 	 * Used to synchronize access to state variables
 	 */
 	std::mutex 							_mutex_state;
-	
-	/**
-	 * Used to synchronize access to console for debugging
-	 */
-	std::mutex							_out_mutex;
-	
-	int 								_active_threads;
 	
 	const double 						_dt;
 

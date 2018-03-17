@@ -28,8 +28,16 @@
  */
 void get_acceleration(std::vector<Particle*>&,const double theta,const double G,const double softening_length);
 
+/**
+ *  Construct oct-tree from particles
+ *
+ *    particles
+ */
 Node * create_tree(std::vector<Particle*>& particles);
 
+/**
+ * Calculate acceleration for one specific particle
+ */
 void get_acceleration(int i, std::vector<Particle*>& particles,Node * root,const double theta,const double G,const double a);
 
 /**
@@ -41,9 +49,15 @@ class BarnesHutVisitor :  public Node::Visitor{
   public:
    /**
    * Initialize BarnesHutVisitor for a specific particle
+   *
+   *  index   Keep track of particle index so we don't calculate acceleration of particle caused by itself!
+   *  me      Particle being processed
+   *  theta   Angle for Barnes G=Hut cutoff
+   *  G       Gravitational constant
+   *  a       Softening length
    */
-	BarnesHutVisitor(const int index,Particle* me,const double theta, const double G,const double softening_length) :
-	  _me(me),_theta_squared(sqr(theta)),_G(G),_acc_x(0),_acc_y(0),_acc_z(0),_index(index),_a(softening_length) {
+	BarnesHutVisitor(const int index,Particle* me,const double theta, const double G,const double a) :
+	  _me(me),_theta_squared(sqr(theta)),_G(G),_acc_x(0),_acc_y(0),_acc_z(0),_index(index),_a(a) {
 		_me->getPos(_x,_y,_z);
 	}
 	
@@ -94,6 +108,7 @@ class BarnesHutVisitor :  public Node::Visitor{
 	 * Softening length
 	 */
 	const double _a;
+	
 	/**
 	 * We accumulate the acceleration here
 	 */
