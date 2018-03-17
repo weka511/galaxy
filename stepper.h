@@ -34,17 +34,26 @@ class Stepper {
 	 *  Status of a thread
 	 */
     enum Status {
-			FreshlyCreated,
-			Started, 
-			Waiting,
-			Restarting,
+			FreshlyCreated, // => Started
+			Started, 		// => Waiting
+			Waiting,		// => Restarting || Finishing	
+			Restarting,     // => Started
 			Finishing
 		};
 		
 	/**
 	 * Create worker threads and initialize state
+	 *
+	 *  	nthreads			Number of threads
+	 *  	from                Starting value for iterations
+	 *  	to                  Final value for iterations
+	 *      particles           The particles to be processed
+	 *      precondition 		Used to build tree       
+	 *      get_acceleration    Used to calculate acceleration of each particle
+	 *      dt					Time interval
+	 *      shouldContinue      Report results and decide whether to continue
 	 */		
-	  Stepper(const int nthreads,
+	  Stepper(  const int nthreads,
 				const int from,
 				const int to,
 				std::vector<Particle*> particles,
@@ -66,6 +75,9 @@ class Stepper {
 	   */
 	  void step();
 	  
+	  /**
+	   * Dispose of threads
+	   */
 	  ~Stepper() ;
 	  
   private:
@@ -105,8 +117,15 @@ class Stepper {
 			else i++;
 		return -1;
 	} 
+	
+	/**
+	 *   Controls behaviour
+	 */
 	std::map<std::thread::id, Status> 	_thread_status;
 	
+	/**
+	 *   Number of threads
+	 */
   	const int 							_nthreads;
 
 	/**
@@ -134,10 +153,19 @@ class Stepper {
 	 */
 	std::mutex 							_mutex_state;
 	
+	/**
+	 * Time interval
+	 */
 	const double 						_dt;
 
+	/**
+	 *  The octree
+	 */
 	Node * 								_root;
 	
+	/**
+	 *  Particles to be processes
+	 */
 	std::vector<Particle*> 				_particles;
 	
 	/**
@@ -166,13 +194,19 @@ class Stepper {
 	std::mutex 				_mtx_end_iter;
 	std::condition_variable _cv_end_iter;
 		
-	
+	/**
+	 *  Used to build tree
+	 */
 	Node * (*_precondition)(std::vector<Particle*>);
 	
+	/**
+	 *  Used to calculate acceleration of each particle
+	 */
 	void (*_get_acceleration)(int i, std::vector<Particle*> particles,Node * root);
 	
-
-	
+	/**
+	 *    Report results and decide whether to continue
+	 */
 	bool (*_shouldContinue)(std::vector<Particle*> particles,int iter);
 	
 

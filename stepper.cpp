@@ -31,7 +31,16 @@ namespace spd = spdlog;
 
  /**
   * Create worker threads and initialize state
-  */
+  *
+  *  	nthreads			Number of threads
+  *  	from                Starting value for iterations
+  *  	to                  Final value for iterations
+  *      particles           The particles to be processed
+  *      precondition 		Used to build tree       
+  *      get_acceleration    Used to calculate acceleration of each particle
+  *      dt					Time interval
+  *      shouldContinue      Report results and decide whether to continue
+  */		
 Stepper::Stepper(const int nthreads, 
 				const int from,
 				const int to,
@@ -120,7 +129,11 @@ int Stepper::_start_iteration(std::thread::id id) {
 		
 	_mutex_state.unlock();
 	return index;
-}  
+}
+
+/**
+ * Step through all the work that needs to be done
+ */
 void Stepper::step() {
 	
 	int index=-1;
@@ -229,7 +242,9 @@ void Stepper::_process(int index) {
 }
 
 
-	  
+/**
+* Dispose of threads
+*/	  
 Stepper::~Stepper() {
 	if (_root!=NULL)
 		delete _root;
