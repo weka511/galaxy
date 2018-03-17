@@ -37,6 +37,7 @@ This code is under test, and should not be relied on. See [Implementation Notes]
 | test-random.cpp| | Test for Various random number generators |
 | test-tree.cpp| | Test treecode |
 | threading.cpp || Test to determine whether threads can speed up code |
+| timing.sh || Script to determine execution times |
 | treecode.cpp | treecode.h | Barnes-Hut Tree|
 | utils.cpp | utils.h | Assorted utility functions|
 | verlet.cpp | verlet.h | [Verlet "leapfrog"](http://physics.ucsc.edu/~peter/242/leapfrog.pdf) integrator|
