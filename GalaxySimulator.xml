@@ -1,5 +1,9 @@
 <NotepadPlus>
-    <Project name="Galaxy Simulator">
+    <Project name="General">
+        <File name="Makefile" />
+        <File name="README.md" />
+    </Project>
+    <Project name="Galaxy">
         <File name="barnes-hut.cpp" />
         <File name="barnes-hut.h" />
         <File name="catch.hpp" />
@@ -9,13 +13,11 @@
         <File name="configs.h" />
         <File name="galaxy.cpp" />
         <File name="galaxy.h" />
-        <File name="Makefile" />
         <File name="particle.h" />
         <File name="physics.cpp" />
         <File name="physics.h" />
         <File name="plummer.cpp" />
         <File name="plummer.h" />
-        <File name="README.md" />
         <File name="stepper.cpp" />
         <File name="stepper.h" />
         <File name="treecode.cpp" />
