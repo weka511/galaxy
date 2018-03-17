@@ -22,18 +22,18 @@ CC=gcc
 CXX=g++
 RM=rm -f
 MKDIR=mkdir
-SRCS=	barnes-hut.cpp		\
-		center-of-mass.cpp	\
-		configs.cpp			\
-		factory.cpp			\
-		mt.cc				\
-		particle-factory.cpp\
-		physics.cpp         \
-		plummer.cpp			\
-		stepper.cpp			\
-		tinyxml2.cpp		\
-		treecode.cpp		\
-		utils.cpp			\
+SRCS=	barnes-hut.cpp			\
+		center-of-mass.cpp		\
+		configs.cpp				\
+		factory.cpp				\
+		mt.cc					\
+		particle-factory.cpp	\
+		physics.cpp         	\
+		plummer.cpp				\
+		stepper.cpp				\
+		tinyxml2.cpp			\
+		treecode.cpp			\
+		utils.cpp				\
 		verlet.cpp
 
 TESTS= 	test-kepler.cpp			\

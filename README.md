@@ -21,11 +21,13 @@ to simulate the evolution of a galaxy. This code has been compiled under [Cygwin
 | mt.cc |mt.h| Mersenne twister|
 | mtex.cc || Test code for Mersenne twister |
 | mttest.cc || Test code for Mersenne twister  |
+| particle-factory.cpp | particle-factory.h | Create particles as specified by an XML file |
 || particles.h | Represents the particles whose motion is being simulated|
 | physics.cpp| physics.h |Physical constants, law of gravitation, etc|
 | plummer.cpp | plummer.h |Factory for creating particles |
 | plot_orbits.py || Select a few stars at random and plot their orbits |
 | |spdlog| Header files for [spdlog](https://github.com/gabime/spdlog) super fast C++ logging library.|
+| tinyxml2.cpp | tinyxml2.h |[Lee Thomason's XML Parser](http://www.grinninglizard.com/tinyxml/)|
 | stepper.cpp| stepper.h | A class to support multi -threading |
 | tests.cpp || Test harness |
 | test-kepler.cpp| | Test for Kepler problem |

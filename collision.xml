@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<system name="Collision">
-	<system name="1st Galaxy" pos="0,0,0"/>
-	<system name="2nd Galaxy" pos="5,0,0"/>
+<system name="Collision" model="plummer">
+	<system name="1st Galaxy" pos="0,0,0" vel="0,0,0" numbodies=1000/>
+	<system name="2nd Galaxy" pos="5,0,0" vel="-1,0,0" numbodies=1000/>
 </system>

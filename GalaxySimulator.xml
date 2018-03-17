@@ -20,8 +20,6 @@
         <File name="plummer.h" />
         <File name="stepper.cpp" />
         <File name="stepper.h" />
-        <File name="tinyxml2.cpp" />
-        <File name="tinyxml2.h" />
         <File name="treecode.cpp" />
         <File name="treecode.h" />
         <File name="utils.cpp" />
@@ -59,5 +57,9 @@
     </Project>
     <Project name="Spikes">
         <File name="threading.cpp" />
+    </Project>
+    <Project name="TinyXML2">
+        <File name="tinyxml2.cpp" />
+        <File name="tinyxml2.h" />
     </Project>
 </NotepadPlus>
