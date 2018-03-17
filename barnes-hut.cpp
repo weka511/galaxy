@@ -59,8 +59,20 @@ void get_acceleration(int i, std::vector<Particle*>& particles,Node * root,const
 	root->visit(visitor);
 	visitor.store_accelerations();
 } 
- 
 
+/**
+* Initialize BarnesHutVisitor for a specific particle
+*
+*  index   Keep track of particle index so we don't calculate acceleration of particle caused by itself!
+*  me      Particle being processed
+*  theta   Angle for Barnes G=Hut cutoff
+*  G       Gravitational constant
+*  a       Softening length
+*/ 
+BarnesHutVisitor::BarnesHutVisitor(const int index,Particle* me,const double theta, const double G,const double a) :
+  _me(me),_theta_squared(sqr(theta)),_G(G),_acc_x(0),_acc_y(0),_acc_z(0),_index(index),_a(a) {
+	_me->getPos(_x,_y,_z);
+}
 
 /**
  * Used to accumulate accelerations for each node

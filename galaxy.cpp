@@ -91,7 +91,8 @@ int main(int argc, char **argv) {
 						particles,
 						&report_all,
 						start_iterations);
-			else //void (*get_acceleration)(int i, std::vector<Particle*>& particles,Node * root),
+			else {
+				spdlog::set_async_mode(1024);
 				run_verlet(
 						[](	std::vector<Particle*> particles)->Node*{create_tree(particles);},
 						[](	int i,std::vector<Particle*> particles,Node* root)->
@@ -107,7 +108,7 @@ int main(int argc, char **argv) {
 						&report_all,
 						start_iterations,
 						configuration.get_n_threads());
-						
+			}		
 			auto end = std::chrono::system_clock::now();
 		 
 			std::chrono::duration<double> elapsed_seconds = end-start;
@@ -133,7 +134,7 @@ int main(int argc, char **argv) {
  * Used after iteration to write out data
 */
 bool report_all(std::vector<Particle*> particles,int iter){
-	spdlog::get("galaxy")->info("{0} {1} : {2} ",__FILE__,__LINE__ ,iter);
+	// spdlog::get("galaxy")->info("{0} {1} : {2} ",__FILE__,__LINE__ ,iter);
 	report_energy(particles,iter);
 	configuration.report_configuration(particles,iter);
 	return !killed();

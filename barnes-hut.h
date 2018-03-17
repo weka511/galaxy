@@ -56,10 +56,7 @@ class BarnesHutVisitor :  public Node::Visitor{
    *  G       Gravitational constant
    *  a       Softening length
    */
-	BarnesHutVisitor(const int index,Particle* me,const double theta, const double G,const double a) :
-	  _me(me),_theta_squared(sqr(theta)),_G(G),_acc_x(0),_acc_y(0),_acc_z(0),_index(index),_a(a) {
-		_me->getPos(_x,_y,_z);
-	}
+	BarnesHutVisitor(const int index,Particle* me,const double theta, const double G,const double a);
 	
 	/**
 	 * Used to accumulate accelerations for each node

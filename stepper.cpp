@@ -128,9 +128,9 @@ void Stepper::step() {
 	_thread_status[id]=FreshlyCreated;
 	
 	while (_iter<_to) {  // need to set index to 0 at end of iteration
-		spdlog::get("galaxy")->info("{0} {1} {2} {3}: {4}<{5}",
-									__FILE__,__LINE__ ,	_thread_index(id),_thread_status[id],
-									_iter, _to );
+		// spdlog::get("galaxy")->info("{0} {1} {2} {3}: {4}<{5}",
+									// __FILE__,__LINE__ ,	_thread_index(id),_thread_status[id],
+									// _iter, _to );
 
 		switch(_thread_status[id]) {
 			case FreshlyCreated:
@@ -145,15 +145,16 @@ void Stepper::step() {
 		};
 
 		while (index<_particles.size()) {
-			spdlog::get("galaxy")->info("{0} {1} {2} {3}: {4}<{5} ",
-										__FILE__,__LINE__ ,_thread_index(id),_thread_status[id], 
-										index,_particles.size());
+			// spdlog::get("galaxy")->info("{0} {1} {2} {3}: {4}<{5} ",
+										// __FILE__,__LINE__ ,_thread_index(id),_thread_status[id], 
+										// index,_particles.size());
 			
 			_process(index);
 			_mutex_state.lock();
 				index = _next_index;
 				_next_index++;
 			_mutex_state.unlock();
+			std::this_thread::yield();
 		}
 		_mutex_state.lock();
 			_thread_status[id]=Waiting;
@@ -219,7 +220,12 @@ void Stepper::step() {
 }
 
 void Stepper::_process(int index) {
+	// std::thread::id id=std::this_thread::get_id();
+	// spdlog::get("galaxy")->info("{0} {1} {2} {3}: {4} {5}",
+									// __FILE__,__LINE__ ,_thread_index(id),_thread_status[id],_iter,_to);
 	_get_acceleration(index,_particles,_root);
+	// spdlog::get("galaxy")->info("{0} {1} {2} {3}: {4} {5}",
+									// __FILE__,__LINE__ ,_thread_index(id),_thread_status[id],_iter,_to);
 }
 
 
