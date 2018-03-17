@@ -86,8 +86,6 @@ class Stepper {
 	*  Build tree at start of each iteration
 	*/
 	int _start_iteration(std::thread::id id);
-	
-	void _process(int index);
 
 	/**
 	 * Test: are all status values equal to specified value?

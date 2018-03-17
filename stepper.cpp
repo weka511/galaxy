@@ -162,7 +162,7 @@ void Stepper::step() {
 										// __FILE__,__LINE__ ,_thread_index(id),_thread_status[id], 
 										// index,_particles.size());
 			
-			_process(index);
+			_get_acceleration(index,_particles,_root);
 			_mutex_state.lock();
 				index = _next_index;
 				_next_index++;
@@ -232,14 +232,6 @@ void Stepper::step() {
 	_cv_finishing.notify_all();
 }
 
-void Stepper::_process(int index) {
-	// std::thread::id id=std::this_thread::get_id();
-	// spdlog::get("galaxy")->info("{0} {1} {2} {3}: {4} {5}",
-									// __FILE__,__LINE__ ,_thread_index(id),_thread_status[id],_iter,_to);
-	_get_acceleration(index,_particles,_root);
-	// spdlog::get("galaxy")->info("{0} {1} {2} {3}: {4} {5}",
-									// __FILE__,__LINE__ ,_thread_index(id),_thread_status[id],_iter,_to);
-}
 
 
 /**
