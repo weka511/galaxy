@@ -21,8 +21,9 @@
 #include <iomanip>
 #include <memory>
 #include <stdexcept>
-
+#include <iostream>
 #include "configs.h"
+#include "particle-factory.h"
 #include "physics.h"
 #include "spdlog/spdlog.h"
 
@@ -134,6 +135,9 @@ bool Configuration::extract_options(int argc, char **argv) {
 		
 	if (!ends_with(_path,"/"))
 		_path.append("/");
+	
+	if (optind<argc)
+		_initial_configuration_file=argv[optind];
 
 	logger->info("Random number seed={0}", _seed);	
 	
@@ -144,6 +148,10 @@ bool Configuration::extract_options(int argc, char **argv) {
   * Create all bodies needed at start of run
   */
  std::vector<Particle*>  Configuration::createParticles( ){
+	 if (_initial_configuration_file.length()>0){
+		ParticleFactory pf;
+		pf.create(_initial_configuration_file);
+	}
 	Factory * factory=_createFactory();
 	std::vector<Particle*> product=factory->create();
 	spdlog::get("galaxy")->info("{0} {1}: initialized {2} bodies.",__FILE__,__LINE__,_numbodies);

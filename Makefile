@@ -27,9 +27,11 @@ SRCS=	barnes-hut.cpp		\
 		configs.cpp			\
 		factory.cpp			\
 		mt.cc				\
+		particle-factory.cpp\
 		physics.cpp         \
 		plummer.cpp			\
 		stepper.cpp			\
+		tinyxml2.cpp		\
 		treecode.cpp		\
 		utils.cpp			\
 		verlet.cpp

@@ -175,6 +175,8 @@ class Configuration {
 	
 	int _n_threads					= 0;
 	
+	std::string _initial_configuration_file ="";
+	
 };
 
  
