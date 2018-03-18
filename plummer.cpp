@@ -21,7 +21,7 @@
 #include "physics.h"
 
 PlummerFactory::PlummerFactory(const int numbodies,const double ini_radius, const double a, const double M, long int seed) 
- : 	_numbodies(numbodies),
+ : 	Factory(numbodies),
 	_ini_radius(ini_radius),
 	_a(a),
 	_M(M) {
@@ -33,7 +33,7 @@ PlummerFactory::PlummerFactory(const int numbodies,const double ini_radius, cons
  */	
 std::vector<Particle*>  PlummerFactory::create(){
 	std::vector<Particle*> product;
-	for (int i=0;i<_numbodies;i++) {
+	for (int i=0;i<getNumbodies();i++) {
 		const double radius=_ini_radius*_a / ( std::sqrt(std::pow(_mt.random(),-(2.0/3.0))-1.0) ); 
         double x; double y; double z;
 		_randomize_theta_phi(radius,x,y,z);
@@ -41,7 +41,7 @@ std::vector<Particle*>  PlummerFactory::create(){
 		double vx; double vy;double vz  ;
 		_randomize_theta_phi(_sample_velocity(radius),vx,vy,vz);
 
-        product.push_back( new Particle( x, y, z, vx, vy,vz, _M/_numbodies) );
+        product.push_back( new Particle( x, y, z, vx, vy,vz, _M/getNumbodies()) );
     }
 
 	return product;

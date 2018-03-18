@@ -27,10 +27,9 @@ std::vector<Particle*> ParticleFactory::create(std::string name){
 	std::vector<Particle*> product;
 	tinyxml2::XMLDocument doc;
     doc.LoadFile( name.c_str() );
-	// doc.Print();
-	// std::cout << __FILE__ <<", " <<__LINE__<<std::endl; 
+
 	tinyxml2::XMLElement * system=doc.RootElement();
-	// std::cout<<system->Name()<<":" << system->Attribute("name")<<std::endl;
+
 	product.reserve(_count_bodies(system));
 	for (tinyxml2::XMLElement * element=system->FirstChildElement();
 			element!=NULL;
@@ -45,7 +44,7 @@ std::vector<Particle*> ParticleFactory::create(std::string name){
 		_fix_centre_mass_and_linear_momentum(cluster,x,y,x,vx,vy,vz);
 		product.insert( product.end(), cluster.begin(), cluster.end() );
 	}
-//	product=_factory->create();
+
 	return product;
 }
 

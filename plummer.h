@@ -47,10 +47,7 @@ class PlummerFactory : public Factory {
 	 */
 	double 			_sample_velocity(const double radius);
 	
-	/**
-	 * Number of bodies 
-	 */
-	const int    	_numbodies;
+
 	
 	/**
 	 * Initially, the bodies are distributed inside a sphere of radius ini_radius.

@@ -2,15 +2,17 @@
     <Project name="General">
         <File name="Makefile" />
         <File name="README.md" />
+        <File name="collision.xml" />
     </Project>
     <Project name="Galaxy">
         <File name="barnes-hut.cpp" />
         <File name="barnes-hut.h" />
-        <File name="catch.hpp" />
         <File name="center-of-mass.cpp" />
         <File name="center-of-mass.h" />
         <File name="configs.cpp" />
         <File name="configs.h" />
+        <File name="factory.cpp" />
+        <File name="factory.h" />
         <File name="galaxy.cpp" />
         <File name="galaxy.h" />
         <File name="particle.h" />
@@ -35,6 +37,7 @@
         <File name="test-plummer.cpp" />
         <File name="test-tree.cpp" />
         <File name="test-random.cpp" />
+        <File name="catch.hpp" />
     </Project>
     <Project name="Helpers">
         <File name="make_3d.py" />

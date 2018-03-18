@@ -36,6 +36,19 @@ class Factory {
 	double zero_centre_mass(std::vector<Particle*> particles);
 	
 	void zero_linear_momentum(std::vector<Particle*> particles,double total_mass);
+	
+	void setNumBodies(int numbodies) {_numbodies=numbodies;}
+	
+	int getNumbodies() {return _numbodies;}
+	
+  protected:
+    Factory (int numbodies) : _numbodies(numbodies){;}
+	
+  private:	
+	/**
+	 * Number of bodies 
+	 */
+	 int    	_numbodies;
 };
 
 
