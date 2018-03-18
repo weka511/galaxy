@@ -23,6 +23,7 @@ I am grateful to the following people who have geneously donated code to the com
 | barnes-hut.cpp |barnes-hut.h| Calculate accelerations using Barnes Hut|
 | |catch.hpp | [Catch2](https://github.com/catchorg/Catch2) Unit testing framework |
 | center-of-mass.cpp |center-of-mass.h| Find centre of mass for internal nodes|
+| collision.xml||Parameter file to set up for colliding galaxies |
 | configs.cpp | configs.h| Configuration management |
 | factory.cpp | factory.h| Abstract Factory for creating configurations of particles |
 | galaxy.cpp |galaxy.h| Simulate Galaxy using Barnes Hut|
