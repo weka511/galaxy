@@ -151,17 +151,15 @@ bool Configuration::extract_options(int argc, char **argv) {
 	std::vector<Particle*> product;
 	Factory * factory=_createFactory();
 	if (_initial_configuration_file.length()>0){
-		std::cout << __FILE__ <<", " <<__LINE__<<std::endl; 
 		ParticleFactory pf(factory);
 		product= pf.create(_initial_configuration_file);
 	} else {
-		std::cout << __FILE__ <<", " <<__LINE__<<std::endl; 
 		product=factory->create();
 		spdlog::get("galaxy")->info("{0} {1}: initialized {2} bodies.",__FILE__,__LINE__,_numbodies);
 
 		zero_centre_mass_and_linear_momentum(product,0);		
 	}
-	std::cout << __FILE__ <<", " <<__LINE__<<std::endl; 
+
 	delete factory;
 	return product;
  }
