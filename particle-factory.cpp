@@ -39,7 +39,7 @@ std::vector<Particle*> ParticleFactory::create(std::string name){
 		_get_attr(element,"pos",x,y,z);
 		double vx,vy,vz;
 		_get_attr(element,"vel",vx,vy,vz);
-//		_factory->setNumBodies(numbodies);   FIXME
+		_factory->setNumBodies(numbodies);
 		std::vector<Particle*> cluster=_factory->create();
 		_fix_centre_mass_and_linear_momentum(cluster,x,y,x,vx,vy,vz);
 		product.insert( product.end(), cluster.begin(), cluster.end() );
