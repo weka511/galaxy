@@ -94,6 +94,10 @@ class Configuration {
 	
 	inline int get_n_threads() {return _n_threads;}
 	
+	void setNumBodies(int value){
+		_numbodies=value;
+	}
+	
  private:
  
 	/**

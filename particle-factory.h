@@ -23,10 +23,17 @@
 #include <string>
 #include <vector>
 #include "particle.h"
+#include "configs.h"
+#include "tinyxml2.h"
 
 class ParticleFactory {
   public:
+	ParticleFactory(Factory * factory) : _factory(factory) {}
 	std::vector<Particle*> create(std::string name);
+  private:
+	Factory * _factory;
+	int _get_attr(tinyxml2::XMLElement * element,std::string name,const int default_value=-1);
+	void _get_attr(tinyxml2::XMLElement * element,std::string name,double &x,double &y,double &z);
 };
 
 #endif
