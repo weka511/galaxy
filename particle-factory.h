@@ -34,6 +34,9 @@ class ParticleFactory {
 	Factory * _factory;
 	int _get_attr(tinyxml2::XMLElement * element,std::string name,const int default_value=-1);
 	void _get_attr(tinyxml2::XMLElement * element,std::string name,double &x,double &y,double &z);
+	int _count_bodies(tinyxml2::XMLElement * system );
+	void _fix_centre_mass_and_linear_momentum(std::vector<Particle*> particles,
+	double cx, double yc, double zc,double vcx, double vyc, double vzc);
 };
 
 #endif
