@@ -5,6 +5,8 @@ to simulate the evolution of a galaxy. This code has been compiled under [Cygwin
 
 ## Acknowledgements
 
+I learned about the Barnes Hut Algorithm from the [Simulation and modeling of natural processes](https://www.coursera.org/learn/modeling-simulation-natural-processes/home/info) from the University of Geneva.
+
 I am grateful to the following people who have geneously donated code to the community.
 
 * Martin Hořeňovský for the [_Catch2_ Unit testing framework](https://github.com/catchorg/Catch2)
