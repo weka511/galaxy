@@ -1,7 +1,17 @@
 # galaxy
 
 Implementation of the [Barnes Hut](https://en.wikipedia.org/wiki/Barnes%E2%80%93Hut_simulation) algorithm
-to simulate the evolution of a galaxy. This code has been compiled under [Cygwin](https://www.cygwin.com/), and is currently under test.
+to simulate the evolution of a galaxy. This code has been compiled under [Cygwin](https://www.cygwin.com/).
+
+## Acknowledgements
+
+I am grateful to the following people who have geneously donated code to the community.
+
+* Martin Hořeňovský for the [_Catch2_ Unit testing framework](https://github.com/catchorg/Catch2)
+* Gabi Melman for the [_spdlog_ Fast C++ Logging Library](https://github.com/gabime/spdlog)
+* Lee Thomason for the [_TinyXML2_ XML Parser](http://www.grinninglizard.com/tinyxml/)
+
+*NB* Their source code is available under whichever licences the autors have used. It is not covered by the license for the galaxy package.
 
 ## Contents
 
@@ -53,4 +63,4 @@ to simulate the evolution of a galaxy. This code has been compiled under [Cygwin
 |26 Feb 18| The kinetic energy and potential energy aren't following Virial theorem very well. I will check mass distribution first.|
 |17&nbsp;Mar&nbsp;18| After a week of development I now have a multithreaded version. I don't think I'd have started if I'd realized how much work it was. Just doing a few time comparisons. Later: very disappointing - multi-threaded is slower than single threaded.| 
 |18 Mar 18|What if there many more than 1000 bodies? We possibly need the acceleration calculation to be much longer to see the benefit of threads? No: I have just tested, with 100000 bodies, 10 iterations. 4 threads, 448 seconds; 2 threads, 448; unthreaded, 165|
-|&nbsp;| I have created a factory to allow more complex simulations, e.g. colliding galaxies. I decided to use XML rather than CSV, to make for spec self documenting, and used [Lee Thomason's TinyXML-2](http://leethomason.github.io/tinyxml2/index.html), following the discussion [here](https://stackoverflow.com/questions/170686/what-is-the-best-open-xml-parser-for-c).
+|&nbsp;| I have created a factory to allow more complex simulations, e.g. colliding galaxies. I decided to use XML rather than CSV, and used [Lee Thomason's TinyXML-2](http://leethomason.github.io/tinyxml2/index.html), following the discussion [here](https://stackoverflow.com/questions/170686/what-is-the-best-open-xml-parser-for-c). XML is more than I require at present, but I expect the complexity of the input files weill increase, so this is by way of future proofing.|
