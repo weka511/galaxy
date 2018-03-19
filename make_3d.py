@@ -22,6 +22,12 @@ import os, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d a
 
 colours=['r','b','g','c','y','m']
 
+def ensure_file_not_exists(filename):
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
+    
 def get_limits(xs,nsigma=3):
     mu=scipy.mean(xs)
     sigma=scipy.std(xs)
@@ -84,12 +90,13 @@ def usage():
     print ('\t-f, --img_freq\tFrequncy of displaying progress')
     print ('\t-m, --points\tNumber of colours')
     print ('\t-n, --bodies\tNumber of bodies')
-    print ('\t-s, --show\tShow iamges (as well as saving)')
+    print ('\t-s, --show\tShow images (as well as saving)')
     print ('\t-c, --cube\tScale to cube')
-    print ('\t-o, --out\Path name for images')
+    print ('\t-o, --out\tPath name for images')
     print ('\t-g, --nsigma\tNumber of standard deviations in cube')
     print ('\t-N, --sample\tUsed to sample from data')
     print ('\t-v, --movie\tMake movie (specify name of output file)')
+    print ('\t-y, --scale_first_time_only')
     
 if __name__=='__main__':
     try:
@@ -162,7 +169,7 @@ if __name__=='__main__':
                 movie=movie+'.mp4'
             if not out.endswith('/'):
                 out=out+'/'
-
+            ensure_file_not_exists(movie)
             cmd='{0} -f image2 -i {1}{2} -framerate {3} {4}'.format(movie_maker,out,pattern,framerate,movie)
             rc=os.system(cmd)
             if rc==0:
