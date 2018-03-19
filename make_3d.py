@@ -16,7 +16,7 @@
 
   Companion to galaxy.exe - plot images in 3D.
   
-  The movie function assumes that ffmpeg has been installed. 
+  The movie function assumes that ffmpeg, https://www.ffmpeg.org/, has been installed in /usr/local/bin
 '''
 import os, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d as trid,getopt, matplotlib.lines as lines, scipy, random
 
@@ -93,6 +93,9 @@ if __name__=='__main__':
         N             = 1000
         movie         = None
         movie_maker   = 'ffmpeg.exe'
+        framerate     = 1
+        pattern       = 'bodies%05d.png'
+
         opts, args = getopt.getopt(sys.argv[1:],
                                    'hm:n:scog:N:v:f:',
                                    ['help', 'points=','bodies=','show','cube','out=','nsigma=','sample=','movie=','img_freq='])
@@ -143,12 +146,15 @@ if __name__=='__main__':
         if movie!=None:
             if len(movie.split('.'))<2:
                 movie=movie+'.mp4'
+            if not out.endswith('/'):
+                out=out+'/'
 
-            rc=os.system('{2} -f image2 -i {1}bodies%05d.png -framerate 1 {0}'.format(movie,out,movie_maker))
+            cmd='{0} -f image2 -i {1}{2} -framerate {3} {4}'.format(movie_maker,out,pattern,framerate,movie)
+            rc=os.system(cmd)
             if rc==0:
                 print ('Created movie {0}'.format(movie))
             else:
-                print ('{0} returned error {1}'.format(movie_maker,rc))
+                print ('{0} returned error {1}'.format(cmd,rc))
     except getopt.GetoptError as err:  # print help information and exit:      
         print(err)  # will print something like "option -a not recognized"
         usage()
