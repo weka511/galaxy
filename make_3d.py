@@ -14,7 +14,9 @@
  You should have received a copy of the GNU General Public License
  along with this software.  If not, see <http://www.gnu.org/licenses/>
 
-  Companion to test-kepler.cpp - plot images
+  Companion to galaxy.exe - plot images in 3D.
+  
+  The movie function assumes that ffmpeg has been installed. 
 '''
 import os, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d as trid,getopt, matplotlib.lines as lines, scipy, random
 
@@ -64,8 +66,20 @@ def plot(fname_in='kepler.csv',n=len(colours),m=sys.maxsize,scale_to_cube=False,
     return img_file
     
 def usage():
-    print ('python make_img.py -h -s [-m digits] [-n digits] file1.csv [file2.csv...]')
-
+    print ('python make_img.py -h -s [-m digits] [-n digits] file1.csv [file2.csv...]\n')
+    print ('\tExtract 3D images from output from galaxy.exe\n')
+    print ('  Arguments:')
+    print ('\t-h, --help\tUsage information')
+    print ('\t-f, --img_freq\tFrequncy of displaying progress')
+    print ('\t-m, --points\tNumber of colours')
+    print ('\t-n, --bodies\tNumber of bodies')
+    print ('\t-s, --show\tShow iamges (as well as saving)')
+    print ('\t-c, --cube\tScale to cube')
+    print ('\t-o, --out\Path name for images')
+    print ('\t-g, --nsigma\tNumber of standard deviations in cube')
+    print ('\t-N, --sample\tUsed to sample from data')
+    print ('\t-v, --movie\tMake movie (specify name of output file)')
+    
 if __name__=='__main__':
     try:
         out           = './imgs'
@@ -77,8 +91,11 @@ if __name__=='__main__':
         img_freq      = 20
         nsigma        = 3
         N             = 1000
-        
-        opts, args = getopt.getopt(sys.argv[1:], 'hm:n:scog:N:', ['help', 'points=','bodies=','show','cube','out=','nsigma=','sample='])
+        movie         = None
+        movie_maker   = 'ffmpeg.exe'
+        opts, args = getopt.getopt(sys.argv[1:],
+                                   'hm:n:scog:N:v:f:',
+                                   ['help', 'points=','bodies=','show','cube','out=','nsigma=','sample=','movie=','img_freq='])
         for o,a in opts:
             if o in ['-h','--help']:
                 usage()
@@ -96,7 +113,11 @@ if __name__=='__main__':
             elif o in ['-o','--out']:
                 out=a
             elif o in ['-g','--nsigma']:
-                nsigma=float(a)              
+                nsigma=float(a)
+            elif o in ['-v','--movie']:
+                movie=a
+            elif o in ['-f','--img_freq']:
+                img_freq=int(a)
             else:
                 print ('Unexpected option {0} {1}'.format(o,a))
                 sys.exit(2) 
@@ -119,6 +140,15 @@ if __name__=='__main__':
                             plt.close()
         if show:
             plt.show()
+        if movie!=None:
+            if len(movie.split('.'))<2:
+                movie=movie+'.mp4'
+
+            rc=os.system('{2} -f image2 -i {1}bodies%05d.png -framerate 1 {0}'.format(movie,out,movie_maker))
+            if rc==0:
+                print ('Created movie {0}'.format(movie))
+            else:
+                print ('{0} returned error {1}'.format(movie_maker,rc))
     except getopt.GetoptError as err:  # print help information and exit:      
         print(err)  # will print something like "option -a not recognized"
         usage()
