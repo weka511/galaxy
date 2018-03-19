@@ -23,7 +23,6 @@
 #include "physics.h"
 
 std::vector<Particle*> ParticleFactory::create(std::string name){
-	std::cout << __FILE__ <<", " <<__LINE__<<std::endl; 
 	std::vector<Particle*> product;
 	tinyxml2::XMLDocument doc;
     doc.LoadFile( name.c_str() );
