@@ -51,26 +51,21 @@ def plot(fname_in='kepler.csv',n=len(colours),m=sys.maxsize,scale_to_cube=False,
     ax = plt.gcf().add_subplot(111, aspect='equal', projection='3d')
     scatterproxies=[]
     labels=[]
-    
-    xs=[pos[j,0] for j in range(len(pos))]
-    ys=[pos[j,1] for j in range(len(pos))]
-    zs=[pos[j,2] for j in range(len(pos))]
-    colour=[get_colour(j) for j in range(len(pos))]
+    # I have noticed that there seems to be some red structure (2nd Galaxy)
+    # remaining after 100,000 iterations of galaxy.exe, but this may
+    # be an artifact of the sequnce in which points are drawn.
+    # We will plot the points in random order, therefore, to minimize this possibility.
+    indices=list(range(len(pos)))
+    random.shuffle(indices)
+    xs=[pos[j,0] for j in indices]
+    ys=[pos[j,1] for j in indices]
+    zs=[pos[j,2] for j in indices]
+    colour=[get_colour(j) for j in indices]
     ax.scatter(xs,ys,zs,edgecolor=colour,s=1)
     if scale_to_cube:
         ax.set_xlim(get_limits(xs,nsigma=nsigma))
         ax.set_ylim(get_limits(ys,nsigma=nsigma))
         ax.set_zbound(get_limits(zs,nsigma=nsigma))    
-    #for i in len(pos):
-        #full_range=list(range(i,min(len(pos),m),n))
-        #sample=full_range if N==None or N*n>=len(pos) else random.sample(full_range,N)
-
-        #colour=colours[i%len(colours)]
-        #ax.scatter(xs,ys,zs,edgecolor=colour,s=1)
-        #if scale_to_cube:
-            #ax.set_xlim(get_limits(xs,nsigma=nsigma))
-            #ax.set_ylim(get_limits(ys,nsigma=nsigma))
-            #ax.set_zbound(get_limits(zs,nsigma=nsigma))
      
         #scatterproxies.append( lines.Line2D([0],[0], linestyle="none", c=colour, marker = 'o'))
         #labels.append('{0}'.format(i))
