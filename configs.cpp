@@ -396,11 +396,10 @@ void Configuration::report_configuration(std::vector<Particle*> particles,int it
 		std::stringstream file_name;
 		file_name << _path<< "bodies" << std::setw(get_max_digits_config()) << std::setfill('0') <<iter/_img_iter << ".csv";
 		std::ofstream ofile(file_name.str().c_str());
-		for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {
-			double x,y,z;
-			(*it)->getPos(x,y,z);
-			ofile<<x <<"," <<y <<","<<z <<std::endl;
-		}
+		ofile <<std::setprecision(9);
+		for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it)
+			ofile<<**it<<std::endl;
+
 		ofile.close();
 		save_config(particles,iter);
 	}

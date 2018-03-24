@@ -15,6 +15,7 @@
         <File name="factory.h" />
         <File name="galaxy.cpp" />
         <File name="galaxy.h" />
+        <File name="particle.cpp" />
         <File name="particle.h" />
         <File name="particle-factory.cpp" />
         <File name="particle-factory.h" />

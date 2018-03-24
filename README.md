@@ -36,7 +36,7 @@ I am grateful to the following people who have geneously made code available the
 | mtex.cc || Test code for Mersenne twister |
 | mttest.cc || Test code for Mersenne twister  |
 | particle-factory.cpp | particle-factory.h | Create particles as specified by an XML file |
-|| particles.h | Represents the particles whose motion is being simulated|
+| particle.h| particle.h | Represents the particles whose motion is being simulated|
 | physics.cpp| physics.h |Physical constants, law of gravitation, etc|
 | plummer.cpp | plummer.h |Factory for creating particles |
 | plot_orbits.py || Select a few stars at random and plot their orbits |

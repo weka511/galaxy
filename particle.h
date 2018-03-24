@@ -21,6 +21,7 @@
 #include <cmath>
 #include <iostream>
 #include <math.h>
+#include <ostream>
 #include <stdexcept>
 #include <vector>
 
@@ -114,6 +115,7 @@ class Particle {
 		return sqr(_x - other->_x) + sqr(_y - other->_y) + sqr(_z - other->_z);
 	}
 	
+	friend std::ostream& operator<<(std::ostream& s, Particle& p);
   private:
 	/**
 	 * Position
@@ -141,5 +143,10 @@ class Particle {
 	double _ay;
 	double _az;
 };
+
+/**
+ * Output position, velocity, and mass.
+ */
+std::ostream& operator<<(std::ostream& s, Particle& p);
 
 #endif

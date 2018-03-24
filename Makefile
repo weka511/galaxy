@@ -27,6 +27,7 @@ SRCS=	barnes-hut.cpp			\
 		configs.cpp				\
 		factory.cpp				\
 		mt.cc					\
+		particle.cpp			\
 		particle-factory.cpp	\
 		physics.cpp         	\
 		plummer.cpp				\
