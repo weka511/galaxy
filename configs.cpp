@@ -38,7 +38,6 @@ int get_resume_flag(){return resume_flag;}
 struct option long_options[] = {
 	{"config",  		required_argument,	0, 				'c'},
 	{"dt",  			required_argument,	0, 				'd'},
-	{"check_energy",  	required_argument,	0, 				'e'},
     {"help",  			no_argument, 		0, 				'h'},
 	{"img_iter",		required_argument, 	0, 				'i'},
 	{"max_iter",  		required_argument, 	0, 				'm'},
@@ -64,7 +63,7 @@ bool Configuration::extract_options(int argc, char **argv) {
 	int option_index = 0;
 	int c;
 
-	while ((c = getopt_long (argc, argv, "a:c:d:e:hi:lm:n:p:r:S:s:t:",long_options, &option_index)) != -1)
+	while ((c = getopt_long (argc, argv, "a:c:d:hi:lm:n:p:r:S:s:t:",long_options, &option_index)) != -1)
 		switch (c){
 			case 'c':
 				_config_file_name=optarg;
@@ -73,10 +72,6 @@ bool Configuration::extract_options(int argc, char **argv) {
 			
 			case 'd':
 				_dt=get_double("dt",optarg,0.5);
-				break;
-			
-			case 'e':
-				_check_energy=get_number("check_energy",optarg);
 				break;
 			
 			case 'f':
@@ -370,7 +365,6 @@ void Configuration::_help() {
 				"Parameters, showing default values" <<std::endl<<
 				"  -c,--config\tConfiguration file [" <<_config_file_name<<"]"<< std::endl <<
 				"  -d,--dt\t\tTime Step for Integration [" <<_dt<<"]"<< std::endl<<
-				"  -e,--check_energy Check total energy periodically iterations[don't check]"<< std::endl<<
 				"  -f,--soften\tSoftening Length[" <<_a << "]"<<std::endl<<
 				"  -h,--help\tShow help text" << std::endl<<
 				"  -i,--img_iter\tFrequency for writing positions [" <<_img_iter << "]"<< std::endl<<
