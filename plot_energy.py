@@ -12,8 +12,9 @@ def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs'):
     n,bins,_=plt.hist(energies,bins=nbins,label='Energies')
     xx=[0.5*(bins[i]+bins[i-1]) for i in range(1,len(bins))]
     popt, pcov = curve_fit(bolzmann, xx, n, p0=(sum(n), 1e-6))
+    perr = np.sqrt(np.diag(pcov))
     yy=[bolzmann(x,*popt) for x in xx]
-    plt.plot( xx, yy,c='r',label=r'Bolzmann: N={0:.0f},$\beta$={1:.0f}'.format(popt[0],popt[1]))
+    plt.plot( xx, yy,c='r',label=r'Bolzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
     plt.title(name)
     plt.legend()
     plt.savefig(op.join(out,name.replace('bodies','energy')+'png'))
