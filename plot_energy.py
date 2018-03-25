@@ -74,6 +74,7 @@ if __name__=='__main__':
             sigmas.append(sigma)
     except FileNotFoundError:
         pass
+    
     plt.figure(figsize=(10,10))
     plt.plot(betas,'b',label=r'$\beta$')
     plt.plot(sigmas,'r',label=r'$\sigma$')
