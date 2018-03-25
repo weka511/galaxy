@@ -65,15 +65,20 @@ if __name__=='__main__':
                         help='Path for output files',default='./imgs')     
     args = parser.parse_args()
     
+    betas=[]
+    sigmas=[]
     try:
-        params=[plot('bodies{0:05d}'.format(i),show=args.show,ext=args.ext,path=args.path,out=args.out) for i in range(args.N0,args.N1,args.step)]
+        for i in range(args.N0,args.N1,args.step):
+            beta,sigma=plot('bodies{0:05d}'.format(i),show=args.show,ext=args.ext,path=args.path,out=args.out)
+            betas.append(beta)
+            sigmas.append(sigma)
     except FileNotFoundError:
         pass
     plt.figure(figsize=(10,10))
-    plt.plot([beta for (beta,_) in params],'b',label=r'$\beta$')
-    plt.plot([sigma for (_,sigma) in params],'r',label=r'$\sigma$')
+    plt.plot(betas,'b',label=r'$\beta$')
+    plt.plot(sigmas,'r',label=r'$\sigma$')
     plt.title('Evolution of parameters')
     plt.legend()
-    plt.savefig(op.join(args.out,'params.png'))
+    plt.savefig(op.join(args.out,'bolzmann.png'))
     if args.show:
         plt.show()
