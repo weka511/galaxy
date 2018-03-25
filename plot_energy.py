@@ -1,11 +1,11 @@
-import numpy as np,matplotlib.pyplot as plt,os.path as op
+import numpy as np,matplotlib.pyplot as plt,os.path as op,sys
 from matplotlib import rc
 from scipy.optimize import curve_fit
 
 def bolzmann(n,m,beta):
     return m*np.exp(-beta*n)
 
-def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs'): 
+def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs',show=False): 
     plt.figure(figsize=(10,10))
     config = np.loadtxt(op.join(path,name+ext),delimiter=',')
     energies=[0.5*config[j,6]*(config[j,3]**2+config[j,4]**2+config[j,5]**2) for j in range(len(config))]
@@ -18,14 +18,20 @@ def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs'):
     plt.title(name)
     plt.legend()
     plt.savefig(op.join(out,name.replace('bodies','energy')+'png'))
-    
+    if not show:
+        plt.close()
+        
 if __name__=='__main__':
     rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
     rc('text', usetex=True)
     n0=0
-    n1=2400
+    n1=sys.maxsize
     step=100
-    for i in range(0,n1,step):
-        plot('bodies{0:05d}'.format(i))
+    show=False
+    try:
+        for i in range(n0,n1,step):
+            plot('bodies{0:05d}'.format(i),show=show)
+    except FileNotFoundError:
+        pass
 
-    plt.show()
+#    plt.show()
