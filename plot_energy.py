@@ -22,16 +22,34 @@ def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs',s
         plt.close()
         
 if __name__=='__main__':
+    import argparse
     rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
     rc('text', usetex=True)
-    n0=0
-    n1=sys.maxsize
-    step=100
-    show=False
+    
+    parser = argparse.ArgumentParser(description='Plot distribution of energies')
+    parser.add_argument('--N0', type=int,action='store',
+                        help='Starting config sequence number',default=0)
+    parser.add_argument('--N1', type=int,action='store',
+                        help='Final config sequence number',default=sys.maxsize)    
+    parser.add_argument('--step', type=int,action='store',
+                        help='Step size',default=100) 
+    parser.add_argument('--show', action='store_true',
+                        help='Show image',default=False)
+    parser.add_argument('--nbins', '-n',type=int,action='store',
+                        help='Number of bins for histogram',default=200)
+    parser.add_argument('--ext', action='store',
+                        help='Extension for config files',default='.csv') 
+    parser.add_argument('--path', action='store',
+                        help='Path for config files',default='./configs') 
+    parser.add_argument('--out', action='store',
+                        help='Path for output files',default='./imgs')     
+    args = parser.parse_args()
+    
     try:
-        for i in range(n0,n1,step):
-            plot('bodies{0:05d}'.format(i),show=show)
+        for i in range(args.N0,args.N1,args.step):
+            plot('bodies{0:05d}'.format(i),show=args.show,ext=args.ext,path=args.path,out=args.out)
     except FileNotFoundError:
         pass
 
-#    plt.show()
+    if args.show:
+        plt.show()
