@@ -30,7 +30,7 @@ def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs',s
     energies=[0.5*config[j,6]*(config[j,3]**2+config[j,4]**2+config[j,5]**2) for j in range(len(config))]
     n,bins,_=plt.hist(energies,bins=nbins,label='Energies')
     xx=[0.5*(bins[i]+bins[i-1]) for i in range(1,len(bins))]
-    popt, pcov = curve_fit(bolzmann, xx, n, p0=(sum(n), 1e-6))
+    popt, pcov = curve_fit(bolzmann, xx, n, p0=(n[0], 100))
     perr = np.sqrt(np.diag(pcov))
     yy=[bolzmann(x,*popt) for x in xx]
     plt.plot( xx, yy,c='r',label=r'Bolzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
@@ -39,6 +39,7 @@ def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs',s
     plt.savefig(op.join(out,name.replace('bodies','energy')+'png'))
     if not show:
         plt.close()
+    return popt[1],perr[1]
         
 if __name__=='__main__':
     import argparse
@@ -65,10 +66,14 @@ if __name__=='__main__':
     args = parser.parse_args()
     
     try:
-        for i in range(args.N0,args.N1,args.step):
-            plot('bodies{0:05d}'.format(i),show=args.show,ext=args.ext,path=args.path,out=args.out)
+        params=[plot('bodies{0:05d}'.format(i),show=args.show,ext=args.ext,path=args.path,out=args.out) for i in range(args.N0,args.N1,args.step)]
     except FileNotFoundError:
         pass
-
+    plt.figure(figsize=(10,10))
+    plt.plot([beta for (beta,_) in params],'b',label=r'$\beta$')
+    plt.plot([sigma for (_,sigma) in params],'r',label=r'$\sigma$')
+    plt.title('Evolution of parameters')
+    plt.legend()
+    plt.savefig(op.join(args.out,'params.png'))
     if args.show:
         plt.show()
