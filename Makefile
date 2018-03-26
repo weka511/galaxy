@@ -83,6 +83,9 @@ rebuild: clean all
 
 depend: .depend
 
+install: all
+	cp $(MAIN) /usr/local/bin
+	
 .depend: $(SRCS)  galaxy.cpp $(TESTS) tests.cpp
 	$(RM) ./.depend
 	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
