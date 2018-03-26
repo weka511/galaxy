@@ -17,8 +17,9 @@
  
 #ifndef _UTILS_H
 #define _UTILS_H
-#include <string>
+
 #include <limits>
+#include <string>
 #include <vector>
 
  /**
@@ -41,11 +42,24 @@
  */
  void backup(std::string file_name, std::string backup="~");
  
- 
+/**
+ *  Test string to see whether it ends with a prescribed substring.
+ */ 
 bool ends_with(std::string const & value, std::string const & ending);
 
+/**
+  * Create a directory if necessary, e.g. for logfile
+  */
+void ensure_path_exists(std::string path);
+
+/**
+ *  Remove contents of config directory
+ */
 void remove_old_configs(std::string path);
- 
+
+/**
+ * Square a number
+ */ 
 inline double sqr(double x) {return x*x;}
 
 /**

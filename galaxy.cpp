@@ -48,7 +48,9 @@ Configuration configuration;
  */
 int main(int argc, char **argv) {
 	try {
-		auto daily_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("./logs/logfile", 23, 59);
+		std::string log_path="./logs/";
+		ensure_path_exists(log_path);
+		auto daily_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_path+"logfile", 23, 59);
 		auto logger = std::make_shared<spdlog::logger>("galaxy", daily_sink);
 		logger->set_level(spdlog::level::info);
 		spdlog::register_logger(logger);
@@ -69,7 +71,8 @@ int main(int argc, char **argv) {
 					logger->info("Failed to restart from {0} {1}",configuration.get_path(),configuration.get_config_file_name());
 				}
 			} else {
-				std::system("rm configs/*");  // Issue #5 - remove old config files
+				ensure_path_exists("configs");
+				remove_old_configs("configs");  // Issue #5 - remove old config files
 				particles = configuration.createParticles(  );
 			}
 	

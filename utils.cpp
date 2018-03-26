@@ -83,14 +83,27 @@ void backup(std::string file_name, std::string backup) {
 	return result;
  }
 
-
-
- void remove_old_configs(std::string path) {
+ /**
+  * Create a directory if necessary, e.g. for logfile
+  */
+void ensure_path_exists(std::string path) {
 	std::stringstream command;
-	command<<"exec rm -r " << path << "*";
+	command<<"exec mkdir --parents " << path;
 	system(command.str().c_str());
 }
 
+/**
+ *  Remove contents of config directory
+ */
+ void remove_old_configs(std::string path) {
+	std::stringstream command;
+	command<<"exec rm " << path << "/*";
+	system(command.str().c_str());
+}
+
+/**
+ *  Test string to see whether it ends with a prescribed substring.
+ */
 bool ends_with(std::string const & value, std::string const & ending){
     if (ending.size() > value.size()) return false;
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
