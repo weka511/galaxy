@@ -79,9 +79,13 @@ def plot(fname_in='kepler.csv',n=len(colours),m=sys.maxsize,scale_to_cube=False,
     return img_file
     
 def usage():
+    print ('python make_img.py -h -s [-m digits] [-n digits] configs')
+    print ('\tor:')
     print ('python make_img.py -h -s [-m digits] [-n digits] file1.csv [file2.csv...]\n')
     print ('\tExtract 3D images from output from galaxy.exe\n')
     print ('  Arguments:')
+    print('\tconfigs: directory where config files live')
+    print('\tconfigs: file1.csv file2.csv Individual config files')
     print ('\t-h, --help\tUsage information')
     print ('\t-f, --img_freq\tFrequncy of displaying progress')
     print ('\t-m, --points\tNumber of colours')
@@ -91,7 +95,7 @@ def usage():
     print ('\t-o, --out\tPath name for images')
     print ('\t-g, --nsigma\tNumber of standard deviations in cube')
     print ('\t-N, --sample\tUsed to sample from data')
-    print ('\t-t, --colour_threshold\tUsed to assign colours to fifferent clusters')
+    print ('\t-t, --colour_threshold\tUsed to assign colours to different clusters')
     print ('\t-v, --movie\tMake movie (specify name of output file)')
     
 if __name__=='__main__':
@@ -132,6 +136,7 @@ if __name__=='__main__':
                 out=a
             elif o in ['-g','--nsigma']:
                 nsigma=float(a)
+                scale_to_cube=True
             elif o in ['-v','--movie']:
                 movie=a
             elif o in ['-f','--img_freq']:
