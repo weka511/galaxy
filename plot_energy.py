@@ -36,7 +36,7 @@ def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs',s
     plt.plot( xx, yy,c='r',label=r'Bolzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
     plt.title(name)
     plt.legend()
-    plt.savefig(op.join(out,name.replace('bodies','energy')+'png'))
+    plt.savefig(op.join(out,name.replace('bodies','energy')+'.png'))
     if not show:
         plt.close()
     return popt[1],perr[1]
