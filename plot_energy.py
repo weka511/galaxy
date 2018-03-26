@@ -40,7 +40,15 @@ def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs',s
     if not show:
         plt.close()
     return popt[1],perr[1]
-        
+
+def plot_distribution(path,out):
+    plt.figure(figsize=(10,10))
+    plt.plot(betas,'b',label=r'$\beta$')
+    plt.plot(sigmas,'r',label=r'$\sigma$')
+    plt.title('Evolution of parameters')
+    plt.legend()
+    plt.savefig(op.join(path,out))
+    
 if __name__=='__main__':
     import argparse
     rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
@@ -62,7 +70,9 @@ if __name__=='__main__':
     parser.add_argument('--path', action='store',
                         help='Path for config files',default='./configs') 
     parser.add_argument('--out', action='store',
-                        help='Path for output files',default='./imgs')     
+                        help='Path for output files',default='./imgs') 
+    parser.add_argument('--distribution', action='store',
+                        help='Output file for plotting energy distribution',default='boltzmann.png')      
     args = parser.parse_args()
     
     betas=[]
@@ -75,11 +85,6 @@ if __name__=='__main__':
     except FileNotFoundError:
         pass
     
-    plt.figure(figsize=(10,10))
-    plt.plot(betas,'b',label=r'$\beta$')
-    plt.plot(sigmas,'r',label=r'$\sigma$')
-    plt.title('Evolution of parameters')
-    plt.legend()
-    plt.savefig(op.join(args.out,'bolzmann.png'))
+    plot_distribution(args.out,args.distribution)
     if args.show:
         plt.show()
