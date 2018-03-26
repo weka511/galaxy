@@ -24,13 +24,19 @@ from scipy.optimize import curve_fit
 def bolzmann(n,m,beta):
     return m*np.exp(-beta*n)
 
-def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs',show=False): 
+popt_cached=(-1,-1) #So optimization step can use value from previous step as starting value
+
+def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs',show=False):
+    global popt_cached
     plt.figure(figsize=(10,10))
     config = np.loadtxt(op.join(path,name+ext),delimiter=',')
     energies=[0.5*config[j,6]*(config[j,3]**2+config[j,4]**2+config[j,5]**2) for j in range(len(config))]
     n,bins,_=plt.hist(energies,bins=nbins,label='Energies')
     xx=[0.5*(bins[i]+bins[i-1]) for i in range(1,len(bins))]
-    popt, pcov = curve_fit(bolzmann, xx, n, p0=(n[0], 100))
+    if popt_cached[0]<0:
+        popt_cached=(n[0], 100)
+    popt, pcov = curve_fit(bolzmann, xx, n, p0=popt_cached)
+    popt_cached=popt
     perr = np.sqrt(np.diag(pcov))
     yy=[bolzmann(x,*popt) for x in xx]
     plt.plot( xx, yy,c='r',label=r'Bolzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
