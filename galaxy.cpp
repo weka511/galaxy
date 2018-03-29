@@ -71,8 +71,8 @@ int main(int argc, char **argv) {
 					logger->info("Failed to restart from {0} {1}",configuration.get_path(),configuration.get_config_file_name());
 				}
 			} else {
-				ensure_path_exists("configs");
-				remove_old_configs("configs");  // Issue #5 - remove old config files
+				ensure_path_exists(configuration.get_path());
+				remove_old_configs(configuration.get_path());  // Issue #5 - remove old config files
 				particles = configuration.createParticles(  );
 			}
 	
