@@ -63,13 +63,18 @@ int main(int argc, char **argv) {
 			std::vector<Particle*> particles;
 			int start_iterations=0;
 			if (get_resume_flag()) {
-				if (configuration.restore_config(particles,start_iterations))
-					logger->info("Restarted from {0} {1} at {2}",configuration.get_path(),configuration.get_config_file_name(),start_iterations);
-				else {
-					particles = configuration.createParticles(  );
-					start_iterations=0;
-					logger->info("Failed to restart from {0} {1}",configuration.get_path(),configuration.get_config_file_name());
-				}
+				if (configuration.restore_config(particles,start_iterations) || 
+					configuration.restore_config(particles,start_iterations,true))
+					logger->info("Restarted from {0} {1} at {2}",
+								configuration.get_path(),
+								configuration.get_config_file_name(),
+								start_iterations);
+					else {
+						logger->info("Failed to restart from {0} {1}",
+							configuration.get_path(),
+							configuration.get_config_file_name());
+						return EXIT_FAILURE;
+					}
 			} else {
 				ensure_path_exists(configuration.get_path());
 				remove_old_configs(configuration.get_path());  // Issue #5 - remove old config files

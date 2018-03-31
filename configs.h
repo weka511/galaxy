@@ -63,7 +63,7 @@ class Configuration {
 	/**
 	 * Restore saved configuration
 	 */
-	bool restore_config(std::vector<Particle*>& bodies,int& iter);
+	bool restore_config(std::vector<Particle*>& bodies,int& iter, bool use_backup=false);
 	
 	/**
 	 * Write out configuration
@@ -97,6 +97,18 @@ class Configuration {
 	}
 	
  private:
+	/**
+	 * Used to parse config files
+	 */
+ 	enum State{
+		expect_version,
+		expect_iteration, 
+		expect_theta, 
+		expect_g, 
+		expect_dt,
+		expect_body,
+		expect_eof
+	};
  
 	/**
 	 *  Instantiate Factory for setting up particles. This depends on the model.

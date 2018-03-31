@@ -236,15 +236,16 @@ bool Configuration::extract_options(int argc, char **argv) {
 /**
   * Restore configuration from saved file
   */
-bool Configuration::restore_config(std::vector<Particle*>& particles,int& iter) {
+bool Configuration::restore_config(std::vector<Particle*>& particles,int& iter,bool use_backup) {
 	auto logger=spdlog::get("galaxy");
 	std::stringstream file_name;
     file_name << _path<< _config_file_name;
+	if (use_backup)
+		file_name<<"~";
 	std::ifstream config_file(file_name.str().c_str());
 
-    if(! config_file.is_open())
-        return false;
-	enum State{expect_version, expect_iteration, expect_theta, expect_g, expect_dt, expect_body, expect_eof};
+    if(! config_file.is_open()) return false;
+
 	State state=State::expect_version;
 	while(! config_file.eof())   {
 		std::string line;
@@ -299,11 +300,11 @@ bool Configuration::restore_config(std::vector<Particle*>& particles,int& iter) 
 				}
 		}
     }
-	if (state!=State::expect_eof) {
-		std::cout<<"Unexpected state: "<<state<<"-" <<State::expect_eof <<std::endl;
-		return false;
-	}
-	return true;
+	if (state==State::expect_eof) return true;
+	
+	std::cout<<"Unexpected state: "<<state<<"-" <<State::expect_eof <<std::endl;
+	return false;
+
 }
 
 /**
