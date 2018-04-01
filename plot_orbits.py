@@ -100,7 +100,7 @@ if __name__=='__main__':
                         help='Number of orbits',default=7)
     parser.add_argument('--maxsamples','-m', type=int,action='store',
                         help='Maximum number of sample per orbit (-1 to process all samples)',default=1000)    
-    parser.add_argument('--prefix','-p', action='store',
+    parser.add_argument('--prefix', action='store',
                         help='Prefix for configuration files',default='bodies') 
     parser.add_argument('--suffix','-s', action='store',
                         help='Suffix for configuration files',default='csv') 
@@ -110,6 +110,7 @@ if __name__=='__main__':
                         help='Number of standard deviations to use for scaling',default=3)
     parser.add_argument('--seed',type=int,action='store',default=None,help='Seed for random number generator')
     parser.add_argument('--images','-i',action='store',help='Path to store images',default='./imgs')
+    parser.add_argument('--path','-p',action='store',default='./configs',help='Path for config files')
     args = parser.parse_args()
     if args.seed==None:
         random.seed()
@@ -119,6 +120,7 @@ if __name__=='__main__':
     selector=random.sample(range(args.bodies),args.norbits) 
     plot(
         extract(
+            config_path = args.path,
             selector=selector,
             maxsamples=args.maxsamples,
             prefix=args.prefix,
