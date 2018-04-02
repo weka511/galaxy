@@ -45,7 +45,7 @@ Plot points from input file
 I have had to workaround the problem of the legend function not supporting the type returned by a 3D scatter.
 See https://stackoverflow.com/questions/20505105/add-a-legend-in-a-3d-scatterplot-with-scatter-in-matplotlib for details.
 '''
-def plot(fname_in='kepler.csv',n=len(colours),m=sys.maxsize,scale_to_cube=False,out='./imgs',nsigma=3,N=1000,get_colour=colour_from_index):    
+def plot(fname_in,n=len(colours),m=sys.maxsize,scale_to_cube=False,out='./imgs',nsigma=3,N=1000,get_colour=colour_from_index):
     pos = np.loadtxt(fname_in,delimiter=',')
     plt.figure(figsize=(20,10))
     ax = plt.gcf().add_subplot(111, aspect='equal', projection='3d')
@@ -78,106 +78,65 @@ def plot(fname_in='kepler.csv',n=len(colours),m=sys.maxsize,scale_to_cube=False,
     plt.savefig(img_file)
     return img_file
     
-def usage():
-    print ('python make_img.py -h -s [-m digits] [-n digits] configs')
-    print ('\tor:')
-    print ('python make_img.py -h -s [-m digits] [-n digits] file1.csv [file2.csv...]\n')
-    print ('\tExtract 3D images from output from galaxy.exe\n')
-    print ('  Arguments:')
-    print('\tconfigs: directory where config files live')
-    print('\tconfigs: file1.csv file2.csv Individual config files')
-    print ('\t-h, --help\tUsage information')
-    print ('\t-f, --img_freq\tFrequncy of displaying progress')
-    print ('\t-m, --points\tNumber of colours')
-    print ('\t-n, --bodies\tNumber of bodies')
-    print ('\t-s, --show\tShow images (as well as saving)')
-    print ('\t-c, --cube\tScale to cube')
-    print ('\t-o, --out\tPath name for images')
-    print ('\t-g, --nsigma\tNumber of standard deviations in cube')
-    print ('\t-N, --sample\tUsed to sample from data')
-    print ('\t-t, --colour_threshold\tUsed to assign colours to different clusters')
-    print ('\t-v, --movie\tMake movie (specify name of output file)')
-    
-if __name__=='__main__':
-    try:
-        out           = './imgs'
-        n                       = len(colours)
-        m                       = sys.maxsize
-        show                    = False
-        scale_to_cube           = False
-        i                       = 0
-        img_freq                = 20
-        nsigma                  = 3
-        N                       = 1000
-        movie                   = None
-        movie_maker             = 'ffmpeg.exe'
-        framerate               = 1
-        pattern                 = 'bodies%05d.png'
-        get_colour              = colour_from_index
+def make_movie(movie_maker,out,pattern,framerate,movie):
+    if len(movie.split('.'))<2:
+        movie=movie+'.mp4'
+    if not out.endswith('/'):
+        out=out+'/'
+    ensure_file_not_exists(movie)
+    cmd='{0} -f image2 -i {1}{2} -framerate {3} {4}'.format(movie_maker,out,pattern,framerate,movie)
+    return_code = os.system(cmd)
+    if return_code==0:
+        print ('Created movie {0}'.format(movie))
+    else:
+        print ('{0} returned error {1}'.format(cmd,return_code))
         
-        opts, args = getopt.getopt(sys.argv[1:],
-                                   'hm:n:scog:N:v:f:t:',
-                                   ['help', 'points=','bodies=','show','cube','out=','nsigma=','sample=','movie=','img_freq=','colour_threshold'])
-        for o,a in opts:
-            if o in ['-h','--help']:
-                usage()
-                sys.exit(0)
-            elif o in ['-n','--bodies']:
-                n=int(a)
-            elif o in ['-N','--sample']:
-                N=None if a=='all' else int(a)            
-            elif o in ['-m','--points']:
-                m=int(a)            
-            elif o in ['-s','--show']:
-                show=True
-            elif o in ['-c','--cube']:
-                scale_to_cube=True
-            elif o in ['-o','--out']:
-                out=a
-            elif o in ['-g','--nsigma']:
-                nsigma=float(a)
-                scale_to_cube=True
-            elif o in ['-v','--movie']:
-                movie=a
-            elif o in ['-f','--img_freq']:
-                img_freq=int(a)
-            elif o in ['-t','--colour_threshold']:
-                get_colour=lambda i:colour_from_index(i,threshold=int(a))                
-            else:
-                print ('Unexpected option {0} {1}'.format(o,a))
-                sys.exit(2) 
-        for fname_in in args:
-            if os.path.isfile(fname_in):
-                img_file=plot(fname_in=fname_in,n=n,m=m,scale_to_cube=scale_to_cube,out=out,N=N,nsigma=nsigma,get_colour=get_colour)
-                if i%img_freq==0:
-                    print ('Created {0}'.format(img_file))
-                i+=1
-                if not show:
-                    plt.close()                
-            elif os.path.isdir(fname_in):
-                for filename in os.listdir(fname_in):
-                    if filename.endswith(".csv"):
-                        img_file=plot(fname_in=os.path.join(fname_in,filename),n=n,m=m,scale_to_cube=scale_to_cube,out=out,N=N,nsigma=nsigma,get_colour=get_colour)
-                        if i%img_freq==0:
-                            print ('Created {0}'.format(img_file))
-                        i+=1
-                        if not show:
-                            plt.close()
-        if show:
-            plt.show()
-        if movie!=None:
-            if len(movie.split('.'))<2:
-                movie=movie+'.mp4'
-            if not out.endswith('/'):
-                out=out+'/'
-            ensure_file_not_exists(movie)
-            cmd='{0} -f image2 -i {1}{2} -framerate {3} {4}'.format(movie_maker,out,pattern,framerate,movie)
-            rc=os.system(cmd)
-            if rc==0:
-                print ('Created movie {0}'.format(movie))
-            else:
-                print ('{0} returned error {1}'.format(cmd,rc))
-    except getopt.GetoptError as err:  # print help information and exit:      
-        print(err)  # will print something like "option -a not recognized"
-        usage()
-        sys.exit(2)    
+if __name__=='__main__':
+    import argparse,glob
+    parser = argparse.ArgumentParser(description='Plot distribution of energies')
+    parser.add_argument('--bodies', '-n',type=int,action='store',
+                        help='Number of bodies',default=len(colours))
+    parser.add_argument('--img_freq', '-f',type=int,action='store',
+                        help='Frequency of displaying progress',default=20)
+    parser.add_argument('--points', '-m',type=int,action='store',
+                        help='Number of colours',default=sys.maxsize)
+    parser.add_argument('--show', '-s',action='store_true',
+                        help='Show images (as well as saving)',default=False)
+    parser.add_argument('--cube', '-c',action='store_true',
+                        help='Scale to cube',default=False)
+    parser.add_argument('--out', '-o',action='store',
+                        help='Path name for images',default='./imgs')
+    parser.add_argument('--path', '-p',action='store',
+                        help='Path name for configurations',default='./configs')    
+    parser.add_argument('--nsigma', '-g',type=float,action='store',
+                        help='Number of standard deviations in cube',default=3)
+    parser.add_argument('--sample', '-N',type=int,action='store',
+                        help='Number of samples',default=1000)
+    parser.add_argument('--movie', '-v',action='store',
+                        help='Make movie',default=None)
+    parser.add_argument('--colour_threshold', '-t',type=int,action='store',
+                        help='Colour threshold',default=0) 
+
+    args = parser.parse_args()
+
+    i             = 0
+    movie_maker   = 'ffmpeg.exe'
+    framerate     = 1
+    pattern       = 'bodies%05d.png'
+
+    for filename in os.listdir(args.path):
+        if filename.endswith(".csv"):
+            img_file=plot(fname_in=os.path.join(args.path,filename),n=args.bodies,m=args.points,scale_to_cube=args.cube,
+                          out=args.out,N=args.sample,nsigma=args.nsigma,get_colour=colour_from_index)
+            if i%args.img_freq==0:
+                print ('Created {0}'.format(img_file))
+            i+=1
+            if not args.show:
+                plt.close()
+                
+    if args.show:
+        plt.show()
+        
+    if args.movie!=None:
+        make_movie(movie_maker, args.out,pattern,framerate, args.movie)
+
