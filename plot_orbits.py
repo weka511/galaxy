@@ -33,6 +33,9 @@ Plot orbits
 '''
 def plot(rr,selector=[],colours=['r','g','b','m','c','y','k'],n=2,images='.',linestyles = ['-', '--', '-.', ':'],dpi=300):
     (m,data)=rr
+    if len(data)==0:
+        print ('No data - check path')
+        return False
     def get_coordinates(body,i):
         return [d[body][i] for d in data]
     plt.figure(figsize=(20,20)) 
@@ -58,6 +61,7 @@ def plot(rr,selector=[],colours=['r','g','b','m','c','y','k'],n=2,images='.',lin
     plt.legend(loc='best')
     plt.title('Orbits of {0} randomly selected stars out of {1}'.format(len(data[0]),m))
     plt.savefig(os.path.join(images,'orbits-{1}-{0}.png'.format(len(data[0]),m)), dpi=dpi)
+    return True
 
 '''
 Extract data from configuration files
@@ -118,7 +122,7 @@ if __name__=='__main__':
         random.seed(args.seed)
         
     selector=random.sample(range(args.bodies),args.norbits) 
-    plot(
+    if plot(
         extract(
             config_path = args.path,
             selector=selector,
@@ -129,6 +133,6 @@ if __name__=='__main__':
         selector=selector,
         n=args.nsigma,
         images=args.images,
-        dpi=args.dpi)
-    plt.show()
+        dpi=args.dpi):
+        plt.show()
   
