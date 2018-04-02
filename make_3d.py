@@ -94,28 +94,18 @@ def make_movie(movie_maker,out,pattern,framerate,movie):
 if __name__=='__main__':
     import argparse,glob
     parser = argparse.ArgumentParser(description='Plot distribution of energies')
-    parser.add_argument('--bodies', '-n',type=int,action='store',
-                        help='Number of bodies',default=len(colours))
-    parser.add_argument('--img_freq', '-f',type=int,action='store',
-                        help='Frequency of displaying progress',default=20)
-    parser.add_argument('--points', '-m',type=int,action='store',
-                        help='Number of colours',default=sys.maxsize)
-    parser.add_argument('--show', '-s',action='store_true',
-                        help='Show images (as well as saving)',default=False)
-    parser.add_argument('--cube', '-c',action='store_true',
-                        help='Scale to cube',default=False)
-    parser.add_argument('--out', '-o',action='store',
-                        help='Path name for images',default='./imgs')
-    parser.add_argument('--path', '-p',action='store',
-                        help='Path name for configurations',default='./configs')    
-    parser.add_argument('--nsigma', '-g',type=float,action='store',
-                        help='Number of standard deviations in cube',default=3)
-    parser.add_argument('--sample', '-N',type=int,action='store',
-                        help='Number of samples',default=1000)
-    parser.add_argument('--movie', '-v',action='store',
-                        help='Make movie',default=None)
-    parser.add_argument('--colour_threshold', '-t',type=int,action='store',
-                        help='Colour threshold',default=0) 
+    parser.add_argument('--bodies', '-n',type=int,action='store',help='Number of bodies',default=len(colours))
+    parser.add_argument('--img_freq', '-f',type=int,action='store',help='Frequency of displaying progress',default=20)
+    parser.add_argument('--points', '-m',type=int,action='store',help='Number of colours',default=sys.maxsize)
+    parser.add_argument('--show', '-s',action='store_true',help='Show images (as well as saving)',default=False)
+    parser.add_argument('--cube', '-c',action='store_true',help='Scale to cube',default=False)
+    parser.add_argument('--out', '-o',action='store',help='Path name for images',default='./imgs')
+    parser.add_argument('--path', '-p',action='store',help='Path name for configurations',default='./configs')    
+    parser.add_argument('--nsigma', '-g',type=float,action='store',help='Number of standard deviations in cube',default=3)
+    parser.add_argument('--sample', '-N',type=int,action='store',help='Number of samples',default=1000)
+    parser.add_argument('--movie', '-v',action='store',help='Make movie',default=None)
+    parser.add_argument('--movie_only',action='store',help='Skip extracting images. Just make movie',default=None)    
+    parser.add_argument('--colour_threshold', '-t',type=int,action='store',help='Colour threshold',default=0) 
 
     args = parser.parse_args()
 
@@ -124,19 +114,22 @@ if __name__=='__main__':
     framerate     = 1
     pattern       = 'bodies%05d.png'
 
-    for filename in os.listdir(args.path):
-        if filename.endswith(".csv"):
-            img_file=plot(fname_in=os.path.join(args.path,filename),n=args.bodies,m=args.points,scale_to_cube=args.cube,
-                          out=args.out,N=args.sample,nsigma=args.nsigma,get_colour=colour_from_index)
-            if i%args.img_freq==0:
-                print ('Created {0}'.format(img_file))
-            i+=1
-            if not args.show:
-                plt.close()
-                
-    if args.show:
-        plt.show()
+    if args.movie_only==None:
+        for filename in os.listdir(args.path):
+            if filename.endswith(".csv"):
+                img_file=plot(fname_in=os.path.join(args.path,filename),n=args.bodies,m=args.points,scale_to_cube=args.cube,
+                              out=args.out,N=args.sample,nsigma=args.nsigma,get_colour=colour_from_index)
+                if i%args.img_freq==0:
+                    print ('Created {0}'.format(img_file))
+                i+=1
+                if not args.show:
+                    plt.close()
+                    
+        if args.show:
+            plt.show()
         
-    if args.movie!=None:
-        make_movie(movie_maker, args.out,pattern,framerate, args.movie)
+        if args.movie!=None:
+            make_movie(movie_maker, args.out,pattern,framerate, args.movie)
+    else:
+        make_movie(movie_maker, args.out,pattern,framerate, args.movie_only)
 
