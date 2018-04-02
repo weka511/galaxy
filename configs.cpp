@@ -366,7 +366,7 @@ void Configuration::_help() {
 				"Parameters, showing default values" <<std::endl<<
 				"  -c,--config\tConfiguration file [" <<_config_file_name<<"]"<< std::endl <<
 				"  -d,--dt\t\tTime Step for Integration [" <<_dt<<"]"<< std::endl<<
-				"  -f,--soften\tSoftening Length[" <<_a << "]"<<std::endl<<
+				"  -a,--soften\tSoftening Length[" <<_a << "]"<<std::endl<<
 				"  -h,--help\tShow help text" << std::endl<<
 				"  -i,--img_iter\tFrequency for writing positions [" <<_img_iter << "]"<< std::endl<<
 				"  -l,--plummer\tUse a Plummer model for starting positions and velocities" << std::endl<<
