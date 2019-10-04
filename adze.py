@@ -1,26 +1,30 @@
-'''
- Copyright (C) 2018 Greenweaves Software Pty Ltd
 
- This is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+ # Copyright (C) 2018-2019 Greenweaves Software Limited
+ #
+ # This is free software: you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation, either version 3 of the License, or
+ # (at your option) any later version.
 
- This software is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ # This software is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this software.  If not, see <http://www.gnu.org/licenses/>
+ # You should have received a copy of the GNU General Public License
+ # along with this software.  If not, see <http://www.gnu.org/licenses/>
+ #
+ # Companion to galaxy.exe - cut up logfiles
 
- Companion to galaxy.exe - cut up logfiles
-'''
 
 import re,matplotlib.pyplot as plt
 
+# Extract energies and plot them
 
-def process(file_names,colours=['r','g','b','m','c','y']):
+def plot_files(
+    file_names=[],
+    plot_file='energies.png',
+    colours=['r','g','b','m','c','y']):
     for i in range(len(file_names)):
         energies=[]
         t=[]
@@ -47,13 +51,13 @@ def process(file_names,colours=['r','g','b','m','c','y']):
         plt.plot([t[0],t[-1]],[energies[0],energies[0]],c=colours[i],linestyle=':')
     plt.title('Total Energy')
     plt.legend(loc='best')
-    plt.savefig('energies.png')
+    plt.savefig(plot_file)
     
 if __name__=='__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Extract energy from logfiles and plot it')
-    parser.add_argument('--logs', '-l',metavar='N', type=str, nargs='+',help='Logfiles to be plotted')    
-    args = parser.parse_args()
-       
-    process(args.logs)
+    parser.add_argument('--logs', '-l',metavar='N', type=str, nargs='+',help='Logfiles to be plotted')
+    parser.add_argument('--output', '-o',metavar='N', type=str, nargs='+',help='Name of plot file')   
+    args = parser.parse_args() 
+    plot_files(file_names=args.logs,plot_file=args.output)
     plt.show()
