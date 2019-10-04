@@ -18,9 +18,10 @@ I am grateful to the following people who have geneously made code available the
 
 ## Contents
 
+### galaxy.exe
+
 | File | Header | Purpose |
 |---------------------|------------------|---------------------------------------------------------------------|
-| adze.py | |Cut logfiles up and analyze data |
 | barnes-hut.cpp |barnes-hut.h| Calculate accelerations using Barnes Hut|
 | |catch.hpp | [Catch2](https://github.com/catchorg/Catch2) Unit testing framework |
 | center-of-mass.cpp |center-of-mass.h| Find centre of mass for internal nodes|
@@ -30,8 +31,6 @@ I am grateful to the following people who have geneously made code available the
 | galaxy.cpp |galaxy.h| Simulate Galaxy using Barnes Hut|
 | GalaxySimulator.xml||Notepad++ Workspace|
 | Makefile || Build galaxy simulation |
-| make_3d.py | |Plot output from galaxy |
-| make_img.py || Plot output from galaxy |
 | mt.cc |mt.h| Mersenne twister|
 | mtex.cc || Test code for Mersenne twister |
 | mttest.cc || Test code for Mersenne twister  |
@@ -39,8 +38,6 @@ I am grateful to the following people who have geneously made code available the
 | particle.h| particle.h | Represents the particles whose motion is being simulated|
 | physics.cpp| physics.h |Physical constants, law of gravitation, etc|
 | plummer.cpp | plummer.h |Factory for creating particles |
-| plot_energy.py | |Used to investigate distribution of energies - do we thermalize?| 
-| plot_orbits.py || Select a few stars at random and plot their orbits |
 | |spdlog| Header files for [spdlog](https://github.com/gabime/spdlog) super fast C++ logging library.|
 | tinyxml2.cpp | tinyxml2.h |[Lee Thomason's XML Parser](http://www.grinninglizard.com/tinyxml/)|
 | stepper.cpp| stepper.h | A class to support multi -threading |
@@ -54,6 +51,16 @@ I am grateful to the following people who have geneously made code available the
 | treecode.cpp | treecode.h | Barnes-Hut Tree|
 | utils.cpp | utils.h | Assorted utility functions|
 | verlet.cpp | verlet.h | [Verlet "leapfrog"](http://physics.ucsc.edu/~peter/242/leapfrog.pdf) integrator|
+
+### Helper programs
+
+| File |  Purpose |
+|---------------------|---------------------------------------------------------------------------------------|
+| adze.py |Cut logfiles up and analyze data |
+| make_3d.py | Plot output from galaxy |
+| make_img.py | Plot output from galaxy |
+| plot_energy.py  |Used to investigate distribution of energies - do we thermalize?| 
+| plot_orbits.py | Select a few stars at random and plot their orbits |
 
 ## <a name="notes"> Implementation Notes
 
