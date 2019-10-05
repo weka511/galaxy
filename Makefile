@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Greenweaves Software Limited
+# Copyright (C) 2018-2019 Greenweaves Software Limited
 #
 # This is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,44 +15,44 @@
 #
 # Makefile snarfed from https://stackoverflow.com/questions/2481269/how-to-make-a-simple-c-makefile
 
-CPPFLAGS=-g -O3  -D_RUNTIME_CHECKS -pthread -I/sw/include/root  -std=gnu++11
-LDFLAGS=-g -O3
-LDLIBS=
-CC=gcc
-CXX=g++
-RM=rm -f
-MKDIR=mkdir
-SRCS=	barnes-hut.cpp			\
-		center-of-mass.cpp		\
-		configs.cpp				\
-		factory.cpp				\
-		mt.cc					\
-		particle.cpp			\
-		particle-factory.cpp	\
-		physics.cpp         	\
-		plummer.cpp				\
-		stepper.cpp				\
-		tinyxml2.cpp			\
-		treecode.cpp			\
-		utils.cpp				\
-		verlet.cpp
+CPPFLAGS    = -g -O3  -D_RUNTIME_CHECKS -pthread -I/sw/include/root  -std=gnu++11
+LDFLAGS     = -g -O3
+LDLIBS      =
+CC          = gcc
+CXX         = g++
+RM          = rm -f
+MKDIR       = mkdir
+SRCS        =	barnes-hut.cpp			\
+				center-of-mass.cpp		\
+				configs.cpp				\
+				factory.cpp				\
+				mt.cc					\
+				particle.cpp			\
+				particle-factory.cpp	\
+				physics.cpp         	\
+				plummer.cpp				\
+				stepper.cpp				\
+				tinyxml2.cpp			\
+				treecode.cpp			\
+				utils.cpp				\
+				verlet.cpp
 
-TESTS= 	test-kepler.cpp			\
-		test-plummer.cpp		\
-		test-random.cpp    	 	\
-		test-tree.cpp           \
-		test-serialization.cpp
+TESTS       = 	test-kepler.cpp			\
+				test-plummer.cpp		\
+				test-random.cpp    	 	\
+				test-tree.cpp           \
+				test-serialization.cpp
 		
-OBJS1=$(subst .cpp,.o,$(SRCS)) 
-OBJS=$(subst .cc,.o,$(OBJS1)) 
-TEST_OBJS=$(subst .cpp,.o,$(TESTS))
+OBJS1      = $(subst .cpp,.o,$(SRCS)) 
+OBJS       = $(subst .cc,.o,$(OBJS1)) 
+TEST_OBJS  = $(subst .cpp,.o,$(TESTS))
 
-THREADING=threading.exe
+THREADING = threading.exe
 
-MAIN=galaxy.exe
-TEST_MAIN=tests.exe
+MAIN      = galaxy.exe
+TEST_MAIN = tests.exe
 
-TARGETS=$(MAIN) 
+TARGETS   = $(MAIN) 
 
 all : $(TARGETS) $(TEST_OBJS)
 
