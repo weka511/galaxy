@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2019 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,16 +24,31 @@
 
  /**
   * Encode a floating value so it can be stored and retrieved without loss of significant digits
+  *
+  * Parameters:
+  *    value       Number to be stored
+  * Returns:
+  *    Text string that can be written to a file
   */
- std::string encode(const double small);
+ std::string encode(const double value);
  
  /**
-  * Restore value stored by encode
+  * Restore floating value stored by encode
+  *
+  * Parameters:
+  *    value       Text string read from file
+  * Returns:
+  *    Corresponding floating point value
   */
  double decode(std::string str);
  
  /**
-  * Check for presence of killfile
+  * Used to check whether program should be running:
+  * check for presence of killfile: if present, delete it
+  * and return TRUE, otherwise return FALSE
+  *
+  * Parameters:
+  *      killfile     Name of file used to stop execution
   */
  bool killed(std::string killfile="kill");
  
@@ -85,6 +100,8 @@ double mean(std::vector<double> values);
  * Determine the standard deviation of observations stored in a vector
  */
 double stdev(std::vector<double> q1s,double mean,bool bessel=false);
+
+double deserialize(const std::string& hexstr);
 
 #endif
  

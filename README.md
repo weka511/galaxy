@@ -38,7 +38,6 @@ I am grateful to the following people who have geneously made code available the
 | particle.h| particle.h | Represents the particles whose motion is being simulated|
 | physics.cpp| physics.h |Physical constants, law of gravitation, etc|
 | plummer.cpp | plummer.h |Factory for creating particles |
-|| serialize.h| Support for serialization |
 | |spdlog| Header files for [spdlog](https://github.com/gabime/spdlog) super fast C++ logging library.|
 | tinyxml2.cpp | tinyxml2.h |[Lee Thomason's XML Parser](http://www.grinninglizard.com/tinyxml/)|
 | stepper.cpp| stepper.h | A class to support multi -threading |

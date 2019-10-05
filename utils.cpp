@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2019 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,12 +34,17 @@
 
 /**
  * Encode a floating value so it can be stored and retrieved without loss of significant digits
+ * 
+ * Parameters:
+ *    value       Number to be stored
+ * Returns:
+ *    Text value that can be written to a file
  *
  * Snarfed from: https://stackoverflow.com/questions/27149246/how-to-implement-serialization-and-de-serialization-of-a-double
  */
- std::string encode(const double small) {
+ std::string encode(const double value) {
 	const std::size_t maxPrecision = std::numeric_limits<double>::digits;
-	uint64_t* pi = (uint64_t*)&small;
+	uint64_t* pi = (uint64_t*)&value;
 	std::stringstream stream;
 	stream.precision(maxPrecision);
 	stream << *pi;
@@ -47,7 +52,12 @@
  }
  
  /**
-  * Restore value stored by encode
+  * Restore floating value stored by encode
+  *
+  * Parameters:
+  *    value       Text string read from file
+  * Returns:
+  *    Corresponding floating point value
   */
  double decode(std::string str){
 	uint64_t out = std::stoull(str);
@@ -70,7 +80,12 @@ void backup(std::string file_name, std::string backup) {
 }
 
 /**
-  * Check for presence of killfile
+  * Used to check whether program should be running:
+  * check for presence of killfile: if present, delete it
+  * and return TRUE, otherwise return FALSE
+  *
+  * Parameters:
+  *      killfile     Name of file used to stop execution
   */
  bool killed(std::string killfile) {
 	std::ifstream file(killfile);
@@ -164,4 +179,15 @@ double stdev(std::vector<double> values,double mu,bool bessel) {
  */
 double mean(std::vector<double> values) {
 	return  std::accumulate(values.begin(), values.end(), 0.0) / values.size();
+}
+
+double deserialize(const std::string& hexstr) {
+	double d = 0.0;
+
+    try{
+        *reinterpret_cast<unsigned long long*>(&d) = std::stoull(hexstr, nullptr, 16);
+    }
+    catch(...){}
+
+    return d;
 }

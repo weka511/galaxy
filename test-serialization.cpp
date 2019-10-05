@@ -18,7 +18,7 @@
  */
  
  #include "catch.hpp"
- #include "serialization.h"
+ #include "utils.h"
 
 
  TEST_CASE( "Serialization Tests", "[serialization]" ) {
