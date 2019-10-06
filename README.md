@@ -58,6 +58,7 @@ I am grateful to the following people who have geneously made code available the
 | File |  Purpose |
 |---------------------|---------------------------------------------------------------------------------------|
 | adze.py |Cut logfiles up and analyze data |
+| configure.py | Create configuration for galaxy.exe |
 | make_3d.py | Plot output from galaxy |
 | make_img.py | Plot output from galaxy |
 | plot_energy.py  |Used to investigate distribution of energies - do we thermalize?| 
