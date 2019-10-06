@@ -102,7 +102,7 @@ def encode(x):
     return hex(struct.unpack('!q', struct.pack('!d',x))[0])[2:]
     
 if __name__=='__main__':
-    import argparse
+    import argparse, time
     parser = argparse.ArgumentParser('Configure galaxy.exe')
     parser.add_argument(      '--dt', type=float, default=0.1,          help='Step size for integration')
     parser.add_argument(      '--output', default='config_new.txt',     help='Configuration file')
@@ -118,6 +118,7 @@ if __name__=='__main__':
     args = parser.parse_args()
     random.seed(args.seed)
     config_file = os.path.join(args.path,args.output)
+    start       = time.time()
     backup(output=config_file)
     generate_configuration_file(
         output        = config_file,
@@ -127,4 +128,7 @@ if __name__=='__main__':
         radius        = args.radius,
         theta         = args.theta,
         dt            = args.dt)
-    print ('Created {0}: {1}'.format(args.model,config_file))
+    print ('Created {0}, n={1}, r={2}, stored in {3}'.format(args.model,args.number_bodies,args.radius,config_file))
+    elapsed_time = time.time()-start
+    print ('Elapsed time={0:.1f} seconds. i.e. {1:.0f} msec per 1000 bodies'.format(elapsed_time,
+                                                                                    1000*elapsed_time/(args.number_bodies/1000)))
