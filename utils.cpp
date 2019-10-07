@@ -181,13 +181,19 @@ double mean(std::vector<double> values) {
 	return  std::accumulate(values.begin(), values.end(), 0.0) / values.size();
 }
 
-double deserialize(const std::string& hexstr) {
+double decode2(const std::string& hexstr) {
 	double d = 0.0;
 
+	double sign = +1.0;
+	
     try{
-        *reinterpret_cast<unsigned long long*>(&d) = std::stoull(hexstr, nullptr, 16);
+		if (hexstr.compare(0,1,"-")==0){
+			sign = -1.0;
+			*reinterpret_cast<unsigned long long*>(&d) = std::stoull(hexstr.substr(1), nullptr, 16);
+		} else
+			*reinterpret_cast<unsigned long long*>(&d) = std::stoull(hexstr, nullptr, 16);
     }
     catch(...){}
 
-    return d;
+    return sign * d;
 }

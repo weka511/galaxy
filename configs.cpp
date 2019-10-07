@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2019 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,10 +28,11 @@
 #include "spdlog/spdlog.h"
 
 
-namespace spd = spdlog;
+namespace spd          = spdlog;
 static int resume_flag = 0;
 
 int get_resume_flag(){return resume_flag;}
+
 /**
  *  Long version of command line options.
  */
@@ -59,27 +60,27 @@ struct option long_options[] = {
  *  Process command line options. Returns `true` iff execution is to continue.
  */
 bool Configuration::extract_options(int argc, char **argv) {
-	auto logger=spdlog::get("galaxy");
+	auto logger      = spdlog::get("galaxy");
 	int option_index = 0;
 	int c;
 
 	while ((c = getopt_long (argc, argv, "a:c:d:hi:lm:n:p:r:S:s:t:",long_options, &option_index)) != -1)
 		switch (c){
 			case 'c':
-				_config_file_name=optarg;
+				_config_file_name = optarg;
 				logger->info("Configuration File={0}",_config_file_name);
 				break;
 			
 			case 'd':
-				_dt=get_double("dt",optarg,0.5);
+				_dt = get_double("dt",optarg,0.5);
 				break;
 			
 			case 'f':
-				_a=get_double("Softening Length",optarg);
+				_a = get_double("Softening Length",optarg);
 				break;
 				
 			case 'g':
-				_n_threads=get_number("Number of threads",optarg);
+				_n_threads = get_number("Number of threads",optarg);
 				break;
 				
 			case 'h':
@@ -87,7 +88,7 @@ bool Configuration::extract_options(int argc, char **argv) {
 				return false;
 			
 			case 'i':
-				_img_iter=get_number("Frequency at which configs are written",optarg);
+				_img_iter = get_number("Frequency at which configs are written",optarg);
 				break;
 				
 			case 'l':
@@ -96,32 +97,32 @@ bool Configuration::extract_options(int argc, char **argv) {
 				break;
 			
 			case 'm':
-				_max_iter=get_number("Number of iterations",optarg);
+				_max_iter = get_number("Number of iterations",optarg);
 				break;
 			
 			case 'n':
-				_numbodies=get_number("Number of bodies",optarg);
+				_numbodies = get_number("Number of bodies",optarg);
 				break;
 			
 			case 'p':
-				_path=optarg;
+				_path = optarg;
 				logger->info("Path={0}",_path);
 				break;
 			
 			case 'r':
-				_ini_radius= get_double("Initial radius",optarg);
+				_ini_radius = get_double("Initial radius",optarg);
 				break;
 			
 			case 'S':
-				_seed= get_double("Random number seed",optarg);
+				_seed = get_double("Random number seed",optarg);
 				break;
 				
 			case 't':
-				_theta=get_double("Theta",optarg);
+				_theta = get_double("Theta",optarg);
 				break;
 			
 			case 'z':
-				_needToZero=get_number("Need to zero",optarg,3,-1);
+				_needToZero = get_number("Need to zero",optarg,3,-1);
 				break;
 				
 			case '?':
@@ -255,36 +256,36 @@ bool Configuration::restore_config(std::vector<Particle*>& particles,int& iter,b
 		switch(state) {
 			case State::expect_version:
 				token = line.substr(1+line.find("="));
+				state = State::expect_iteration;
 				logger->info("Version {0}",token);
-				state=State::expect_iteration;
 				break;
 			case State::expect_iteration:
 				token = line.substr(1+line.find("="));
-				iter=atoi(token.c_str());
+				iter  = atoi(token.c_str());
+				state = State::expect_theta;
 				logger->info("Iter = {0}",iter);
-				state=State::expect_theta;
 				break;
 			case State::expect_theta:
-				token = line.substr(1+line.find("="));
-				_theta=decode(token);
+				token  = line.substr(1+line.find("="));
+				_theta = decode(token);
+				state  = State::expect_g;
 				logger->info("Theta={0}",_theta);
-				state=State::expect_g;
 				break;
 			case State::expect_g:
 				token = line.substr(1+line.find("="));
-				_G=decode(token);
+				_G    = decode(token);
+				state = State::expect_dt;
 				logger->info("G={0}",_G);
-				state=State::expect_dt;
 				break;
 			case State::expect_dt:
 				token = line.substr(1+line.find("="));
-				_dt=decode(token);
+				_dt   = decode(token);
+				state = State::expect_body;
 				logger->info("dt={0}",_dt);
-				state=State::expect_body;
 				break;
 			case State::expect_body:
 				if (line.find("End")==0)
-					state=State::expect_eof;
+					state = State::expect_eof;
 				else
 					particles.push_back(extract_particle(line));
 				break;

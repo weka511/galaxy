@@ -47,7 +47,7 @@
  double decode(std::string str);
  
  /**
-  * deserialize
+  * decode2
   *
   * Restore floating value stored by python encode2
   *
@@ -56,7 +56,7 @@
   * Returns:
   *    Corresponding floating point value
   */
- double deserialize(const std::string& hexstr);
+ double decode2(const std::string& hexstr);
  
  /**
   * Used to check whether program should be running:

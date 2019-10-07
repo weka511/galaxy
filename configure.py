@@ -101,8 +101,10 @@ def create_plummer(number_bodies=100):
 # encode2
 
 def encode2(x):
-    return hex(struct.unpack('!q', struct.pack('!d',x))[0])[2:]
-    
+    def encode_plus(x):
+        return hex(struct.unpack('!q', struct.pack('!d',x))[0])[2:]
+    return encode_plus(x) if x>=0 else '-' + encode_plus(-x)
+
 if __name__=='__main__':
     import argparse, time
     parser = argparse.ArgumentParser('Configure galaxy.exe')
@@ -121,8 +123,8 @@ if __name__=='__main__':
     args = parser.parse_args()
     if args.generate:
         for i in range(10):
-            x = random.uniform(0,5)
-            print ('\t\tREQUIRE(deserialize("{1}")=={0});'.format(x,encode2(x))) 
+            x = random.uniform(-5,5)
+            print ('\t\tREQUIRE(decode2("{1}")=={0});'.format(x,encode2(x))) 
         sys.exit(0)
     random.seed(args.seed)
     config_file = os.path.join(args.path,args.output)
