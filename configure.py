@@ -46,11 +46,11 @@ def generate_configuration_file(
     with open(output,'w') as f:
         f.write('Version={0}\n'.format(config_version))
         f.write('iteration={0}\n'.format(0))
-        f.write('theta={0}\n'.format(encode(theta)))
-        f.write('G={0}\n'.format(encode(G)))
-        f.write('dt={0}\n'.format(encode(dt)))
+        f.write('theta={0}\n'.format(encode2(theta)))
+        f.write('G={0}\n'.format(encode2(G)))
+        f.write('dt={0}\n'.format(encode2(dt)))
         for body in config_factory(number_bodies=number_bodies):
-            f.write(','.join([encode(b) for b in body])+'\n' )
+            f.write(','.join([encode2(b) for b in body])+'\n' )
             
 
 def create_config_factory(model):
@@ -98,24 +98,32 @@ def create_plummer(number_bodies=100):
     
     return [create_body() for i in range(number_bodies)]
 
-def encode(x):
+# encode2
+
+def encode2(x):
     return hex(struct.unpack('!q', struct.pack('!d',x))[0])[2:]
     
 if __name__=='__main__':
     import argparse, time
     parser = argparse.ArgumentParser('Configure galaxy.exe')
-    parser.add_argument(      '--dt', type=float, default=0.1,          help='Step size for integration')
-    parser.add_argument(      '--output', default='config_new.txt',     help='Configuration file')
-    parser.add_argument(      '--model', default='plummer',             help='Used to initialize distribution')
-    parser.add_argument('-a', '--soften', type=float, default=1.0,      help='Softening length')
-    parser.add_argument('-i', '--image_freq',                           help='Controls frequency for logging')
-    parser.add_argument('-m', '--max_iter',                             help='Number of iterations')
-    parser.add_argument('-n', '--number_bodies', default=100, type=int, help='Number of bodies')
-    parser.add_argument('-p', '--path',  default='./configs',           help='Path for configuration files')
-    parser.add_argument('-r', '--radius', type=float, default=1.0,      help='Initial Radius')
-    parser.add_argument('-s', '--seed',                                 help='Initialize the random number generator')
-    parser.add_argument('-t', '--theta', type=float, default=0.5,       help='Theta-criterion of the Barnes-Hut algorithm')
+    parser.add_argument(      '--dt', type=float,              default=0.1,              help='Step size for integration')
+    parser.add_argument(      '--output',                      default='config_new.txt', help='Configuration file')
+    parser.add_argument(      '--model',                       default='plummer',        help='Used to initialize distribution')
+    parser.add_argument('-a', '--soften', type=float,          default=1.0,              help='Softening length')
+    parser.add_argument('-i', '--image_freq',                                            help='Controls frequency for logging')
+    parser.add_argument('-m', '--max_iter',                                              help='Number of iterations')
+    parser.add_argument('-n', '--number_bodies',  type=int,    default=100,              help='Number of bodies')
+    parser.add_argument('-p', '--path',                        default='./configs',      help='Path for configuration files')
+    parser.add_argument('-r', '--radius', type=float,          default=1.0,              help='Initial Radius')
+    parser.add_argument('-s', '--seed',                                                  help='Initialize the random number generator')
+    parser.add_argument('-t', '--theta', type=float,           default=0.5,              help='Theta-criterion of the Barnes-Hut algorithm')
+    parser.add_argument(      '--generate',action='store_true',default=False,            help='Generate test data for serialization')
     args = parser.parse_args()
+    if args.generate:
+        for i in range(10):
+            x = random.uniform(0,5)
+            print ('\t\tREQUIRE(deserialize("{1}")=={0});'.format(x,encode2(x))) 
+        sys.exit(0)
     random.seed(args.seed)
     config_file = os.path.join(args.path,args.output)
     start       = time.time()
