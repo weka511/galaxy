@@ -23,6 +23,8 @@
 #include <vector>
 
  /**
+  * encode
+  *
   * Encode a floating value so it can be stored and retrieved without loss of significant digits
   *
   * Parameters:
@@ -33,6 +35,8 @@
  std::string encode(const double value);
  
  /**
+  * decode
+  *
   * Restore floating value stored by encode
   *
   * Parameters:
@@ -41,6 +45,18 @@
   *    Corresponding floating point value
   */
  double decode(std::string str);
+ 
+ /**
+  * deserialize
+  *
+  * Restore floating value stored by python encode2
+  *
+  * Parameters:
+  *    value       Text string read from file
+  * Returns:
+  *    Corresponding floating point value
+  */
+ double deserialize(const std::string& hexstr);
  
  /**
   * Used to check whether program should be running:
@@ -100,8 +116,6 @@ double mean(std::vector<double> values);
  * Determine the standard deviation of observations stored in a vector
  */
 double stdev(std::vector<double> q1s,double mean,bool bessel=false);
-
-double deserialize(const std::string& hexstr);
 
 #endif
  
