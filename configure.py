@@ -53,6 +53,12 @@ def generate_configuration_file(
             f.write(','.join([encode(b) for b in body])+'\n' )
         f.write('End\n')
             
+# create_config_factory
+#
+# Instantiate method for creatong configuration
+#
+# Parameters:
+#     model       Name of model
 
 def create_config_factory(model):
     config_factory_dict = {'plummer':create_plummer}
@@ -68,6 +74,10 @@ def create_config_factory(model):
 #
 # http://www.artcompsci.org/kali/vol/plummer/volume9.pdf       
 def create_plummer(number_bodies=100):
+    
+    # randomize_on_sphere
+    #
+    # Randomly position point on sphere
     def randomize_on_sphere(radius=1):
         theta  = math.acos(random.uniform(-1,1))
         phi    = random.uniform(0,2*math.pi)
@@ -75,11 +85,11 @@ def create_plummer(number_bodies=100):
                 radius * math.sin(theta) * math.sin(phi),
                 radius * math.cos(theta)]
 
-# get_velocity_ratio
-#
-#  Sampling used in A comparison of Numerical Methods for the Study of Star Cluster Dynamics, 
-#  by Sverre Aarseth, Michel Henon, and Roland Wielen, in Astron. Astroph.37, 183 (1974)
-#  http://articles.adsabs.harvard.edu/full/1974A%26A....37..183A
+    # get_velocity_ratio
+    #
+    #  Sampling used in A comparison of Numerical Methods for the Study of Star Cluster Dynamics, 
+    #  by Sverre Aarseth, Michel Henon, and Roland Wielen, in Astron. Astroph.37, 183 (1974)
+    #  http://articles.adsabs.harvard.edu/full/1974A%26A....37..183A
 
     def get_velocity_ratio():
         x = 0.0
@@ -88,16 +98,27 @@ def create_plummer(number_bodies=100):
             x = random.uniform(0,1)
             y = random.uniform(0,0.1)
         return x
+
+    # create_velocity
+    #
+    # Setup initial velocities
     
     def create_velocity(radius=1):
         return randomize_on_sphere(radius=get_velocity_ratio() * math.sqrt(2.0) *(1 + radius*radius)**(-0.25))
     
+    # create_body
+    #
+    # Create one body with random position and velocity
     def create_body():
         mass     = 1.0/number_bodies
         radius   = 1.0/math.sqrt(random.uniform(0,1)**(-2/3) - 1)
         return randomize_on_sphere(radius=radius) + [mass] + create_velocity(radius=radius)
     
     return [create_body() for i in range(number_bodies)]
+
+# encode
+#
+#  Convert a floating point number to a string for serialization
 
 def encode(x):
     return str(struct.unpack('!q', struct.pack('!d',x))[0])

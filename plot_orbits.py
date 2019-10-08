@@ -23,15 +23,22 @@ def get_limits(bodies,n=1):
     sigma=np.std(bodies)
     return (m-n*sigma,m+n*sigma)
 
-'''
-Plot orbits
+# plot
+#
+# Plot orbits
+#
+#    Parameters:
+#        data      Positions of sampled points in all orbits
+#        selector  Used to selectd which points will be plotted
+#        colours   Colours used to distinguish orbits
 
-    Parameters:
-        data      Positions of sampled points in all orbits
-        selector  Used to selectd which points will be plotted
-        colours   Colours used to distinguish orbits
-'''
-def plot(rr,selector=[],colours=['r','g','b','m','c','y','k'],n=2,images='.',linestyles = ['-', '--', '-.', ':'],dpi=300):
+def plot(rr,
+         selector=[],
+         colours=['r','g','b','m','c','y','k'],
+         n=2,
+         images='.',
+         linestyles = ['-', '--', '-.', ':'],
+         dpi=300):
     (m,data)=rr
     if len(data)==0:
         print ('No data - check path')
@@ -63,18 +70,24 @@ def plot(rr,selector=[],colours=['r','g','b','m','c','y','k'],n=2,images='.',lin
     plt.savefig(os.path.join(images,'orbits-{1}-{0}.png'.format(len(data[0]),m)), dpi=dpi)
     return True
 
-'''
-Extract data from configuration files
+# extract
+#
+# Extract data from configuration files
+#
+#    Parameters:
+#        config_path     Location of data
+#        selector        Used to select points that will be extracted
+#        maxsamples      Maximum number of points sampled in each orbit
+#        prefix          Prefix for configuration files
+#        suffix          Suffix for configuration files
+#        delimiter       Delimiter for fields in config file
 
-    Parameters:
-        config_path     Location of data
-        selector        Used to select points that will be extracted
-        maxsamples      Maximum number of points sampled in each orbit
-        prefix          Prefix for configuration files
-        suffix          Suffix for configuration files
-        delimiter       Delimiter for fields in config file
-'''
-def extract(config_path = './configs/',selector=[0,1,2,55,100,400],maxsamples=1000,prefix='bodies',suffix='csv',delimiter=','):
+def extract(config_path = './configs/',
+            selector=[0,1,2,55,100,400],
+            maxsamples=1000,
+            prefix='bodies',
+            suffix='csv',
+            delimiter=','):
     m=None
     result=[]
     n=len(os.listdir(config_path))   # Total number of points
@@ -87,7 +100,7 @@ def extract(config_path = './configs/',selector=[0,1,2,55,100,400],maxsamples=10
         if match:
             if i%skip == 0:
                 positions = np.loadtxt(os.path.join(config_path,match.group(0)),delimiter=delimiter)
-                m=len(positions)
+                m         = len(positions)
                 result.append([positions[i] for i in selector])
             i+=1
     return (m,result)
@@ -96,43 +109,34 @@ def extract(config_path = './configs/',selector=[0,1,2,55,100,400],maxsamples=10
 if __name__=='__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Plot orbits from Barnes Hut Galaxy Simulator, galaxy.exe')
-    parser.add_argument('--bodies','-b', type=int,action='store',
-                        help='Number of bodies from simulation',default=1000)
-    parser.add_argument('--dpi', type=int,action='store',
-                        help='Dots per inch for displaying and saving figure',default=300)      
-    parser.add_argument('--norbits','-n', type=int,action='store',
-                        help='Number of orbits',default=7)
-    parser.add_argument('--maxsamples','-m', type=int,action='store',
-                        help='Maximum number of sample per orbit (-1 to process all samples)',default=1000)    
-    parser.add_argument('--prefix', action='store',
-                        help='Prefix for configuration files',default='bodies') 
-    parser.add_argument('--suffix','-s', action='store',
-                        help='Suffix for configuration files',default='csv') 
-    parser.add_argument('--delimiter','-d', action='store',
-                        help='Delimiter for fields in config file',default=',')
-    parser.add_argument('--nsigma','-g', type=int,action='store',
-                        help='Number of standard deviations to use for scaling',default=3)
-    parser.add_argument('--seed',type=int,action='store',default=None,help='Seed for random number generator')
-    parser.add_argument('--images','-i',action='store',help='Path to store images',default='./imgs')
-    parser.add_argument('--path','-p',action='store',default='./configs',help='Path for config files')
+    parser.add_argument('--bodies','-b', type=int, default=1000, help='Number of bodies from simulation')
+    parser.add_argument('--dpi', type=int, default=300, help='Dots per inch for displaying and saving figure')      
+    parser.add_argument('--norbits','-n', type=int, default=7, help='Number of orbits')
+    parser.add_argument('--maxsamples','-m', type=int, default=1000, help='Maximum number of sample per orbit (-1 to process all samples)')    
+    parser.add_argument('--prefix', default='bodies',help='Prefix for configuration files') 
+    parser.add_argument('--suffix','-s', default='csv', help='Suffix for configuration files') 
+    parser.add_argument('--delimiter','-d', default=',', help='Delimiter for fields in config file')
+    parser.add_argument('--nsigma','-g', type=int, default=3, help='Number of standard deviations to use for scaling')
+    parser.add_argument('--seed',type=int,default=None,help='Seed for random number generator')
+    parser.add_argument('--images','-i', default='./imgs', help='Path to store images')
+    parser.add_argument('--path','-p',default='./configs',help='Path for config files')
     args = parser.parse_args()
-    if args.seed==None:
-        random.seed()
-    else:
-        random.seed(args.seed)
+
+    random.seed(args.seed)
         
     selector=random.sample(range(args.bodies),args.norbits) 
     if plot(
         extract(
             config_path = args.path,
-            selector=selector,
-            maxsamples=args.maxsamples,
-            prefix=args.prefix,
-            suffix=args.suffix,
-            delimiter=args.delimiter),
-        selector=selector,
-        n=args.nsigma,
-        images=args.images,
-        dpi=args.dpi):
+            selector    = selector,
+            maxsamples  = args.maxsamples,
+            prefix      = args.prefix,
+            suffix      = args.suffix,
+            delimiter   = args.delimiter),
+        selector = selector,
+        n        = args.nsigma,
+        images   = args.images,
+        dpi      = args.dpi):
+        
         plt.show()
   
