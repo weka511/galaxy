@@ -65,33 +65,7 @@
 	return *pf;
  }
  
- /**
-  * decode2
-  *
-  * Restore floating value stored by python encode2
-  *
-  * Parameters:
-  *    hexstr       Text string read from file
-  * Returns:
-  *    Corresponding floating point value
-  */
-// double decode2(const std::string& hexstr) {
-	// double d = 0.0;
-
-	// double sign = +1.0;
-	
-    // try{
-		// if (hexstr.compare(0,1,"-")==0){
-			// sign = -1.0;
-			// *reinterpret_cast<unsigned long long*>(&d) = std::stoull(hexstr.substr(1), nullptr, 16);
-		// } else
-			// *reinterpret_cast<unsigned long long*>(&d) = std::stoull(hexstr, nullptr, 16);
-    // }
-    // catch(...){}
-
-    // return sign * d;
-// }
-
+ 
  
  /**
  * If file exists, copy to backup

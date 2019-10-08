@@ -101,13 +101,6 @@ def create_plummer(number_bodies=100):
 
 def encode(x):
     return str(struct.unpack('!q', struct.pack('!d',x))[0])
-    
-# encode2
-
-#def encode2(x):
-    #def encode_plus(x):
-        #return hex(struct.unpack('!q', struct.pack('!d',x))[0])[2:]
-    #return encode_plus(x) if x>=0 else '-' + encode_plus(-x)
 
 if __name__=='__main__':
     import argparse, time

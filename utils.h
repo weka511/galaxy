@@ -46,17 +46,7 @@
   */
  double decode(std::string str);
  
- /**
-  * decode2
-  *
-  * Restore floating value stored by python encode2
-  *
-  * Parameters:
-  *    hexstr       Text string read from file
-  * Returns:
-  *    Corresponding floating point value
-  */
- // double decode2(const std::string& hexstr);
+
  
  /**
   * Used to check whether program should be running:
