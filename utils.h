@@ -52,11 +52,11 @@
   * Restore floating value stored by python encode2
   *
   * Parameters:
-  *    value       Text string read from file
+  *    hexstr       Text string read from file
   * Returns:
   *    Corresponding floating point value
   */
- double decode2(const std::string& hexstr);
+ // double decode2(const std::string& hexstr);
  
  /**
   * Used to check whether program should be running:

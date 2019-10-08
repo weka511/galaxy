@@ -228,7 +228,7 @@ bool Configuration::extract_options(int argc, char **argv) {
 		double vx, vy,vz;
 		bodies[i] -> getVel(vx, vy,vz);
 		double m=bodies[i]->getMass();
-		ofile << i << "," << encode(px) << "," << encode(py) << ","<< encode(pz) << "," << encode(m) << "," 
+		ofile <<  encode(px) << "," << encode(py) << ","<< encode(pz) << "," << encode(m) << "," 
 				<< encode(vx) << "," << encode(vy )<< "," << encode(vz) << "\n";
 	}
 	ofile << "End\n";
@@ -312,18 +312,16 @@ bool Configuration::restore_config(std::vector<Particle*>& particles,int& iter,b
  * Retrieve position, mass, and velocities stored for one Body
  */
 Particle * Configuration::extract_particle(std::string line){
-	enum State {expect_i,expect_x,expect_y,expect_z,expect_m,expect_vx,expect_vy,expect_vz,end_line};
-	State state=expect_i;
+	enum State {expect_x,expect_y,expect_z,expect_m,expect_vx,expect_vy,expect_vz,end_line};
+	State state=expect_x;
 	double px, py, pz, m, vx,vy,vz;
+
 	while (state!=end_line) {
 		int pos=line.find(",");
 		std::string token=pos>=0 ? line.substr(0,pos) : line;
 		line=line.substr(pos+1);
 	
 		switch (state){
-			case expect_i:
-				state=expect_x;
-				break;
 			case expect_x:
 				state=expect_y;
 				px=decode(token);
