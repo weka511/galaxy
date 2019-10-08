@@ -15,13 +15,17 @@
 #
 
 #  Companion to galaxy.exe - plot kinetic energy distribution,
-#  and compare with Bolzmann.
+#  and compare with boltzmann.
 
 import numpy as np,matplotlib.pyplot as plt,os.path as op,sys
 from matplotlib import rc
 from scipy.optimize import curve_fit
 
-def bolzmann(n,m,beta):
+# boltzmann
+#
+# Generate the Maxwell-Boltzmann distribution function
+
+def boltzmann(n,m,beta):
     return m*np.exp(-beta*n)
 
 popt_cached=(-1,-1) #So optimization step can use value from previous step as starting value
@@ -35,11 +39,11 @@ def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs',s
     xx=[0.5*(bins[i]+bins[i-1]) for i in range(1,len(bins))]
     if popt_cached[0]<0:
         popt_cached=(n[0], 100)
-    popt, pcov = curve_fit(bolzmann, xx, n, p0=popt_cached)
+    popt, pcov = curve_fit(boltzmann, xx, n, p0=popt_cached)
     popt_cached=popt
     perr = np.sqrt(np.diag(pcov))
-    yy=[bolzmann(x,*popt) for x in xx]
-    plt.plot( xx, yy,c='r',label=r'Bolzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
+    yy=[boltzmann(x,*popt) for x in xx]
+    plt.plot( xx, yy,c='r',label=r'Boltzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
     plt.title(name)
     plt.legend()
     plt.savefig(op.join(out,name.replace('bodies','energy')+'.png'))
