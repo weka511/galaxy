@@ -94,6 +94,8 @@ if __name__=='__main__':
             sigmas.append(sigma)
     except FileNotFoundError:
         pass
+    except OSError:
+        pass
     
     plot_distribution(args.out,args.distribution)
     if args.show:
