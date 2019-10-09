@@ -76,7 +76,8 @@ def plot_evolution_parameters(path,out):
     
 if __name__=='__main__':
     import argparse
-    rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+ 
+    rc('font',**{'family':'serif', 'serif': ['cmr10']}) # see http://matplotlib.1069221.n5.nabble.com/computer-modern-td22253.html
     rc('text', usetex=True)
     
     parser = argparse.ArgumentParser(description='Plot distribution of energies')
