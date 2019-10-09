@@ -30,20 +30,31 @@ def boltzmann(n,m,beta):
 
 popt_cached=(-1,-1) #So optimization step can use value from previous step as starting value
 
-def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs',show=False):
+# plot_distribution
+#
+# Plot distribution of energies and compare with Boltzmann
+def plot_distribution(
+    name  = 'bodies00002',
+    ext   = '.csv',
+    path  = './configs',
+    nbins = 200,
+    out   = './imgs',
+    show  = False):
     global popt_cached
     plt.figure(figsize=(10,10))
-    config = np.loadtxt(op.join(path,name+ext),delimiter=',')
-    energies=[0.5*config[j,6]*(config[j,3]**2+config[j,4]**2+config[j,5]**2) for j in range(len(config))]
-    n,bins,_=plt.hist(energies,bins=nbins,label='Energies')
-    xx=[0.5*(bins[i]+bins[i-1]) for i in range(1,len(bins))]
+    
+    config        = np.loadtxt(op.join(path,name+ext),delimiter=',')
+    energies      = [0.5*config[j,6]*(config[j,3]**2+config[j,4]**2+config[j,5]**2) for j in range(len(config))]
+    n,bins,_      = plt.hist(energies,bins=nbins,label='Energies')
+    energy_levels = [0.5*(bins[i]+bins[i-1]) for i in range(1,len(bins))]
     if popt_cached[0]<0:
         popt_cached=(n[0], 100)
-    popt, pcov = curve_fit(boltzmann, xx, n, p0=popt_cached)
-    popt_cached=popt
-    perr = np.sqrt(np.diag(pcov))
-    yy=[boltzmann(x,*popt) for x in xx]
-    plt.plot( xx, yy,c='r',label=r'Boltzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
+    popt, pcov   = curve_fit(boltzmann, energy_levels, n, p0=popt_cached)
+    popt_cached  = popt
+    perr         = np.sqrt(np.diag(pcov))
+    probabiities = [boltzmann(e,*popt) for e in energy_levels]
+    plt.plot( energy_levels, probabiities,
+              c='r',label=r'Boltzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
     plt.title(name)
     plt.legend()
     plt.savefig(op.join(out,name.replace('bodies','energy')+'.png'))
@@ -51,7 +62,11 @@ def plot(name='bodies00002',ext='.csv',path='./configs',nbins=200,out='./imgs',s
         plt.close()
     return popt[1],perr[1]
 
-def plot_distribution(path,out):
+# plot_evolution_parameters
+#
+# Plot eveolution of Boltzmann beta and standard error
+
+def plot_evolution_parameters(path,out):
     plt.figure(figsize=(10,10))
     plt.plot(betas,'b',label=r'$\beta$')
     plt.plot(sigmas,'r',label=r'$\sigma$')
@@ -89,14 +104,14 @@ if __name__=='__main__':
     sigmas=[]
     try:
         for i in range(args.N0,args.N1,args.step):
-            beta,sigma=plot('bodies{0:05d}'.format(i),show=args.show,ext=args.ext,path=args.path,out=args.out)
+            beta,sigma = plot_distribution('bodies{0:05d}'.format(i),show=args.show,ext=args.ext,path=args.path,out=args.out)
             betas.append(beta)
             sigmas.append(sigma)
     except FileNotFoundError:
         pass
-    except OSError:
+    except OSError:  # End of files
         pass
     
-    plot_distribution(args.out,args.distribution)
+    plot_evolution_parameters(args.out,args.distribution)
     if args.show:
         plt.show()
