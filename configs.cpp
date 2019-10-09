@@ -29,9 +29,9 @@
 
 
 namespace spd          = spdlog;
-static int resume_flag = 0;
+static int init_flag = 0;
 
-int get_resume_flag(){return resume_flag;}
+int get_resume_flag(){return !init_flag;}
 
 /**
  *  Long version of command line options.
@@ -46,7 +46,7 @@ struct option long_options[] = {
 	{"path",  			required_argument, 	0, 				'p'},
 	{"plummer",  		no_argument, 		0, 				'l'},
 	{"ini_radius",  	required_argument, 	0, 				'r'},
-	{"resume", 			no_argument,       	&resume_flag, 	1},
+	{"init", 			no_argument,       	&init_flag, 	1},
 	{"theta",  			required_argument, 	0, 				't'},
 	{"seed",  			required_argument, 	0, 				'S'},
 	{"soften",  		required_argument, 	0, 				'a'},
@@ -373,7 +373,7 @@ void Configuration::_help() {
 				"  -n,--numbodies\tNumber of bodies [" <<_numbodies<< "]"<<std::endl<<
 				"  -p,--path\tPath for writing configurations [" <<_path << "]"<< std::endl<<
 				"  -r,--ini_radius\tInitial Radius [" <<_ini_radius << "]"<<std::endl<<
-				"  --resume\tResume previous run"<<std::endl<<
+				"  --init\tInitialize (otherwise resume previous run)"<<std::endl<<
 				"  -S,--seed\tSeed random number generator"<<std::endl<<
 				"  -s,--threads\tNumber of CPU threads[" <<_n_threads << "]"<<std::endl<<
 				"  -t,--theta\tTheta-criterion of the Barnes-Hut algorithm [" <<_theta << "]"<< std::endl<<
