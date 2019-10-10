@@ -18,10 +18,20 @@
 
 import os, os.path, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d,random
 
-def get_limits(bodies,n=1):
-    m=np.mean(bodies)
-    sigma=np.std(bodies)
-    return (m-n*sigma,m+n*sigma)
+# get_limits
+#
+# Used to establish limits for plotting.
+#
+# Parameters:
+#    xs    Data from one axis
+#    n     Controls the limits on data width
+#
+# Returns:  mean _/- n standard deviations
+
+def get_limits(xs,n=1):
+    mean  = np.mean(xs)
+    sigma = np.std(xs)
+    return (mean-n*sigma,mean+n*sigma)
 
 # plot
 #
@@ -59,12 +69,11 @@ def plot(rr,
         xs.append(get_coordinates(body,0))
         ys.append(get_coordinates(body,1))
         zs.append(get_coordinates(body,2))
-    x0,x1=get_limits(xs,n=n)
-    ax.set_xlim(x0,x1)
-    y0,y1=get_limits(xs,n=n)
-    ax.set_ylim(y0,y1)
-    z0,z1=get_limits(xs,n=n)
-    ax.set_zlim(z0,z1)
+ 
+    ax.set_xlim(get_limits(xs,n=n))
+    ax.set_ylim(get_limits(ys,n=n))
+    ax.set_zlim(get_limits(zs,n=n))
+    
     plt.legend(loc='best')
     plt.title('Orbits of {0} randomly selected stars out of {1}'.format(len(data[0]),m))
     plt.savefig(os.path.join(images,'orbits-{1}-{0}.png'.format(len(data[0]),m)), dpi=dpi)
@@ -88,13 +97,14 @@ def extract(config_path = './configs/',
             prefix='bodies',
             suffix='csv',
             delimiter=','):
-    m=None
-    result=[]
-    n=len(os.listdir(config_path))   # Total number of points
-    skip=1                           # Used to skip over data so number of points won't exceed maxsamples
+    m      = None
+    result = []
+    n      = len(os.listdir(config_path))   # Total number of points
+    skip   = 1                              # Used to skip over data so number of points won't exceed maxsamples
     while maxsamples>0 and n//skip>maxsamples:
         skip*=10
-    i=0
+        
+    i = 0
     for file_name in os.listdir(config_path):
         match = re.search(r'{0}[0-9]+\.{1}'.format(prefix,suffix),file_name)
         if match:
@@ -103,6 +113,7 @@ def extract(config_path = './configs/',
                 m         = len(positions)
                 result.append([positions[i] for i in selector])
             i+=1
+            
     return (m,result)
 
 
@@ -112,14 +123,14 @@ if __name__=='__main__':
     parser.add_argument('--bodies','-b', type=int, default=1000, help='Number of bodies from simulation')
     parser.add_argument('--dpi', type=int, default=300, help='Dots per inch for displaying and saving figure')      
     parser.add_argument('--norbits','-n', type=int, default=7, help='Number of orbits')
-    parser.add_argument('--maxsamples','-m', type=int, default=1000, help='Maximum number of sample per orbit (-1 to process all samples)')    
-    parser.add_argument('--prefix', default='bodies',help='Prefix for configuration files') 
-    parser.add_argument('--suffix','-s', default='csv', help='Suffix for configuration files') 
-    parser.add_argument('--delimiter','-d', default=',', help='Delimiter for fields in config file')
-    parser.add_argument('--nsigma','-g', type=int, default=3, help='Number of standard deviations to use for scaling')
-    parser.add_argument('--seed',type=int,default=None,help='Seed for random number generator')
-    parser.add_argument('--images','-i', default='./imgs', help='Path to store images')
-    parser.add_argument('--path','-p',default='./configs',help='Path for config files')
+    parser.add_argument('--maxsamples','-m', type=int, default=1000,        help='Maximum number of sample per orbit (-1 to process all samples)')    
+    parser.add_argument('--prefix',                    default='bodies',    help='Prefix for configuration files') 
+    parser.add_argument('--suffix','-s',               default='csv',       help='Suffix for configuration files') 
+    parser.add_argument('--delimiter','-d',            default=',',         help='Delimiter for fields in config file')
+    parser.add_argument('--nsigma','-g',    type=int,  default=3,           help='Number of standard deviations to use for scaling')
+    parser.add_argument('--seed',           type=int,  default=None,        help='Seed for random number generator')
+    parser.add_argument('--images','-i',               default='./imgs',    help='Path to store images')
+    parser.add_argument('--path','-p',                 default='./configs', help='Path for config files')
     args = parser.parse_args()
 
     random.seed(args.seed)
