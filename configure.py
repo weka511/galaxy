@@ -15,7 +15,7 @@
 #
 # Create configuration for galaxy.exe
 
-import os, random, sys, struct, math
+import os, random, sys, struct, math, matplotlib.pyplot as plt,mpl_toolkits.mplot3d
 from shutil import copyfile
 
 # backup
@@ -49,9 +49,11 @@ def generate_configuration_file(
         f.write('theta={0}\n'.format(encode(theta)))
         f.write('G={0}\n'.format(encode(G)))
         f.write('dt={0}\n'.format(encode(dt)))
-        for body in config_factory(number_bodies=number_bodies):
+        bodies = config_factory(number_bodies=number_bodies)
+        for body in bodies:
             f.write(','.join([encode(b) for b in body])+'\n' )
         f.write('End\n')
+        return bodies
             
 # create_config_factory
 #
@@ -123,22 +125,42 @@ def create_plummer(number_bodies=100):
 def encode(x):
     return str(struct.unpack('!q', struct.pack('!d',x))[0])
 
+# plot_points
+#
+# Plot generated data
+
+def plot_points(bodies=[],output='./',path=''):
+    plt.figure(figsize=(20,20)) 
+    ax = plt.gcf().add_subplot(111,  projection='3d')
+    ax.scatter([body[0] for body in bodies],
+               [body[1] for body in bodies],
+               [body[2] for body in bodies],
+               s = 1,
+               c = 'b')
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    plt.title('Initial configuration for {0}'.format(output))
+    
 if __name__=='__main__':
     import argparse, time
+    
     parser = argparse.ArgumentParser('Configure galaxy.exe')
-    parser.add_argument(      '--dt', type=float,              default=0.1,          help='Step size for integration')
-    parser.add_argument(      '--output',                      default='config.txt', help='Configuration file')
-    parser.add_argument(      '--model',                       default='plummer',    help='Used to initialize distribution')
-    parser.add_argument('-a', '--soften', type=float,          default=1.0,          help='Softening length')
-    parser.add_argument('-i', '--image_freq',                                        help='Controls frequency for logging')
-    parser.add_argument('-m', '--max_iter',                                          help='Number of iterations')
-    parser.add_argument('-n', '--number_bodies',  type=int,    default=100,          help='Number of bodies')
-    parser.add_argument('-p', '--path',                        default='./configs',  help='Path for configuration files')
-    parser.add_argument('-r', '--radius', type=float,          default=1.0,          help='Initial Radius')
-    parser.add_argument('-s', '--seed',                                              help='Initialize the random number generator')
-    parser.add_argument('-t', '--theta', type=float,           default=0.5,          help='Theta-criterion of the Barnes-Hut algorithm')
-    parser.add_argument(      '--generate',action='store_true',default=False,        help='Generate test data for serialization')
+    parser.add_argument(      '--dt', type=float,              default=0.1,           help='Step size for integration')
+    parser.add_argument(      '--output',                      default='config.txt',  help='Configuration file')
+    parser.add_argument(      '--model',                       default='plummer',     help='Used to initialize distribution')
+    parser.add_argument('-a', '--soften', type=float,          default=1.0,           help='Softening length')
+    parser.add_argument('-i', '--image_freq',                                         help='Controls frequency for logging')
+    parser.add_argument('-m', '--max_iter',                                           help='Number of iterations')
+    parser.add_argument('-n', '--number_bodies',  type=int,      default=100,         help='Number of bodies')
+    parser.add_argument('-p', '--path',                          default='./configs', help='Path for configuration files')
+    parser.add_argument('-r', '--radius', type=float,            default=1.0,         help='Initial Radius')
+    parser.add_argument('-s', '--seed',                                               help='Initialize the random number generator')
+    parser.add_argument('-t', '--theta', type=float,             default=0.5,         help='Theta-criterion of the Barnes-Hut algorithm')
+    parser.add_argument(      '--generate', action='store_true', default=False,       help='Generate test data for serialization')
+    parser.add_argument(      '--show',     action='store_true', default=False,       help='Show generated points')
     args = parser.parse_args()
+    
     if args.generate:
         for i in range(10):
             x = random.uniform(-5,5)
@@ -148,7 +170,7 @@ if __name__=='__main__':
     config_file = os.path.join(args.path,args.output)
     start       = time.time()
     backup(output=config_file)
-    generate_configuration_file(
+    bodies = generate_configuration_file(
         output        = config_file,
         model         = args.model,
         imag_freq     = args.image_freq,
@@ -157,6 +179,10 @@ if __name__=='__main__':
         theta         = args.theta,
         dt            = args.dt)
     print ('Created {0}, n={1}, r={2}, stored in {3}'.format(args.model,args.number_bodies,args.radius,config_file))
+    if args.show:
+        plot_points(bodies=bodies,output=args.output,path=args.path)
+        plt.show()
+        
     elapsed_time = time.time()-start
     print ('Elapsed time={0:.1f} seconds. i.e. {1:.0f} msec per 1000 bodies'.format(elapsed_time,
                                                                                     1000*elapsed_time/(args.number_bodies/1000)))
