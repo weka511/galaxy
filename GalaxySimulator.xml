@@ -1,8 +1,9 @@
 <NotepadPlus>
     <Project name="General">
+        <File name="galaxy.wpr" />
+        <File name="kill.bat" />
         <File name="Makefile" />
         <File name="README.md" />
-        <File name="collision.xml" />
     </Project>
     <Project name="Galaxy">
         <File name="barnes-hut.cpp" />
@@ -33,14 +34,16 @@
         <File name="verlet.h" />
     </Project>
     <Project name="Tests">
+        <File name="catch.hpp" />
         <File name="tests.cpp" />
         <File name="test-kepler.cpp" />
         <File name="test-plummer.cpp" />
         <File name="test-tree.cpp" />
         <File name="test-random.cpp" />
-        <File name="catch.hpp" />
     </Project>
     <Project name="Helpers">
+        <File name="adze.py" />
+        <File name="configure.py" />
         <File name="make_3d.py" />
         <File name="plot_energy.py" />
         <File name="plot_orbits.py" />
@@ -66,5 +69,8 @@
     <Project name="TinyXML2">
         <File name="tinyxml2.cpp" />
         <File name="tinyxml2.h" />
+    </Project>
+    <Project name="Parameters">
+        <File name="collision.xml" />
     </Project>
 </NotepadPlus>
