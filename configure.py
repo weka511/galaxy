@@ -159,11 +159,12 @@ def pairs(bodies):
         for j in range(i):
             yield(bodies[i],bodies[j])
 
+def dist(b1,b2):
+    return math.sqrt(sum([(b1[i]-b2[i])*(b1[i]-b2[i]) for i in range(3)]))
+
 # Calculate energy, and work out ration from Virial theorem (should be 2)
 
 def check_energy(bodies=[],G=1.0,original_seed=0,true_seed=0,n=1):
-    def dist(b1,b2):
-        return math.sqrt(sum([(b1[i]-b2[i])*(b1[i]-b2[i]) for i in range(3)]))
     kinetic_energy   = 0.5 * sum([b[3]*sum(b[i]*b[i] for i in range(4,7)) for b in bodies])
     potential_energy = -  G * sum([G * b1[3] * b2[3]/dist(b1,b2) for (b1,b2) in pairs(bodies)])
     print ('Number of bodies = {0}\n'
@@ -175,7 +176,14 @@ def check_energy(bodies=[],G=1.0,original_seed=0,true_seed=0,n=1):
            'Ratio            = {6}'.format(
         n,original_seed,true_seed,
         kinetic_energy+potential_energy,kinetic_energy,potential_energy,-potential_energy/kinetic_energy))
-    
+ 
+def  check_quartiles(bodies):
+    n         = len(bodies)
+    distances = sorted([dist(b,[0,0,0,1,0,0,0]) for b in bodies])
+    print ('Q1: was {0:4f}, expected {1:4f}'.format(distances[n//4],(2**(4/3)-1)**(-1/2)))
+    print ('Q2: was {0:4f}, expected {1:4f}'.format(distances[n//2],(2**(2/3)-1)**(-1/2)))
+    print ('Q3: was {0:4f}, expected {1:4f}'.format(distances[3*n//4],(2**(4/3)*3**(-2/3)-1)**(-1/2)))
+     
 if __name__=='__main__':
     import argparse, time
     
@@ -192,7 +200,8 @@ if __name__=='__main__':
     parser.add_argument(      '--show',     action='store_true', default=False,        help='Show generated points')
     parser.add_argument(      '--nsigma',   type=float,          default=2,            help='Scale data for show')
     parser.add_argument(      '--energy',   action='store_true', default=False,        help='Check energy')
-    parser.add_argument('-G',  '--G',   type=float,          default=1.0,          help='Radius')
+    parser.add_argument('-G',  '--G',       type=float,          default=1.0,          help='Radius')
+    parser.add_argument(      '--quartile', action='store_true', default=False,        help='Check quartiles')
     args = parser.parse_args()
     
     if args.generate:
@@ -223,6 +232,9 @@ if __name__=='__main__':
     
     if args.energy:
         check_energy(bodies=bodies,original_seed=args.seed,true_seed=seed,n=args.number_bodies,G=args.G)
+    
+    if args.quartile:
+        check_quartiles(bodies)
         
     if args.show:
         plot_points(bodies=bodies,output=args.output,path=args.path,n=args.nsigma)
