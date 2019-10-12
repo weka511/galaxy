@@ -17,6 +17,7 @@
 
 import os, random, sys, struct, math, matplotlib.pyplot as plt,mpl_toolkits.mplot3d,numpy as np
 from shutil import copyfile
+import xml.etree.ElementTree as ET
 
 # backup
 #
@@ -25,6 +26,10 @@ from shutil import copyfile
 def backup(output='config.txt'):
     if os.path.exists(output):
         copyfile(output,output+'~')
+
+# save_configuration
+#
+# Save configuration to specified file
 
 def save_configuration(bodies,
                        config_version = 1.0,
@@ -122,6 +127,39 @@ def create_plummer(number_bodies=100,
     
     return [create_body() for i in range(number_bodies)]
 
+# create_configuration_from_xml
+#
+# Parse XML file to generate complex configuration
+
+def create_configuration_from_xml(file):
+    def shift(body,offset,vel):
+        pos  = [sum(u) for u in zip(body[:3],offset)]
+        vels = [sum(v) for v in zip(body[:3],vel)]
+        return pos + body[3:4] + vels
+    
+    bodies = []
+    root   = ET.parse(file).getroot()
+    system = root.get('name')
+    model  = root.get('model')
+    print (system,model)
+    ns = [int(type_tag.get('numbodies')) for type_tag in root.findall('system')]
+    n  = sum(ns)
+        
+    for type_tag in root.findall('system'):
+        name      = type_tag.get('name')
+        pos       = [float(x) for x in type_tag.get('pos').split(',')]
+        vel       = [float(x) for x in type_tag.get('vel').split(',')]
+        numbodies = int(type_tag.get('numbodies'))
+        print(name,pos,vel,numbodies)  
+        subsystem = generate_configuration(
+                                        model=model,
+                                        number_bodies = numbodies,
+                                        radius        = args.radius,
+                                        G             = args.G)
+        bodies = bodies + [shift(b,pos,vel) for b in subsystem]
+    
+    return bodies,n
+
 # encode
 #
 #  Convert a floating point number to a string for serialization
@@ -160,18 +198,22 @@ def pairs(bodies):
         for j in range(i):
             yield(bodies[i],bodies[j])
 
+# dist
+#
+# Calculate distance between two points
+
 def dist(b1,b2):
     return math.sqrt(sum([(b1[i]-b2[i])*(b1[i]-b2[i]) for i in range(3)]))
 
-# Calculate energy, and work out ration from Virial theorem (should be 2)
+# Calculate energy, and work out ratio from Virial theorem (should be 2)
 
 def check_energy(bodies=[],G=1.0):
     kinetic_energy   = 0.5 * sum([b[3]*sum(b[i]*b[i] for i in range(4,7)) for b in bodies])
     potential_energy = -  G * sum([G * b1[3] * b2[3]/dist(b1,b2) for (b1,b2) in pairs(bodies)])
-    print ('Total Energy     = {0}\n'
-           'Kinetic Energy   = {1}\n'
-           'Potential Energy = {2}\n'
-           'Ratio            = {3}'.format(kinetic_energy+potential_energy,
+    print ('Total Energy           = {0}\n'
+           'Kinetic Energy         = {1}\n'
+           'Potential Energy       = {2}\n'
+           'Ratio (Virial Theorem) = {3}'.format(kinetic_energy+potential_energy,
                                            kinetic_energy,
                                            potential_energy,
                                            -potential_energy/kinetic_energy))
@@ -182,7 +224,9 @@ def  check_quartiles(bodies):
     print ('Q1: was {0:4f}, expected {1:4f}'.format(distances[n//4],(2**(4/3)-1)**(-1/2)))
     print ('Q2: was {0:4f}, expected {1:4f}'.format(distances[n//2],(2**(2/3)-1)**(-1/2)))
     print ('Q3: was {0:4f}, expected {1:4f}'.format(distances[3*n//4],(2**(4/3)*3**(-2/3)-1)**(-1/2)))
-     
+
+
+        
 if __name__=='__main__':
     import argparse, time
     
@@ -201,6 +245,7 @@ if __name__=='__main__':
     parser.add_argument(      '--energy',   action='store_true', default=False,        help='Check energy')
     parser.add_argument('-G',  '--G',       type=float,          default=1.0,          help='Radius')
     parser.add_argument(      '--quartile', action='store_true', default=False,        help='Check quartiles')
+    parser.add_argument(      '--xml',                                                 help='XML spec')
     args = parser.parse_args()
     
     if args.generate:
@@ -221,23 +266,34 @@ if __name__=='__main__':
     random.seed(args.seed)
     config_file = os.path.join(args.path,args.output)
     start       = time.time()
-    bodies      = generate_configuration(model         = args.model,
-                                         number_bodies = args.number_bodies,
-                                         radius        = args.radius,
-                                         G             = args.G)
     backup(output=config_file)
-    save_configuration(bodies,
-                       output        = config_file,
-                       number_bodies = args.number_bodies,
-                       theta         = args.theta,
-                       dt            = args.dt)
-    print ('Created {0}: n={1}, r={2}.'.format(args.model,args.number_bodies,args.radius))
-    
-    if args.energy:
-        check_energy(bodies=bodies,G=args.G)
-    
-    if args.quartile:
-        check_quartiles(bodies)
+    number_bodies = args.number_bodies
+    if args.xml==None:
+        bodies      = generate_configuration(model         = args.model,
+                                             number_bodies = args.number_bodies,
+                                             radius        = args.radius,
+                                             G             = args.G)
+       
+        save_configuration(bodies,
+                           output        = config_file,
+                           number_bodies = args.number_bodies,
+                           theta         = args.theta,
+                           dt            = args.dt)
+        print ('Created {0}: n={1}, r={2}.'.format(args.model,number_bodies,args.radius))
+        
+        if args.energy:
+            check_energy(bodies=bodies,G=args.G)
+        
+        if args.quartile:
+            check_quartiles(bodies)
+    else:
+        bodies,number_bodies = create_configuration_from_xml(args.xml)
+        save_configuration(bodies,
+                           output        = config_file,
+                           number_bodies = args.number_bodies,
+                           theta         = args.theta,
+                           dt            = args.dt)
+        print ('Created {0}: n={1}, r={2}.'.format(args.model,number_bodies,args.radius))
         
     if args.show:
         plot_points(bodies=bodies,output=args.output,path=args.path,n=args.nsigma)
@@ -245,4 +301,4 @@ if __name__=='__main__':
         
     elapsed_time = time.time()-start
     print ('Elapsed time={0:.1f} seconds. i.e. {1:.0f} msec per 1000 bodies'.format(elapsed_time,
-                                                                                    1000*elapsed_time/(args.number_bodies/1000)))
+                                                                                    1000*elapsed_time/(number_bodies/1000)))
