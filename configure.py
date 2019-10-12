@@ -42,7 +42,8 @@ def save_configuration(bodies,
   
         for body in bodies:
             f.write(','.join([encode(b) for b in body])+'\n' )
-        f.write('End\n')  
+        f.write('End\n')
+    print('Stored configuration in {0}'.format(output))
         
 # generate_configuration_file
 #
@@ -164,18 +165,16 @@ def dist(b1,b2):
 
 # Calculate energy, and work out ration from Virial theorem (should be 2)
 
-def check_energy(bodies=[],G=1.0,original_seed=0,true_seed=0,n=1):
+def check_energy(bodies=[],G=1.0):
     kinetic_energy   = 0.5 * sum([b[3]*sum(b[i]*b[i] for i in range(4,7)) for b in bodies])
     potential_energy = -  G * sum([G * b1[3] * b2[3]/dist(b1,b2) for (b1,b2) in pairs(bodies)])
-    print ('Number of bodies = {0}\n'
-           'Specified seed   = {1}\n'
-           'Actual seed      = {2}\n'
-           'Total Energy     = {3}\n'
-           'Kinetic Energy   = {4}\n'
-           'Potential Energy = {5}\n'
-           'Ratio            = {6}'.format(
-        n,original_seed,true_seed,
-        kinetic_energy+potential_energy,kinetic_energy,potential_energy,-potential_energy/kinetic_energy))
+    print ('Total Energy     = {0}\n'
+           'Kinetic Energy   = {1}\n'
+           'Potential Energy = {2}\n'
+           'Ratio            = {3}'.format(kinetic_energy+potential_energy,
+                                           kinetic_energy,
+                                           potential_energy,
+                                           -potential_energy/kinetic_energy))
  
 def  check_quartiles(bodies):
     n         = len(bodies)
@@ -214,6 +213,10 @@ if __name__=='__main__':
     if args.seed==None:
         random_data = os.urandom(8)
         seed = int.from_bytes(random_data, byteorder="big")
+
+    print ('Number of bodies = {0}\n'
+           'Specified seed   = {1}\n'
+           'Actual seed      = {2}\n'.format(args.number_bodies,args.seed,seed))
         
     random.seed(args.seed)
     config_file = os.path.join(args.path,args.output)
@@ -228,10 +231,10 @@ if __name__=='__main__':
                        number_bodies = args.number_bodies,
                        theta         = args.theta,
                        dt            = args.dt)
-    print ('Created {0}, n={1}, r={2}, stored in {3}'.format(args.model,args.number_bodies,args.radius,config_file))
+    print ('Created {0}: n={1}, r={2}.'.format(args.model,args.number_bodies,args.radius))
     
     if args.energy:
-        check_energy(bodies=bodies,original_seed=args.seed,true_seed=seed,n=args.number_bodies,G=args.G)
+        check_energy(bodies=bodies,G=args.G)
     
     if args.quartile:
         check_quartiles(bodies)
