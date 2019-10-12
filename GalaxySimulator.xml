@@ -33,14 +33,6 @@
         <File name="verlet.cpp" />
         <File name="verlet.h" />
     </Project>
-    <Project name="Tests">
-        <File name="catch.hpp" />
-        <File name="tests.cpp" />
-        <File name="test-kepler.cpp" />
-        <File name="test-plummer.cpp" />
-        <File name="test-tree.cpp" />
-        <File name="test-random.cpp" />
-    </Project>
     <Project name="Helpers">
         <File name="adze.py" />
         <File name="configure.py" />
@@ -57,6 +49,9 @@
         <File name="spdlog\spdlog.h" />
         <File name="spdlog\tweakme.h" />
     </Project>
+    <Project name="Parameters">
+        <File name="collision.xml" />
+    </Project>
     <Project name="Random">
         <File name="mt.cc" />
         <File name="mt.h" />
@@ -66,11 +61,16 @@
     <Project name="Spikes">
         <File name="threading.cpp" />
     </Project>
+    <Project name="Tests">
+        <File name="catch.hpp" />
+        <File name="tests.cpp" />
+        <File name="test-kepler.cpp" />
+        <File name="test-plummer.cpp" />
+        <File name="test-tree.cpp" />
+        <File name="test-random.cpp" />
+    </Project>
     <Project name="TinyXML2">
         <File name="tinyxml2.cpp" />
         <File name="tinyxml2.h" />
-    </Project>
-    <Project name="Parameters">
-        <File name="collision.xml" />
     </Project>
 </NotepadPlus>
