@@ -26,34 +26,35 @@ def backup(output='config.txt'):
     if os.path.exists(output):
         copyfile(output,output+'~')
 
-# generate_configuration_file
-#
-# Generate a configuration and save it
-
-def generate_configuration_file(
-    config_version = 1.0,
-    output         = 'config_new.txt',
-    model          = 'plummer',
-    soften         = 1.0,
-    imag_freq      = 1,
-    max_iter       = 100,
-    number_bodies  = 1000,
-    radius         = 1.0,
-    theta          = 1.0,
-    dt             = 0.1,
-    G              = 1.0):
-    config_factory = create_config_factory(model)
+def save_configuration(bodies,
+                       config_version = 1.0,
+                       output         = 'config_new.txt',
+                       number_bodies  = 1000,
+                       theta          = 1.0,
+                       dt             = 0.1,
+                       G              = 1.0):
     with open(output,'w') as f:
         f.write('Version={0}\n'.format(config_version))
         f.write('iteration={0}\n'.format(0))
         f.write('theta={0}\n'.format(encode(theta)))
         f.write('G={0}\n'.format(encode(G)))
         f.write('dt={0}\n'.format(encode(dt)))
-        bodies = config_factory(number_bodies=number_bodies)
+  
         for body in bodies:
             f.write(','.join([encode(b) for b in body])+'\n' )
-        f.write('End\n')
-        return bodies
+        f.write('End\n')  
+        
+# generate_configuration_file
+#
+# Generate a configuration of bodies in phase space
+
+def generate_configuration(
+    model          = 'plummer',
+    number_bodies  = 1000,
+    radius         = 1.0,    # TODO
+    G              = 1.0):   # TODO
+    config_factory = create_config_factory(model)
+    return config_factory(number_bodies=number_bodies)  
             
 # create_config_factory
 #
@@ -75,12 +76,14 @@ def create_config_factory(model):
 # Instantiate configuration for Plummer model
 #
 # http://www.artcompsci.org/kali/vol/plummer/volume9.pdf       
-def create_plummer(number_bodies=100):
+def create_plummer(number_bodies=100,
+                   radius=1.0,
+                   G=1.0):             # TODO
     
     # randomize_on_sphere
     #
     # Randomly position point on sphere
-    def randomize_on_sphere(radius=1):
+    def randomize_on_sphere(radius=radius):
         theta  = math.acos(random.uniform(-1,1))
         phi    = random.uniform(0,2*math.pi)
         return [radius * math.sin(theta) * math.cos(phi),
@@ -131,7 +134,7 @@ def encode(x):
 
 def plot_points(bodies=[],output='./',path='',n=2):
     plt.figure(figsize=(20,20)) 
-    ax = plt.gcf().add_subplot(111,  projection='3d')
+    ax    = plt.gcf().add_subplot(111,  projection='3d')
     sigma = n*max(np.std([body[0] for body in bodies]),
                   np.std([body[1] for body in bodies]),
                   np.std([body[2] for body in bodies]))    
@@ -155,7 +158,9 @@ def pairs(bodies):
     for i in range(1,len(bodies)):
         for j in range(i):
             yield(bodies[i],bodies[j])
-            
+
+# Calculate energy, and work out ration from Virial theorem (should be 2)
+
 def check_energy(bodies=[],G=1.0,original_seed=0,true_seed=0,n=1):
     def dist(b1,b2):
         return math.sqrt(sum([(b1[i]-b2[i])*(b1[i]-b2[i]) for i in range(3)]))
@@ -178,9 +183,6 @@ if __name__=='__main__':
     parser.add_argument(      '--dt', type=float,                default=0.1,          help='Step size for integration')
     parser.add_argument(      '--output',                        default='config.txt', help='Configuration file')
     parser.add_argument(      '--model',                         default='plummer',    help='Used to initialize distribution')
-    parser.add_argument('-a', '--soften', type=float,            default=1.0,          help='Softening length')
-    parser.add_argument('-i', '--image_freq',                                          help='Controls frequency for logging')
-    parser.add_argument('-m', '--max_iter',                                            help='Number of iterations')
     parser.add_argument('-n', '--number_bodies',  type=int,      default=100,          help='Number of bodies')
     parser.add_argument('-p', '--path',                          default='./configs',  help='Path for configuration files')
     parser.add_argument('-r', '--radius',   type=float,          default=1.0,          help='Initial Radius')
@@ -190,6 +192,7 @@ if __name__=='__main__':
     parser.add_argument(      '--show',     action='store_true', default=False,        help='Show generated points')
     parser.add_argument(      '--nsigma',   type=float,          default=2,            help='Scale data for show')
     parser.add_argument(      '--energy',   action='store_true', default=False,        help='Check energy')
+    parser.add_argument('-G',  '--G',   type=float,          default=1.0,          help='Radius')
     args = parser.parse_args()
     
     if args.generate:
@@ -206,19 +209,20 @@ if __name__=='__main__':
     random.seed(args.seed)
     config_file = os.path.join(args.path,args.output)
     start       = time.time()
+    bodies      = generate_configuration(model         = args.model,
+                                         number_bodies = args.number_bodies,
+                                         radius        = args.radius,
+                                         G             = args.G)
     backup(output=config_file)
-    bodies = generate_configuration_file(
-        output        = config_file,
-        model         = args.model,
-        imag_freq     = args.image_freq,
-        number_bodies = args.number_bodies,
-        radius        = args.radius,
-        theta         = args.theta,
-        dt            = args.dt)
+    save_configuration(bodies,
+                       output        = config_file,
+                       number_bodies = args.number_bodies,
+                       theta         = args.theta,
+                       dt            = args.dt)
     print ('Created {0}, n={1}, r={2}, stored in {3}'.format(args.model,args.number_bodies,args.radius,config_file))
     
     if args.energy:
-        check_energy(bodies=bodies,original_seed=args.seed,true_seed=seed,n=args.number_bodies)
+        check_energy(bodies=bodies,original_seed=args.seed,true_seed=seed,n=args.number_bodies,G=args.G)
         
     if args.show:
         plot_points(bodies=bodies,output=args.output,path=args.path,n=args.nsigma)
