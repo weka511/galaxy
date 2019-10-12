@@ -15,7 +15,7 @@
 #
 # Create configuration for galaxy.exe
 
-import os, random, sys, struct, math, matplotlib.pyplot as plt,mpl_toolkits.mplot3d
+import os, random, sys, struct, math, matplotlib.pyplot as plt,mpl_toolkits.mplot3d,numpy as np
 from shutil import copyfile
 
 # backup
@@ -129,36 +129,67 @@ def encode(x):
 #
 # Plot generated data
 
-def plot_points(bodies=[],output='./',path=''):
+def plot_points(bodies=[],output='./',path='',n=2):
     plt.figure(figsize=(20,20)) 
     ax = plt.gcf().add_subplot(111,  projection='3d')
+    sigma = n*max(np.std([body[0] for body in bodies]),
+                  np.std([body[1] for body in bodies]),
+                  np.std([body[2] for body in bodies]))    
     ax.scatter([body[0] for body in bodies],
                [body[1] for body in bodies],
                [body[2] for body in bodies],
                s = 1,
                c = 'b')
+ 
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
+    ax.set_xlim(-n*sigma,n*sigma)
+    ax.set_ylim(-n*sigma,n*sigma)
+    ax.set_zlim(-n*sigma,n*sigma)
     plt.title('Initial configuration for {0}'.format(output))
+
+# Generator used to iterate through distinct pairs of bodies
+
+def pairs(bodies):
+    for i in range(1,len(bodies)):
+        for j in range(i):
+            yield(bodies[i],bodies[j])
+            
+def check_energy(bodies=[],G=1.0,original_seed=0,true_seed=0,n=1):
+    def dist(b1,b2):
+        return math.sqrt(sum([(b1[i]-b2[i])*(b1[i]-b2[i]) for i in range(3)]))
+    kinetic_energy   = 0.5 * sum([b[3]*sum(b[i]*b[i] for i in range(4,7)) for b in bodies])
+    potential_energy = -  G * sum([G * b1[3] * b2[3]/dist(b1,b2) for (b1,b2) in pairs(bodies)])
+    print ('Number of bodies = {0}\n'
+           'Specified seed   = {1}\n'
+           'Actual seed      = {2}\n'
+           'Total Energy     = {3}\n'
+           'Kinetic Energy   = {4}\n'
+           'Potential Energy = {5}\n'
+           'Ratio            = {6}'.format(
+        n,original_seed,true_seed,
+        kinetic_energy+potential_energy,kinetic_energy,potential_energy,-potential_energy/kinetic_energy))
     
 if __name__=='__main__':
     import argparse, time
     
     parser = argparse.ArgumentParser('Configure galaxy.exe')
-    parser.add_argument(      '--dt', type=float,              default=0.1,           help='Step size for integration')
-    parser.add_argument(      '--output',                      default='config.txt',  help='Configuration file')
-    parser.add_argument(      '--model',                       default='plummer',     help='Used to initialize distribution')
-    parser.add_argument('-a', '--soften', type=float,          default=1.0,           help='Softening length')
-    parser.add_argument('-i', '--image_freq',                                         help='Controls frequency for logging')
-    parser.add_argument('-m', '--max_iter',                                           help='Number of iterations')
-    parser.add_argument('-n', '--number_bodies',  type=int,      default=100,         help='Number of bodies')
-    parser.add_argument('-p', '--path',                          default='./configs', help='Path for configuration files')
-    parser.add_argument('-r', '--radius', type=float,            default=1.0,         help='Initial Radius')
-    parser.add_argument('-s', '--seed',                                               help='Initialize the random number generator')
-    parser.add_argument('-t', '--theta', type=float,             default=0.5,         help='Theta-criterion of the Barnes-Hut algorithm')
-    parser.add_argument(      '--generate', action='store_true', default=False,       help='Generate test data for serialization')
-    parser.add_argument(      '--show',     action='store_true', default=False,       help='Show generated points')
+    parser.add_argument(      '--dt', type=float,                default=0.1,          help='Step size for integration')
+    parser.add_argument(      '--output',                        default='config.txt', help='Configuration file')
+    parser.add_argument(      '--model',                         default='plummer',    help='Used to initialize distribution')
+    parser.add_argument('-a', '--soften', type=float,            default=1.0,          help='Softening length')
+    parser.add_argument('-i', '--image_freq',                                          help='Controls frequency for logging')
+    parser.add_argument('-m', '--max_iter',                                            help='Number of iterations')
+    parser.add_argument('-n', '--number_bodies',  type=int,      default=100,          help='Number of bodies')
+    parser.add_argument('-p', '--path',                          default='./configs',  help='Path for configuration files')
+    parser.add_argument('-r', '--radius',   type=float,          default=1.0,          help='Initial Radius')
+    parser.add_argument('-s', '--seed',                                                help='Initialize the random number generator')
+    parser.add_argument('-t', '--theta',    type=float,          default=0.5,          help='Theta-criterion of the Barnes-Hut algorithm')
+    parser.add_argument(      '--generate', action='store_true', default=False,        help='Generate test data for serialization')
+    parser.add_argument(      '--show',     action='store_true', default=False,        help='Show generated points')
+    parser.add_argument(      '--nsigma',   type=float,          default=2,            help='Scale data for show')
+    parser.add_argument(      '--energy',   action='store_true', default=False,        help='Check energy')
     args = parser.parse_args()
     
     if args.generate:
@@ -166,6 +197,12 @@ if __name__=='__main__':
             x = random.uniform(-5,5)
             print ('\t\tREQUIRE(decode("{1}")=={0});'.format(x,encode(x))) 
         sys.exit(0)
+        
+    seed = args.seed
+    if args.seed==None:
+        random_data = os.urandom(8)
+        seed = int.from_bytes(random_data, byteorder="big")
+        
     random.seed(args.seed)
     config_file = os.path.join(args.path,args.output)
     start       = time.time()
@@ -179,8 +216,12 @@ if __name__=='__main__':
         theta         = args.theta,
         dt            = args.dt)
     print ('Created {0}, n={1}, r={2}, stored in {3}'.format(args.model,args.number_bodies,args.radius,config_file))
+    
+    if args.energy:
+        check_energy(bodies=bodies,original_seed=args.seed,true_seed=seed,n=args.number_bodies)
+        
     if args.show:
-        plot_points(bodies=bodies,output=args.output,path=args.path)
+        plot_points(bodies=bodies,output=args.output,path=args.path,n=args.nsigma)
         plt.show()
         
     elapsed_time = time.time()-start
