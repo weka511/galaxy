@@ -243,7 +243,7 @@ if __name__=='__main__':
     parser.add_argument(      '--show',     action='store_true', default=False,        help='Show generated points')
     parser.add_argument(      '--nsigma',   type=float,          default=2,            help='Scale data for show')
     parser.add_argument(      '--energy',   action='store_true', default=False,        help='Check energy')
-    parser.add_argument('-G',  '--G',       type=float,          default=1.0,          help='Radius')
+    parser.add_argument('-G',  '--G',       type=float,          default=1.0,          help='Gravitational constant')
     parser.add_argument(      '--quartile', action='store_true', default=False,        help='Check quartiles')
     parser.add_argument(      '--xml',                                                 help='XML spec')
     args = parser.parse_args()

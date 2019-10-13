@@ -22,7 +22,7 @@ import os, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d a
 
 colours=['r','b','g','c','y','m']
 
-def ensure_file_not_exists(filename):
+def ensure_file_does_not_exist(filename):
     try:
         os.remove(filename)
     except OSError:
@@ -83,7 +83,7 @@ def make_movie(movie_maker,out,pattern,framerate,movie):
         movie=movie+'.mp4'
     if not out.endswith('/'):
         out=out+'/'
-    ensure_file_not_exists(movie)
+    ensure_file_does_not_exist(movie)
     cmd='{0} -f image2 -i {1}{2} -framerate {3} {4}'.format(movie_maker,out,pattern,framerate,movie)
     return_code = os.system(cmd)
     if return_code==0:
@@ -93,7 +93,7 @@ def make_movie(movie_maker,out,pattern,framerate,movie):
         
 if __name__=='__main__':
     import argparse,glob
-    parser = argparse.ArgumentParser(description='Create movie showing eveolution of galaxy')
+    parser = argparse.ArgumentParser(description='Create movie showing evolution of galaxy')
     parser.add_argument('--bodies',           type=int, default=len(colours),     help='Number of bodies')
     parser.add_argument('--img_freq',         type=int, default=20,               help='Frequency of displaying progress')
     parser.add_argument('--points',           type=int, default=sys.maxsize,      help='Number of colours')
