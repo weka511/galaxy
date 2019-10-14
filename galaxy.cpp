@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2019 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,11 +84,13 @@ int main(int argc, char **argv) {
 			report_all(particles,start_iterations);
 
 			if (configuration.get_n_threads()==0)
-				run_verlet([](	std::vector<Particle*> particles)->void{get_acceleration(
-																		particles,
-																		configuration.get_theta(),
-																		configuration.getG(),
-																		configuration.get_a());},
+				run_verlet(
+						[](	std::vector<Particle*> particles)->void{
+																	get_acceleration(
+																	particles,
+																	configuration.get_theta(),
+																	configuration.getG(),
+																	configuration.get_a());},
 						configuration.get_max_iter(),
 						configuration.get_dt(),
 						particles,
