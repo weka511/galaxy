@@ -155,5 +155,4 @@ if __name__=='__main__':
                 play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player)
     else:
         if make_movie(movie_maker, args.out,pattern,args.framerate, args.movie_only):
-            play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player)
-
+            play_movie(args.movie_only,args.out,args.movie_maker_path,args.movie_player)
