@@ -81,16 +81,26 @@ def plot(fname_in,n=len(colours),m=sys.maxsize,scale_to_cube=False,out='./imgs',
 def make_movie(movie_maker,out,pattern,framerate,movie):
     if len(movie.split('.'))<2:
         movie=movie+'.mp4'
-    if not out.endswith('/'):
-        out=out+'/'
-    ensure_file_does_not_exist(movie)
-    cmd='{0} -f image2 -i {1}{2} -framerate {3} {4}'.format(movie_maker,out,pattern,framerate,movie)
+
+    ensure_file_does_not_exist(os.path.join(out,movie))
+    cmd='{0} -f image2 -i {1}{2} -framerate {3} {4}'.format(movie_maker,out+'/',pattern,framerate,os.path.join(out,movie))
     return_code = os.system(cmd)
     if return_code==0:
         print ('Created movie {0}'.format(movie))
+        return True
     else:
         print ('{0} returned error {1}'.format(cmd,return_code))
-        
+        return False
+
+def play_movie(movie,out,movie_maker_path,movie_player):
+    if len(movie.split('.'))<2:
+        movie=movie+'.mp4'     
+
+    return  os.system(
+        '{0} {1}'.format(
+                     os.path.join(args.movie_maker_path,args.movie_player),
+                     os.path.join(args.out,movie)))
+    
 if __name__=='__main__':
     import argparse,glob
     parser = argparse.ArgumentParser(description='Create movie showing evolution of galaxy')
@@ -107,15 +117,19 @@ if __name__=='__main__':
     parser.add_argument('--movie_only',       default=None,                       help='Skip extracting images. Just make movie')    
     parser.add_argument('--colour_threshold', type=int, default=0,                help='Colour threshold')
     parser.add_argument('--movie_maker',      default='ffmpeg.exe',               help='Name of program which builds movie')    
-    parser.add_argument('--movie_maker_path', default=r'C:\ffmpeg\bin',           help='Path name for program which builds movie')    
-
+    parser.add_argument('--movie_maker_path', default=r'C:\ffmpeg\bin',           help='Path name for program which builds movie')
+    parser.add_argument('--movie_player',     default='ffplay.exe',               help='Name of program which plays movie')
+    parser.add_argument('--play',             action='store_true', default=False, help='Play movie')  
+    parser.add_argument('--framerate',        type=int, default=1,                help='Frame rate')
     args = parser.parse_args()
 
     i             = 0
     movie_maker   = os.path.join(args.movie_maker_path,args.movie_maker)
-    framerate     = 1
     pattern       = 'bodies%05d.png'
 
+    if args.play:
+        sys.exit(play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player))
+        
     if args.movie_only==None:
         for filename in os.listdir(args.path):
             if filename.endswith(".csv"):
@@ -137,7 +151,9 @@ if __name__=='__main__':
             plt.show()
         
         if args.movie!=None:
-            make_movie(movie_maker, args.out,pattern,framerate, args.movie)
+            if make_movie(movie_maker, args.out,pattern,args.framerate, args.movie):
+                play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player)
     else:
-        make_movie(movie_maker, args.out,pattern,framerate, args.movie_only)
+        if make_movie(movie_maker, args.out,pattern,args.framerate, args.movie_only):
+            play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player)
 
