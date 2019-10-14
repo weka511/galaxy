@@ -16,7 +16,7 @@
 
 # Companion to galaxy.exe - plot images in 3D.
   
-# The movie function assumes that ffmpeg, https://www.ffmpeg.org/, has been installed in /usr/local/bin
+# The movie function assumes that ffmpeg, https://www.ffmpeg.org/, has been installed.
 
 import os, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d as trid,getopt, matplotlib.lines as lines, scipy, random
 
@@ -29,46 +29,44 @@ def ensure_file_does_not_exist(filename):
         pass
     
 def get_limits(xs,nsigma=3):
-    mu=scipy.mean(xs)
-    sigma=scipy.std(xs)
+    mu    = scipy.mean(xs)
+    sigma = scipy.std(xs)
     return (mu-nsigma*sigma,mu+nsigma*sigma)
     
 def colour_from_index(i,threshold=5000):
     return 'b' if i<threshold else 'r'
 
-'''
-Plot points from input file
-    Parameters:
-	    fname_in  Input file
-		n         Number of bodies
-        
-I have had to workaround the problem of the legend function not supporting the type returned by a 3D scatter.
-See https://stackoverflow.com/questions/20505105/add-a-legend-in-a-3d-scatterplot-with-scatter-in-matplotlib for details.
-'''
+# Plot points from input file
+#    Parameters:
+#	    fname_in  Input file
+#		n         Number of bodies
+#        
+# I have had to workaround the problem of the legend function not supporting the type returned by a 3D scatter.
+# See https://stackoverflow.com/questions/20505105/add-a-legend-in-a-3d-scatterplot-with-scatter-in-matplotlib for details.
+#
+# I have noticed that there seems to be some red structure (2nd Galaxy)
+# remaining after 100,000 iterations of galaxy.exe, but this may
+# be an artifact of the sequence in which points are drawn.
+# We will plot the points in random order, therefore, to minimize this possibility.
+
 def plot(fname_in,n=len(colours),m=sys.maxsize,scale_to_cube=False,out='./imgs',nsigma=3,N=1000,get_colour=colour_from_index):
-    pos = np.loadtxt(fname_in,delimiter=',')
     plt.figure(figsize=(20,10))
-    ax = plt.gcf().add_subplot(111,  projection='3d')
-    scatterproxies=[]
-    labels=[]
-    # I have noticed that there seems to be some red structure (2nd Galaxy)
-    # remaining after 100,000 iterations of galaxy.exe, but this may
-    # be an artifact of the sequnce in which points are drawn.
-    # We will plot the points in random order, therefore, to minimize this possibility.
-    indices=list(range(len(pos)))
+    pos            = np.loadtxt(fname_in,delimiter=',')
+    ax             = plt.gcf().add_subplot(111,  projection='3d')
+    scatterproxies = []
+    labels         = []
+    indices        = list(range(len(pos)))
     random.shuffle(indices)
-    xs=[pos[j,0] for j in indices]
-    ys=[pos[j,1] for j in indices]
-    zs=[pos[j,2] for j in indices]
-    colour=[get_colour(j) for j in indices]
+    xs             = [pos[j,0] for j in indices]
+    ys             = [pos[j,1] for j in indices]
+    zs             = [pos[j,2] for j in indices]
+    colour         = [get_colour(j) for j in indices]
     ax.scatter(xs,ys,zs,edgecolor=colour,s=1)
     if scale_to_cube:
         ax.set_xlim(get_limits(xs,nsigma=nsigma))
         ax.set_ylim(get_limits(ys,nsigma=nsigma))
         ax.set_zbound(get_limits(zs,nsigma=nsigma))    
      
-        #scatterproxies.append( lines.Line2D([0],[0], linestyle="none", c=colour, marker = 'o'))
-        #labels.append('{0}'.format(i))
     plt.title(fname_in.replace('.csv',''));
     plt.xlabel('x')
     plt.ylabel('y')
@@ -80,10 +78,10 @@ def plot(fname_in,n=len(colours),m=sys.maxsize,scale_to_cube=False,out='./imgs',
     
 def make_movie(movie_maker,out,pattern,framerate,movie):
     if len(movie.split('.'))<2:
-        movie=movie+'.mp4'
+        movie = movie+'.mp4'
 
     ensure_file_does_not_exist(os.path.join(out,movie))
-    cmd='{0} -f image2 -i {1}{2} -framerate {3} {4}'.format(movie_maker,out+'/',pattern,framerate,os.path.join(out,movie))
+    cmd = '{0} -f image2 -i {1}{2} -framerate {3} {4}'.format(movie_maker,out+'/',pattern,framerate,os.path.join(out,movie))
     return_code = os.system(cmd)
     if return_code==0:
         print ('Created movie {0}'.format(movie))
@@ -91,6 +89,10 @@ def make_movie(movie_maker,out,pattern,framerate,movie):
     else:
         print ('{0} returned error {1}'.format(cmd,return_code))
         return False
+
+# play_movie
+#
+# Play movie
 
 def play_movie(movie,out,movie_maker_path,movie_player):
     if len(movie.split('.'))<2:
@@ -123,27 +125,27 @@ if __name__=='__main__':
     parser.add_argument('--framerate',        type=int, default=1,                help='Frame rate')
     args = parser.parse_args()
 
-    i             = 0
-    movie_maker   = os.path.join(args.movie_maker_path,args.movie_maker)
-    pattern       = 'bodies%05d.png'
-
     if args.play:
         sys.exit(play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player))
         
     if args.movie_only==None:
+        i = 0
         for filename in os.listdir(args.path):
             if filename.endswith(".csv"):
-                img_file=plot(fname_in      = os.path.join(args.path,filename),
-                              n             = args.bodies,
-                              m             = args.points,
-                              scale_to_cube = args.cube,
-                              out           = args.out,
-                              N             = args.sample,
-                              nsigma        = args.nsigma,
-                              get_colour    = colour_from_index)
+                img_file = plot(fname_in      = os.path.join(args.path,filename),
+                                n             = args.bodies,
+                                m             = args.points,
+                                scale_to_cube = args.cube,
+                                out           = args.out,
+                                N             = args.sample,
+                                nsigma        = args.nsigma,
+                                get_colour    = colour_from_index)
+                
                 if i%args.img_freq==0:
                     print ('Created {0}'.format(img_file))
+                    
                 i+=1
+                
                 if not args.show:
                     plt.close()
                     
@@ -151,8 +153,16 @@ if __name__=='__main__':
             plt.show()
         
         if args.movie!=None:
-            if make_movie(movie_maker, args.out,pattern,args.framerate, args.movie):
+            if make_movie(os.path.join(args.movie_maker_path,args.movie_maker),
+                          args.out,'bodies%05d.png',args.framerate, args.movie):
                 play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player)
     else:
-        if make_movie(movie_maker, args.out,pattern,args.framerate, args.movie_only):
-            play_movie(args.movie_only,args.out,args.movie_maker_path,args.movie_player)
+        if make_movie(os.path.join(args.movie_maker_path,args.movie_maker),
+                      args.out,
+                      'bodies%05d.png',
+                      args.framerate, 
+                      args.movie_only):
+            play_movie(args.movie_only,
+                       args.out,
+                       args.movie_maker_path,
+                       args.movie_player)
