@@ -63,6 +63,7 @@ I am grateful to the following people who have geneously made code available the
 | make_img.py | Plot output from galaxy |
 | plot_energy.py  |Used to investigate distribution of energies - do we thermalize?| 
 | plot_orbits.py | Select a few stars at random and plot their orbits |
+| utils.py | Code shared by other python scripts |
 
 ## <a name="notes"> Implementation Notes
 

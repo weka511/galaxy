@@ -17,7 +17,7 @@
 #  Companion to galaxy.exe - plot kinetic energy distribution,
 #  and compare with boltzmann.
 
-import numpy as np,matplotlib.pyplot as plt,os.path as op,sys,glob,re
+import numpy as np, matplotlib.pyplot as plt, os.path, sys, utils
 from matplotlib import rc
 from scipy.optimize import curve_fit
 
@@ -43,7 +43,7 @@ def plot_distribution(
     global popt_cached
     plt.figure(figsize=(10,10))
     
-    config        = np.loadtxt(op.join(path,name+ext),delimiter=',')
+    config        = np.loadtxt(os.path.join(path,name+ext),delimiter=',')
     energies      = [0.5*config[j,6]*(config[j,3]**2+config[j,4]**2+config[j,5]**2) for j in range(len(config))]
     n,bins,_      = plt.hist(energies,bins=nbins,label='Energies')
     energy_levels = [0.5*(bins[i]+bins[i-1]) for i in range(1,len(bins))]
@@ -57,7 +57,7 @@ def plot_distribution(
               c='r',label=r'Boltzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
     plt.title(name)
     plt.legend()
-    plt.savefig(op.join(out,name.replace('bodies','energy')+'.png'))
+    plt.savefig(os.path.join(out,name.replace('bodies','energy')+'.png'))
     if not show:
         plt.close()
     return popt[1],perr[1]
@@ -72,16 +72,9 @@ def plot_evolution_parameters(path,out):
     plt.plot(sigmas,'r',label=r'$\sigma$')
     plt.title('Evolution of parameters')
     plt.legend()
-    plt.savefig(op.join(path,out))
+    plt.savefig(os.path.join(path,out))
 
-def find_seq(path='./imgs',seq=-1,prefix='energy',ext='png'):
-    try:
-        files   = sorted(glob.glob(op.join(path,'{0}*.{1}'.format(prefix,ext))))
-        pattern = re.compile('.*{0}(\d+).{1}'.format(prefix,ext))
-        nn      = int(re.match(pattern,files[seq]).group(1))
-        return nn
-    except IndexError:
-        return -1
+
 
 if __name__=='__main__':
     import argparse
@@ -106,7 +99,7 @@ if __name__=='__main__':
     sigmas=[]
     try:
         start = args.N0
-        nn    = find_seq(path=args.out)
+        nn    = utils.find_seq(path=args.out)
         if nn >-1:
             start = nn + args.step
         for i in range(start,args.N1,args.step):
