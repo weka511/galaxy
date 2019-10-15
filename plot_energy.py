@@ -17,7 +17,7 @@
 #  Companion to galaxy.exe - plot kinetic energy distribution,
 #  and compare with boltzmann.
 
-import numpy as np,matplotlib.pyplot as plt,os.path as op,sys
+import numpy as np,matplotlib.pyplot as plt,os.path as op,sys,glob,re
 from matplotlib import rc
 from scipy.optimize import curve_fit
 
@@ -73,7 +73,16 @@ def plot_evolution_parameters(path,out):
     plt.title('Evolution of parameters')
     plt.legend()
     plt.savefig(op.join(path,out))
-    
+
+def find_seq(path='./imgs',seq=-1,prefix='energy',ext='png'):
+    try:
+        files   = sorted(glob.glob(op.join(path,'{0}*.{1}'.format(prefix,ext))))
+        pattern = re.compile('.*{0}(\d+).{1}'.format(prefix,ext))
+        nn      = int(re.match(pattern,files[seq]).group(1))
+        return nn
+    except IndexError:
+        return -1
+
 if __name__=='__main__':
     import argparse
  
@@ -81,30 +90,26 @@ if __name__=='__main__':
     rc('text', usetex=True)
     
     parser = argparse.ArgumentParser(description='Plot distribution of energies')
-    parser.add_argument('--N0', type=int,action='store',
-                        help='Starting config sequence number',default=0)
-    parser.add_argument('--N1', type=int,action='store',
-                        help='Final config sequence number',default=sys.maxsize)    
-    parser.add_argument('--step', type=int,action='store',
-                        help='Step size',default=100) 
-    parser.add_argument('--show', action='store_true',
-                        help='Show image',default=False)
-    parser.add_argument('--nbins', '-n',type=int,action='store',
-                        help='Number of bins for histogram',default=200)
-    parser.add_argument('--ext', action='store',
-                        help='Extension for config files',default='.csv') 
-    parser.add_argument('--path', action='store',
-                        help='Path for config files',default='./configs') 
-    parser.add_argument('--out', action='store',
-                        help='Path for output files',default='./imgs') 
-    parser.add_argument('--distribution', action='store',
-                        help='Output file for plotting energy distribution',default='boltzmann.png')      
+    parser.add_argument('--N0',    type=int, default=0,                          help='Starting config sequence number')
+    parser.add_argument('--N1',    type=int, default=sys.maxsize,                help='Final config sequence number')    
+    parser.add_argument('--step',  type=int, default=100,                        help='Step size') 
+    parser.add_argument('--show',            default=False, action='store_true', help='Show image')
+    parser.add_argument('--nbins', type=int, default=200,                        help='Number of bins for histogram')
+    parser.add_argument('--ext',             default='.csv',                     help='Extension for config files') 
+    parser.add_argument('--path',            default='./configs',                help='Path for config files') 
+    parser.add_argument('--out',             default='./imgs',                   help='Path for output files') 
+    parser.add_argument('--distribution',    default='boltzmann.png',            help='Output file for plotting energy distribution')
+    parser.add_argument('--resume',          default=False, action='store_true', help='Skip over existing PNG files and resume processing')
     args = parser.parse_args()
     
     betas=[]
     sigmas=[]
     try:
-        for i in range(args.N0,args.N1,args.step):
+        start = args.N0
+        nn    = find_seq(path=args.out)
+        if nn >-1:
+            start = nn + args.step
+        for i in range(start,args.N1,args.step):
             beta,sigma = plot_distribution('bodies{0:05d}'.format(i),show=args.show,ext=args.ext,path=args.path,out=args.out)
             betas.append(beta)
             sigmas.append(sigma)
