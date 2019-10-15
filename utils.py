@@ -16,12 +16,14 @@
 
 import glob, os.path, re
 
+def get_seq(name,prefix='energy',ext='png'):
+    pattern = re.compile('.*{0}(\d+).{1}'.format(prefix,ext))
+    return int(re.match(pattern,name).group(1))  
+
 def find_seq(path='./imgs',seq=-1,prefix='energy',ext='png'):
     try:
         files   = sorted(glob.glob(os.path.join(path,'{0}*.{1}'.format(prefix,ext))))
-        pattern = re.compile('.*{0}(\d+).{1}'.format(prefix,ext))
-        nn      = int(re.match(pattern,files[seq]).group(1))
-        return nn
+        return get_seq(files[-1],prefix=prefix,ext=ext)
     except IndexError:
         return -1
     

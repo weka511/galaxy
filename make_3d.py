@@ -18,7 +18,8 @@
   
 # The movie function assumes that ffmpeg, https://www.ffmpeg.org/, has been installed.
 
-import os, re, sys, numpy as np, matplotlib.pyplot as plt,mpl_toolkits.mplot3d as trid,getopt, matplotlib.lines as lines, scipy, random
+import os, re, sys, numpy as np, matplotlib.pyplot as plt, scipy, random
+import mpl_toolkits.mplot3d as trid, matplotlib.lines as lines
 
 colours=['r','b','g','c','y','m']
 
@@ -104,7 +105,7 @@ def play_movie(movie,out,movie_maker_path,movie_player):
                      os.path.join(args.out,movie)))
     
 if __name__=='__main__':
-    import argparse,glob
+    import argparse,utils
     parser = argparse.ArgumentParser(description='Create movie showing evolution of galaxy')
     parser.add_argument('--bodies',           type=int, default=len(colours),     help='Number of bodies')
     parser.add_argument('--img_freq',         type=int, default=20,               help='Frequency of displaying progress')
@@ -123,15 +124,20 @@ if __name__=='__main__':
     parser.add_argument('--movie_player',     default='ffplay.exe',               help='Name of program which plays movie')
     parser.add_argument('--play',             action='store_true', default=False, help='Play movie')  
     parser.add_argument('--framerate',        type=int, default=1,                help='Frame rate')
+    parser.add_argument('--resume',           default=False, action='store_true', help='Skip over existing PNG files and resume processing')
+     
     args = parser.parse_args()
 
     if args.play:
         sys.exit(play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player))
+    
+    nn = utils.find_seq(path=args.out,prefix='bodies') if args.resume else -1
         
     if args.movie_only==None:
         i = 0
         for filename in os.listdir(args.path):
             if filename.endswith(".csv"):
+                if utils.get_seq(filename,prefix='bodies',ext='csv')<nn+1: continue
                 img_file = plot(fname_in      = os.path.join(args.path,filename),
                                 n             = args.bodies,
                                 m             = args.points,
