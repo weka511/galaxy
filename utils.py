@@ -16,9 +16,17 @@
 
 import glob, os.path, re
 
+# get_seq
+#
+# Extract sequnce number from file name
+
 def get_seq(name,prefix='energy',ext='png'):
     pattern = re.compile('.*{0}(\d+).{1}'.format(prefix,ext))
     return int(re.match(pattern,name).group(1))  
+
+# find_seq
+#
+# Find largest sequence number in a set of files
 
 def find_seq(path='./imgs',seq=-1,prefix='energy',ext='png'):
     try:
