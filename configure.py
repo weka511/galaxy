@@ -207,9 +207,14 @@ def dist(b1,b2):
 
 # Calculate energy, and work out ratio from Virial theorem (should be 2)
 
+def calculate_energy(bodies=[],G=1.0):
+    return (
+        0.5 * sum([b[3]*sum(b[i]*b[i] for i in range(4,7)) for b in bodies]),
+        -  G * sum([G * b1[3] * b2[3]/dist(b1,b2) for (b1,b2) in pairs(bodies)])
+    )
+    
 def check_energy(bodies=[],G=1.0):
-    kinetic_energy   = 0.5 * sum([b[3]*sum(b[i]*b[i] for i in range(4,7)) for b in bodies])
-    potential_energy = -  G * sum([G * b1[3] * b2[3]/dist(b1,b2) for (b1,b2) in pairs(bodies)])
+    kinetic_energy,potential_energy = calculate_energy(bodies=bodies,G=G)
     print ('Total Energy           = {0}\n'
            'Kinetic Energy         = {1}\n'
            'Potential Energy       = {2}\n'

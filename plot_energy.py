@@ -17,7 +17,7 @@
 #  Companion to galaxy.exe - plot kinetic energy distribution,
 #  and compare with boltzmann.
 
-import numpy as np, matplotlib.pyplot as plt, os.path, sys, utils
+import numpy as np, matplotlib.pyplot as plt, os.path, sys, utils,configure
 from matplotlib import rc
 from scipy.optimize import curve_fit
 
@@ -44,6 +44,9 @@ def plot_distribution(
     plt.figure(figsize=(10,10))
     
     config        = np.loadtxt(os.path.join(path,name+ext),delimiter=',')
+    bodies        = list([tuple(config[i,j] for j in [0,1,2,6,3,4,5]) for i in range(len(config))])
+    kinetic_energy,potential_energy = configure.calculate_energy(bodies)
+    print (kinetic_energy,potential_energy,-potential_energy/kinetic_energy)
     energies      = [0.5*config[j,6]*(config[j,3]**2+config[j,4]**2+config[j,5]**2) for j in range(len(config))]
     n,bins,_      = plt.hist(energies,bins=nbins,label='Energies')
     energy_levels = [0.5*(bins[i]+bins[i-1]) for i in range(1,len(bins))]
@@ -99,9 +102,10 @@ if __name__=='__main__':
     sigmas=[]
     try:
         start = args.N0
-        nn    = utils.find_seq(path=args.out)
-        if nn >-1:
-            start = nn + args.step
+        if args.resume:
+            nn    = utils.find_seq(path=args.out)
+            if nn >-1:
+                start = nn + args.step
         for i in range(start,args.N1,args.step):
             beta,sigma = plot_distribution('bodies{0:05d}'.format(i),show=args.show,ext=args.ext,path=args.path,out=args.out)
             betas.append(beta)
