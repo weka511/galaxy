@@ -144,11 +144,11 @@ class Node {
 	 * Determine the bounding box for set of particles. Make it slightly 
 	 * larger than strictly needed, so everything is guaranteed to be inside box
 	 */
-	static get_limits(std::vector<Particle*>& particles,
-				double& xmin,double& xmax,
-				double& ymin,double& ymax,
-				double& zmin,double& zmax,
-				const double epsilon=0.0001);
+	static void get_limits(std::vector<Particle*>& particles,
+					double& xmin,double& xmax,
+					double& ymin,double& ymax,
+					double& zmin,double& zmax,
+					const double epsilon=0.0001);
 	
 	std::string _id;
 	

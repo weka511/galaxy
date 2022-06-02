@@ -58,7 +58,7 @@ int Node::_count=0;
  * Determine the bounding box for set of particles. Make it slightly 
  * larger than strictly needed, so everything is guaranteed to be inside box
  */
-Node::get_limits(std::vector<Particle*>& particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax,const double epsilon){
+void Node::get_limits(std::vector<Particle*>& particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax,const double epsilon){
 	xmin=std::numeric_limits<double>::max();
 	xmax=-xmin;
 	ymin=std::numeric_limits<double>::max();
@@ -238,6 +238,7 @@ bool Node::visit(Visitor & visitor) {
 		case Node::Visitor::DontDescend:
 			return true;
 	}
+	return true;
 }
 
 /**
