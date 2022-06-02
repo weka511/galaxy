@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 			else {
 				spdlog::set_async_mode(1024);
 				run_verlet(
-						[](	std::vector<Particle*> particles)->Node*{create_tree(particles);},
+						[](	std::vector<Particle*> particles)->Node*{return create_tree(particles);},
 						[](	int i,std::vector<Particle*> particles,Node* root)->
 							void{get_acceleration(i,
 													particles,
