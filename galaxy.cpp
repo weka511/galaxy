@@ -47,6 +47,7 @@ Configuration configuration;
  * Main program. Parse command line options, create bodies, then run simulation.
  */
 int main(int argc, char **argv) {
+	std::cout << VERSION << std::endl;
 	try {
 		std::string log_path="./logs/";
 		ensure_path_exists(log_path);
