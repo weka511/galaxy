@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
  # Copyright (C) 2018-2019 Greenweaves Software Limited
  #
@@ -16,8 +17,9 @@
  #
  # Companion to galaxy.exe - cut up logfiles
 
-
-import re,matplotlib.pyplot as plt
+import argparse
+import re
+import matplotlib.pyplot as plt
 
 # Extract energies and plot them
 
@@ -41,7 +43,7 @@ def plot_files(
                 m=int(match.group(1))
             match=re.match(r'.* Number of bodies=([-+e\.0-9]+)',line.strip())
             if match:
-                n=int(match.group(1))            
+                n=int(match.group(1))
             match=re.match(r'.*Energy +([-+e\.0-9]+)',line.strip())
             if match:
                 energies.append(float(match.group(1)))
@@ -52,12 +54,11 @@ def plot_files(
     plt.title('Total Energy')
     plt.legend(loc='best')
     plt.savefig(plot_file)
-    
+
 if __name__=='__main__':
-    import argparse
     parser = argparse.ArgumentParser(description='Extract energy from logfiles and plot it')
     parser.add_argument('--logs', '-l',metavar='N', type=str, nargs='+',help='Logfiles to be plotted')
-    parser.add_argument('--output', '-o',metavar='N', type=str, nargs='+',help='Name of plot file')   
-    args = parser.parse_args() 
+    parser.add_argument('--output', '-o',metavar='N', type=str, nargs='+',help='Name of plot file')
+    args = parser.parse_args()
     plot_files(file_names=args.logs,plot_file=args.output)
     plt.show()

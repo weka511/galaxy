@@ -1,4 +1,6 @@
-# Copyright (C) 2018-2019 Greenweaves Software Limited
+#!/usr/bin/env python
+
+# Copyright (C) 2018-2025 Greenweaves Software Limited
 #
 # This is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,11 +17,19 @@
 #
 
 # Companion to galaxy.exe - plot images in 3D.
-  
+
 # The movie function assumes that ffmpeg, https://www.ffmpeg.org/, has been installed.
 
-import os, re, sys, numpy as np, matplotlib.pyplot as plt, scipy, random
-import mpl_toolkits.mplot3d as trid, matplotlib.lines as lines
+import argparse,utils
+import os
+import re
+import sys
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy
+import random
+import mpl_toolkits.mplot3d as trid
+import matplotlib.lines as lines
 
 colours=['r','b','g','c','y','m']
 
@@ -28,12 +38,12 @@ def ensure_file_does_not_exist(filename):
         os.remove(filename)
     except OSError:
         pass
-    
+
 def get_limits(xs,nsigma=3):
     mu    = scipy.mean(xs)
     sigma = scipy.std(xs)
     return (mu-nsigma*sigma,mu+nsigma*sigma)
-    
+
 def colour_from_index(i,threshold=5000):
     return 'b' if i<threshold else 'r'
 
@@ -41,7 +51,7 @@ def colour_from_index(i,threshold=5000):
 #    Parameters:
 #	    fname_in  Input file
 #		n         Number of bodies
-#        
+#
 # I have had to workaround the problem of the legend function not supporting the type returned by a 3D scatter.
 # See https://stackoverflow.com/questions/20505105/add-a-legend-in-a-3d-scatterplot-with-scatter-in-matplotlib for details.
 #
@@ -66,17 +76,17 @@ def plot(fname_in,n=len(colours),m=sys.maxsize,scale_to_cube=False,out='./imgs',
     if scale_to_cube:
         ax.set_xlim(get_limits(xs,nsigma=nsigma))
         ax.set_ylim(get_limits(ys,nsigma=nsigma))
-        ax.set_zbound(get_limits(zs,nsigma=nsigma))    
-     
+        ax.set_zbound(get_limits(zs,nsigma=nsigma))
+
     plt.title(fname_in.replace('.csv',''));
     plt.xlabel('x')
     plt.ylabel('y')
-    
-    ax.legend(scatterproxies,labels, numpoints = 1) 
+
+    ax.legend(scatterproxies,labels, numpoints = 1)
     img_file=os.path.join(out,os.path.basename(fname_in).replace('.csv','.png'))
     plt.savefig(img_file)
     return img_file
-    
+
 def make_movie(movie_maker,out,pattern,framerate,movie):
     if len(movie.split('.'))<2:
         movie = movie+'.mp4'
@@ -97,15 +107,14 @@ def make_movie(movie_maker,out,pattern,framerate,movie):
 
 def play_movie(movie,out,movie_maker_path,movie_player):
     if len(movie.split('.'))<2:
-        movie=movie+'.mp4'     
+        movie=movie+'.mp4'
 
     return  os.system(
         '{0} {1}'.format(
                      os.path.join(args.movie_maker_path,args.movie_player),
                      os.path.join(args.out,movie)))
-    
+
 if __name__=='__main__':
-    import argparse,utils
     parser = argparse.ArgumentParser(description='Create movie showing evolution of galaxy')
     parser.add_argument('--bodies',           type=int, default=len(colours),     help='Number of bodies')
     parser.add_argument('--img_freq',         type=int, default=20,               help='Frequency of displaying progress')
@@ -113,26 +122,26 @@ if __name__=='__main__':
     parser.add_argument('--show',             action='store_true', default=False, help='Show images (as well as saving)')
     parser.add_argument('--cube',             action='store_true', default=False, help='Scale to cube')
     parser.add_argument('--out',              default='./imgs' ,                  help='Path name for images')
-    parser.add_argument('--path',             default='./configs',                help='Path name for configurations')    
+    parser.add_argument('--path',             default='./configs',                help='Path name for configurations')
     parser.add_argument('--nsigma',           type=float, default=3,              help='Number of standard deviations in cube')
     parser.add_argument('--sample',           type=int, default=1000,             help='Number of samples')
     parser.add_argument('--movie',            default=None,                       help='Make movie')
-    parser.add_argument('--movie_only',       default=None,                       help='Skip extracting images. Just make movie')    
+    parser.add_argument('--movie_only',       default=None,                       help='Skip extracting images. Just make movie')
     parser.add_argument('--colour_threshold', type=int, default=0,                help='Colour threshold')
-    parser.add_argument('--movie_maker',      default='ffmpeg.exe',               help='Name of program which builds movie')    
+    parser.add_argument('--movie_maker',      default='ffmpeg.exe',               help='Name of program which builds movie')
     parser.add_argument('--movie_maker_path', default=r'C:\ffmpeg\bin',           help='Path name for program which builds movie')
     parser.add_argument('--movie_player',     default='ffplay.exe',               help='Name of program which plays movie')
-    parser.add_argument('--play',             action='store_true', default=False, help='Play movie')  
+    parser.add_argument('--play',             action='store_true', default=False, help='Play movie')
     parser.add_argument('--framerate',        type=int, default=1,                help='Frame rate')
     parser.add_argument('--resume',           default=False, action='store_true', help='Skip over existing PNG files and resume processing')
-     
+
     args = parser.parse_args()
 
     if args.play:
         sys.exit(play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player))
-    
+
     nn = utils.find_seq(path=args.out,prefix='bodies') if args.resume else -1
-        
+
     if args.movie_only==None:
         i = 0
         for filename in os.listdir(args.path):
@@ -146,18 +155,18 @@ if __name__=='__main__':
                                 N             = args.sample,
                                 nsigma        = args.nsigma,
                                 get_colour    = colour_from_index)
-                
+
                 if i%args.img_freq==0:
                     print ('Created {0}'.format(img_file))
-                    
+
                 i+=1
-                
+
                 if not args.show:
                     plt.close()
-                    
+
         if args.show:
             plt.show()
-        
+
         if args.movie!=None:
             if make_movie(os.path.join(args.movie_maker_path,args.movie_maker),
                           args.out,'bodies%05d.png',args.framerate, args.movie):
@@ -166,7 +175,7 @@ if __name__=='__main__':
         if make_movie(os.path.join(args.movie_maker_path,args.movie_maker),
                       args.out,
                       'bodies%05d.png',
-                      args.framerate, 
+                      args.framerate,
                       args.movie_only):
             play_movie(args.movie_only,
                        args.out,

@@ -1,4 +1,6 @@
-# Copyright (C) 2019 Greenweaves Software Limited
+#!/usr/bin/env python
+
+# Copyright (C) 2019-2025 Greenweaves Software Limited
 #
 # This is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,15 +16,17 @@
 # along with this software.  If not, see <http://www.gnu.org/licenses/>
 #
 
-import glob, os.path, re
+import glob
+import os.path
+import re
 
 # get_seq
 #
 # Extract sequnce number from file name
 
 def get_seq(name,prefix='energy',ext='png'):
-    pattern = re.compile('.*{0}(\d+).{1}'.format(prefix,ext))
-    return int(re.match(pattern,name).group(1))  
+    pattern = re.compile(r'.*{0}(\d+).{1}'.format(prefix,ext))
+    return int(re.match(pattern,name).group(1))
 
 # find_seq
 #
@@ -34,4 +38,3 @@ def find_seq(path='./imgs',seq=-1,prefix='energy',ext='png'):
         return get_seq(files[-1],prefix=prefix,ext=ext)
     except IndexError:
         return -1
-    

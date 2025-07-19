@@ -1,4 +1,6 @@
-# Copyright (C) 2018-2019 Greenweaves Software Limited
+#!/usr/bin/env python
+
+# Copyright (C) 2018-2025 Greenweaves Software Limited
 #
 # This is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,9 +19,15 @@
 #  Companion to galaxy.exe - plot kinetic energy distribution,
 #  and compare with boltzmann.
 
-import numpy as np, matplotlib.pyplot as plt, os.path, sys, utils,configure
+import argparse
+import numpy as np
+import matplotlib.pyplot as plt
+import os.path
+import sys
+import utils
 from matplotlib import rc
 from scipy.optimize import curve_fit
+import configure
 
 # boltzmann
 #
@@ -42,7 +50,7 @@ def plot_distribution(
     show  = False):
     global popt_cached
     plt.figure(figsize=(10,10))
-    
+
     config        = np.loadtxt(os.path.join(path,name+ext),delimiter=',')
     bodies        = list([tuple(config[i,j] for j in [0,1,2,6,3,4,5]) for i in range(len(config))])
     kinetic_energy,potential_energy = configure.calculate_energy(bodies)
@@ -80,24 +88,22 @@ def plot_evolution_parameters(path,out):
 
 
 if __name__=='__main__':
-    import argparse
- 
     rc('font',**{'family':'serif', 'serif': ['cmr10']}) # see http://matplotlib.1069221.n5.nabble.com/computer-modern-td22253.html
     rc('text', usetex=True)
-    
+
     parser = argparse.ArgumentParser(description='Plot distribution of energies')
     parser.add_argument('--N0',    type=int, default=0,                          help='Starting config sequence number')
-    parser.add_argument('--N1',    type=int, default=sys.maxsize,                help='Final config sequence number')    
-    parser.add_argument('--step',  type=int, default=100,                        help='Step size') 
+    parser.add_argument('--N1',    type=int, default=sys.maxsize,                help='Final config sequence number')
+    parser.add_argument('--step',  type=int, default=100,                        help='Step size')
     parser.add_argument('--show',            default=False, action='store_true', help='Show image')
     parser.add_argument('--nbins', type=int, default=200,                        help='Number of bins for histogram')
-    parser.add_argument('--ext',             default='.csv',                     help='Extension for config files') 
-    parser.add_argument('--path',            default='./configs',                help='Path for config files') 
-    parser.add_argument('--out',             default='./imgs',                   help='Path for output files') 
+    parser.add_argument('--ext',             default='.csv',                     help='Extension for config files')
+    parser.add_argument('--path',            default='./configs',                help='Path for config files')
+    parser.add_argument('--out',             default='./imgs',                   help='Path for output files')
     parser.add_argument('--distribution',    default='boltzmann.png',            help='Output file for plotting energy distribution')
     parser.add_argument('--resume',          default=False, action='store_true', help='Skip over existing PNG files and resume processing')
     args = parser.parse_args()
-    
+
     betas=[]
     sigmas=[]
     try:
@@ -114,7 +120,7 @@ if __name__=='__main__':
         pass
     except OSError:  # End of files
         pass
-    
+
     plot_evolution_parameters(args.out,args.distribution)
     if args.show:
         plt.show()
