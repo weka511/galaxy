@@ -16,8 +16,10 @@
 # along with this software.  If not, see <http://www.gnu.org/licenses/>
 #
 
-#  Companion to galaxy.exe - plot kinetic energy distribution,
-#  and compare with boltzmann.
+'''
+   Companion to galaxy.exe - plot kinetic energy distribution,
+   and compare with boltzmann.
+'''
 
 import argparse
 import numpy as np
@@ -29,18 +31,13 @@ from matplotlib import rc
 from scipy.optimize import curve_fit
 import configure
 
-# boltzmann
-#
-# Generate the Maxwell-Boltzmann distribution function
 
 def boltzmann(n,m,beta):
+    '''Generate the Maxwell-Boltzmann distribution function'''
     return m*np.exp(-beta*n)
 
 popt_cached=(-1,-1) #So optimization step can use value from previous step as starting value
 
-# plot_distribution
-#
-# Plot distribution of energies and compare with Boltzmann
 def plot_distribution(
     name  = 'bodies00002',
     ext   = '.csv',
@@ -48,6 +45,9 @@ def plot_distribution(
     nbins = 200,
     out   = './imgs',
     show  = False):
+    '''
+    Plot distribution of energies and compare with Boltzmann
+    '''
     global popt_cached
     plt.figure(figsize=(10,10))
 
@@ -73,11 +73,11 @@ def plot_distribution(
         plt.close()
     return popt[1],perr[1]
 
-# plot_evolution_parameters
-#
-# Plot eveolution of Boltzmann beta and standard error
 
 def plot_evolution_parameters(path,out):
+    '''
+    Plot evolution of Boltzmann beta and standard error
+    '''
     plt.figure(figsize=(10,10))
     plt.plot(betas,'b',label=r'$\beta$')
     plt.plot(sigmas,'r',label=r'$\sigma$')
@@ -104,12 +104,12 @@ if __name__=='__main__':
     parser.add_argument('--resume',          default=False, action='store_true', help='Skip over existing PNG files and resume processing')
     args = parser.parse_args()
 
-    betas=[]
-    sigmas=[]
+    betas = []
+    sigmas = []
     try:
         start = args.N0
         if args.resume:
-            nn    = utils.find_seq(path=args.out)
+            nn = utils.find_seq(path=args.out)
             if nn >-1:
                 start = nn + args.step
         for i in range(start,args.N1,args.step):

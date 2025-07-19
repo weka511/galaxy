@@ -14,27 +14,38 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this software.  If not, see <http://www.gnu.org/licenses/>
-#
 
-import glob
-import os.path
+'''Functions shared by python scripts'''
+
+from glob import glob
+from os.path import join
 import re
 
-# get_seq
-#
-# Extract sequnce number from file name
-
 def get_seq(name,prefix='energy',ext='png'):
+    '''
+    Extract sequence number from file name
+
+    Parameters:
+        prefix  File names match this prefix, followed by sequence number
+        ext     File names have this extension
+    '''
     pattern = re.compile(r'.*{0}(\d+).{1}'.format(prefix,ext))
     return int(re.match(pattern,name).group(1))
 
-# find_seq
-#
-# Find largest sequence number in a set of files
 
-def find_seq(path='./imgs',seq=-1,prefix='energy',ext='png'):
+def find_seq(path='./imgs',prefix='energy',ext='png'):
+    '''
+    Find largest sequence number in a set of files.
+
+    Parameters:
+        path     Identifies where files are stored
+        prefix   File names match this prefix, followed by sequence number
+        ext      File names have this extension
+
+    Returns:      largest sequence number, or -1 if no files found
+    '''
     try:
-        files   = sorted(glob.glob(os.path.join(path,'{0}*.{1}'.format(prefix,ext))))
+        files = sorted(glob(join(path,'{0}*.{1}'.format(prefix,ext))))
         return get_seq(files[-1],prefix=prefix,ext=ext)
     except IndexError:
         return -1
