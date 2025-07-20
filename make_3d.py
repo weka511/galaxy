@@ -16,18 +16,18 @@
 # along with this software.  If not, see <http://www.gnu.org/licenses/>
 
 '''
-	Create movie showing evolution of galaxy --Companion to galaxy.exe - plot images in 3D.
+    Create movie showing evolution of galaxy --Companion to galaxy.exe - plot images in 3D.
 
-	The movie function assumes that ffmpeg, https://www.ffmpeg.org/, has been installed.
+    The movie function assumes that ffmpeg, https://www.ffmpeg.org/, has been installed.
 '''
 
 from argparse import ArgumentParser
-from os import system, remove
+from os import system, remove, listdir
 from os.path import join, basename, isfile
 from random import shuffle
 from sys import maxsize, exit
 import numpy as np
-from matplotlib.pyplot import figure,show
+from matplotlib.pyplot import figure,show, close
 import mpl_toolkits.mplot3d as trid
 import matplotlib.lines as lines
 from scipy import mean, std
@@ -37,25 +37,37 @@ colours = ['r','b','g','c','y','m'] #FIXME - what is this used for -- except len
                                     # I think colour_from_index has taken over!
 
 def ensure_file_does_not_exist(filename):
+    '''
+    Used to ensure that named file does not exist. Delete if necessary.
+    
+    Parameters:
+        filename
+    '''
     try:
         remove(filename)
     except OSError:
         pass
 
 def get_limits(xs,nsigma=3):
+    '''
+    Used when we plot to establish limis for each axis, based on mean and standard deviation.
+    '''
     mu = mean(xs)
     sigma = std(xs)
     return (mu-nsigma*sigma,mu+nsigma*sigma)
 
-def colour_from_index(i,threshold=5000):
-    return 'b' if i<threshold else 'r'
+def colour_from_index(index,threshold=5000):
+    '''
+    Used to distinguish points based on the cluster in when the occur.
+    '''
+    return 'b' if index < threshold else 'r'
 
 def plot(fname_in,n=len(colours),m=maxsize,scale_to_cube=False,out='./imgs',nsigma=3,N=1000,get_colour=colour_from_index):
     '''
     Plot points from input file
     Parameters:
-	    fname_in  Input file
-		n         Number of bodies
+        fname_in  Input file
+        n         Number of bodies
 
     I have had to workaround the problem of the legend function not supporting the type returned by a 3D scatter.
     See https://stackoverflow.com/questions/20505105/add-a-legend-in-a-3d-scatterplot-with-scatter-in-matplotlib for details.
@@ -92,7 +104,7 @@ def plot(fname_in,n=len(colours),m=maxsize,scale_to_cube=False,out='./imgs',nsig
     return fig,img_file
 
 def make_movie(movie_maker,out,pattern,framerate,movie):
-    if len(movie.split('.'))<2:
+    if len(movie.split('.')) < 2:
         movie = movie+'.mp4'
     if not isfile(movie_maker):
         print (f'Cannot find {movie_maker}')
@@ -101,7 +113,7 @@ def make_movie(movie_maker,out,pattern,framerate,movie):
     ensure_file_does_not_exist(join(out,movie))
     cmd = '{0} -f image2 -i {1}{2} -framerate {3} {4}'.format(movie_maker,out+'/',pattern,framerate,join(out,movie))
     return_code = system(cmd)
-    if return_code==0:
+    if return_code == 0:
         print ('Created movie {0}'.format(movie))
         return True
 
@@ -114,8 +126,8 @@ def play_movie(movie,out,movie_maker_path,movie_player):
         print (f'Cannot find {join(args.movie_maker_path,args.movie_player)}')
         return False
 
-    if len(movie.split('.'))<2:
-        movie=movie+'.mp4'
+    if len(movie.split('.')) < 2:
+        movie = movie+'.mp4'
 
     return  system(
         '{0} {1}'.format(
@@ -150,9 +162,9 @@ if __name__=='__main__':
 
     largest_sequence_number = find_seq(path=args.out,prefix='bodies') if args.resume else -1
 
-    if args.movie_only==None:
+    if args.movie_only == None:
         i = 0
-        for filename in os.listdir(args.path):
+        for filename in listdir(args.path):
             if filename.endswith(".csv"):
                 if get_seq(filename,prefix='bodies',ext='csv') < largest_sequence_number + 1: continue
                 fig,img_file = plot(fname_in = join(args.path,filename),
@@ -170,7 +182,7 @@ if __name__=='__main__':
                 i += 1
 
                 if not args.show:
-                    fig.close()
+                    close()
 
         if args.show:
             show()
@@ -180,12 +192,5 @@ if __name__=='__main__':
                           args.out,'bodies%05d.png',args.framerate, args.movie):
                 play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player)
     else:
-        if make_movie(join(args.movie_maker_path,args.movie_maker),
-                      args.out,
-                      'bodies%05d.png',
-                      args.framerate,
-                      args.movie_only):
-            play_movie(args.movie_only,
-                       args.out,
-                       args.movie_maker_path,
-                       args.movie_player)
+        if make_movie(join(args.movie_maker_path,args.movie_maker), args.out, 'bodies%05d.png', args.framerate, args.movie_only):
+            play_movie(args.movie_only, args.out, args.movie_maker_path, args.movie_player)
