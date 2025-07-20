@@ -33,3 +33,15 @@
 
 # Generated Dependencies
 *.depend
+
+log*
+*png
+*Errors.xlsx
+__pycache__/
+configs/
+galaxies/
+imgs/
+*.csv
+*.mp4
+virial/
+
