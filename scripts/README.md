@@ -4,6 +4,7 @@
  File |  Purpose 
 ---------------------|---------------------------------------------------------------------------------------
 adze.py|Cut logfiles up and analyze data 
+collision.xml|Sample input for configure.py
 configure.py| Create configuration for galaxy.exe 
 galaxy.wpr| WingIE project file
 make_3d.py|Plot output from galaxy 
