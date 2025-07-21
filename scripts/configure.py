@@ -29,6 +29,35 @@ from matplotlib.pyplot import figure,show
 import mpl_toolkits.mplot3d
 import numpy as np
 
+def parse_args():
+    '''Parse command line parameters'''
+    parser = argparse.ArgumentParser(__doc__)
+    dt = 0.1
+    model = 'plummer'
+    output = 'config.txt'
+    n = 100
+    path = './' #FIXME
+    r = 1.0
+    theta = 0.5
+    sigma = 2.0
+    G = 1.0
+
+    parser.add_argument('--dt', type=float, default=dt, help=f'Step size for integration [{dt}]')
+    parser.add_argument('--output', default=output, help=f'Configuration file [f{output}]')
+    parser.add_argument('--model', default=model, help=f'Used to initialize distribution [{model}]')
+    parser.add_argument('-n', '--number_bodies',  type=int, default=n, help=f'Number of bodies [{n}]')
+    parser.add_argument('-p', '--path', default=path,  help=f'Path for configuration files [{path}]')
+    parser.add_argument('-r', '--radius', type=float, default=r, help=f'Initial Radius [{r}]')
+    parser.add_argument('-s', '--seed', help='Initialize the random number generator')
+    parser.add_argument('-t', '--theta', type=float, default=theta, help=f'Theta-criterion of the Barnes-Hut algorithm [{theta}]')
+    parser.add_argument('--generate', action='store_true', default=False, help='Generate test data for serialization')
+    parser.add_argument('--show', action='store_true', default=False, help='Show generated points')
+    parser.add_argument('--nsigma', type=float, default=sigma, help=f'Scale data for show {sigma}')
+    parser.add_argument('--energy', action='store_true', default=False, help='Calculate and display kinetic energy, potential energy, and ratio for Virial theorem')
+    parser.add_argument('-G', '--G', type=float, default=G, help=f'Gravitational constant [{G}]')
+    parser.add_argument('--quartile', action='store_true', default=False, help='Calculate and display quartiles for distances')
+    parser.add_argument('--xml', help='XML spec')
+    return parser.parse_args()
 
 def backup(output='config.txt'):
     '''
@@ -153,7 +182,19 @@ def create_plummer(number_bodies=100,
 
 
 def create_configuration_from_xml(file):
-    '''Parse XML file to generate complex configuration'''
+    '''
+    Parse XML file to generate complex configuration
+
+    Sample configuration:
+        <?xml version="1.0" encoding="UTF-8"?>
+        <system name="Collision" model="plummer">
+            <system name="1st Galaxy" pos="-100,0.2,0.3" vel="0.5,0,0"        numbodies="5000"/>
+            <system name="2nd Galaxy" pos="100,0,0"     vel="-0.5,0.05,0.05" numbodies="1000"/>
+        </system>
+
+    Parameters:
+        file     Path to configuration file
+    '''
     def shift(body,offset,vel):
         pos  = [sum(u) for u in zip(body[:3],offset)]
         vels = [sum(v) for v in zip(body[:3],vel)]
@@ -180,6 +221,9 @@ def create_configuration_from_xml(file):
 def encode(x):
     '''
      Convert a floating point number to a string for serialization
+
+    Parameters:
+       x
     '''
     return str(struct.unpack('!q', struct.pack('!d',x))[0])
 
@@ -211,28 +255,37 @@ def plot_points(bodies=[],output='./',path='',n=2):
 def pairs(bodies):
     '''
     Generator used to iterate through distinct pairs of bodies
+
+    Parameters:
+        bodies     List of all bodies on model
     '''
-    for i in range(1,len(bodies)):
+    for i in range(0,len(bodies)):  #I have changed from range(1...)
         for j in range(i):
             yield(bodies[i],bodies[j])
 
-def dist(b1,b2):
+def dist(pt1,pt2):
     '''
     Calculate distance between two points
+
+    Parameters:
+        pt1     One point
+        pt2     A second point
     '''
-    return np.sqrt(sum([(b1[i]-b2[i])*(b1[i]-b2[i]) for i in range(3)]))
+    return np.sqrt(sum([(pt1[i]-pt2[i])**2 for i in range(3)]))
 
 
 def calculate_energy(bodies=[],G=1.0):
     '''
-    Calculate energy, and work out ratio from Virial theorem (should be 2)
+     Calculate kinetic energy and potential energy
     '''
-    return (
-        0.5 * sum([b[3]*sum(b[i]*b[i] for i in range(4,7)) for b in bodies]),
-        -  G * sum([G * b1[3] * b2[3]/dist(b1,b2) for (b1,b2) in pairs(bodies)])
-    )
+    T =  0.5 * sum([b[3]*sum(b[i]*b[i] for i in range(4,7)) for b in bodies])
+    V =  - G * sum([G * b1[3] * b2[3]/dist(b1,b2) for (b1,b2) in pairs(bodies)])
+    return T,V
 
 def check_energy(bodies=[],G=1.0):
+    '''
+    Calculate and display kinetic energy, potential energy, and ratio for Virial theorem (should be 2)
+    '''
     kinetic_energy,potential_energy = calculate_energy(bodies=bodies,G=G)
     print ('Total Energy           = {0}\n'
            'Kinetic Energy         = {1}\n'
@@ -243,7 +296,10 @@ def check_energy(bodies=[],G=1.0):
                                            -potential_energy/kinetic_energy))
 
 def  check_quartiles(bodies):
-    n         = len(bodies)
+    '''
+    Calculate and display quartiles for distances
+    '''
+    n = len(bodies)
     distances = sorted([dist(b,[0,0,0,1,0,0,0]) for b in bodies])
     print ('Q1: was {0:4f}, expected {1:4f}'.format(distances[n//4],(2**(4/3)-1)**(-1/2)))
     print ('Q2: was {0:4f}, expected {1:4f}'.format(distances[n//2],(2**(2/3)-1)**(-1/2)))
@@ -252,23 +308,7 @@ def  check_quartiles(bodies):
 
 
 if __name__=='__main__':
-    parser = argparse.ArgumentParser(__doc__)
-    parser.add_argument(      '--dt', type=float,                default=0.1,          help='Step size for integration')
-    parser.add_argument(      '--output',                        default='config.txt', help='Configuration file')
-    parser.add_argument(      '--model',                         default='plummer',    help='Used to initialize distribution')
-    parser.add_argument('-n', '--number_bodies',  type=int,      default=100,          help='Number of bodies')
-    parser.add_argument('-p', '--path',                          default='./',  help='Path for configuration files')  #FIXME
-    parser.add_argument('-r', '--radius',   type=float,          default=1.0,          help='Initial Radius')
-    parser.add_argument('-s', '--seed',                                                help='Initialize the random number generator')
-    parser.add_argument('-t', '--theta',    type=float,          default=0.5,          help='Theta-criterion of the Barnes-Hut algorithm')
-    parser.add_argument(      '--generate', action='store_true', default=False,        help='Generate test data for serialization')
-    parser.add_argument(      '--show',     action='store_true', default=False,        help='Show generated points')
-    parser.add_argument(      '--nsigma',   type=float,          default=2,            help='Scale data for show')
-    parser.add_argument(      '--energy',   action='store_true', default=False,        help='Check energy')
-    parser.add_argument('-G',  '--G',       type=float,          default=1.0,          help='Gravitational constant')
-    parser.add_argument(      '--quartile', action='store_true', default=False,        help='Check quartiles')
-    parser.add_argument(      '--xml',                                                 help='XML spec')
-    args = parser.parse_args()
+    args =   parse_args()
 
     if args.generate:
         for i in range(10):
