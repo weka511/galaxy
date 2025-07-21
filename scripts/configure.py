@@ -96,9 +96,7 @@ def parse_args():
     parser.add_argument('--generate', action='store_true', default=False, help='Generate test data for serialization')
     parser.add_argument('--show', action='store_true', default=False, help='Show generated points')
     parser.add_argument('--nsigma', type=float, default=sigma, help=f'Scale data for show {sigma}')
-    parser.add_argument('--energy', action='store_true', default=False, help='Calculate and display kinetic energy, potential energy, and ratio for Virial theorem')
     parser.add_argument('-G', '--G', type=float, default=G, help=f'Gravitational constant [{G}]')
-    parser.add_argument('--quartile', action='store_true', default=False, help='Calculate and display quartiles for distances')
     parser.add_argument('--xml', help='XML spec')
     return parser.parse_args()
 
@@ -221,7 +219,6 @@ def create_plummer(number_bodies=100,
         mass = 1.0/number_bodies
         radius = 1.0/np.sqrt(random.uniform(0,1)**(-2/3) - 1)
         return Body(randomize_on_sphere(radius=radius),mass,create_velocity(radius=radius))
-        # return randomize_on_sphere(radius=radius) + [mass] + create_velocity(radius=radius)
 
     return [create_body() for i in range(number_bodies)]
 
@@ -273,10 +270,11 @@ def encode(x):
     return str(struct.unpack('!q', struct.pack('!d',x))[0])
 
 
-def plot_points(bodies=[],output='./',path='',n=2):
+def plot_points(bodies=[],output='./',path='',n=2,T=0.0,V=0.0):
     '''
     Plot generated data
     '''
+
     fig = figure(figsize=(20,20))
     ax = fig.add_subplot(111,  projection='3d')
     sigma = n*max(np.std([body.position[0] for body in bodies]),
@@ -294,8 +292,13 @@ def plot_points(bodies=[],output='./',path='',n=2):
     ax.set_xlim(-n*sigma,n*sigma)
     ax.set_ylim(-n*sigma,n*sigma)
     ax.set_zlim(-n*sigma,n*sigma)
-    ax.set_title('Initial configuration for {0}'.format(output))
-
+    n = len(bodies)
+    centre = Body([0,0,0],0,[0,0,0])
+    distances = sorted([centre.get_distance(b) for b in bodies])
+    ax.set_title(f'Q1: {distances[n//4]:.3f}[{(2**(4/3)-1)**(-1/2):.3f}],'
+                 f'Q2: {distances[n//2]:.3f}[{(2**(2/3)-1)**(-1/2):.3f}],'
+                 f'Q3: {distances[3*n//4]:.3f}[{(2**(4/3)*3**(-2/3)-1)**(-1/2):.3f}]')
+    fig.suptitle(f'Initial configuration for {output}: T={T:.3f},V={V:.3f},E={T+V:.3f},Virial Ratio={-V/T:.3f}.')
 
 def generate_pairs(bodies):
     '''
@@ -307,31 +310,6 @@ def generate_pairs(bodies):
     for i in range(0,len(bodies)):  #I have changed from range(1...)
         for j in range(i):
             yield(bodies[i],bodies[j])
-
-
-def display_total_energy_and_virial(bodies=[],G=1.0):
-    '''
-    Calculate and display kinetic energy, potential energy, and ratio for Virial theorem (should be 2)
-    '''
-    T =  sum([b.get_T() for b in bodies])
-    V = G * sum([b1.get_V(b2) for (b1,b2) in generate_pairs(bodies)])
-    print (f'Total Energy           = {T+V}')
-    print (f'Kinetic Energy         = {T}')
-    print (f'Potential Energy       = {V}')
-    print( f'Ratio (Virial Theorem) = {-V/T}')
-
-def  display_quartiles(bodies):
-    '''
-    Calculate and display quartiles for distances from origin
-    '''
-    n = len(bodies)
-    centre = Body([0,0,0],0,[0,0,0])
-    distances = sorted([centre.get_distance(b) for b in bodies])
-    print ('Q1: was {0:4f}, expected {1:4f}'.format(distances[n//4],(2**(4/3)-1)**(-1/2)))
-    print ('Q2: was {0:4f}, expected {1:4f}'.format(distances[n//2],(2**(2/3)-1)**(-1/2)))
-    print ('Q3: was {0:4f}, expected {1:4f}'.format(distances[3*n//4],(2**(4/3)*3**(-2/3)-1)**(-1/2)))
-
-
 
 if __name__=='__main__':
     args =   parse_args()
@@ -369,11 +347,6 @@ if __name__=='__main__':
                            dt            = args.dt)
         print ('Created {0}: n={1}, r={2}.'.format(args.model,number_bodies,args.radius))
 
-        if args.energy:
-            display_total_energy_and_virial(bodies=bodies,G=args.G)
-
-        if args.quartile:
-            display_quartiles(bodies)
     else:
         bodies,number_bodies = create_configuration_from_xml(args.xml)
         save_configuration(bodies,
@@ -384,7 +357,9 @@ if __name__=='__main__':
         print ('Created {0}: n={1}, r={2}.'.format(args.model,number_bodies,args.radius))
 
     if args.show:
-        plot_points(bodies=bodies,output=args.output,path=args.path,n=args.nsigma)
+        T =  sum([b.get_T() for b in bodies])
+        V = args.G * sum([b1.get_V(b2) for (b1,b2) in generate_pairs(bodies)])
+        plot_points(bodies=bodies,output=args.output,path=args.path,n=args.nsigma,T=T,V=V)
         show()
 
     elapsed_time = time.time()-start
