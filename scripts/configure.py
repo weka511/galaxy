@@ -29,6 +29,49 @@ from matplotlib.pyplot import figure,show
 import mpl_toolkits.mplot3d
 import numpy as np
 
+class Body:
+    '''
+    This class represents one body in the simulation
+
+    Attributes:
+        position
+        mass
+        velocity
+    '''
+    def __init__(self,position,mass,velocity):
+        self.position = position
+        self.mass = mass
+        self.velocity = velocity
+
+    def encode(self):
+        '''
+         Convert fields in body to a string for serialization
+        '''
+        fields = self.position + [self.mass] + self.velocity
+        return ','.join([encode(f) for f in fields])
+
+    def get_T(self):
+        '''
+        Calculate kinetic energy
+        '''
+        return 0.5 * self.mass * sum([v**2 for v in self.velocity])
+
+    def get_distance(self,other):
+        '''
+        Calculate distance between two points
+
+        Parameters:
+            other
+        '''
+        return np.sqrt(sum([(self.position[i]-other.position[i])**2 for i in range(len(self.position))]))
+
+    def get_V(self,other):
+        '''
+        Calculate potential energy between this body and one other, ignoring G
+        '''
+        return - self.mass * other.mass/self.get_distance(other)
+
+
 def parse_args():
     '''Parse command line parameters'''
     parser = argparse.ArgumentParser(__doc__)
@@ -97,7 +140,7 @@ def save_configuration(bodies,
         f.write('dt={0}\n'.format(encode(dt)))
 
         for body in bodies:
-            f.write(','.join([encode(b) for b in body])+'\n' )
+            f.write(body.encode()+'\n' )
         f.write('End\n')
     print('Stored configuration in {0}'.format(output))
 
@@ -172,11 +215,13 @@ def create_plummer(number_bodies=100,
         return randomize_on_sphere(radius=get_velocity_ratio() * np.sqrt(2.0) *(1 + radius**2)**(-0.25))
 
 
+
     def create_body():
         '''Create one body with random position and velocity'''
         mass = 1.0/number_bodies
         radius = 1.0/np.sqrt(random.uniform(0,1)**(-2/3) - 1)
-        return randomize_on_sphere(radius=radius) + [mass] + create_velocity(radius=radius)
+        return Body(randomize_on_sphere(radius=radius),mass,create_velocity(radius=radius))
+        # return randomize_on_sphere(radius=radius) + [mass] + create_velocity(radius=radius)
 
     return [create_body() for i in range(number_bodies)]
 
@@ -234,12 +279,12 @@ def plot_points(bodies=[],output='./',path='',n=2):
     '''
     fig = figure(figsize=(20,20))
     ax = fig.add_subplot(111,  projection='3d')
-    sigma = n*max(np.std([body[0] for body in bodies]),
-                  np.std([body[1] for body in bodies]),
-                  np.std([body[2] for body in bodies]))
-    ax.scatter([body[0] for body in bodies],
-               [body[1] for body in bodies],
-               [body[2] for body in bodies],
+    sigma = n*max(np.std([body.position[0] for body in bodies]),
+                  np.std([body.position[1] for body in bodies]),
+                  np.std([body.position[2] for body in bodies]))
+    ax.scatter([body.position[0] for body in bodies],
+               [body.position[1] for body in bodies],
+               [body.position[2] for body in bodies],
                s = 1,
                c = 'b')
 
@@ -252,7 +297,7 @@ def plot_points(bodies=[],output='./',path='',n=2):
     ax.set_title('Initial configuration for {0}'.format(output))
 
 
-def pairs(bodies):
+def generate_pairs(bodies):
     '''
     Generator used to iterate through distinct pairs of bodies
 
@@ -263,44 +308,25 @@ def pairs(bodies):
         for j in range(i):
             yield(bodies[i],bodies[j])
 
-def dist(pt1,pt2):
-    '''
-    Calculate distance between two points
 
-    Parameters:
-        pt1     One point
-        pt2     A second point
-    '''
-    return np.sqrt(sum([(pt1[i]-pt2[i])**2 for i in range(3)]))
-
-
-def calculate_energy(bodies=[],G=1.0):
-    '''
-     Calculate kinetic energy and potential energy
-    '''
-    T =  0.5 * sum([b[3]*sum(b[i]*b[i] for i in range(4,7)) for b in bodies])
-    V =  - G * sum([G * b1[3] * b2[3]/dist(b1,b2) for (b1,b2) in pairs(bodies)])
-    return T,V
-
-def check_energy(bodies=[],G=1.0):
+def display_total_energy_and_virial(bodies=[],G=1.0):
     '''
     Calculate and display kinetic energy, potential energy, and ratio for Virial theorem (should be 2)
     '''
-    kinetic_energy,potential_energy = calculate_energy(bodies=bodies,G=G)
-    print ('Total Energy           = {0}\n'
-           'Kinetic Energy         = {1}\n'
-           'Potential Energy       = {2}\n'
-           'Ratio (Virial Theorem) = {3}'.format(kinetic_energy+potential_energy,
-                                           kinetic_energy,
-                                           potential_energy,
-                                           -potential_energy/kinetic_energy))
+    T =  sum([b.get_T() for b in bodies])
+    V = G * sum([b1.get_V(b2) for (b1,b2) in generate_pairs(bodies)])
+    print (f'Total Energy           = {T+V}')
+    print (f'Kinetic Energy         = {T}')
+    print (f'Potential Energy       = {V}')
+    print( f'Ratio (Virial Theorem) = {-V/T}')
 
-def  check_quartiles(bodies):
+def  display_quartiles(bodies):
     '''
-    Calculate and display quartiles for distances
+    Calculate and display quartiles for distances from origin
     '''
     n = len(bodies)
-    distances = sorted([dist(b,[0,0,0,1,0,0,0]) for b in bodies])
+    centre = Body([0,0,0],0,[0,0,0])
+    distances = sorted([centre.get_distance(b) for b in bodies])
     print ('Q1: was {0:4f}, expected {1:4f}'.format(distances[n//4],(2**(4/3)-1)**(-1/2)))
     print ('Q2: was {0:4f}, expected {1:4f}'.format(distances[n//2],(2**(2/3)-1)**(-1/2)))
     print ('Q3: was {0:4f}, expected {1:4f}'.format(distances[3*n//4],(2**(4/3)*3**(-2/3)-1)**(-1/2)))
@@ -344,10 +370,10 @@ if __name__=='__main__':
         print ('Created {0}: n={1}, r={2}.'.format(args.model,number_bodies,args.radius))
 
         if args.energy:
-            check_energy(bodies=bodies,G=args.G)
+            display_total_energy_and_virial(bodies=bodies,G=args.G)
 
         if args.quartile:
-            check_quartiles(bodies)
+            display_quartiles(bodies)
     else:
         bodies,number_bodies = create_configuration_from_xml(args.xml)
         save_configuration(bodies,
