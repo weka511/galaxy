@@ -109,6 +109,11 @@ double mean(vector<double> values);
  */
 double stdev(vector<double> q1s,double mean,bool bessel=false);
 
+class StringSplitter { //https://medium.com/@ryan_forrester_/splitting-strings-in-c-a-complete-guide-cf162837f4ba
+  public:
+    static vector<string> split(const string& str, const string& delimiters, bool keepEmpty = false) ;
+};
+
 #endif //_UTILS_HPP
 
  

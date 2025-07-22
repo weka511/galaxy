@@ -181,4 +181,22 @@ double mean(vector<double> values) {
 	return  accumulate(values.begin(), values.end(), 0.0) / values.size();
 }
 
- 
+ vector<string> StringSplitter::split(const string& str, const string& delimiters, bool keepEmpty) {
+    auto tokens = vector<string> ();
+    string::size_type pos = 0;
+    string::size_type prev = 0;
+        
+    while ((pos = str.find_first_of(delimiters, prev)) != string::npos) {
+        if (keepEmpty || pos > prev)
+            tokens.push_back(str.substr(prev, pos - prev));
+  
+        prev = pos + 1;
+    }
+        
+    if (prev < str.length())
+        tokens.push_back(str.substr(prev));
+    else if (keepEmpty && prev == str.length())
+        tokens.push_back("");
+        
+    return tokens;
+}

@@ -18,27 +18,26 @@
  * in Statistical Mechanics: Algorithms and Computations, by Werner Krauth,
  * ISBN 978-0-19-851535-7.
  */
-
-#include <iostream>
-#include <chrono>
-#include "configuration.hpp"
+ 
+#include <string> 
 
 using namespace std;
 
-int main(int argc, char **argv) {
-	auto start = chrono::high_resolution_clock::now();
-	cout << "galaxy: " << VERSION << endl;
-
-	try {
-		cout << "executing" << endl;
-		Configuration configuration("../configs/config.txt");  //TODO: command line parameter
-	}  catch (const exception& e) {
-        cerr << "Terminating because of errors: " << e.what() << endl;
-		exit(1);
-    }
-	auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-
-    std::cout << "Execution time: " << duration.count() << " seconds" << std::endl;
-    return 0;
-}
+ #ifndef _CONFIGURATION_HPP
+ #define _CONFIGURATION_HPP
+ 
+ class Configuration {
+  private:
+    string version;
+	int iteration;
+	double theta;
+	double G;
+	double dt;
+  public:
+	Configuration(string file_name);
+	 
+ };
+ 
+ #endif //_CONFIGURATION_HPP
+ 
+ 
