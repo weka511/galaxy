@@ -74,6 +74,15 @@ class Body:
         '''
         return - self.mass * other.mass/self.get_distance(other)
 
+    def create_with_offset(self,offset,vel):
+        '''
+        Create a new body shifted by an offset
+        '''
+        pos  = [sum(u) for u in zip(self.position,offset)]
+        vels = [sum(v) for v in zip(self.velocity,vel)]
+        return Body(pos,self.mass,vels)
+
+
 class ConfigurationFactory(ABC):
     @staticmethod
     def create_config_factory(model):
@@ -89,7 +98,7 @@ class ConfigurationFactory(ABC):
         if model in config_factory_dict:
             return config_factory_dict[model]
         else:
-            raise RuntimeError('Unrecognized model: {0}'.format(model))
+            raise RuntimeError(f'Unrecognized model: {model}')
 
     @abstractmethod
     def create(self,number_bodies=100,
@@ -257,28 +266,23 @@ def create_configuration_from_xml(file):
     Parameters:
         file     Path to configuration file
     '''
-    def shift(body,offset,vel):
-        pos  = [sum(u) for u in zip(body[:3],offset)]
-        vels = [sum(v) for v in zip(body[:3],vel)]
-        return pos + body[3:4] + vels
-
-    bodies = []
     root   = ET.parse(file).getroot()
     system = root.get('name')
     model  = root.get('model')
-    print (system,model)
+    print (f'Creating {system} using {model} model')
     n = sum([int(type_tag.get('numbodies')) for type_tag in root.findall('system')])
 
+    product = []
     for type_tag in root.findall('system'):
         name = type_tag.get('name')
         pos = [float(x) for x in type_tag.get('pos').split(',')]
         vel = [float(x) for x in type_tag.get('vel').split(',')]
         numbodies = int(type_tag.get('numbodies'))
-        print(name,pos,vel,numbodies)
-        subsystem = create_configuration(model=model,number_bodies = numbodies,radius = args.radius,G = args.G)
-        bodies = bodies + [shift(b,pos,vel) for b in subsystem]
+        print(f'subsystem: {name}, centre={pos},velocity={vel},N={numbodies}')
+        for body in create_configuration(model=model,number_bodies = numbodies,radius = args.radius,G = args.G):
+            product.append(body.create_with_offset(pos,vel))
 
-    return bodies,n
+    return product,n
 
 def encode(x):
     '''
@@ -341,17 +345,17 @@ if __name__=='__main__':
     if args.generate:
         for i in range(10):
             x = random.uniform(-5,5)
-            print ('\t\tREQUIRE(decode("{1}")=={0});'.format(x,encode(x)))
+            print (f'\t\tREQUIRE(decode("{encode(x)}")=={x});')
         exit(0)
 
     seed = args.seed
     if args.seed==None:
         random_data = urandom(8)
-        seed = int.from_bytes(random_data, byteorder="big")
+        seed = int.from_bytes(random_data, byteorder='big')
 
     print (f'Number of bodies = {args.number_bodies}')
     print (f'Specified seed   = {args.seed}')
-    print (f'Actual seed      = {seed}')#.format(args.number_bodies,args.seed,seed))
+    print (f'Actual seed      = {seed}')
 
     random.seed(args.seed)
     config_file = join(args.path,args.output)
@@ -360,16 +364,16 @@ if __name__=='__main__':
     number_bodies = args.number_bodies
     if args.xml == None:
         bodies = create_configuration(model         = args.model,
-                                        number_bodies = args.number_bodies,
-                                        radius        = args.radius,
-                                        G             = args.G)
+                                      number_bodies = number_bodies,
+                                      radius        = args.radius,
+                                      G             = args.G)
 
         save_configuration(bodies,
                            output        = config_file,
-                           number_bodies = args.number_bodies,
+                           number_bodies = number_bodies,
                            theta         = args.theta,
                            dt            = args.dt)
-        print ('Created {0}: n={1}, r={2}.'.format(args.model,number_bodies,args.radius))
+        print (f'Created {args.model}: n={number_bodies}, r={args.radius}.')
 
     else:
         bodies,number_bodies = create_configuration_from_xml(args.xml)
@@ -378,7 +382,12 @@ if __name__=='__main__':
                            number_bodies = args.number_bodies,
                            theta         = args.theta,
                            dt            = args.dt)
-        print ('Created {0}: n={1}, r={2}.'.format(args.model,number_bodies,args.radius))
+        print (f'Created {args.model}: n={number_bodies}, r={args.radius}.')
+
+    if args.show:
+        T =  sum([b.get_T() for b in bodies])
+        V = args.G * sum([b1.get_V(b2) for (b1,b2) in generate_pairs(bodies)])
+        plot_points(bodies=bodies,output=args.output,path=args.path,n=args.nsigma,T=T,V=V)
 
     elapsed = time() - start
     minutes = int(elapsed/60)
@@ -386,9 +395,6 @@ if __name__=='__main__':
     print (f'Elapsed Time {minutes} m {seconds:.2f} s')
 
     if args.show:
-        T =  sum([b.get_T() for b in bodies])
-        V = args.G * sum([b1.get_V(b2) for (b1,b2) in generate_pairs(bodies)])
-        plot_points(bodies=bodies,output=args.output,path=args.path,n=args.nsigma,T=T,V=V)
         show()
 
 
