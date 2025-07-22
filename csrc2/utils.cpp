@@ -31,7 +31,7 @@
 #include <unistd.h>
 
 #include "utils.hpp"
-// #include "spdlog/spdlog.h"
+
 using namespace std;
 
 /**
@@ -134,13 +134,11 @@ bool ends_with(string const & value, string const & ending){
  * 2. are value within range?
  */
 double get_double(string name, char * param, double high,double low){
-	// auto logger=spdlog::get("galaxy");
 	string::size_type sz;	
-	const double retval = stod (param,&sz);
-	if (sz==strlen(param) && low<retval && retval<high){
-		// logger->info("{0}={1}",name,retval);
+	auto retval = stod (param,&sz);
+	if (sz==strlen(param) && low<retval && retval<high)
 		return retval;
-	}	else{
+	else{
 		stringstream err;
 		err<< name <<"=" <<retval<<". Should be in range ("<< low <<"," <<high <<")" <<endl;
 		throw out_of_range(err.str());
@@ -153,13 +151,11 @@ double get_double(string name, char * param, double high,double low){
  * 2. are value within range?
  */
 int get_number(string name, char * param, int high,int low){
-	// auto logger=spdlog::get("galaxy");
 	string::size_type sz;	
-	const int retval = stoi (param,&sz);
-	if (sz==strlen(param) && low<retval && retval<high){
-		// logger->info("{0}={1}",name,retval);
+	auto retval = stoi (param,&sz);
+	if (sz==strlen(param) && low<retval && retval<high)
 		return retval;
-	}	else{
+	else{
 		stringstream err;
 		err<< name <<"=" <<retval<<". Should be in range ("<< low <<"," <<high <<")" <<endl;
 		throw out_of_range(err.str());
@@ -170,10 +166,10 @@ int get_number(string name, char * param, int high,int low){
  * Determine the standard deviation of observations stored in a vector
  */
 double stdev(vector<double> values,double mu,bool bessel) {
-	double sq_sum=0;
+	auto sq_sum=0.0;
 	for (int i=0;i<values.size();i++){
 		const double diff=values[i]-mu;
-		sq_sum+=diff*diff;
+		sq_sum += diff*diff;
 	}
 	return sqrt(sq_sum / (bessel ? values.size()-1 :values.size()));
 }
