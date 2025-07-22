@@ -15,8 +15,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#ifndef _UTILS_H
-#define _UTILS_H
+#ifndef _UTILS_HPP
+#define _UTILS_HPP
 
 #include <limits>
 #include <string>
@@ -109,5 +109,6 @@ double mean(vector<double> values);
  */
 double stdev(vector<double> q1s,double mean,bool bessel=false);
 
-#endif
+#endif //_UTILS_HPP
+
  
