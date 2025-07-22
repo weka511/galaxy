@@ -19,10 +19,14 @@ I am grateful to the following people who have geneously made code available the
 ## Contents
 
 
-| File |  Purpose |
-|---------------------|---------------------------------------------------------------------------------------|
-|csrc|C++ source
-|scripts|Python scripts
+File |  Purpose 
+---------------------|---------------------------------------------------------------------------------------
+csrc|C++ source
+scripts|Python scripts
+bolzmann.png|Image used by README.md
+energy00200.png|Image used by README.md
+energy05400.png|Image used by README.md
+kill.bat|Use to stop main program gracefully
 
 
 ## <a name="notes"> Implementation Notes
