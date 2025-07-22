@@ -35,9 +35,10 @@
 #include <cstdlib>
 #include <cmath>
 #include <cassert>
+using namespace std;
 
-    // The "gravitational constant" is chosen so as to get a pleasant output.
-    const double G = 4.e-6;
+ // The "gravitational constant" is chosen so as to get a pleasant output.
+ const double G = 4.e-6;
 	
 // Compute the square of a floating-point value.
 inline double sqr(double a) {
@@ -115,7 +116,7 @@ public:
             other->getPos(o_x, o_y);
             double m = this->getMass();
             // The force goes like 1/r^2.
-            double inv_d_cube = std::pow(dsqr, -3./2.);
+            double inv_d_cube = pow(dsqr, -3./2.);
             fx = (mx - o_x*m) * inv_d_cube;
             fy = (my - o_y*m) * inv_d_cube;
         }
@@ -169,22 +170,22 @@ public:
     }
     // You can't add another node into an end-node.
     virtual void addMassCom(Node const* other) {
-        std::cout << "Error: trying to change mass and center-of-mass of an end-node." << std::endl;
+        cout << "Error: trying to change mass and center-of-mass of an end-node." << endl;
         assert( false );
     }
     // You can't add another node into an end-node.
     virtual void setChild(int quadrant, Node* child) {
-        std::cout << "Error: trying to assign a child to an end-node." << std::endl;
+        cout << "Error: trying to assign a child to an end-node." << endl;
         assert( false );
     }
     // You can't add another node into an end-node.
     virtual Node const* getChild(int quadrant) const {
-        std::cout << "Error: trying to get child of an end-node." << std::endl;
+        cout << "Error: trying to get child of an end-node." << endl;
         assert( false );
     }
     // You can't add another node into an end-node.
     virtual Node* extractChild(int quadrant) {
-        std::cout << "Error: trying to get child of an end-node." << std::endl;
+        cout << "Error: trying to get child of an end-node." << endl;
         assert( false );
     }
     // Verlet integration step.
@@ -368,7 +369,7 @@ void accelerationOn( Body const* body, Node const* node, double theta,
 }
 
 // Execute a time iteration according to the Verlet algorithm.
-void verlet( std::vector<Body*>& bodies, Node* root,
+void verlet( vector<Body*>& bodies, Node* root,
              double theta, double G, double dt )
 {
     for(size_t i=0; i<bodies.size(); ++i) {
@@ -385,26 +386,26 @@ void verlet( std::vector<Body*>& bodies, Node* root,
 // Python script make_img.py
 // Batch-processing of all text files is achieved with the
 // shell script dat2img.
-void save_bodies( std::vector<Body*>& bodies, int i)
+void save_bodies( vector<Body*>& bodies, int i)
 {
-    std::stringstream fNameStream;
-    fNameStream << "./geneva/body_" << std::setfill('0') << std::setw(6) << i << ".dat";
-    std::ofstream ofile(fNameStream.str().c_str());
+    stringstream fNameStream;
+    fNameStream << "./geneva/body_" << setfill('0') << setw(6) << i << ".dat";
+    ofstream ofile(fNameStream.str().c_str());
     for (unsigned i=0; i<bodies.size(); ++i) {
         double px, py;
         bodies[i] -> getPos(px, py);
-        ofile << std::setprecision(12)
-              << std::setw(20) << px
-              << std::setw(20) << py << "\n";
+        ofile << setprecision(12)
+              << setw(20) << px
+              << setw(20) << py << "\n";
     }
 	double E=0;
 	for (int i=0; i<bodies.size(); ++i) {
 		E+=0.5*bodies[i]->mass*(sqr(bodies[i]->vel_x)+sqr(bodies[i]->vel_y));
 		for (int j=i+1;j<bodies.size();j++)
 			E-=G*bodies[i]->mass*bodies[j]->mass	/
-				std::sqrt(sqr(bodies[i]->pos_x-bodies[j]->pos_x)+sqr(bodies[i]->pos_y-bodies[j]->pos_y));
+				sqrt(sqr(bodies[i]->pos_x-bodies[j]->pos_x)+sqr(bodies[i]->pos_y-bodies[j]->pos_y));
 	}
-	std::cout<<E<<std::endl;
+	cout<<E<<endl;
 }
 
 
@@ -430,23 +431,23 @@ int main() {
 
     // The pseudo-random number generator is initialized at a deterministic
     // value, for proper validation of the output for the exercise series.
-    std::srand(1);
+    srand(1);
     // x- and y-pos are initialized to a square with side-length 2*ini_radius.
-    std::vector<double> posx(numbodies), posy(numbodies);
+    vector<double> posx(numbodies), posy(numbodies);
     for (int i=0; i<numbodies; ++i) {
-        posx[i] = ((double) std::rand() / (double)RAND_MAX) * 2.*ini_radius + 0.5-ini_radius;
-        posy[i] = ((double) std::rand() / (double)RAND_MAX) * 2.*ini_radius + 0.5-ini_radius;
+        posx[i] = ((double) rand() / (double)RAND_MAX) * 2.*ini_radius + 0.5-ini_radius;
+        posy[i] = ((double) rand() / (double)RAND_MAX) * 2.*ini_radius + 0.5-ini_radius;
     }
     // Initially, the bodies have a radial velocity of an amplitude proportional to
     // the distance from the center. This induces a rotational motion creating a
     // "galaxy-like" impression.
-    std::vector<Body*> bodies;
+    vector<Body*> bodies;
     for (int i=0; i<numbodies; ++i) {
         double px = posx[i];
         double py = posy[i];
         double rpx = px-0.5;
         double rpy = py-0.5;
-        double rnorm = std::sqrt(sqr(rpx)+sqr(rpy));
+        double rnorm = sqrt(sqr(rpx)+sqr(rpy));
         if ( rnorm < ini_radius ) {
             double vx = -rpy * inivel * rnorm / ini_radius;
             double vy =  rpx * inivel * rnorm / ini_radius;
@@ -468,7 +469,7 @@ int main() {
         delete root;
         // Output.
         if (iter%img_iter==0) {
-            std::cout << "Writing images at iteration " << iter << std::endl;
+            cout << "Writing images at iteration " << iter << endl;
             save_bodies(bodies, iter/img_iter);
         }
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,53 +27,53 @@
 #include "physics.h"
 #include "utils.h"
 #include "verlet.h"
-
+using namespace std;
 double dt;
 int n_orbits;
 int max_iter;
 int n_freq;
 int iter;
 
-std::ofstream logger;
+ofstream logger;
 
-void get_acceleration(std::vector<Particle*> particles) {
+void get_acceleration(vector<Particle*> particles) {
 	get_acceleration(particles,G_solar_system);
 }
 
-bool record_orbit(std::vector<Particle*> particles,int iter) {
+bool record_orbit(vector<Particle*> particles,int iter) {
 	if (iter%n_freq==0)
 		for (int i=0;i<particles.size();i++){
 			double x,y,z;
 			particles[i]->getPos(x,y,z);
-			logger << x << "," << y << "," << z << std::endl;
-			// std::cout <<  "E: " << get_kinetic_energy(particles) + get_potential_energy(particles,G_solar_system,0) << std::endl;
+			logger << x << "," << y << "," << z << endl;
+			// cout <<  "E: " << get_kinetic_energy(particles) + get_potential_energy(particles,G_solar_system,0) << endl;
 			double px,py,pz;
 			get_momentum(particles,px,py,pz);
-			// std::cout<< "P: (" <<px << ", " <<py << ", " <<pz << ")" << std::endl;
+			// cout<< "P: (" <<px << ", " <<py << ", " <<pz << ")" << endl;
 			double cx,cy,cz;
 			get_centre_of_mass(particles,cx,cy,cz);
-			// std::cout<< "C: (" <<cx << ", " <<cy << ", " <<cz << ")" << std::endl;
+			// cout<< "C: (" <<cx << ", " <<cy << ", " <<cz << ")" << endl;
 			double lx,ly,lz;
 			get_angular_momentum(particles,lx,ly,lz);
-			// std::cout<< "L: (" <<lx << ", " <<ly << ", " <<lz << ")" << std::endl;
+			// cout<< "L: (" <<lx << ", " <<ly << ", " <<lz << ")" << endl;
 		}
 	iter++;
 	return true;
 }
 
-bool record_all(std::vector<Particle*> particles,int iter) {
+bool record_all(vector<Particle*> particles,int iter) {
 	if (iter%n_freq==0)
 		for (int i=0;i<particles.size();i++){
-			std::cout<<i<<std::endl;
+			cout<<i<<endl;
 			double x,y,z;
 			particles[i]->getPos(x,y,z);
-			// std::cout << x << "," << y << "," << z << std::endl;
+			// cout << x << "," << y << "," << z << endl;
 			double vx,vy,vz;
 			particles[i]->getVel(vx,vy,vz);
-			// std::cout << vx << "," << vy << "," << vz << std::endl;
+			// cout << vx << "," << vy << "," << vz << endl;
 			double ax,ay,az;
 			particles[i]->getAcc(ax,ay,az);
-			// std::cout << ax << "," << ay << "," << az << std::endl;
+			// cout << ax << "," << ay << "," << az << endl;
 		}
 	iter++;
 	return true;
@@ -83,14 +83,14 @@ bool record_all(std::vector<Particle*> particles,int iter) {
 TEST_CASE( "Kepler Tests", "[kepler]" ) {
 	
 	SECTION("Simple Earth-Sun Kepler"){
-		std::cout << "Simple Earth-Sun Kepler" << std::endl;
+		cout << "Simple Earth-Sun Kepler" << endl;
 		dt=0.001;
 		n_orbits=1;
 		max_iter=(int)(2*M_PI*n_orbits/dt);
 		n_freq=1;
 		iter=0;
 		logger.open("kepler.csv");
-		std::vector<Particle*> particles;
+		vector<Particle*> particles;
 		particles.push_back(new Particle(0,0,0,0,0,0,1));
 		particles.push_back(new Particle(1,0,0,0,2*M_PI,0,mass_earth/mass_sun));
 		run_verlet(&get_acceleration,max_iter, dt,  particles,&record_orbit,0);
@@ -98,14 +98,14 @@ TEST_CASE( "Kepler Tests", "[kepler]" ) {
 	}
 	
 	SECTION("Lagrange Points"){
-		std::cout << "Lagrange Points" << std::endl;
+		cout << "Lagrange Points" << endl;
 		dt=0.001;
 		n_orbits=1;
 		max_iter=(int)(2*M_PI*n_orbits/dt);
 		n_freq=1;
 		iter=0;
 		logger.open("lagrange.csv");
-		std::vector<Particle*> particles;
+		vector<Particle*> particles;
 		particles.push_back(new Particle(0,0,0,0,0,0,1));
 		particles.push_back(new Particle(1,0,0, 0,2*M_PI,0, mass_earth/mass_sun));
 		const double x2=0.5;

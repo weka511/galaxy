@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,11 +16,11 @@
  */
  
  #include "particle.h"
- 
+ using namespace std;
  /**
  * Output position, velocity, and mass.
  */
-std::ostream& operator<<(std::ostream& s, Particle& p) {
+ostream& operator<<(ostream& s, Particle& p) {
 	return s<< p._x <<"," << p._y <<"," << p._z <<"," <<
 			p._vx <<"," << p._vy <<"," << p._vz <<"," <<p._m;
 }

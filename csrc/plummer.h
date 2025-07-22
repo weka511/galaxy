@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 
 #include "factory.h"
 #include "mt.h"
-
+using namespace std;
 /**
  * Factory for instantiating configurations of particles in accordance with Plummer model
  */
@@ -32,7 +32,7 @@ class PlummerFactory : public Factory {
 	/**
 	 * Create a selection of particles that satisfies Plummer distribution
 	 */
-	std::vector<Particle*>  create( );
+	vector<Particle*>  create( );
 	
   private:
 

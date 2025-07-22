@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include "catch.hpp"
 #include "mt.h"
 
+using namespace std;
 
 TEST_CASE( "MersenneTwister Tests1", "[mersennetwister]" ) {
 	MersenneTwister mt0;
@@ -43,9 +44,9 @@ TEST_CASE( "MersenneTwister Tests1", "[mersennetwister]" ) {
 		double x21=mt2.random();
 		double x22=mt2.random();
 		double x23=mt2.random();
-		REQUIRE(std::abs(x21-x01)>0.01);
-		REQUIRE(std::abs(x21-x02)>0.5);
-		REQUIRE(std::abs(x23-x03)>0.5);
+		REQUIRE(abs(x21-x01)>0.01);
+		REQUIRE(abs(x21-x02)>0.5);
+		REQUIRE(abs(x23-x03)>0.5);
 	}
 }
 

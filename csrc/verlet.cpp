@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2019 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 
 #include "stepper.h"
 #include "verlet.h"
+using namespace std;
 
 /**
  *  Use Euler algorithm for first step. NB: this updates velocity only, so x
@@ -80,16 +81,16 @@ void  verlet_velocities(Particle* particle,double dt) {
  *  shouldContinue    Used after each iteration, for reporting and to determine whher to continue
  *  start_iterations  Initial iteration number. Normally zero, but non-zero if we resume after an earlier run
  */
-void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
+void run_verlet(void (*get_acceleration)(vector<Particle*>),
 				int max_iter,
 				double dt,
-				std::vector<Particle*> particles,
-				bool (*shouldContinue)(std::vector<Particle*> particles,int iter),
+				vector<Particle*> particles,
+				bool (*shouldContinue)(vector<Particle*> particles,int iter),
 				int start_iterations) {
 	if (start_iterations==0){
 		get_acceleration(particles);
 		// Take a half step, so acceleration corresponds to 0.5dt, 1.5dt, etc.
-		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
+		for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
 	}
 	
 	/**
@@ -97,21 +98,21 @@ void run_verlet(void (*get_acceleration)(std::vector<Particle*>),
 	 * in order to fix issue #43 - On restart, galaxy.exe loses some time steps
 	 */
 	for (int iter=1+start_iterations;iter<max_iter+start_iterations && shouldContinue(particles,++iter);) {
-		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_positions(particle,dt);});
+		for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_positions(particle,dt);});
 		get_acceleration(particles);
-		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_velocities(particle,dt);});
+		for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_velocities(particle,dt);});
 	}
 }
 
 
 
 
-void run_verlet(Node * (*precondition)(std::vector<Particle*>),
-				void (*get_acceleration)(int i, std::vector<Particle*> particles,Node * root),
+void run_verlet(Node * (*precondition)(vector<Particle*>),
+				void (*get_acceleration)(int i, vector<Particle*> particles,Node * root),
 				int max_iter,
 				double dt,
-				std::vector<Particle*> particles,
-				bool (*shouldContinue)(std::vector<Particle*> particles,int iter),
+				vector<Particle*> particles,
+				bool (*shouldContinue)(vector<Particle*> particles,int iter),
 				int start_iterations,
 				int nthreads) {
 					
@@ -122,7 +123,7 @@ void run_verlet(Node * (*precondition)(std::vector<Particle*>),
 	
 		delete root;
 		// Take a half step, so acceleration corresponds to 0.5dt, 1.5dt, etc.
-		std::for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
+		for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
 
 	}
 	Stepper stepper(nthreads,

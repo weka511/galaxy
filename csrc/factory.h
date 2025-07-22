@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include <vector>
 #include "particle.h"
-
+using namespace std;
 /**
  * Factory for instantiating configurations of particles
  */
@@ -29,13 +29,13 @@ class Factory {
   	/**
 	 * Create a selection of particles
 	 */
-	virtual std::vector<Particle*>  create()=0;
+	virtual vector<Particle*>  create()=0;
 	
 	virtual ~Factory() {;}
 	
-	double zero_centre_mass(std::vector<Particle*> particles);
+	double zero_centre_mass(vector<Particle*> particles);
 	
-	void zero_linear_momentum(std::vector<Particle*> particles,double total_mass);
+	void zero_linear_momentum(vector<Particle*> particles,double total_mass);
 	
 	void setNumBodies(int numbodies) {_numbodies=numbodies;}
 	

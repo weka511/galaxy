@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,17 +25,18 @@
 #include "particle.h"
 #include "configs.h"
 #include "tinyxml2.h"
+using namespace std;
 
 class ParticleFactory {
   public:
 	ParticleFactory(Factory * factory) : _factory(factory) {}
-	std::vector<Particle*> create(std::string name);
+	vector<Particle*> create(string name);
   private:
 	Factory * _factory;
-	int _get_attr(tinyxml2::XMLElement * element,std::string name,const int default_value=-1);
-	void _get_attr(tinyxml2::XMLElement * element,std::string name,double &x,double &y,double &z);
+	int _get_attr(tinyxml2::XMLElement * element,string name,const int default_value=-1);
+	void _get_attr(tinyxml2::XMLElement * element,string name,double &x,double &y,double &z);
 	int _count_bodies(tinyxml2::XMLElement * system );
-	void _fix_centre_mass_and_linear_momentum(std::vector<Particle*> particles,
+	void _fix_centre_mass_and_linear_momentum(vector<Particle*> particles,
 	double cx, double yc, double zc,double vcx, double vyc, double vzc);
 };
 

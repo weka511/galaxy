@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 	#include <string>
 #endif
 #include "particle.h"
-
+using namespace std;
 /**
  *  Represents one node in Barnes Hut Octree
  */
@@ -35,7 +35,7 @@ class Node {
 	/**
 	 * Create an oct-tree from a set of particles
 	 */
-	static Node * create(std::vector<Particle*>& particles);
+	static Node * create(vector<Particle*>& particles);
 	  /**
 	   * Number of nodes allocated: used in testing
 	   */
@@ -82,14 +82,14 @@ class Node {
 	 *  Create one node for tree
 	 */	
 	#ifdef _RUNTIME_CHECKS
-		Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,std::string id);
+		Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id);
 	#else
 		Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax);
 	#endif
 	/**
 	 * Insert one particle in tree
 	 */
-	void insert(int new_particle_index,std::vector<Particle*>& particles);
+	void insert(int new_particle_index,vector<Particle*>& particles);
 	
 	/**
 	 * Destroy node and its descendants.
@@ -144,13 +144,13 @@ class Node {
 	 * Determine the bounding box for set of particles. Make it slightly 
 	 * larger than strictly needed, so everything is guaranteed to be inside box
 	 */
-	static void get_limits(std::vector<Particle*>& particles,
+	static void get_limits(vector<Particle*>& particles,
 					double& xmin,double& xmax,
 					double& ymin,double& ymax,
 					double& zmin,double& zmax,
 					const double epsilon=0.0001);
 	
-	std::string _id;
+	string _id;
 	
   private:
 	
@@ -168,13 +168,13 @@ class Node {
 	 * Used when we have just split an External node, but the incumbent and new
 	 * node both want to occupy the same child.
 	 */
-	void _pass_down(int particle_index,int incumbent,std::vector<Particle*>& particles);
+	void _pass_down(int particle_index,int incumbent,vector<Particle*>& particles);
 	
 	/**
 	 * Used when we have just split an External node, so we need to pass
 	 * the incumbent and a new particle down the tree
 	 */
-	void _insert_or_propagate(int particle_index,int incumbent,std::vector<Particle*>& particles);
+	void _insert_or_propagate(int particle_index,int incumbent,vector<Particle*>& particles);
 	
 	/**
 	 * Convert an External Node into an Internal one, and
@@ -197,11 +197,11 @@ class Node {
 	/**
 	 *  Check that a point really does belong in this cube.
 	 */
-	inline void _check_range(std::string wname,double w,double wmin,double wmax,std::string file=__FILE__,int line=__LINE__) {
+	inline void _check_range(string wname,double w,double wmin,double wmax,string file=__FILE__,int line=__LINE__) {
 		if (w<wmin||w>wmax) {
-			std::stringstream message;
+			stringstream message;
 			message<<file <<" " <<line << " particle " << _particle_index <<":"<<wname <<" out of range: " <<w<< " (" << wmin << "," << wmax << ")";
-			throw  std::logic_error(message.str().c_str());
+			throw  logic_error(message.str().c_str());
 		}
 	}
 	

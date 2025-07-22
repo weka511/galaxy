@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,12 @@
 #include <thread>
 #include <time.h> 
 
+using namespace std;
 
 int foo(int from, int to) {
 	for (int i=from;i< to;i++){
-		double x=std::log(i);
-		double y=std::exp(x);
+		double x=log(i);
+		double y=exp(x);
 	}
 }
 
@@ -36,10 +37,10 @@ int main() {
 		for (int i=0;i<15;i++) {
 			int from    = 0;
 			int to      = 0;
-			const int N = std::numeric_limits<int>::max();
+			const int N = numeric_limits<int>::max();
 			
-			auto start             = std::chrono::system_clock::now();
-			std::time_t start_time = std::chrono::system_clock::to_time_t(start);
+			auto start             = chrono::system_clock::now();
+			time_t start_time = chrono::system_clock::to_time_t(start);
 			
 			if (i==0) {
 				to=N;
@@ -48,24 +49,24 @@ int main() {
 				const int incr = N/i;
 				from           = 0;
 				to             = 0;
-				std::thread* ts[i];			
+				thread* ts[i];			
 				for (int j=0;j<i;j++){
 					from = to;
 					to   += incr;
 					if (j==i-1) to = N;
-					ts[j]=new std::thread(foo,from,to);
+					ts[j]=new thread(foo,from,to);
 				}
 				for (int j=0;j<i;j++){
 					ts[j]->join();
 					delete ts[j];
 				}
 			}
-			auto end = std::chrono::system_clock::now();
-			std::chrono::duration<double> elapsed_seconds = end-start;
+			auto end = chrono::system_clock::now();
+			chrono::duration<double> elapsed_seconds = end-start;
 				 
-			std::cout<<i<<","<<  elapsed_seconds.count()<< std::endl;
+			cout<<i<<","<<  elapsed_seconds.count()<< endl;
 		}
  
-    std::cout << "done" << std::endl;
+    cout << "done" << endl;
     return 0;
 }

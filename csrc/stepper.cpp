@@ -26,7 +26,7 @@
  #include "verlet.h"
  #include "spdlog/spdlog.h"
 
-
+using namespace std;
 namespace spd = spdlog;
 
  /**
@@ -44,11 +44,11 @@ namespace spd = spdlog;
 Stepper::Stepper(const int nthreads, 
 				const int from,
 				const int to,
-				std::vector<Particle*> particles,
-				Node * (*precondition)(std::vector<Particle*>),
-				void (*get_acceleration)(int i, std::vector<Particle*> particles,Node * root),
+				vector<Particle*> particles,
+				Node * (*precondition)(vector<Particle*>),
+				void (*get_acceleration)(int i, vector<Particle*> particles,Node * root),
 				const double dt,
-				bool (*shouldContinue)(std::vector<Particle*> particles,int iter))
+				bool (*shouldContinue)(vector<Particle*> particles,int iter))
 	: 	_nthreads(nthreads),
 		_to(to),
 		_iter(from),
@@ -59,8 +59,8 @@ Stepper::Stepper(const int nthreads,
 		_dt(dt),
 		_root(NULL),
 		_shouldContinue(shouldContinue)	{
-	_worker = new std::thread*[_nthreads];
-	std::cout << "Processing " << particles.size() << " particles" << std::endl;
+	_worker = new thread*[_nthreads];
+	cout << "Processing " << particles.size() << " particles" << endl;
 }
 
 /**
@@ -73,21 +73,21 @@ Stepper::Stepper(const int nthreads,
 void Stepper::start(){
 
 	for  (int i=0;i<_nthreads;i++) 
-		_worker[i]=new std::thread(&Stepper::step,this); 
+		_worker[i]=new thread(&Stepper::step,this); 
 	
-	std::unique_lock<std::mutex> lck_starting(_mtx_starting);
+	unique_lock<mutex> lck_starting(_mtx_starting);
     _cv_starting.wait(lck_starting,[this]{return this->_exists_some_equal(Started);});
 
 	for  (int i=0;i<_nthreads;i++){
-		std::thread::id id=_worker[i]->get_id();
+		thread::id id=_worker[i]->get_id();
 		spdlog::get("galaxy")->info("{0} {1} {2} {3}",
 								__FILE__,__LINE__ ,_thread_index(id),_thread_status[id]);
 	}
 	
-	std::unique_lock<std::mutex> lck_finishing(_mtx_finishing);
+	unique_lock<mutex> lck_finishing(_mtx_finishing);
 	_cv_finishing.wait(lck_finishing,[this]{return this->_all_equal(Finishing);});
 	for  (int i=0;i<_nthreads;i++){
-		std::thread::id id=_worker[i]->get_id();
+		thread::id id=_worker[i]->get_id();
 		spdlog::get("galaxy")->info("{0} {1} {2} {3}",
 								__FILE__,__LINE__ ,_thread_index(id),_thread_status[id]);
 	}
@@ -96,7 +96,7 @@ void Stepper::start(){
 /**
  *  Build tree at start of each iteration
  */
-int Stepper::_start_iteration(std::thread::id id) {
+int Stepper::_start_iteration(thread::id id) {
 	_mutex_state.lock();
 
 		int index = _next_index;
@@ -104,7 +104,7 @@ int Stepper::_start_iteration(std::thread::id id) {
 		
 		if (index==0){
 
-			std::for_each(_particles.begin(),
+			for_each(_particles.begin(),
 							_particles.end(),
 							[this](Particle* particle){verlet_positions(particle,this->_dt);});
 			delete _root;
@@ -119,7 +119,7 @@ int Stepper::_start_iteration(std::thread::id id) {
 				_cv_starting.notify_all();
 			} else {
 				_mutex_state.unlock();
-				std::unique_lock<std::mutex> lock(_mtx_tree_has_been_built);
+				unique_lock<mutex> lock(_mtx_tree_has_been_built);
 				_cv_tree_has_been_built.wait(lock,[this]{return this->_exists_some_equal(Started);});
 				_mutex_state.lock();
 				_thread_status[id]=Started;
@@ -137,7 +137,7 @@ int Stepper::_start_iteration(std::thread::id id) {
 void Stepper::step() {
 	
 	int index=-1;
-	std::thread::id id=std::this_thread::get_id();
+	thread::id id=this_thread::get_id();
 	_thread_status[id]=FreshlyCreated;
 	
 	while (_iter<_to) {  // need to set index to 0 at end of iteration
@@ -167,7 +167,7 @@ void Stepper::step() {
 				index = _next_index;
 				_next_index++;
 			_mutex_state.unlock();
-			std::this_thread::yield();
+			this_thread::yield();
 		}
 		_mutex_state.lock();
 			_thread_status[id]=Waiting;
@@ -175,7 +175,7 @@ void Stepper::step() {
 		_mutex_state.unlock();
 		
 		if (all_waiting) {
-			std::for_each(_particles.begin(),
+			for_each(_particles.begin(),
 							_particles.end(),
 							[this](Particle* particle){verlet_velocities(particle,this->_dt);});
 			_mutex_state.lock();
@@ -197,7 +197,7 @@ void Stepper::step() {
 			_cv_end_iter.notify_all();
 
 		} else {
-			std::unique_lock<std::mutex> lck_iter(_mtx_end_iter);
+			unique_lock<mutex> lck_iter(_mtx_end_iter);
 			_cv_end_iter.wait(lck_iter,[this]{
 												return this->_exists_some_equal(Restarting) ||
 															this->_exists_some_equal(Finishing);
