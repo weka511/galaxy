@@ -42,7 +42,12 @@ class Particle {
 	 *  Accessor for mass
 	 */
 	inline double get_mass() {return _m;}
+	
+	inline void getPos(double& x,	double& y, double& z) {x=_position[0];y=_position[1];z=_position[2];}
 
+	inline double get_distance_sq(Particle*other)  {
+		return sqr(_position[0] - other->_position[0]) + sqr(_position[1] - other->_position[1]) + sqr(_position[2] - other->_position[2]);
+	}
 	/**
      * Output position, velocity, and mass.
      */

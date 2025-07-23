@@ -23,7 +23,7 @@ CC        = gcc
 CXX       = g++
 RM        = rm -f
 MKDIR     = mkdir
-SRCS      = configuration.cpp particle.cpp tinyxml2.cpp  utils.cpp
+SRCS      = configuration.cpp particle.cpp tinyxml2.cpp treecode.cpp utils.cpp
 
 TESTS     = test-serialization.cpp
 		
