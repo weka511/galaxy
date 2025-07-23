@@ -75,7 +75,7 @@ void Node::get_limits(unique_ptr<Particle[]>& particles,int n,double& xmin,doubl
 /**
  * Create an oct-tree from a set of particles
  */
-Node * Node::create(unique_ptr<Particle[]> particles, int n){
+Node * Node::create(unique_ptr<Particle[]> &particles, int n){
 	double xmin, xmax, ymin, ymax, zmin, zmax;
 	Node::get_limits(particles,n,xmin, xmax, ymin, ymax, zmin, zmax);
 	#ifdef _RUNTIME_CHECKS

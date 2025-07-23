@@ -44,15 +44,16 @@ class Node {
 	double _y;
 	double _z;
 	/**
-	 * Bounding box for Node. This will be subdivided as we move down th tree
+	 * Bounding box for Node. This will be subdivided as we move down the tree
 	 */
 	double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax, _xmean, _ymean, _zmean;
+	
   public:
   
 	/**
 	 * Create an oct-tree from a set of particles
 	 */
-	static Node * create(unique_ptr<Particle[]> particles, int n);
+	static Node * create(unique_ptr<Particle[]> &particles, int n);
 	  /**
 	   * Number of nodes allocated: used in testing
 	   */
@@ -132,9 +133,9 @@ class Node {
 	 */
 	void setPhysics(double m, double x, double y, double z) {
 		#ifdef _RUNTIME_CHECKS
-			// _check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
-			// _check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
-			// _check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
+			_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
+			_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
+			_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
 		#endif
 		_m=m;_x=x;_y=y;_z=z;
 	}

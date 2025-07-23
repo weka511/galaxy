@@ -17,9 +17,9 @@
  * This file exercises treecode. 
  */
  
-#include <vector>
 #include "catch.hpp"
 #include "treecode.hpp"
+#include "particle.hpp"
 using namespace std;
 
 
@@ -27,14 +27,17 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 	REQUIRE(Node::_count==0);
 	
 	
-	// SECTION("Trivial Tree Insert") {
+	SECTION("Trivial Tree Insert") {
+		unique_ptr<Particle[]> particles = make_unique<Particle[]>(2);
+		particles[0].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},0.0);
+		particles[1].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},0.0);
 		// vector<Particle*> particles;
 		// particles.push_back(new Particle(-1,-1,-1,0,0,0,0));
 		// particles.push_back(new Particle(-1,-1,1,0,0,0,0));
-		// Node * tree = Node::create(particles);
-		// REQUIRE(Node::_count==9);
-		// delete tree;
-	// }
+		Node * tree = Node::create(particles,2);
+		REQUIRE(Node::_count==9);
+		delete tree;
+	}
 	
 	// SECTION("Larger Tree Insert") {
 		// vector<Particle*> particles;
