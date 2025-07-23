@@ -104,15 +104,8 @@ Configuration::Configuration(string file_name){
 							velocity[i-4] = value;
 					}
 				}
-				_particles[line_number-5].init(position,velocity,mass);
-				 cout <<line_number-5 << "," << line_count << "," <<_particles[line_number-5] << endl;
-				
+				_particles[line_number-5].init(position,velocity,mass);	
 		}
 		line_number++;
     }
-	cout << file_name << endl;
-	cout << version << endl;
-	cout << theta << endl;
-	cout << G << endl;
-	cout << dt << endl;
 }

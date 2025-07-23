@@ -19,13 +19,8 @@
 #define _PARTICLE_H
 
 #include <array>
-#include <cmath>
 #include <iostream>
-#include <math.h>
 #include <ostream>
-#include <stdexcept>
-#include <vector>
-
 #include "utils.hpp"
 using namespace std;
 
@@ -38,15 +33,9 @@ class Particle {
     array<double,3> _position;
 	array<double,3> _velocity;
 	array<double,3> _acceleration;
-
-	/**
-	 * Mass
-	 */
 	double _m;
 	
-
   public:
-   	
 	void init(array<double,3> position, array<double,3> velocity, double m);
 	
 	/**
@@ -59,7 +48,6 @@ class Particle {
      */
 	friend ostream& operator<<(ostream& s, Particle& p);
 	
- 
 };
 
 #endif //_PARTICLE_H
