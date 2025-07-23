@@ -16,7 +16,7 @@
 # Makefile snarfed from https://stackoverflow.com/questions/2481269/how-to-make-a-simple-c-makefile
 
 GIT_VERSION := $(shell git describe --tags)
-CPPFLAGS  = -g -O3  -D_RUNTIME_CHECKS -pthread -I/sw/include/root  -std=c++23 -DVERSION="\"$(GIT_VERSION)\""
+CPPFLAGS  = -g -O3  -pthread -I/sw/include/root  -std=c++23 -DVERSION="\"$(GIT_VERSION)\""
 LDFLAGS   = -g -O3
 LDLIBS    =
 CC        = gcc

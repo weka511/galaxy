@@ -132,11 +132,9 @@ class Node {
 	 * Set mass and centre of mass
 	 */
 	void setPhysics(double m, double x, double y, double z) {
-		#ifdef _RUNTIME_CHECKS
-			_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
-			_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
-			_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
-		#endif
+		_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
+		_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
+		_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
 		_m=m;_x=x;_y=y;_z=z;
 	}
 	

@@ -78,11 +78,9 @@ void Node::get_limits(unique_ptr<Particle[]>& particles,int n,double& xmin,doubl
 Node * Node::create(unique_ptr<Particle[]> &particles, int n){
 	double xmin, xmax, ymin, ymax, zmin, zmax;
 	Node::get_limits(particles,n,xmin, xmax, ymin, ymax, zmin, zmax);
-	#ifdef _RUNTIME_CHECKS
-		Node * product=new Node(xmin,xmax,ymin,ymax,zmin,zmax,"0");
-	#else
-		Node * product=new Node(xmin,xmax,ymin,ymax,zmin,zmax);
-	#endif
+
+	Node * product=new Node(xmin,xmax,ymin,ymax,zmin,zmax,"0");
+
 	for (int index=0;index<n;index++)
 		product->insert(index,particles);
 	return product;
@@ -94,14 +92,12 @@ Node * Node::create(unique_ptr<Particle[]> &particles, int n){
  * Recursively descend until we find an empty node.
  */
 void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
+	double x,y,z; 
+	particles[new_particle_index].getPos(x,y,z);
+	_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
+	_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
+	_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
 
-	#ifdef _RUNTIME_CHECKS
-		double x,y,z; 
-		particles[new_particle_index].getPos(x,y,z);
-		_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
-		_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
-		_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
-	#endif
 	const double epsilon=1e-12;
 	switch(_particle_index){
 		case Unused:   // we can add particle to Unused Node
@@ -191,13 +187,11 @@ void Node::_split_node() {
 					zmin = _zmean;
 					zmax = _zmax;
 				}
-				#ifdef _RUNTIME_CHECKS
-					stringstream ss;
-					ss<<_id<<_get_child_index(i,j,k);
-					_child[_get_child_index(i,j,k)] = new Node(xmin, xmax, ymin, ymax, zmin, zmax,ss.str().c_str());
-				#else
-					_child[_get_child_index(i,j,k)] = new Node(xmin, xmax, ymin, ymax, zmin, zmax);
-				#endif
+
+				stringstream ss;
+				ss<<_id<<_get_child_index(i,j,k);
+				_child[_get_child_index(i,j,k)] = new Node(xmin, xmax, ymin, ymax, zmin, zmax,ss.str().c_str());
+	
 			}	// k
 		}		// j
 	}			// i
