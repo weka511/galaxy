@@ -45,6 +45,8 @@ class Particle {
 	
 	inline void getPos(double& x,	double& y, double& z) {x=_position[0];y=_position[1];z=_position[2];}
 
+	inline array<double,3> & get_position() {return _position;}
+	
 	inline double get_distance_sq(Particle&other)  {
 		return sqr(_position[0] - other._position[0]) + sqr(_position[1] - other._position[1]) + sqr(_position[2] - other._position[2]);
 	}

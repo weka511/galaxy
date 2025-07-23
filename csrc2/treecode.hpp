@@ -21,6 +21,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include "particle.hpp"
 
 using namespace std;
@@ -151,15 +152,15 @@ class Node {
 
 		
 	/**
-	 * Determine the bounding box for set of particles. Make it slightly 
-	 * larger than strictly needed, so everything is guaranteed to be inside box
-	 */
-	static void get_limits(unique_ptr<Particle[]> &particles,
+     * Determine a cube that will serve as a bounding box for set of particles. 
+     * Make it slightly larger than strictly needed,
+     * so everything is guaranteed to be inside box
+    */
+	static tuple<double,double> get_limits(unique_ptr<Particle[]> &particles,
 					int n,
-					double& xmin,double& xmax,
-					double& ymin,double& ymax,
-					double& zmin,double& zmax,
 					const double epsilon=0.0001);
+					
+					
 	
 	string _id;
 	

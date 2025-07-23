@@ -15,7 +15,7 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-
+#include <algorithm>
 #include <iostream>
 #include <limits>
 #include <sstream>
@@ -43,43 +43,39 @@ Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zm
 
 
 /**
- * Determine the bounding box for set of particles. Make it slightly 
- * larger than strictly needed, so everything is guaranteed to be inside box
+ * Determine a cube that will serve as a bounding box for set of particles. 
+ * Make it slightly larger than strictly needed,
+ * so everything is guaranteed to be inside box
  */
-void Node::get_limits(unique_ptr<Particle[]>& particles,int n,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax,const double epsilon){
-	xmin = numeric_limits<double>::max();
-	xmax = -xmin;
-	ymin = numeric_limits<double>::max();
-	ymax = -ymin;
-	zmin = numeric_limits<double>::max();
-	zmax = -zmin;
-	for (int i=0;i<n;i++) {
-		double x,y,z;
-		particles[i].getPos(x,y,z);
-		if (x<xmin) xmin = x;
-		if (x>xmax) xmax = x;
-		if (y<ymin) ymin = y;
-		if (y>ymax) ymax = y;
-		if (z<zmin) zmin = z;
-		if (z>zmax) zmax = z;
-	}
+tuple<double,double> Node::get_limits(unique_ptr<Particle[]>& particles,int n,const double epsilon){
+	auto zmin = numeric_limits<double>::max();
+	auto zmax = -zmin;
+	for (int i=0;i<n;i++)
+		for (int j=0;j<3;j++){
+			zmin = min(zmin,particles[i].get_position()[j]);
+			zmax = max(particles[i].get_position()[j],zmax);
+		}
+
+	if (zmin < 0)
+		zmin *= (1+epsilon);
+	else 
+		zmin /= (1+epsilon);
 	
-	zmin = min(xmin,min(ymin,zmin));
-	zmax = max(xmax,max(ymax,zmax));
-	if (zmin < 0) zmin *= (1+epsilon); else zmin /= (1+epsilon);
-	if (zmax < 0) zmax /= (1+epsilon); else zmax *= (1+epsilon);
-	xmin = ymin = zmin;
-	xmax = ymax = zmax;
+	if (zmax < 0)
+		zmax /= (1+epsilon);
+	else
+		zmax *= (1+epsilon);
+	
+	return make_tuple(zmin,zmax);
 }
 
 /**
  * Create an oct-tree from a set of particles
  */
 Node * Node::create(unique_ptr<Particle[]> &particles, int n){
-	double xmin, xmax, ymin, ymax, zmin, zmax;
-	Node::get_limits(particles,n,xmin, xmax, ymin, ymax, zmin, zmax);
-
-	Node * product=new Node(xmin,xmax,ymin,ymax,zmin,zmax,"0");
+	double zmin, zmax;
+	tie(zmin,zmax) = Node::get_limits(particles,n);
+	auto product=new Node(zmin,zmax,zmin,zmax,zmin,zmax,"0");
 
 	for (int index=0;index<n;index++)
 		product->insert(index,particles);
