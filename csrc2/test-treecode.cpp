@@ -29,9 +29,10 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 	
 	SECTION("Trivial Tree Insert") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(2);
-		particles[0].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},0.0);
-		particles[1].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},0.0);
-		Node * tree = Node::create(particles,2);
+		auto i = 0;
+		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},0.0);
+		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},0.0);
+		Node * tree = Node::create(particles,i);
 		REQUIRE(Node::_count==9);
 		delete tree;
 		REQUIRE(Node::_count==0);
@@ -49,27 +50,29 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		particles[i++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0);
 		particles[i++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0);
 
-		Node * tree = Node::create(particles,8);
+		Node * tree = Node::create(particles,i);
 		REQUIRE(Node::_count==9);
 		delete tree;
 		REQUIRE(Node::_count==0);
 	}
 	
-	// SECTION("2nd layer Tree Insert") {
-		// vector<Particle*> particles;
-		// particles.push_back(new Particle(-1, -1, -1,0,0,0,1));
-		// particles.push_back(new Particle(-1, -1, +1,0,0,0,1));
-		// particles.push_back(new Particle(-1, +1, -1,0,0,0,1));
-		// particles.push_back(new Particle(+1, -1, -1,0,0,0,1));
-		// particles.push_back(new Particle(-1, +1, +1,0,0,0,1));
-		// particles.push_back(new Particle(+1, -1, +1,0,0,0,1));
-		// particles.push_back(new Particle(+1, +1, -1,0,0,0,1));
-		// particles.push_back(new Particle(+1, +1, +1,0,0,0,1));
-		// particles.push_back(new Particle(+0.2, +0.2, +1,0,0,0,1));
-		// Node * tree = Node::create(particles);
-		// REQUIRE(Node::_count==17);
-		// delete tree;
-	// }
+	SECTION("2nd layer Tree Insert") {
+		unique_ptr<Particle[]> particles = make_unique<Particle[]>(9);
+		auto i = 0;
+		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0);
+		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0);
+		particles[i++].init(array{-1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0);
+		particles[i++].init(array{+1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0);
+		particles[i++].init(array{-1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0);
+		particles[i++].init(array{+1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0);
+		particles[i++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0);
+		particles[i++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0);
+		particles[i++].init(array{+0.2, +0.2, +1.0},array{0.0,0.0,0.0},1.0);
+		Node * tree = Node::create(particles,i);
+		REQUIRE(Node::_count==17);
+		delete tree;
+		REQUIRE(Node::_count==0);
+	}
 	
 	REQUIRE(Node::_count==0);
 }
