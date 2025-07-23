@@ -15,8 +15,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#ifndef _PARTICLE_H
-#define _PARTICLE_H
+#ifndef _PARTICLE_HPP
+#define _PARTICLE_HPP
 
 #include <array>
 #include <iostream>
@@ -45,8 +45,8 @@ class Particle {
 	
 	inline void getPos(double& x,	double& y, double& z) {x=_position[0];y=_position[1];z=_position[2];}
 
-	inline double get_distance_sq(Particle*other)  {
-		return sqr(_position[0] - other->_position[0]) + sqr(_position[1] - other->_position[1]) + sqr(_position[2] - other->_position[2]);
+	inline double get_distance_sq(Particle&other)  {
+		return sqr(_position[0] - other._position[0]) + sqr(_position[1] - other._position[1]) + sqr(_position[2] - other._position[2]);
 	}
 	/**
      * Output position, velocity, and mass.
@@ -55,4 +55,4 @@ class Particle {
 	
 };
 
-#endif //_PARTICLE_H
+#endif //_PARTICLE_HPP

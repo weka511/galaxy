@@ -15,27 +15,44 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#ifndef _TREECODE_H
-#define _TREECODE_H
+#ifndef _TREECODE_HPP
+#define _TREECODE_HPP
 
+#include <memory>
 #include <sstream>
-#include <vector>
-#include <stdexcept>
-#ifdef _RUNTIME_CHECKS
-	#include <string>
-#endif
+#include <string>
 #include "particle.hpp"
+
 using namespace std;
 /**
  *  Represents one node in Barnes Hut Octree
  */
 class Node {
+	
+  private:
+	/**
+	 * Indicates type of node. External Nodes use the index of the
+     * associated particle instead of one of these values.
+	 */
+	int _particle_index;
+	
+	/**
+	 *  Mass and centre of mass
+	 */
+	double _m;
+	double _x;
+	double _y;
+	double _z;
+	/**
+	 * Bounding box for Node. This will be subdivided as we move down th tree
+	 */
+	double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax, _xmean, _ymean, _zmean;
   public:
   
 	/**
 	 * Create an oct-tree from a set of particles
 	 */
-	static Node * create(vector<Particle*>& particles);
+	static Node * create(unique_ptr<Particle[]> particles, int n);
 	  /**
 	   * Number of nodes allocated: used in testing
 	   */
@@ -81,15 +98,12 @@ class Node {
 	/**
 	 *  Create one node for tree
 	 */	
-	#ifdef _RUNTIME_CHECKS
-		Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id);
-	#else
-		Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax);
-	#endif
+	Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id);
+
 	/**
 	 * Insert one particle in tree
 	 */
-	void insert(int new_particle_index,vector<Particle*>& particles);
+	void insert(int new_particle_index,unique_ptr<Particle[]> &particles);
 	
 	/**
 	 * Destroy node and its descendants.
@@ -118,9 +132,9 @@ class Node {
 	 */
 	void setPhysics(double m, double x, double y, double z) {
 		#ifdef _RUNTIME_CHECKS
-			_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
-			_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
-			_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
+			// _check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
+			// _check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
+			// _check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
 		#endif
 		_m=m;_x=x;_y=y;_z=z;
 	}
@@ -135,16 +149,14 @@ class Node {
 	 */
 	inline double getSide() {return _xmax - _xmin;}
 	
-	/**
-	 * Bounding box for Node. This will be subdivided as we move down the tree
-	 */
-	const double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax, _xmean, _ymean, _zmean;
+
 		
 	/**
 	 * Determine the bounding box for set of particles. Make it slightly 
 	 * larger than strictly needed, so everything is guaranteed to be inside box
 	 */
-	static void get_limits(vector<Particle*>& particles,
+	static void get_limits(unique_ptr<Particle[]> &particles,
+					int n,
 					double& xmin,double& xmax,
 					double& ymin,double& ymax,
 					double& zmin,double& zmax,
@@ -162,19 +174,19 @@ class Node {
 	/**
 	 * Find correct subtree to store particle, using bounding rectangular box
 	 */
-	int _get_child_index(Particle * particle);
+	int _get_child_index(Particle & particle);
 	
 	/**
 	 * Used when we have just split an External node, but the incumbent and new
 	 * node both want to occupy the same child.
 	 */
-	void _pass_down(int particle_index,int incumbent,vector<Particle*>& particles);
+	void _pass_down(int particle_index,int incumbent,unique_ptr<Particle[]> &particles);
 	
 	/**
 	 * Used when we have just split an External node, so we need to pass
 	 * the incumbent and a new particle down the tree
 	 */
-	void _insert_or_propagate(int particle_index,int incumbent,vector<Particle*>& particles);
+	void _insert_or_propagate(int particle_index,int incumbent,unique_ptr<Particle[]> &particles);
 	
 	/**
 	 * Convert an External Node into an Internal one, and
@@ -183,11 +195,7 @@ class Node {
 	 */
 	void _split_node();
 	
-	/**
-	 * Indicates type of node. External Nodes use the index of the
-     * associated particle instead of one of these values.
-	 */
-	int _particle_index;
+
 	
 	/**
 	 * Descendants of this node - only for an Internal Node
@@ -205,12 +213,9 @@ class Node {
 		}
 	}
 	
-	/**
-	 *  Mass and centre of mass
-	 */
-	double _m, _x, _y, _z;
+	
 };
 
 
 
-#endif
+#endif   // _TREECODE_HPP

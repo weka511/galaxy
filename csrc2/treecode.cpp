@@ -16,43 +16,29 @@
  */
  
 
-#include <algorithm>
 #include <iostream>
 #include <limits>
-#include <stdexcept>
 #include <sstream>
 #include "treecode.hpp"
+
 using namespace std;
 
 int Node::_count=0;
 
 /**
- * Create a Node for a given region of space. Set it unused until it has been added to Tree,
+ * Create a Node for a given region of space. Set it Unused until it has been added to Tree,
  */
  
-#ifdef _RUNTIME_CHECKS
-	Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id)
-	  : _particle_index(Unused),
-		_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
-		_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)),
-		_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d),
-		_id(id) {
-		for (int i=0;i<N_Children;i++)
-			_child[i]=NULL;
-		_count++;
-	}
-#else
-	Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax)
-	  : _particle_index(Unused),
-		_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
-		_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)),
-		_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d) {
-		for (int i=0;i<N_Children;i++)
-			_child[i]=NULL;
-		_count++;
-	}	
-#endif
-
+Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id)
+  : _particle_index(Unused),
+	_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
+	_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)),
+	_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d),
+	_id(id) {
+	for (int i=0;i<N_Children;i++)
+		_child[i] = NULL;
+	_count++;
+}
 
 
 
@@ -60,46 +46,44 @@ int Node::_count=0;
  * Determine the bounding box for set of particles. Make it slightly 
  * larger than strictly needed, so everything is guaranteed to be inside box
  */
-void Node::get_limits(vector<Particle*>& particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax,const double epsilon){
-	xmin=numeric_limits<double>::max();
-	xmax=-xmin;
-	ymin=numeric_limits<double>::max();
-	ymax=-ymin;
-	zmin=numeric_limits<double>::max();
-	zmax=-zmin;
-	for_each(particles.begin(),
-					particles.end(),
-					[&xmin,&xmax,&ymin,&ymax,&zmin,&zmax](Particle* particle){
-						double x,y,z;
-						particle->getPos(x,y,z);
-						if (x<xmin) xmin=x;
-						if (x>xmax) xmax=x;
-						if (y<ymin) ymin=y;
-						if (y>ymax) ymax=y;
-						if (z<zmin) zmin=z;
-						if (z>zmax) zmax=z;
-					});
+void Node::get_limits(unique_ptr<Particle[]>& particles,int n,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax,const double epsilon){
+	xmin = numeric_limits<double>::max();
+	xmax = -xmin;
+	ymin = numeric_limits<double>::max();
+	ymax = -ymin;
+	zmin = numeric_limits<double>::max();
+	zmax = -zmin;
+	for (int i=0;i<n;i++) {
+		double x,y,z;
+		particles[i].getPos(x,y,z);
+		if (x<xmin) xmin = x;
+		if (x>xmax) xmax = x;
+		if (y<ymin) ymin = y;
+		if (y>ymax) ymax = y;
+		if (z<zmin) zmin = z;
+		if (z>zmax) zmax = z;
+	}
 	
-	zmin=min(xmin,min(ymin,zmin));
-	zmax=max(xmax,max(ymax,zmax));
-	if (zmin<0) zmin*=(1+epsilon); else zmin/=(1+epsilon);
-	if (zmax<0) zmax/=(1+epsilon); else zmax*=(1+epsilon);
-	xmin=ymin=zmin;
-	xmax=ymax=zmax;
+	zmin = min(xmin,min(ymin,zmin));
+	zmax = max(xmax,max(ymax,zmax));
+	if (zmin < 0) zmin *= (1+epsilon); else zmin /= (1+epsilon);
+	if (zmax < 0) zmax /= (1+epsilon); else zmax *= (1+epsilon);
+	xmin = ymin = zmin;
+	xmax = ymax = zmax;
 }
 
 /**
  * Create an oct-tree from a set of particles
  */
-Node * Node::create(vector<Particle*>& particles){
+Node * Node::create(unique_ptr<Particle[]> particles, int n){
 	double xmin, xmax, ymin, ymax, zmin, zmax;
-	Node::get_limits(particles,xmin, xmax, ymin, ymax, zmin, zmax);
+	Node::get_limits(particles,n,xmin, xmax, ymin, ymax, zmin, zmax);
 	#ifdef _RUNTIME_CHECKS
 		Node * product=new Node(xmin,xmax,ymin,ymax,zmin,zmax,"0");
 	#else
 		Node * product=new Node(xmin,xmax,ymin,ymax,zmin,zmax);
 	#endif
-	for (int index=0;index<particles.size();index++)
+	for (int index=0;index<n;index++)
 		product->insert(index,particles);
 	return product;
 }
@@ -109,11 +93,11 @@ Node * Node::create(vector<Particle*>& particles){
  *
  * Recursively descend until we find an empty node.
  */
-void Node::insert(int new_particle_index,vector<Particle*>& particles) {
+void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
 
 	#ifdef _RUNTIME_CHECKS
 		double x,y,z; 
-		particles[new_particle_index]->getPos(x,y,z);
+		particles[new_particle_index].getPos(x,y,z);
 		_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
 		_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
 		_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
@@ -128,7 +112,7 @@ void Node::insert(int new_particle_index,vector<Particle*>& particles) {
 			return;
 		default:     //oops - we already have a particle here, so have to move it
 			const int incumbent=_particle_index;
-			const double dsq=particles[new_particle_index]->get_distance_sq(particles[incumbent]);
+			const double dsq=particles[new_particle_index].get_distance_sq(particles[incumbent]);
 			if (dsq<epsilon*(_xmax-_xmin)){
 				stringstream message;
 				message<<"Particles "<<new_particle_index << " and " << incumbent << " within " << epsilon*(_xmax-_xmin) << " f each other"; 
@@ -142,7 +126,7 @@ void Node::insert(int new_particle_index,vector<Particle*>& particles) {
  * Used when we have just split an External node, but the incumbent and new
  * node both want to occupy the same child.
  */
-void Node::_pass_down(int new_particle_index,int incumbent,vector<Particle*>& particles) {
+void Node::_pass_down(int new_particle_index,int incumbent,unique_ptr<Particle[]> &particles) {
 	_split_node();
 	_insert_or_propagate(new_particle_index,incumbent,particles);
 } 
@@ -151,7 +135,7 @@ void Node::_pass_down(int new_particle_index,int incumbent,vector<Particle*>& pa
  * Used when we have just split an External node, so we need to pass
  * the incumbent and a new particle down the tree
  */
-void Node::_insert_or_propagate(int particle_index,int incumbent,vector<Particle*>& particles) {
+void Node::_insert_or_propagate(int particle_index,int incumbent,unique_ptr<Particle[]> &particles) {
 	const int child_index_new=_get_child_index(particles[particle_index]);
 	const int child_index_incumbent=_get_child_index(particles[incumbent]);
 	if (child_index_new==child_index_incumbent)
@@ -166,9 +150,9 @@ void Node::_insert_or_propagate(int particle_index,int incumbent,vector<Particle
  * Find correct subtree to store particle, using bounding rectangular box.
  * We split x, y, and z into halves, and determine which half each axis belongs to
  */
-int Node::_get_child_index(Particle * particle) {
+int Node::_get_child_index(Particle &particle) {
 	double x,y,z;
-	particle->getPos(x,y,z);
+	particle.getPos(x,y,z);
 	const int i=x>_xmean;
 	const int j=y>_ymean;
 	const int k=z>_zmean;
@@ -184,35 +168,35 @@ void Node::_split_node() {
 	_particle_index=Internal;
 	double xmin, xmax, ymin, ymax, zmin, zmax;
 	for (int i=0;i<2;i++) {
-		if (i==0) {
-			xmin=_xmin;
-			xmax=_xmean;
+		if (i == 0) {
+			xmin = _xmin;
+			xmax = _xmean;
 		} else {
-			xmin=_xmean;
-			xmax=_xmax;
+			xmin = _xmean;
+			xmax = _xmax;
 		}
 		for (int j=0;j<2;j++) {
-			if (j==0) {
-				ymin=_ymin;
-				ymax=_ymean;
+			if (j == 0) {
+				ymin = _ymin;
+				ymax = _ymean;
 			} else {
-				ymin=_ymean;
-				ymax=_ymax;
+				ymin = _ymean;
+				ymax = _ymax;
 			}
 			for (int k=0;k<2;k++) {
 				if (k==0) {
-					zmin=_zmin;
-					zmax=_zmean;
+					zmin = _zmin;
+					zmax = _zmean;
 				} else {
-					zmin=_zmean;
-					zmax=_zmax;
+					zmin = _zmean;
+					zmax = _zmax;
 				}
 				#ifdef _RUNTIME_CHECKS
 					stringstream ss;
 					ss<<_id<<_get_child_index(i,j,k);
-					_child[_get_child_index(i,j,k)]=new Node(xmin, xmax, ymin, ymax, zmin, zmax,ss.str().c_str());
+					_child[_get_child_index(i,j,k)] = new Node(xmin, xmax, ymin, ymax, zmin, zmax,ss.str().c_str());
 				#else
-					_child[_get_child_index(i,j,k)]=new Node(xmin, xmax, ymin, ymax, zmin, zmax);
+					_child[_get_child_index(i,j,k)] = new Node(xmin, xmax, ymin, ymax, zmin, zmax);
 				#endif
 			}	// k
 		}		// j
