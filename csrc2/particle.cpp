@@ -13,35 +13,25 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
- *
- * Molecular dynamics simulation for hard disks or hard spheres, as described
- * in Statistical Mechanics: Algorithms and Computations, by Werner Krauth,
- * ISBN 978-0-19-851535-7.
  */
  
-#include <string> 
-#include <memory>
-#include "particle.hpp"
-
-using namespace std;
-
- #ifndef _CONFIGURATION_HPP
- #define _CONFIGURATION_HPP
+ #include "particle.hpp"
+ using namespace std;
  
- class Configuration {
-  private:
-    string version;
-	int iteration;
-	double theta;
-	double G;
-	double dt;
-	unique_ptr<Particle[]> _particles;
-	
-  public:
-	Configuration(string file_name);
-	 
+ void Particle::init(array<double,3> position, array<double,3> velocity, double m) {
+	 _m = m;
+	for (int i=0;i<3;i++) {
+		_position[i] = position[i];
+		_velocity[i] = velocity[i];
+	}	 
  };
  
- #endif //_CONFIGURATION_HPP
+
  
- 
+ /**
+ * Output position, velocity, and mass.
+ */
+ostream& operator<<(ostream& s, Particle& p) {
+	return s<< p._position[0] <<"," << p._position[1] <<"," << p._position[2] <<"," <<
+			p._velocity[0] <<"," << p._velocity[1] <<"," << p._velocity[2] <<"," <<p._m;
+}

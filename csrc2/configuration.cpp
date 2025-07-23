@@ -20,24 +20,32 @@
  */
  
 #include <array>
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <string>
 #include <set>
 #include "configuration.hpp"
+#include "particle.hpp"
 #include "utils.hpp"
 
 using namespace std;
-
 
 
 Configuration::Configuration(string file_name){
 	ifstream inputFile(file_name);
 	if (!inputFile.is_open()) 
 		throw invalid_argument( "Could not open configuration file " + file_name);
-		
+	
 	string line;
+	auto line_count = 0;
+	while (getline(inputFile, line))
+		line_count++;
+	cout << line_count<< endl;
+	inputFile.clear();
+	inputFile.seekg(0);
+	_particles = make_unique<Particle[]>(line_count-6);
 	auto line_number = 0;
     while (getline(inputFile, line)) {
 		if (line.compare(0,3,"End",0,3)==0) break;
@@ -76,27 +84,28 @@ Configuration::Configuration(string file_name){
 					throw invalid_argument( "Error " + line);
 				break;
 			default:
-
 				auto position = array{0.0,0.0,0.0};
 				auto mass = 0.0;
 				auto velocity = array{0.0,0.0,0.0};
-				for (int i=0;i<7;i++) 
+				for (int i=0;i<7;i++) {
+					auto value = decode(tokens[i]);
 					switch(i){
 						case 0:
 						case 1:
 						case 2:
-							position[i] = decode(tokens[i]);
+							position[i] = value;
 							break;
 						case 3:
-							mass = decode(tokens[i]);
+							mass = value;
 							break;
 						case 4:
 						case 5:
 						case 6:
-							velocity[i-4] = decode(tokens[i]);
+							velocity[i-4] = value;
 					}
-					cout << position[0] << ", " << position[1] << ", " << position[2] << ", " 
-					<< mass << ", " << velocity[0] << ", " << velocity[1] << ", " << velocity[2]<< endl;
+				}
+				_particles[line_number-5].init(position,velocity,mass);
+				 cout <<line_number-5 << "," << line_count << "," <<_particles[line_number-5] << endl;
 				
 		}
 		line_number++;
