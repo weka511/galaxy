@@ -19,16 +19,16 @@
  * ISBN 978-0-19-851535-7.
  */
  
+ #ifndef _CONFIGURATION_HPP
+ #define _CONFIGURATION_HPP
+ 
 #include <string> 
 #include <memory>
 #include "particle.hpp"
 
 using namespace std;
 
- #ifndef _CONFIGURATION_HPP
- #define _CONFIGURATION_HPP
- 
- class Configuration {
+class Configuration {
   private:
     string version;
 	int iteration;

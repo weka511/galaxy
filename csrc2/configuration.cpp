@@ -38,14 +38,20 @@ Configuration::Configuration(string file_name){
 	if (!inputFile.is_open()) 
 		throw invalid_argument( "Could not open configuration file " + file_name);
 	
-	string line;
+	/**
+	 * We will make two passes thropugh the file, the first to count 
+	 * the number of lines and allocate the array of Particles.
+	 */
 	auto line_count = 0;
+	string line;
 	while (getline(inputFile, line))
 		line_count++;
-	cout << line_count<< endl;
+
 	inputFile.clear();
 	inputFile.seekg(0);
+	
 	_particles = make_unique<Particle[]>(line_count-6);
+	
 	auto line_number = 0;
     while (getline(inputFile, line)) {
 		if (line.compare(0,3,"End",0,3)==0) break;
