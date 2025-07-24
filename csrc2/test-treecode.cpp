@@ -24,18 +24,15 @@ using namespace std;
 
 
 TEST_CASE( "Tree Tests", "[tree]" ) {
-	REQUIRE(Node::_count==0);
-	
+	REQUIRE(Node::get_count() == 0);
 	
 	SECTION("Trivial Tree Insert") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(2);
 		auto i = 0;
 		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},0.0);
 		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},0.0);
-		Node * tree = Node::create(particles,i);
-		REQUIRE(Node::_count==9);
-		delete tree;
-		REQUIRE(Node::_count==0);
+		unique_ptr<Node> tree = Node::create(particles,i);
+		REQUIRE(Node::get_count() == 9);
 	}
 	
 	SECTION("Larger Tree Insert") {
@@ -49,11 +46,8 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		particles[i++].init(array{+1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0);
 		particles[i++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0);
 		particles[i++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0);
-
-		Node * tree = Node::create(particles,i);
-		REQUIRE(Node::_count==9);
-		delete tree;
-		REQUIRE(Node::_count==0);
+		unique_ptr<Node> tree = Node::create(particles,i);
+		REQUIRE(Node::get_count() == 9);
 	}
 	
 	SECTION("2nd layer Tree Insert") {
@@ -68,11 +62,9 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		particles[i++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0);
 		particles[i++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0);
 		particles[i++].init(array{+0.2, +0.2, +1.0},array{0.0,0.0,0.0},1.0);
-		Node * tree = Node::create(particles,i);
-		REQUIRE(Node::_count==17);
-		delete tree;
-		REQUIRE(Node::_count==0);
+		unique_ptr<Node> tree = Node::create(particles,i);
+		REQUIRE(Node::get_count() == 17);
 	}
 	
-	REQUIRE(Node::_count==0);
+	REQUIRE(Node::get_count() == 0);
 }

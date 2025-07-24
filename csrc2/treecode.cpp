@@ -72,10 +72,10 @@ tuple<double,double> Node::get_limits(unique_ptr<Particle[]>& particles,int n,co
 /**
  * Create an oct-tree from a set of particles
  */
-Node * Node::create(unique_ptr<Particle[]> &particles, int n){
+unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){
 	double zmin, zmax;
 	tie(zmin,zmax) = Node::get_limits(particles,n);
-	auto product=new Node(zmin,zmax,zmin,zmax,zmin,zmax,"0");
+	unique_ptr<Node> product = unique_ptr<Node>(new Node(zmin,zmax,zmin,zmax,zmin,zmax,"0"));
 
 	for (int index=0;index<n;index++)
 		product->insert(index,particles);
@@ -237,3 +237,5 @@ Node::~Node() {
 			delete _child[i];
 	Node::_count--;
 }
+
+int Node::get_count() {return _count;}

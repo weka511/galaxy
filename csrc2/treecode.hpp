@@ -25,12 +25,52 @@
 #include "particle.hpp"
 
 using namespace std;
+
 /**
  *  Represents one node in Barnes Hut Octree
  */
 class Node {
+	/**
+	*  Used to traverse tree depth first
+	*/
+	class Visitor {
+	  public:
+		enum Status{
+			Stop,     // abandon the traversal
+			Continue, // keep traversing
+			DontDescend // do not vist any more children of this node
+		};
+		/**
+		 * Called once for each node in tree, before any children are processed
+		 */
+		virtual Status visit(Node * node)=0;
+			
+		/**
+		 *  Called once for each child Node, immediately after vist
+		 */
+		virtual void propagate(Node * node,Node * child){;}
+			
+		/**
+		 *  Called once for each Internal Node, after all children have been visited
+		 */
+		virtual bool depart(Node * node) {return true;};
+	  };
 	
   private:
+  
+   /**
+	  * Indicates type of node. External Nodes use the index of the
+      * associated particle instead of one of these values.
+	  */
+  	enum Status {Internal=-2, Unused=-1};
+	
+	/**
+	 *   Used to ensure we have an octree
+	 */
+	enum {N_Children=8};
+	
+	string _id;
+	
 	/**
 	 * Indicates type of node. External Nodes use the index of the
      * associated particle instead of one of these values.
@@ -49,58 +89,37 @@ class Node {
 	 */
 	double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax, _xmean, _ymean, _zmean;
 	
+	/**
+	 * Descendants of this node - only for an Internal Node
+	 */
+	Node * _child[N_Children];
+	
+	/**
+	 * Number of nodes allocated: used in testing
+	 */
+	 
+	 static int _count;
+	 
+	 /**
+	  *  Create one node for tree. I have made this private, 
+	  *  as clients should use the factory method Node::create(...)
+	  */	
+	Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id);
+	
   public:
   
 	/**
 	 * Create an oct-tree from a set of particles
 	 */
-	static Node * create(unique_ptr<Particle[]> &particles, int n);
-	  /**
-	   * Number of nodes allocated: used in testing
-	   */
-	  static int _count;
-	  
-	  /**
-	   *  Used to traverse tree depth first
-	   */
-	  class Visitor {
-		public:
-			enum Status{
-				Stop,     // abandon the traversal
-				Continue, // keep traversing
-				DontDescend // do not vist any more children of this node
-			};
-			/**
-			 * Called once for each node in tree, before any children are processed
-			 */
-			virtual Status visit(Node * node)=0;
-			
-			/**
-			 *  Called once for each child Node, immediately after vist
-			 */
-			virtual void propagate(Node * node,Node * child){;}
-			
-			/**
-			 *  Called once for each Internal Node, after all children have been visited
-			 */
-			virtual bool depart(Node * node) {return true;};
-	  };
-	  
-	 /**
-	  * Indicates type of node. External Nodes use the index of the
-      * associated particle instead of one of these values.
-	  */
-  	enum Status {Internal=-2, Unused=-1};
+	static unique_ptr<Node> create(unique_ptr<Particle[]> &particles, int n);
 	
 	/**
-	 *   Used to ensure we have an octree
+	 * Number of nodes allocated: used in testing
 	 */
-	enum {N_Children=8};
+	 
+	 static int get_count();
 
-	/**
-	 *  Create one node for tree
-	 */	
-	Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id);
+
 
 	/**
 	 * Insert one particle in tree
@@ -136,7 +155,10 @@ class Node {
 		_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
 		_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
 		_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
-		_m=m;_x=x;_y=y;_z=z;
+		_m = m;
+		_x = x;
+		_y = y;
+		_z = z;
 	}
 	
 	/**
@@ -149,20 +171,12 @@ class Node {
 	 */
 	inline double getSide() {return _xmax - _xmin;}
 	
-
-		
 	/**
      * Determine a cube that will serve as a bounding box for set of particles. 
      * Make it slightly larger than strictly needed,
      * so everything is guaranteed to be inside box
     */
-	static tuple<double,double> get_limits(unique_ptr<Particle[]> &particles,
-					int n,
-					const double epsilon=0.0001);
-					
-					
-	
-	string _id;
+	static tuple<double,double> get_limits(unique_ptr<Particle[]> &particles, int n, const double epsilon=0.0001);
 	
   private:
 	
@@ -195,27 +209,16 @@ class Node {
 	 */
 	void _split_node();
 	
-
-	
-	/**
-	 * Descendants of this node - only for an Internal Node
-	 */
-	Node * _child[N_Children];
-	
 	/**
 	 *  Check that a point really does belong in this cube.
 	 */
 	inline void _check_range(string wname,double w,double wmin,double wmax,string file=__FILE__,int line=__LINE__) {
-		if (w<wmin||w>wmax) {
+		if (w < wmin || w > wmax) {
 			stringstream message;
 			message<<file <<" " <<line << " particle " << _particle_index <<":"<<wname <<" out of range: " <<w<< " (" << wmin << "," << wmax << ")";
 			throw  logic_error(message.str().c_str());
 		}
 	}
-	
-	
 };
-
-
 
 #endif   // _TREECODE_HPP
