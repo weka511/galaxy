@@ -57,7 +57,7 @@ class CentreOfMassCalculator : public Node::Visitor {
    /**
     * These are the particles whose centre of mass is to be calculated. 
     */
-	vector<Particle*> _particles;
+	unique_ptr<Particle[]> & _particles;
 	
 	/**
 	 * Indicates whether each particle has been processed

@@ -23,8 +23,11 @@ CC        = gcc
 CXX       = g++
 RM        = rm -f
 MKDIR     = mkdir
-SRCS      = configuration.cpp 	\
+SRCS      = barnes-hut.cpp      \
+			center-of-mass.cpp  \
+			configuration.cpp 	\
 			particle.cpp		\
+			physics.cpp         \
 			tinyxml2.cpp		\
 			treecode.cpp		\
 			utils.cpp
