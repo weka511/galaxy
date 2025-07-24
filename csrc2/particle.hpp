@@ -44,12 +44,18 @@ class Particle {
 	inline double get_mass() {return _m;}
 	
 	inline void getPos(double& x,	double& y, double& z) {x=_position[0];y=_position[1];z=_position[2];}
+	
+	inline void getVel(double& vx,	double& vy, double& vz) {vx=_velocity[0];vy=_velocity[1];vz=_velocity[2];}
 
 	inline array<double,3> & get_position() {return _position;}
 	
 	inline double get_distance_sq(Particle&other)  {
 		return sqr(_position[0] - other._position[0]) + sqr(_position[1] - other._position[1]) + sqr(_position[2] - other._position[2]);
 	}
+	
+	void reset_acceleration() {};   // TODO
+	
+	void accumulate_acceleration (double x1,double y1,double z1) {};   // TODO
 	/**
      * Output position, velocity, and mass.
      */
