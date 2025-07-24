@@ -15,8 +15,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#ifndef _CENTRE_OF_MASS_H
-#define _CENTRE_OF_MASS_H
+#ifndef _CENTRE_OF_MASS_HPP
+#define _CENTRE_OF_MASS_HPP
 
 #include "treecode.hpp"
 using namespace std;
@@ -65,4 +65,4 @@ class CentreOfMassCalculator : public Node::Visitor {
 	vector<bool> _processed_particle;              //FIXME - change to unique_ptr
 };
 
-#endif
+#endif   //_CENTRE_OF_MASS_HPP

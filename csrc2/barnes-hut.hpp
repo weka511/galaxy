@@ -16,8 +16,8 @@
  */
  
 
-#ifndef _BARNES_HUT_H
-#define _BARNES_HUT_H
+#ifndef _BARNES_HUT_HPP
+#define _BARNES_HUT_HPP
 #include <vector>
 #include "particle.hpp"
 #include "treecode.hpp"
@@ -116,4 +116,4 @@ class BarnesHutVisitor :  public Node::Visitor{
 	double _acc_z;
 };
 
-#endif
+#endif  //BARNES_HUT_HPP

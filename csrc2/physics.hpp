@@ -15,8 +15,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#ifndef _PHYSICS_H
-#define _PHYSICS_H
+#ifndef _PHYSICS_HPP
+#define _PHYSICS_HPP
 
 #include <memory>
 
@@ -72,4 +72,4 @@ void get_centre_of_mass(unique_ptr<Particle[]> &particles, int n,double& x0,doub
 
 inline double dsq(double x0,double y0,double z0,double x1,double y1,double z1) {return sqr(x0-x1) + sqr(y0-y1) + sqr(z0-z1);}
 
-#endif
+#endif  //_PHYSICS_HPP

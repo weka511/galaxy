@@ -45,7 +45,13 @@ class Particle {
 	
 	inline void getPos(double& x,	double& y, double& z) {x=_position[0];y=_position[1];z=_position[2];}
 	
+	inline void setPos(double x,	double y, double z) {;}
+	
 	inline void getVel(double& vx,	double& vy, double& vz) {vx=_velocity[0];vy=_velocity[1];vz=_velocity[2];}
+	
+	inline void setVel(double vx,	double vy, double vz) {;}
+	
+	inline void getAcc(double& vx,	double& vy, double& vz) {;}
 
 	inline array<double,3> & get_position() {return _position;}
 	

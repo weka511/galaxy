@@ -30,7 +30,8 @@ SRCS      = barnes-hut.cpp      \
 			physics.cpp         \
 			tinyxml2.cpp		\
 			treecode.cpp		\
-			utils.cpp
+			utils.cpp			\
+			verlet.cpp
 
 TESTS     = test-serialization.cpp \
 			test-treecode.cpp
