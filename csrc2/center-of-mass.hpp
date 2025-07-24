@@ -62,7 +62,7 @@ class CentreOfMassCalculator : public Node::Visitor {
 	/**
 	 * Indicates whether each particle has been processed
 	 */
-	vector<bool> _processed_particle;
+	vector<bool> _processed_particle;              //FIXME - change to unique_ptr
 };
 
 #endif

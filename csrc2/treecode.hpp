@@ -83,10 +83,12 @@ class Node {
 	double _x;
 	double _y;
 	double _z;
+	public:       // FIXME
 	/**
 	 * Bounding box for Node. This will be subdivided as we move down the tree
 	 */
 	double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax, _xmean, _ymean, _zmean;
+	private:
 	
 	/**
 	 * Descendants of this node - only for an Internal Node
