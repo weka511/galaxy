@@ -30,6 +30,7 @@ using namespace std;
  *  Represents one node in Barnes Hut Octree
  */
 class Node {
+  public:
 	/**
 	*  Used to traverse tree depth first
 	*/
@@ -55,15 +56,13 @@ class Node {
 		 */
 		virtual bool depart(Node * node) {return true;};
 	  };
-	
-  private:
   
    /**
 	  * Indicates type of node. External Nodes use the index of the
       * associated particle instead of one of these values.
 	  */
   	enum Status {Internal=-2, Unused=-1};
-	
+ private:	
 	/**
 	 *   Used to ensure we have an octree
 	 */
