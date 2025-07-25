@@ -24,6 +24,7 @@
 #include "treecode.hpp"
 
 using namespace std;
+
 /**
  *  Use Euler algorithm for first step. NB: this updates velocity only, so x
  *  remains at its initial value, which is what Verlet needs.
@@ -31,7 +32,7 @@ using namespace std;
  *  dt                Time step
  *  particles         Vector of particles
  */
-void  euler(Particle* particles,double dt);
+void  euler(Particle& particles,double dt);
 
 /**
  *  First half of Verlet algorithm - update positions
@@ -39,7 +40,7 @@ void  euler(Particle* particles,double dt);
  *  dt                Time step
  *  particles         Vector of particles
  */
-void  verlet_positions(Particle* particles,double dt);
+void  verlet_positions(Particle& particles,double dt);
 
 /**
  *  Second half of Verlet algorithm - update velocities
@@ -47,7 +48,7 @@ void  verlet_positions(Particle* particles,double dt);
  *  dt                Time step
  *  particles         Vector of particles
  */
-void  verlet_velocities(Particle* particles,double dt);
+void  verlet_velocities(Particle& particles,double dt);
 
 /**
  * Integrate by taking one Euler step, followed by repeated Verlet steps. 
@@ -61,19 +62,11 @@ void  verlet_velocities(Particle* particles,double dt);
 void run_verlet(void (*get_acceleration)(vector<Particle*>),
 				int max_iter,
 				double dt,
-				vector<Particle*> particles,
-				bool (*shouldContinue)(vector<Particle*>,int iter),
+				unique_ptr<Particle[]> particles,
+				int n,
+				bool (*shouldContinue)(unique_ptr<Particle[]>& particles,int iter),
 				int start_iterations);
 				
-void run_verlet(Node * (*precondition)(vector<Particle*>),
-				void (*get_acceleration)(int i, vector<Particle*> particles,Node * root),
-				int max_iter,
-				double dt,
-				vector<Particle*> particles,
-				bool (*shouldContinue)(vector<Particle*>,int iter),
-				int start_iterations,
-				int nthreads);
 
-void step(int to);
 
 #endif  // _VERLET_HPP
