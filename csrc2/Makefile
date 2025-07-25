@@ -33,7 +33,8 @@ SRCS      = barnes-hut.cpp      \
 			utils.cpp			\
 			verlet.cpp
 
-TESTS     = test-serialization.cpp \
+TESTS     = test-configuration.cpp \
+			test-serialization.cpp \
 			test-treecode.cpp
 		
 OBJS1     = $(subst .cpp,.o,$(SRCS)) 

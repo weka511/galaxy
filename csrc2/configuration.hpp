@@ -27,18 +27,59 @@
 #include "particle.hpp"
 
 using namespace std;
+ 
 
+
+/**
+ *  This class manages a collection of Particles.
+ */
 class Configuration {
+	/**
+	 *  Descendents of this class are used to 
+	 * iterate through all Particles, visiting each in turn
+	 */
+  public:
+	class Visitor{
+	  public:
+		virtual void visit(Particle & particle) = 0;
+	};
+	/**
+	 * Descendents of this class are used to iterate 
+	 * through all pairs of Particles, visiting each pair in turn.
+	 */
+	class PairVisitor {
+	  public:
+		virtual void visit(Particle & particle1,Particle & particle2) = 0;
+	};
   private:
-    string version;
-	int iteration;
-	double theta;
-	double G;
-	double dt;
-	unique_ptr<Particle[]> _particles;
-	
+    string _version;   //FIXME: this has no accessor
+	int _iteration;     //FIXME: this has no accessor
+	double _theta;      //FIXME: this has no accessor
+	double _G;          //FIXME: this has no accessor
+	double _dt;          //FIXME: this has no accessor
+	unique_ptr<Particle[]> _particles;  //FIXME: this has no accessor
+	int _n;
   public:
 	Configuration(string file_name);
+	
+	/**
+	 * iterate through all Particles, visiting each in turn
+	 */
+	void iterate(Visitor & visitor) {
+		for (int i=0;i<_n;i++)
+			visitor.visit(_particles[i]);	
+	}
+	
+	/**
+	 * iterate through all pairs of Particles, visiting each pair in turn.
+	 */
+	void iterate_pairs(PairVisitor & visitor) {
+		for (int i=0;i<_n;i++)
+			for (int j=i+1;j<_n;j++)
+			visitor.visit(_particles[i],_particles[2]);	
+	}
+	
+
 	 
  };
  

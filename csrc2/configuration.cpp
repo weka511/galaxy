@@ -48,8 +48,8 @@ Configuration::Configuration(string file_name){
 
 	inputFile.clear();
 	inputFile.seekg(0);
-	
-	_particles = make_unique<Particle[]>(line_count-6);
+	_n = line_count-6;
+	_particles = make_unique<Particle[]>(_n-6);
 	
 	auto line_number = 0;
     while (getline(inputFile, line)) {
@@ -60,31 +60,31 @@ Configuration::Configuration(string file_name){
 		switch (line_number) {
 			case 0:
 				if (tokens[0].compare("Version")==0)
-					version = tokens[1];
+					_version = tokens[1];
 				else
 					throw invalid_argument( "Error " + line);
 				break;
 			case 1:
 				if (tokens[0].compare("iteration")==0)
-					iteration = stoi(tokens[1]);
+					_iteration = stoi(tokens[1]);
 				else
 					throw invalid_argument( "Error " + line);
 				break;
 			case 2:
 				if (tokens[0].compare("theta")==0)
-					theta = decode(tokens[1]);
+					_theta = decode(tokens[1]);
 				else
 					throw invalid_argument( "Error " + line);
 				break;
 			case 3:
 				if (tokens[0].compare("G")==0)
-					G = decode(tokens[1]);
+					_G = decode(tokens[1]);
 				else
 					throw invalid_argument( "Error " + line);
 				break;
 			case 4:
 				if (tokens[0].compare("dt")==0)
-					dt = decode(tokens[1]);
+					_dt = decode(tokens[1]);
 				else
 					throw invalid_argument( "Error " + line);
 				break;
@@ -114,3 +114,4 @@ Configuration::Configuration(string file_name){
 		line_number++;
     }
 }
+
