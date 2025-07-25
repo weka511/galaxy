@@ -21,17 +21,57 @@
 #define _VERLET_HPP
 
 #include "particle.hpp"
+#include "configuration.hpp"
+
 #include "treecode.hpp"
 
 using namespace std;
 
-/**
- *  Use Euler algorithm for first step. NB: this updates velocity only, so x
- *  remains at its initial value, which is what Verlet needs.
- *
- *  dt                Time step
- *  particles         Vector of particles
- */
+
+
+class Verlet {
+	/**
+	 *  Use Euler algorithm for first step. NB: this updates velocity only, so x
+	 *  remains at its initial value, which is what Verlet needs.
+	 *
+	 *  dt                Time step
+	 *  particles         Vector of particles
+	 */
+	class Euler : public Configuration::Visitor {
+	  private:
+		const double _dt;
+		
+	  public:
+		Euler(const double dt) :_dt(dt){;}
+		
+		void visit(Particle & particle);
+	};
+	
+	class Positions : public Configuration::Visitor {
+	  private:
+		const double _dt;
+		
+	  public:
+		Positions(const double dt) :_dt(dt){;}
+		
+		void visit(Particle & particle);
+	};	
+
+	class Velocities : public Configuration::Visitor {
+	  private:
+		const double _dt;
+		
+	  public:
+		Velocities(const double dt) :_dt(dt){;}
+		
+		void visit(Particle & particle);
+	};	
+	
+	void run(Configuration & configuration, int max_iter,const double dt, Configuration::CompoundVisitor &calculate_acceleration);
+};
+
+// ================================= legacy code stars here ====================================
+
 void  euler(Particle& particles,double dt);
 
 /**
@@ -66,7 +106,7 @@ void run_verlet(void (*get_acceleration)(vector<Particle*>),
 				int n,
 				bool (*shouldContinue)(unique_ptr<Particle[]>& particles,int iter),
 				int start_iterations);
-				
+
 
 
 #endif  // _VERLET_HPP

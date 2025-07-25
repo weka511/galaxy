@@ -49,8 +49,10 @@ class Configuration {
 	 */
 	class PairVisitor {
 	  public:
-		virtual void visit(Particle & particle1,Particle & particle2) = 0;
+		virtual void visit_pair(Particle & particle1,Particle & particle2) = 0;
 	};
+	class CompoundVisitor: public Visitor,  public PairVisitor{};
+	
   private:
     string _version;   //FIXME: this has no accessor
 	int _iteration;     //FIXME: this has no accessor
@@ -73,13 +75,23 @@ class Configuration {
 	/**
 	 * iterate through all pairs of Particles, visiting each pair in turn.
 	 */
-	void iterate_pairs(PairVisitor & visitor) {
+	void iterate(PairVisitor & visitor) {
 		for (int i=0;i<_n;i++)
 			for (int j=i+1;j<_n;j++)
-			visitor.visit(_particles[i],_particles[2]);	
+			visitor.visit_pair(_particles[i],_particles[2]);	
 	}
 	
-
+	/**
+	 * iterate through all Particles, visiting each in turn,
+	 * then through all pairs of Particles, visiting each pair in turn.
+	 */
+	void iterate(CompoundVisitor & visitor) {
+		for (int i=0;i<_n;i++)
+			visitor.visit(_particles[i]);	
+		for (int i=0;i<_n;i++)
+			for (int j=i+1;j<_n;j++)
+			visitor.visit_pair(_particles[i],_particles[2]);	
+	}
 	 
  };
  

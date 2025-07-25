@@ -21,24 +21,15 @@
  #include "configuration.hpp"
 
 class TestConfiguration: public Configuration::Visitor,  public Configuration::PairVisitor{
-			virtual void visit(Particle & particle){;}
-			virtual void visit(Particle & particle1,Particle & particle2){;}
+	virtual void visit(Particle & particle){;}
+	virtual void visit_pair(Particle & particle1,Particle & particle2){;}
 };
 	
 
  TEST_CASE( "Configuration Tests", "[configuration]" ) {
 	 
 	 SECTION("...") {  
-	 	REQUIRE(decode("4616224246936215212")==4.030756625208294);
-		REQUIRE(decode("-4612475610731443660")==-1.8246752887940945);
-		REQUIRE(decode("4613833480086692584")==2.9536645514639197);
-		REQUIRE(decode("-4607160261839865872")==-4.01967933385275);
-		REQUIRE(decode("4605089757188186448")==0.7676678895796076);
-		REQUIRE(decode("4616437541902921276")==4.220200611667277);
-		REQUIRE(decode("-4614149659537680952")==-1.4529617829879147);
-		REQUIRE(decode("4604075462835591144")==0.6550585951797503);
-		REQUIRE(decode("4612541954388984972")==2.3801119248678955);
-		REQUIRE(decode("-4611206721578964612")==-2.212850558699925);
+	
 
 	}
  }

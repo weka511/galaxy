@@ -27,6 +27,19 @@
 
 using namespace std;
 
+void Verlet::run(Configuration & configuration, int max_iter,const double dt, Configuration::CompoundVisitor & calculate_acceleration){
+	configuration.iterate(calculate_acceleration);
+	Euler euler(0.5*dt);
+	Velocities velocities(dt);
+	Positions positions(dt);
+	configuration.iterate(euler);
+	for (int iter=0;iter<max_iter;iter++) {
+		configuration.iterate(positions);
+		configuration.iterate(calculate_acceleration);
+		configuration.iterate(velocities);
+	}
+}
+
 /**
  *  Use Euler algorithm for first step. NB: this updates velocity only, so x
  *  remains at its initial value, which is what Verlet needs.
@@ -34,6 +47,48 @@ using namespace std;
  *  dt                Time step
  *  particles         Vector of particles
  */
+ 
+void Verlet::Euler::visit(Particle & particle){
+	array<double,3>  velocity = particle.get_velocity();
+	array<double,3>  acceleration = particle.get_acceleration();
+	for (int i=0;i<3;i++)
+		velocity[i] += _dt * acceleration[i];
+	particle.set_velocity(velocity);
+}
+
+/**
+ *  First half of Verlet algorithm - update positions
+ *
+ *  dt                Time step
+ *  particles         Vector of particles
+ */
+void Verlet::Positions::visit(Particle & particle){
+	array<double,3>  position = particle.get_position();
+	array<double,3>  velocity = particle.get_velocity();
+	for (int i=0;i<3;i++)
+		position[i] += _dt * velocity[i];
+	particle.set_position(position);
+}
+
+/**
+ *  Second half of Verlet algorithm - update velocities
+ *
+ *  dt                Time step
+ *  particles         Vector of particles
+ */
+void Verlet::Velocities::visit(Particle & particle){
+	array<double,3>  velocity = particle.get_velocity();
+	array<double,3> & acceleration = particle.get_acceleration();
+	for (int i=0;i<3;i++)
+		velocity[i] += _dt * acceleration[i];
+	particle.set_velocity(velocity);	
+}
+
+
+
+// ================================= legacy code stars here ====================================
+
+
 void  euler(Particle& particle,double dt){
 	array<double,3>  velocity = particle.get_velocity();
 	array<double,3>  acceleration = particle.get_acceleration();
@@ -70,6 +125,7 @@ void  verlet_velocities(Particle& particle,double dt) {
 	particle.set_velocity(velocity);	
 }
 
+
 /**
  * Integrate by taking one Euler step, followed by repeated Verlet steps. 
  *
@@ -94,7 +150,7 @@ void run_verlet(void (*get_acceleration)(unique_ptr<Particle[]>&,int),
 	}
 	
 	/**
-	 * Iterate through future times: notice that we need to incrment iter before checking shouldContinue
+	 * Iterate through future times: notice that we need to increment iter before checking shouldContinue
 	 * in order to fix issue #43 - On restart, galaxy.exe loses some time steps
 	 */
 	for (int iter=1+start_iterations;iter<max_iter+start_iterations && shouldContinue(particles,++iter);) {
