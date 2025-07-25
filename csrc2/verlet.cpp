@@ -86,7 +86,7 @@ void Verlet::Velocities::visit(Particle & particle){
 
 
 
-// ================================= legacy code stars here ====================================
+// ================================= legacy code starts here ====================================
 
 
 void  euler(Particle& particle,double dt){

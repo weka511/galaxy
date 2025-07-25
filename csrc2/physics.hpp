@@ -19,7 +19,7 @@
 #define _PHYSICS_HPP
 
 #include <memory>
-
+#include "configuration.hpp"
 #include "particle.hpp"
 
 using namespace std;
@@ -38,6 +38,17 @@ const double G_SI = 6.67408e-11; // https://en.wikipedia.org/wiki/Gravitational_
 
 const double G_solar_system = G_SI * au_per_m*au_per_m*au_per_m *(mass_sun)*(seconds_in_one_year *seconds_in_one_year);
 
+class AccelerationCalculator: public Configuration::CompoundVisitor {
+	const double epsilon=1e-8;  // tolerance for checking Newton's 3rd law
+	double G = 1.0;
+  public:
+	virtual void visit(Particle & particle);
+	virtual void visit_pair(Particle & particle1,Particle & particle2);
+};
+
+
+// ================================= legacy code starts here ====================================
+	
 void get_acceleration(unique_ptr<Particle[]> &particles, int n, double G);
 
 void get_acceleration_between_pair(Particle& p_i,Particle& p_j,double G);

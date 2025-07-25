@@ -70,7 +70,7 @@ class Verlet {
 	void run(Configuration & configuration, int max_iter,const double dt, Configuration::CompoundVisitor &calculate_acceleration);
 };
 
-// ================================= legacy code stars here ====================================
+// ================================= legacy code starts here ====================================
 
 void  euler(Particle& particles,double dt);
 

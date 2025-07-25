@@ -23,6 +23,35 @@
 
 using namespace std;
 
+void AccelerationCalculator::visit(Particle & particle){
+	particle.reset_acceleration();
+}
+
+void AccelerationCalculator::visit_pair(Particle & particle1,Particle & particle2){
+	double x1,y1,z1;
+	particle1.getPos(x1,y1,z1);
+	double x2,y2,z2;
+	particle2.getPos(x2,y2,z2);
+	const double distance= sqrt(sqr(x1-x2)+sqr(y1-y2)+sqr(z1-z2));
+	double d_factor=1/(distance*distance*distance);
+	assert(particle1.get_mass()>0);
+	assert(particle2.get_mass()>0);
+	const double acc_x1 =  particle2.get_mass()*G*(x2-x1)*d_factor;
+	const double acc_y1 =  particle2.get_mass()*G*(y2-y1)*d_factor;
+	const double acc_z1 =  particle2.get_mass()*G*(z2-z1)*d_factor;
+	particle1.accumulate_acceleration(acc_x1,acc_y1,acc_z1);
+	const double acc_x2 =  particle1.get_mass()*G*(x1-x2)*d_factor;
+	const double acc_y2 =  particle1.get_mass()*G*(y1-y2)*d_factor;
+	const double acc_z2 =  particle1.get_mass()*G*(z1-z2)*d_factor;
+	particle2.accumulate_acceleration(acc_x2,acc_y2,acc_z2);
+	// check Newton's third law
+	assert( fabs(particle1.get_mass()*acc_x1+particle2.get_mass()*acc_x2)<=epsilon*(fabs(particle1.get_mass()*acc_x1)+fabs(particle2.get_mass()*acc_x2)));
+	assert( fabs(particle1.get_mass()*acc_y1+particle2.get_mass()*acc_y2)<=epsilon*(fabs(particle1.get_mass()*acc_y1)+fabs(particle2.get_mass()*acc_y2)));
+	assert( fabs(particle1.get_mass()*acc_z1+particle2.get_mass()*acc_z2)<=epsilon*(fabs(particle1.get_mass()*acc_z1)+fabs(particle2.get_mass()*acc_z2)));
+}
+
+// ================================= legacy code starts here ====================================
+	
 void get_acceleration(unique_ptr<Particle[]> &particles, int n, double G) {
 	for (int i=0;i<n;i++)
 		particles[i].reset_acceleration();
