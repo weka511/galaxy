@@ -26,7 +26,6 @@
 #include <string>
 #include <set>
 #include "configuration.hpp"
-#include "particle.hpp"
 #include "utils.hpp"
 
 using namespace std;

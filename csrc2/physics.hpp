@@ -20,7 +20,6 @@
 
 #include <memory>
 #include "configuration.hpp"
-#include "particle.hpp"
 
 using namespace std;
 

@@ -20,7 +20,6 @@
 #ifndef _VERLET_HPP
 #define _VERLET_HPP
 
-#include "particle.hpp"
 #include "configuration.hpp"
 
 #include "treecode.hpp"
