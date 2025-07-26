@@ -14,9 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  *
- * Molecular dynamics simulation for hard disks or hard spheres, as described
- * in Statistical Mechanics: Algorithms and Computations, by Werner Krauth,
- * ISBN 978-0-19-851535-7.
  */
  
  #ifndef _CONFIGURATION_HPP
@@ -28,8 +25,6 @@
 
 using namespace std;
  
-
-
 /**
  *  This class manages a collection of Particles.
  */
@@ -43,6 +38,7 @@ class Configuration {
 	  public:
 		virtual void visit(Particle & particle) = 0;
 	};
+	
 	/**
 	 * Descendents of this class are used to iterate 
 	 * through all pairs of Particles, visiting each pair in turn.
@@ -51,18 +47,33 @@ class Configuration {
 	  public:
 		virtual void visit_pair(Particle & particle1,Particle & particle2) = 0;
 	};
+	
+	/**
+	 * Descendents of this class are used to iterate through all Particles,
+	 * visiting each in turn,then through all pairs of Particles, visiting 
+	 * each pair in turn. Typically the first pass is used for initialization
+	 */
 	class CompoundVisitor: public Visitor,  public PairVisitor{};
 	
   private:
-    string _version;   //FIXME: this has no accessor
-	int _iteration;     //FIXME: this has no accessor
-	double _theta;      //FIXME: this has no accessor
-	double _G;          //FIXME: this has no accessor
-	double _dt;          //FIXME: this has no accessor
-	unique_ptr<Particle[]> _particles;  //FIXME: this has no accessor
+    string _version; 
+	int _iteration;    // FIXME - initialized but not used
+	double _theta; 
+	double _G; 
+	double _dt; 
+	unique_ptr<Particle[]> _particles;
 	int _n;
+	
   public:
 	Configuration(string file_name);
+	
+	const string get_version() { return _version;}
+	
+	const double get_theta() { return _theta;}
+	
+	const double get_G() { return _G;}
+	
+	const double get_dt() { return _dt;}
 	
 	/**
 	 * iterate through all Particles, visiting each in turn
