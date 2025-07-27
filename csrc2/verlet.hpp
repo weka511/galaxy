@@ -21,7 +21,6 @@
 #define _VERLET_HPP
 
 #include "configuration.hpp"
-
 #include "treecode.hpp"
 
 using namespace std;
@@ -65,7 +64,8 @@ class Verlet {
 		
 		void visit(Particle & particle);
 	};	
-	
+
+  public:	
 	void run(Configuration & configuration, int max_iter,const double dt, Configuration::CompoundVisitor &calculate_acceleration);
 };
 

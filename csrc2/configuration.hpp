@@ -56,6 +56,12 @@ class Configuration {
 	class CompoundVisitor: public Visitor,  public PairVisitor{};
 	
   private:
+  
+	 /**
+	 * Count the number of lines == number of particles + 5 + 1
+	 */
+	static int _get_line_count(ifstream& inputFile);
+	
     string _version; 
 	int _iteration;    // FIXME - initialized but not used
 	double _theta; 

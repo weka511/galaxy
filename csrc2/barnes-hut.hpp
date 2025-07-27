@@ -19,11 +19,18 @@
 #ifndef _BARNES_HUT_HPP
 #define _BARNES_HUT_HPP
 #include <vector>
-#include "particle.hpp"
+#include "configuration.hpp"
 #include "treecode.hpp"
 #include "utils.hpp"
 
 using namespace std;
+
+class AccelerationVisitor : public Configuration::CompoundVisitor{
+  public:
+    AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double softening_length){;}
+	void visit(Particle & particle);
+	void visit_pair(Particle & particle1,Particle & particle2);
+};
 
 /**
  * Calculate acceleration for all particles

@@ -14,24 +14,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  *
- * Molecular dynamics simulation for hard disks or hard spheres, as described
- * in Statistical Mechanics: Algorithms and Computations, by Werner Krauth,
- * ISBN 978-0-19-851535-7.
  */
 
-#include <iostream>
+
 #include <chrono>
-#include "configuration.hpp"
+#include <getopt.h>
+#include "galaxy.hpp"
+#include "verlet.hpp"
+#include "barnes-hut.hpp"
 
 using namespace std;
 
 int main(int argc, char **argv) {
+	string config_file;
+	int max_iter;
+	double softening_length;
+	tie(config_file,max_iter,softening_length) = get_options(argc,argv);
+
+	Verlet integrator;
 	auto start = chrono::high_resolution_clock::now();
 	cout << "galaxy: " << VERSION << endl;
 
 	try {
 		cout << "executing" << endl;
-		Configuration configuration("../configs/config.txt");  //TODO: command line parameter
+		Configuration configuration(config_file);
+		AccelerationVisitor calculate_acceleration(configuration, configuration.get_theta(),configuration.get_G(),softening_length);
+		integrator.run(configuration, max_iter,configuration.get_dt(), calculate_acceleration);
 	}  catch (const exception& e) {
         cerr << "Terminating because of errors: " << e.what() << endl;
 		exit(1);
@@ -40,5 +48,37 @@ int main(int argc, char **argv) {
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
 
     std::cout << "Execution time: " << duration.count() << " seconds" << std::endl;
+	
     return 0;
+}
+
+/**
+ *  Parse command line parameters.
+ */
+tuple <string,int,double> get_options(int argc, char **argv) {
+	auto config_file = "../configs/config.txt";
+	auto max_iter = 100;
+	auto softening_length = 1.0;
+	static struct option long_options[] ={ 
+		{"config", required_argument, NULL, 'c'},
+		{"max_iter", required_argument, NULL, 'N'},
+		{"softening_length", required_argument, NULL, 's'},
+		{NULL, 0, NULL, 0}
+	};
+	char ch;
+	while ((ch = getopt_long(argc, argv, "c:N:s:", long_options, NULL)) != -1){
+	  switch (ch)    {
+		 case 'c':
+			 config_file = optarg; 
+			 break;
+		 case 'N':
+			max_iter = atoi(optarg); 
+			break;
+		case 's':
+			softening_length = atof(optarg); 
+			break;
+		}
+	}
+	cout << config_file<<","<<max_iter<<","<<softening_length<<endl;
+	return make_tuple(config_file,max_iter,softening_length);
 }

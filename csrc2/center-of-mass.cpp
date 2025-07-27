@@ -40,7 +40,7 @@ Node::Visitor::Status CentreOfMassCalculator::visit(Node * node) {
 		_processed_particle[particle_index] = true;
 		double x,y,z;
 		_particles[particle_index].getPos(x,y,z);
-		node->setPhysics(_particles[particle_index].get_mass(),x,y,z);
+		node->set_mass_and_centre(_particles[particle_index].get_mass(),x,y,z);
 	}
 	return Node::Visitor::Status::Continue;
 }
@@ -71,25 +71,19 @@ void CentreOfMassCalculator::check_all_particles_processed() {
  */
 bool CentreOfMassCalculator::depart(Node * node)  {
 	double m,x,y,z;
-	node->getPhysics(m,x,y,z);
+	auto mass_and_centre = node->get_mass_and_centre();
+	tie(m,x,y,z) = mass_and_centre;
 	switch (node->getStatus()) {
 		case Node::Internal:
 			x/=m;y/=m;z/=m;
-			node->setPhysics(m,x,y,z);
+			node->set_mass_and_centre(m,x,y,z);
 			break;
 		case Node::Unused:
 			return true;
 		default: ;
 	}
-	if (x<node->_xmin || node->_xmax<x || y<node->_ymin || node->_ymax<y || z<node->_zmin || node->_zmax<z) {
-		cerr<<__FILE__ <<", " <<__LINE__<< "Status: "<< node->getStatus()<<endl;   // FIXME - throw exception
-		cerr << node->getStatus()<< " "<<node->_xmin << ", " << x << ", " << node->_xmax << endl;
-		cerr << node->getStatus()<< " "<<node->_ymin << ", " << y << ", " << node->_ymax << endl;
-		cerr << node->getStatus()<< " "<<node->_zmin << ", " << z << ", " << node->_zmax << endl;
-		stringstream message;
-		message<<__FILE__ <<", " <<__LINE__<<" Centre of mass out of range - see logfile."<<endl; 
-		throw logic_error(message.str().c_str()); 
-	}
+	node->validate(x,y,z);
+
 	return true;
 }
 

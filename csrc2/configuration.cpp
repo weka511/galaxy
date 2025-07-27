@@ -30,16 +30,10 @@
 
 using namespace std;
 
-
-Configuration::Configuration(string file_name){
-	ifstream inputFile(file_name);
-	if (!inputFile.is_open()) 
-		throw invalid_argument( "Could not open configuration file " + file_name);
-	
-	/**
-	 * We will make two passes thropugh the file, the first to count 
-	 * the number of lines and allocate the array of Particles.
-	 */
+/**
+ * Count the number of lines == number of particles + 5 + 1
+ */
+int Configuration::_get_line_count(ifstream& inputFile) {
 	auto line_count = 0;
 	string line;
 	while (getline(inputFile, line))
@@ -47,10 +41,19 @@ Configuration::Configuration(string file_name){
 
 	inputFile.clear();
 	inputFile.seekg(0);
-	_n = line_count-6;
-	_particles = make_unique<Particle[]>(_n-6);
+	return line_count;
+}
+
+Configuration::Configuration(string file_name){
+	ifstream inputFile(file_name);
+	if (!inputFile.is_open()) 
+		throw invalid_argument( "Could not open configuration file " + file_name);
+	
+	_n = Configuration::_get_line_count(inputFile) - 6;
+	_particles = make_unique<Particle[]>(_n);
 	
 	auto line_number = 0;
+	string line;
     while (getline(inputFile, line)) {
 		if (line.compare(0,3,"End",0,3)==0) break;
 		
@@ -112,5 +115,6 @@ Configuration::Configuration(string file_name){
 		}
 		line_number++;
     }
+	cout << __FILE__ << " " << __LINE__ << ": " << _n << " particles"<<endl;
 }
 

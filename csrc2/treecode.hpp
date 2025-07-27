@@ -83,7 +83,7 @@ class Node {
 	double _x;
 	double _y;
 	double _z;
-	public:       // FIXME
+
 	/**
 	 * Bounding box for Node. This will be subdivided as we move down the tree
 	 */
@@ -146,13 +146,15 @@ class Node {
 	/**
 	 * Get mass and centre of mass
 	 */
-	void getPhysics(double& m, double& x, double& y, double &z) {m=_m;x=_x;y=_y;z=_z;}
+	tuple <double,double,double,double>  get_mass_and_centre() {
+		return make_tuple(_m,_x,_y,_z);
+	}
 	
 
 	/**
 	 * Set mass and centre of mass
 	 */
-	void setPhysics(double m, double x, double y, double z) {
+	void set_mass_and_centre(double m, double x, double y, double z) {
 		_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
 		_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
 		_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
@@ -178,6 +180,18 @@ class Node {
      * so everything is guaranteed to be inside box
     */
 	static tuple<double,double> get_limits(unique_ptr<Particle[]> &particles, int n, const double epsilon=0.0001);
+	
+	void validate(double x, double y, double z){
+		if (x<_xmin || _xmax<x || y<_ymin || _ymax<y || z<_zmin || _zmax<z) {
+			cerr<<__FILE__ <<", " <<__LINE__<< "Status: "<< getStatus()<<endl;
+			cerr << getStatus()<< " "<<_xmin << ", " << x << ", " << _xmax << endl;
+			cerr << getStatus()<< " "<<_ymin << ", " << y << ", " << _ymax << endl;
+			cerr << getStatus()<< " "<<_zmin << ", " << z << ", " << _zmax << endl;
+			stringstream message;
+			message<<__FILE__ <<", " <<__LINE__<<" Centre of mass out of range - see logfile."<<endl; 
+			throw logic_error(message.str().c_str()); 
+		}
+	}
 	
   private:
 	

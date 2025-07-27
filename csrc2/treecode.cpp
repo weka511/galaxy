@@ -19,6 +19,7 @@
 #include <iostream>
 #include <limits>
 #include <sstream>
+#include <stdexcept>
 #include "treecode.hpp"
 
 using namespace std;

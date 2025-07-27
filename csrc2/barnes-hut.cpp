@@ -27,6 +27,14 @@
 
 using namespace std;
 
+void AccelerationVisitor::visit(Particle & particle){
+	
+}
+
+void AccelerationVisitor::visit_pair(Particle & particle1,Particle & particle2) {
+	
+}
+	
 /**
  * Calculate acceleration for all particles
  */
@@ -82,7 +90,8 @@ BarnesHutVisitor::BarnesHutVisitor(const int index,Particle& me,const double the
  */
 Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 	double m,x,y,z;
-	node->getPhysics(m,x,y,z);
+	auto mass_and_centre = node->get_mass_and_centre();
+	tie(m,x,y,z) = mass_and_centre;
 	double dsq_node;
 	double l_sqr;
 	const int status = node->getStatus();
