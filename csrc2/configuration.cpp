@@ -23,10 +23,11 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <set>
+#include <sstream>
 #include "configuration.hpp"
-#include "utils.hpp"
 
 using namespace std;
 
@@ -117,4 +118,62 @@ Configuration::Configuration(string file_name){
     }
 	cout << __FILE__ << " " << __LINE__ << ": " << _n << " particles"<<endl;
 }
+
+/**
+ * Encode a floating value so it can be stored and retrieved without loss of significant digits
+ * 
+ * Parameters:
+ *    value       Number to be stored
+ * Returns:
+ *    Text value that can be written to a file
+ *
+ * Snarfed from: https://stackoverflow.com/questions/27149246/how-to-implement-serialization-and-de-serialization-of-a-double
+ */
+ string encode(const double value) {
+	const size_t maxPrecision = numeric_limits<double>::digits;
+	uint64_t* pi = (uint64_t*)&value;
+	stringstream stream;
+	stream.precision(maxPrecision);
+	stream << *pi;
+	return stream.str();
+ }
+ 
+ /**
+  * Restore floating value stored by encode
+  *
+  * Parameters:
+  *    value       Text string read from file
+  * Returns:
+  *    Corresponding floating point value
+  */
+ double decode(string str){
+	uint64_t out = stoull(str);
+	double* pf = (double*)&out;
+	return *pf;
+ }
+ 
+ /**
+  *  Split a string into a vector of tokens
+  */
+ vector<string> StringSplitter::split(const string& str, const string& delimiters, bool keepEmpty) {
+    auto tokens = vector<string> ();
+    string::size_type pos = 0;
+    string::size_type prev = 0;
+        
+    while ((pos = str.find_first_of(delimiters, prev)) != string::npos) {
+        if (keepEmpty || pos > prev)
+            tokens.push_back(str.substr(prev, pos - prev));
+  
+        prev = pos + 1;
+    }
+        
+    if (prev < str.length())
+        tokens.push_back(str.substr(prev));
+    else if (keepEmpty && prev == str.length())
+        tokens.push_back("");
+        
+    return tokens;
+}
+
+ 
 

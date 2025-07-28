@@ -19,7 +19,6 @@
 #include <cmath>
 #include <iostream>
 #include "physics.hpp"
-#include "utils.hpp"
 
 using namespace std;
 

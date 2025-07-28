@@ -25,7 +25,11 @@
 
 using namespace std;
 
-
+class Reporter{
+  public:
+	virtual void report() = 0;
+    virtual bool should_continue() = 0;
+};
 
 class Verlet {
 	/**
@@ -65,8 +69,25 @@ class Verlet {
 		void visit(Particle & particle);
 	};	
 
-  public:	
-	void run(Configuration & configuration, int max_iter,const double dt, Configuration::CompoundVisitor &calculate_acceleration);
+  private:
+	Configuration & _configuration;
+	Configuration::CompoundVisitor &_calculate_acceleration;
+	Reporter & _reporter;
+	
+  public:
+	Verlet(Configuration & configuration, Configuration::CompoundVisitor &calculate_acceleration,Reporter & reporter)
+	:  	_configuration(configuration),
+		_calculate_acceleration(_calculate_acceleration),
+		_reporter(reporter) {};
+	
+	/**
+	 * This function is responsible for integrating an ODE.
+	 *
+	 * Parameters:
+	 *     max_iter   Number of iterations
+	 *     dt         Time step
+	 */
+	void run( int max_iter,const double dt);
 };
 
 // ================================= legacy code starts here ====================================

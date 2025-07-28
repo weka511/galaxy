@@ -21,8 +21,13 @@
 #include <array>
 #include <iostream>
 #include <ostream>
-#include "utils.hpp"
+
 using namespace std;
+
+/**
+ * Square a number
+ */ 
+inline double sqr(double x) {return x*x;}
 
 /**
  * A Particle represents one of the bodies whose motion is being simulated.
@@ -79,5 +84,7 @@ class Particle {
 	friend ostream& operator<<(ostream& s, Particle& p);
 	
 };
+
+
 
 #endif //_PARTICLE_HPP

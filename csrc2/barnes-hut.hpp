@@ -21,7 +21,7 @@
 #include <vector>
 #include "configuration.hpp"
 #include "treecode.hpp"
-#include "utils.hpp"
+
 
 using namespace std;
 

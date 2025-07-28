@@ -14,14 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  *
+ * Implementation of the Barnes Hut algorithm to simulate the evolution of a galaxy.
  */
  
- #include <iostream>
+ #include <string>
  #include <tuple>
- 
+ #include "configuration.hpp"
+ #include "verlet.hpp"
  using namespace std;
 
 /**
  *  Parse command line parameters.
  */
 tuple <string,int,double> get_options(int argc, char **argv);
+
+class FileReporter : public Reporter{
+  private:
+    string _killfile;
+	Configuration  &_configuration;
+	
+  public:
+    FileReporter(Configuration  &configuration, string killfile="kill") : _killfile(killfile),_configuration(configuration) {};
+	void report();
+    bool should_continue();
+};
+

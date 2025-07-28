@@ -18,6 +18,7 @@
 #ifndef _CENTRE_OF_MASS_HPP
 #define _CENTRE_OF_MASS_HPP
 
+#include <vector>
 #include "treecode.hpp"
 using namespace std;
 /**

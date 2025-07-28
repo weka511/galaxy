@@ -21,6 +21,7 @@
  
 #include <string> 
 #include <memory>
+#include <vector>
 #include "particle.hpp"
 
 using namespace std;
@@ -112,6 +113,39 @@ class Configuration {
 	 
  };
  
+ /**
+  * encode
+  *
+  * Encode a floating value so it can be stored and retrieved without loss of significant digits
+  *
+  * Parameters:
+  *    value       Number to be stored
+  * Returns:
+  *    Text string that can be written to a file
+  */
+ string encode(const double value);
+ 
+ /**
+  * decode
+  *
+  * Restore floating value stored by encode
+  *
+  * Parameters:
+  *    value       Text string read from file
+  * Returns:
+  *    Corresponding floating point value
+  */
+ double decode(string str);
+ 
+ /**
+  * This class splits a string into a vector of tokens
+  * https://medium.com/@ryan_forrester_/splitting-strings-in-c-a-complete-guide-cf162837f4ba
+  */
+ class StringSplitter {
+  public:
+    static vector<string> split(const string& str, const string& delimiters, bool keepEmpty = false) ;
+};
+
  #endif //_CONFIGURATION_HPP
  
  

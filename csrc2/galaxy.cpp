@@ -14,10 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  *
+ * Implementation of the Barnes Hut algorithm to simulate the evolution of a galaxy.
  */
 
-
+#include <iostream>
 #include <chrono>
+#include <fstream>
 #include <getopt.h>
 #include "galaxy.hpp"
 #include "verlet.hpp"
@@ -31,7 +33,6 @@ int main(int argc, char **argv) {
 	double softening_length;
 	tie(config_file,max_iter,softening_length) = get_options(argc,argv);
 
-	Verlet integrator;
 	auto start = chrono::high_resolution_clock::now();
 	cout << "galaxy: " << VERSION << endl;
 
@@ -39,7 +40,9 @@ int main(int argc, char **argv) {
 		cout << "executing" << endl;
 		Configuration configuration(config_file);
 		AccelerationVisitor calculate_acceleration(configuration, configuration.get_theta(),configuration.get_G(),softening_length);
-		integrator.run(configuration, max_iter,configuration.get_dt(), calculate_acceleration);
+		FileReporter reporter(configuration);
+		Verlet integrator(configuration,  calculate_acceleration,reporter);
+		integrator.run(max_iter,configuration.get_dt());
 	}  catch (const exception& e) {
         cerr << "Terminating because of errors: " << e.what() << endl;
 		exit(1);
@@ -81,4 +84,17 @@ tuple <string,int,double> get_options(int argc, char **argv) {
 	}
 	cout << config_file<<","<<max_iter<<","<<softening_length<<endl;
 	return make_tuple(config_file,max_iter,softening_length);
+}
+
+void FileReporter::report() {
+	
+}
+
+bool FileReporter::should_continue() {
+	ifstream file(_killfile);
+	if (!file.is_open()) return true;
+	cout << "Found killfile: " <<_killfile<<endl;
+	file.close();
+	remove(_killfile.c_str());
+	return false;
 }
