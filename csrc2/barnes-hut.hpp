@@ -25,21 +25,7 @@
 
 using namespace std;
 
-class AccelerationVisitor : public Configuration::CompoundVisitor{
-  public:
-    AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double softening_length){;}
-	/**
-	 *  Construct oct-tree from particles
-	 *
-	 *    particles
-	 */
-	void create_tree(unique_ptr<Particle[]> &particles, int n);
-	void visit(Particle & particle);
-	void visit_pair(Particle & particle1,Particle & particle2);
 
-  private:
-   unique_ptr<Node> _tree = NULL;
-};
 
 /**
  * Calculate acceleration for all particles

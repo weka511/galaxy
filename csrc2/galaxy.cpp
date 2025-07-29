@@ -21,6 +21,7 @@
 #include <chrono>
 #include <fstream>
 #include <getopt.h>
+#include "acceleration.hpp"
 #include "galaxy.hpp"
 #include "verlet.hpp"
 #include "barnes-hut.hpp"

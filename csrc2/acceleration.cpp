@@ -1,0 +1,42 @@
+/**
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
+ *
+ * This is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software.  If not, see <http://www.gnu.org/licenses/>
+ */
+
+#include "acceleration.hpp"
+#include "center-of-mass.hpp"
+
+/**
+ *  Construct oct-tree from particles
+ *
+ *    particles
+ unique_ptr<Node> create(unique_ptr<Particle[]> &particles, int n);
+ */
+void AccelerationVisitor::create_tree(unique_ptr<Particle[]> &particles, int n) {
+	_tree.reset();
+	_tree = Node::create(particles,n); 
+	CentreOfMassCalculator calculator(particles,n);
+	_tree->visit(calculator);
+	calculator.check_all_particles_processed();
+}
+
+void AccelerationVisitor::visit(Particle & particle){
+	// cout << __FILE__ << " " << __LINE__ << endl;
+}
+
+void AccelerationVisitor::visit_pair(Particle & particle1,Particle & particle2) {
+	// cout << __FILE__ << " " << __LINE__ << endl;
+}
+

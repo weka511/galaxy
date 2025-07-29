@@ -27,27 +27,7 @@
 
 using namespace std;
 
-/**
- *  Construct oct-tree from particles
- *
- *    particles
- unique_ptr<Node> create(unique_ptr<Particle[]> &particles, int n);
- */
-void AccelerationVisitor::create_tree(unique_ptr<Particle[]> &particles, int n) {
-	_tree.reset();
-	_tree = Node::create(particles,n); 
-	CentreOfMassCalculator calculator(particles,n);
-	_tree->visit(calculator);
-	calculator.check_all_particles_processed();
-}
 
-void AccelerationVisitor::visit(Particle & particle){
-	// cout << __FILE__ << " " << __LINE__ << endl;
-}
-
-void AccelerationVisitor::visit_pair(Particle & particle1,Particle & particle2) {
-	// cout << __FILE__ << " " << __LINE__ << endl;
-}
 	
 /**
  * Calculate acceleration for all particles

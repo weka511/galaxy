@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include "acceleration.hpp"
 #include "verlet.hpp"
 
 using namespace std;
@@ -35,7 +36,6 @@ using namespace std;
  *     dt         Time step
  */
 void Verlet::run( int max_iter,const double dt){
-	cout << __FILE__ << " " << __LINE__ << endl;
 	if (!_reporter.should_continue()) return;
 	_calculate_acceleration.create_tree(_configuration._particles, _configuration._n);
 	cout << __FILE__ << " " << __LINE__ << endl;
