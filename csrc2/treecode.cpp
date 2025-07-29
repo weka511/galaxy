@@ -79,6 +79,7 @@ unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){
 
 	for (int index=0;index<n;index++)
 		product->insert(index,particles);
+
 	return product;
 }
 
@@ -232,9 +233,11 @@ void Node::accumulatePhysics(Node* other) {
  * Used to delete tree
  */ 
 Node::~Node() {
+	
 	for (int i=0;i<N_Children;i++)
 		if (_child[i]!=NULL)
 			delete _child[i];
+
 	Node::_count--;
 }
 

@@ -22,6 +22,7 @@
 
 #include "configuration.hpp"
 #include "treecode.hpp"
+#include "barnes-hut.hpp"
 
 using namespace std;
 
@@ -71,11 +72,11 @@ class Verlet {
 
   private:
 	Configuration & _configuration;
-	Configuration::CompoundVisitor &_calculate_acceleration;
+	AccelerationVisitor &_calculate_acceleration;
 	Reporter & _reporter;
 	
   public:
-	Verlet(Configuration & configuration, Configuration::CompoundVisitor &calculate_acceleration,Reporter & reporter)
+	Verlet(Configuration & configuration, AccelerationVisitor &calculate_acceleration,Reporter & reporter)
 	:  	_configuration(configuration),
 		_calculate_acceleration(calculate_acceleration),
 		_reporter(reporter) {};

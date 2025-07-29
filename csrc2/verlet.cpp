@@ -37,6 +37,7 @@ using namespace std;
 void Verlet::run( int max_iter,const double dt){
 	cout << __FILE__ << " " << __LINE__ << endl;
 	if (!_reporter.should_continue()) return;
+	_calculate_acceleration.create_tree(_configuration._particles, _configuration._n);
 	cout << __FILE__ << " " << __LINE__ << endl;
 	_configuration.iterate(_calculate_acceleration);
 	cout << __FILE__ << " " << __LINE__ << endl;
@@ -47,6 +48,8 @@ void Verlet::run( int max_iter,const double dt){
 	for (int iter=0;iter<max_iter and _reporter.should_continue();iter++) {
 		cout << __FILE__ << " " << __LINE__ << endl;
 		_configuration.iterate(positions);
+		cout << __FILE__ << " " << __LINE__ << endl;
+		_calculate_acceleration.create_tree(_configuration._particles, _configuration._n);
 		cout << __FILE__ << " " << __LINE__ << endl;
 		_configuration.iterate(_calculate_acceleration);
 		cout << __FILE__ << " " << __LINE__ << endl;

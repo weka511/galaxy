@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
 		Configuration configuration(config_file);
 		AccelerationVisitor calculate_acceleration(configuration, configuration.get_theta(),configuration.get_G(),softening_length);
 		FileReporter reporter(configuration);
+		cout << __FILE__ << " " << __LINE__ << endl;
 		Verlet integrator(configuration,  calculate_acceleration,reporter);
 		integrator.run(max_iter,configuration.get_dt());
 	}  catch (const exception& e) {

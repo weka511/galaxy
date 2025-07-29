@@ -28,8 +28,17 @@ using namespace std;
 class AccelerationVisitor : public Configuration::CompoundVisitor{
   public:
     AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double softening_length){;}
+	/**
+	 *  Construct oct-tree from particles
+	 *
+	 *    particles
+	 */
+	void create_tree(unique_ptr<Particle[]> &particles, int n);
 	void visit(Particle & particle);
 	void visit_pair(Particle & particle1,Particle & particle2);
+
+  private:
+   unique_ptr<Node> _tree = NULL;
 };
 
 /**
@@ -37,12 +46,7 @@ class AccelerationVisitor : public Configuration::CompoundVisitor{
  */
 void get_acceleration(unique_ptr<Particle[]> &particles, const double theta,const double G,const double softening_length);
 
-/**
- *  Construct oct-tree from particles
- *
- *    particles
- */
-unique_ptr<Node> create_tree(unique_ptr<Particle[]> &particles, int n);
+
 
 /**
  * Calculate acceleration for one specific particle
@@ -76,6 +80,7 @@ class BarnesHutVisitor :  public Node::Visitor{
 	 * Used at the end of calculation to store accelerations back into particle
 	 */
 	void store_accelerations();
+	
 	
   private:
   
