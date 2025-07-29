@@ -42,4 +42,4 @@ class AccelerationVisitor : public Configuration::Visitor{
 	const double _softening_length;
 };
 
-#endif
+#endif  // _ACCELERATION_HPP

@@ -102,7 +102,7 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 /**
  * Used at the end of calculation to store accelerations back into particle
  */
-void BarnesHutVisitor::store_accelerations() {
+void BarnesHutVisitor::store_accelerations() {   // FIXME
 	 // _me.setAcc(_acc_x,_acc_y,_acc_z);
 }
 
