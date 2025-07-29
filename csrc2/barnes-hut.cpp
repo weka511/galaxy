@@ -29,17 +29,6 @@
 using namespace std;
 
 
-
-
-/**
- * Calculate acceleration for one specific particle
- */
-void get_acceleration(int i, unique_ptr<Particle[]> &particles,Node * root,const double theta,const double G,const double a) {
-	BarnesHutVisitor visitor(i,particles[i],theta,G,a);
-	root->visit(visitor);
-	visitor.store_accelerations();
-} 
-
 /**
 * Initialize BarnesHutVisitor for a specific particle
 *
@@ -58,7 +47,7 @@ BarnesHutVisitor::BarnesHutVisitor(const int index,Particle& me,const double the
  * Used to accumulate accelerations for each node
  */
 Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
-	cout << __FILE__ << " " << __LINE__ << endl;
+	// cout << __FILE__ << " " << __LINE__ << endl;
 	double m,x,y,z;
 	auto mass_and_centre = node->get_mass_and_centre();
 	tie(m,x,y,z) = mass_and_centre;
@@ -90,6 +79,7 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
  * Used at the end of calculation to store accelerations back into particle
  */
 void BarnesHutVisitor::store_accelerations() {
+		cout << __FILE__ << " " << __LINE__ << " " << _acc_x<< " " << _acc_y << " " << _acc_z<<endl;
 	auto acceleration = array<double,3>{_acc_x, _acc_y, _acc_z};
 	_me.set_acceleration(acceleration);
 }
@@ -102,7 +92,7 @@ void BarnesHutVisitor::store_accelerations() {
 void BarnesHutVisitor::_accumulate_acceleration(double m,double x,double y,double z,double dsq){
 	double acc_x, acc_y, acc_z;
 	get_acceleration( m, x, y, z, _x, _y, _z, dsq,_a, _G, acc_x,  acc_y,  acc_z);
-	_acc_x+=acc_x;
-	_acc_y+=acc_y;
-	_acc_z+=acc_z;
+	_acc_x += acc_x;
+	_acc_y += acc_y;
+	_acc_z += acc_z;
 }

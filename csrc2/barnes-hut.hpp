@@ -26,19 +26,6 @@
 using namespace std;
 
 
-
-/**
- * Calculate acceleration for all particles
- */
-// void get_acceleration(unique_ptr<Particle[]> &particles, const double theta,const double G,const double softening_length);
-
-
-
-/**
- * Calculate acceleration for one specific particle
- */
-void get_acceleration(int i, vector<Particle*>& particles,Node * root,const double theta,const double G,const double a);
-
 /**
  *  This class is used to calculate the acceleration of one particle 
  *  using the Barnes Hut algorithm
