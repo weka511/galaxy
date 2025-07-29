@@ -18,11 +18,13 @@
  #include "particle.hpp"
  using namespace std;
  
- void Particle::init(array<double,3> position, array<double,3> velocity, double m) {
+ void Particle::init(array<double,3> position, array<double,3> velocity, double m, int id) {
+	 _id = id;
 	 _m = m;
 	for (int i=0;i<3;i++) {
 		_position[i] = position[i];
 		_velocity[i] = velocity[i];
+		_acceleration[i] = 0.0;
 	}	 
  };
  

@@ -39,14 +39,16 @@ class Particle {
 	array<double,3> _velocity;
 	array<double,3> _acceleration;
 	double _m;
-	
+	int _id;
   public:
-	void init(array<double,3> position, array<double,3> velocity, double m);
+	void init(array<double,3> position, array<double,3> velocity, double m, int id);
 	
 	/**
 	 *  Accessor for mass
 	 */
 	inline double get_mass() {return _m;}
+	
+	inline int get_id() {return _id;}
 	
 	inline array<double,3> & get_position() {return _position;} 
 	
@@ -55,20 +57,25 @@ class Particle {
 	// [[deprecated("Use get_position() instead.")]]
 	inline void getPos(double& x,	double& y, double& z) {x=_position[0];y=_position[1];z=_position[2];}
 	
+	// [[deprecated("Use set_position() instead.")]]
 	inline void setPos(double x,	double y, double z) {;}
 	
 	inline array<double,3> & get_velocity() {return _velocity;}  
 	
+	// [[deprecated("Use get_velocity() instead.")]]
 	inline void getVel(double& vx,	double& vy, double& vz) {vx=_velocity[0];vy=_velocity[1];vz=_velocity[2];}  //FIXME
 	
+	// [[deprecated("Use set_veloecity() instead.")]]
 	inline void setVel(double vx,	double vy, double vz) {;}  //FIXME
 	
 	inline void set_velocity(array<double,3> &  velocity) {_velocity = velocity;}
 	
-	inline array<double,3> & get_acceleration() {return _acceleration;}
+
 	
+	// [[deprecated("Use get_aceleration() instead.")]]
 	inline void getAcc(double& vx,	double& vy, double& vz) {;}   //FIXME
 
+	inline array<double,3> & get_acceleration() {return _acceleration;}  
 	// inline array<double,3> & get_position() {return _position;}
 	
 	inline double get_distance_sq(Particle&other)  {
@@ -82,6 +89,8 @@ class Particle {
      * Output position, velocity, and mass.
      */
 	friend ostream& operator<<(ostream& s, Particle& p);
+	
+	bool operator == (const Particle & other)  const {return _id == other._id;} 
 	
 };
 

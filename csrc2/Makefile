@@ -34,6 +34,7 @@ SRCS      = acceleration.cpp    \
 			verlet.cpp
 
 TESTS     = test-configuration.cpp \
+			test-particle.cpp      \
 			test-treecode.cpp
 		
 OBJS1     = $(subst .cpp,.o,$(SRCS)) 

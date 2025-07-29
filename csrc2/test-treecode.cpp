@@ -29,8 +29,8 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 	SECTION("Trivial Tree Insert") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(2);
 		auto i = 0;
-		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},0.0);
-		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},0.0);
+		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},0.0,0);
+		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},0.0,0);
 		unique_ptr<Node> tree = Node::create(particles,i);
 		REQUIRE(Node::get_count() == 9);
 	}
@@ -38,14 +38,14 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 	SECTION("Larger Tree Insert") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(8);
 		auto i = 0;
-		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{-1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{+1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{-1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{+1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0);
+		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{-1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{+1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{-1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{+1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
 		unique_ptr<Node> tree = Node::create(particles,i);
 		REQUIRE(Node::get_count() == 9);
 	}
@@ -53,15 +53,15 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 	SECTION("2nd layer Tree Insert") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(9);
 		auto i = 0;
-		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{-1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{+1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{-1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{+1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0);
-		particles[i++].init(array{+0.2, +0.2, +1.0},array{0.0,0.0,0.0},1.0);
+		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{-1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{+1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{-1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{+1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{+0.2, +0.2, +1.0},array{0.0,0.0,0.0},1.0,0);
 		unique_ptr<Node> tree = Node::create(particles,i);
 		REQUIRE(Node::get_count() == 17);
 	}

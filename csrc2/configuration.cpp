@@ -104,7 +104,7 @@ Configuration::Configuration(string file_name){
 							position[i] = value;
 							break;
 						case 3:
-							mass = value;
+							mass = value;;
 							break;
 						case 4:
 						case 5:
@@ -112,7 +112,8 @@ Configuration::Configuration(string file_name){
 							velocity[i-4] = value;
 					}
 				}
-				_particles[line_number-5].init(position,velocity,mass);	
+				const int index = line_number-5;
+				_particles[index].init(position,velocity,mass,index);	
 		}
 		line_number++;
     }
