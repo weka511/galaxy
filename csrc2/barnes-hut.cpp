@@ -21,6 +21,7 @@
 #include <string>
 #include <cmath>
 #include <iostream>
+
 #include "barnes-hut.hpp"
 #include "center-of-mass.hpp"
 #include "physics.hpp"
@@ -70,6 +71,7 @@ BarnesHutVisitor::BarnesHutVisitor(const int index,Particle& me,const double the
  * Used to accumulate accelerations for each node
  */
 Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
+	cout << __FILE__ << " " << __LINE__ << endl;
 	double m,x,y,z;
 	auto mass_and_centre = node->get_mass_and_centre();
 	tie(m,x,y,z) = mass_and_centre;

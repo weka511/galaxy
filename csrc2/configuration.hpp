@@ -37,7 +37,7 @@ class Configuration {
   public:
 	class Visitor{
 	  public:
-		virtual void visit(Particle & particle) = 0;
+		virtual void visit(int i, Particle & particle) = 0;
 	};
 	
 	/**
@@ -88,7 +88,7 @@ class Configuration {
 	 */
 	void iterate(Visitor & visitor) {
 		for (int i=0;i<_n;i++)
-			visitor.visit(_particles[i]);	
+			visitor.visit(i,_particles[i]);	
 
 	}
 	
@@ -107,7 +107,7 @@ class Configuration {
 	 */
 	void iterate(CompoundVisitor & visitor) {
 		for (int i=0;i<_n;i++)
-			visitor.visit(_particles[i]);
+			visitor.visit(i,_particles[i]);
 	
 		for (int i=0;i<_n;i++)
 			for (int j=i+1;j<_n;j++)

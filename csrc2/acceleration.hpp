@@ -18,26 +18,28 @@
 #ifndef _ACCELERATION_HPP
 #define _ACCELERATION_HPP
 
-#include <vector>
 #include "configuration.hpp"
 #include "treecode.hpp"
 
  using namespace std;
 
-class AccelerationVisitor : public Configuration::CompoundVisitor{
+class AccelerationVisitor : public Configuration::Visitor{
   public:
-    AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double softening_length){;}
+    AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double softening_length)
+	 : _theta(theta),_G(G),_softening_length(softening_length){;}
 	/**
 	 *  Construct oct-tree from particles
 	 *
 	 *    particles
 	 */
 	void create_tree(unique_ptr<Particle[]> &particles, int n);
-	void visit(Particle & particle);
-	void visit_pair(Particle & particle1,Particle & particle2);
+	void visit(int i,Particle & particle);
 
   private:
-   unique_ptr<Node> _tree = NULL;
+	unique_ptr<Node> _tree = NULL;
+	const double _theta;
+	const double _G;
+	const double _softening_length;
 };
 
 #endif

@@ -17,12 +17,12 @@
 
 #include "acceleration.hpp"
 #include "center-of-mass.hpp"
+#include "barnes-hut.hpp"
 
 /**
  *  Construct oct-tree from particles
  *
  *    particles
- unique_ptr<Node> create(unique_ptr<Particle[]> &particles, int n);
  */
 void AccelerationVisitor::create_tree(unique_ptr<Particle[]> &particles, int n) {
 	_tree.reset();
@@ -32,11 +32,10 @@ void AccelerationVisitor::create_tree(unique_ptr<Particle[]> &particles, int n) 
 	calculator.check_all_particles_processed();
 }
 
-void AccelerationVisitor::visit(Particle & particle){
-	// cout << __FILE__ << " " << __LINE__ << endl;
-}
-
-void AccelerationVisitor::visit_pair(Particle & particle1,Particle & particle2) {
-	// cout << __FILE__ << " " << __LINE__ << endl;
+void AccelerationVisitor::visit(int i,Particle & particle){
+	cout << __FILE__ << " " << __LINE__ << endl;
+	BarnesHutVisitor visitor(i,particle,_theta,_G,_softening_length);
+	_tree->visit(visitor);
+	visitor.store_accelerations();
 }
 
