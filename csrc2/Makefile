@@ -16,7 +16,7 @@
 # Makefile snarfed from https://stackoverflow.com/questions/2481269/how-to-make-a-simple-c-makefile
 
 GIT_VERSION := $(shell git describe --tags)
-CPPFLAGS  = -g -O3  -pthread -I/sw/include/root  -std=c++23 -DVERSION="\"$(GIT_VERSION)\""
+CPPFLAGS  = -g -O3  -pthread -I/sw/include/root  -std=c++23 -DVERSION="\"$(GIT_VERSION)\"" -Wall
 LDFLAGS   = -g -O3
 LDLIBS    =
 CC        = gcc
@@ -64,7 +64,7 @@ depend: Makefile .depend
 install: rebuild
 	cp $(MAIN) /usr/local/bin
 	
-.depend: $(SRCS)   $(TESTS)  galaxy.cpp
+.depend: $(SRCS)   $(TESTS)  galaxy.cpp Makefile
 	$(RM) ./.depend
 	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
 	sed -i -e 's/\/home\/Weka\/smac\/book\///$g' .depend

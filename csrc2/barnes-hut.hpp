@@ -82,7 +82,7 @@ class BarnesHutVisitor :  public Node::Visitor{
 	/**
 	 * Keep track of particle index so we don't calculate acceleration of particle caused by itself!
 	 */
-	const int _index;
+	const int _index = -1;
 	/**
 	 * Used to add in the contribution to the acceleration from one Node
 	 */
@@ -97,6 +97,11 @@ class BarnesHutVisitor :  public Node::Visitor{
 	 * Store squared theta to simplify comparisons
 	 */ 
 	const double _theta_squared;
+	
+	/**
+	 * Gravitational constant
+	 */
+	const double _G;
 
 	/**
 	 * Position of the particle whose acceleration is being calculated
@@ -105,10 +110,7 @@ class BarnesHutVisitor :  public Node::Visitor{
 	double _y;
 	double _z;
 	
-	/**
-	 * Gravitational constant
-	 */
-	const double _G;
+	
 	
 	/**
 	 * Softening length

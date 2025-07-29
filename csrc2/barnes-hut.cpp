@@ -28,11 +28,11 @@
 using namespace std;
 
 void AccelerationVisitor::visit(Particle & particle){
-	
+	// cout << __FILE__ << " " << __LINE__ << endl;
 }
 
 void AccelerationVisitor::visit_pair(Particle & particle1,Particle & particle2) {
-	
+	// cout << __FILE__ << " " << __LINE__ << endl;
 }
 	
 /**
@@ -81,7 +81,7 @@ void get_acceleration(int i, unique_ptr<Particle[]> &particles,Node * root,const
 *  a       Softening length
 */ 
 BarnesHutVisitor::BarnesHutVisitor(const int index,Particle& me,const double theta, const double G,const double a) :
-  _me(me),_theta_squared(sqr(theta)),_G(G),_acc_x(0),_acc_y(0),_acc_z(0),_index(index),_a(a) {
+  _index(index),_me(me),_theta_squared(sqr(theta)),_G(G),_a(a),_acc_x(0),_acc_y(0),_acc_z(0) {
 	_me.getPos(_x,_y,_z);
 }
 

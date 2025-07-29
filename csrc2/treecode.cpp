@@ -31,11 +31,10 @@ int Node::_count=0;
  */
  
 Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id)
-  : _particle_index(Unused),
+  : 	_id(id),_particle_index(Unused),
+  	_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d),
 	_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
-	_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)),
-	_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d),
-	_id(id) {
+	_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)) {
 	for (int i=0;i<N_Children;i++)
 		_child[i] = NULL;
 	_count++;

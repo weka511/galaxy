@@ -34,17 +34,16 @@ int main(int argc, char **argv) {
 	tie(config_file,max_iter,softening_length) = get_options(argc,argv);
 
 	auto start = chrono::high_resolution_clock::now();
-	cout << "galaxy: " << VERSION << endl;
+	cout << __FILE__ << " " << __LINE__ << " galaxy: " << VERSION << endl;
 
 	try {
-		cout << "executing" << endl;
 		Configuration configuration(config_file);
 		AccelerationVisitor calculate_acceleration(configuration, configuration.get_theta(),configuration.get_G(),softening_length);
 		FileReporter reporter(configuration);
 		Verlet integrator(configuration,  calculate_acceleration,reporter);
 		integrator.run(max_iter,configuration.get_dt());
 	}  catch (const exception& e) {
-        cerr << "Terminating because of errors: " << e.what() << endl;
+        cerr << __FILE__ << " " << __LINE__ << " Terminating because of errors: " << e.what() << endl;
 		exit(1);
     }
 	auto end = std::chrono::high_resolution_clock::now();
@@ -91,6 +90,7 @@ void FileReporter::report() {
 }
 
 bool FileReporter::should_continue() {
+	cout << __FILE__ << " " << __LINE__ << endl;
 	ifstream file(_killfile);
 	if (!file.is_open()) return true;
 	cout << "Found killfile: " <<_killfile<<endl;

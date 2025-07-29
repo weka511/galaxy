@@ -91,7 +91,9 @@ void get_acceleration_between_pair(Particle& p1,Particle& p2,double G) {
 double get_kinetic_energy(unique_ptr<Particle[]> &particles, int n) {
 	double sum=0;
 	for (int i=0;i<n;i++) {
-		double vx,vy,vz;
+		auto vx=0.0;
+		auto vy= 0.0;
+		auto vz=0.0;
 		particles[i].getVel(vy,vz,vz);
 		sum+=particles[i].get_mass()*(sqr(vx)+sqr(vy)+sqr(vz));
 	}

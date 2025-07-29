@@ -86,8 +86,10 @@ class Configuration {
 	 * iterate through all Particles, visiting each in turn
 	 */
 	void iterate(Visitor & visitor) {
+		cout << __FILE__ << " " << __LINE__ << endl;
 		for (int i=0;i<_n;i++)
 			visitor.visit(_particles[i]);	
+		cout << __FILE__ << " " << __LINE__ << endl;
 	}
 	
 	/**
@@ -104,11 +106,14 @@ class Configuration {
 	 * then through all pairs of Particles, visiting each pair in turn.
 	 */
 	void iterate(CompoundVisitor & visitor) {
+		cout << __FILE__ << " " << __LINE__ << endl;
 		for (int i=0;i<_n;i++)
-			visitor.visit(_particles[i]);	
+			visitor.visit(_particles[i]);
+		cout << __FILE__ << " " << __LINE__ << endl;		
 		for (int i=0;i<_n;i++)
 			for (int j=i+1;j<_n;j++)
-			visitor.visit_pair(_particles[i],_particles[2]);	
+				visitor.visit_pair(_particles[i],_particles[2]);
+		cout << __FILE__ << " " << __LINE__ << endl;
 	}
 	 
  };

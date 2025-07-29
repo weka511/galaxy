@@ -35,16 +35,23 @@ using namespace std;
  *     dt         Time step
  */
 void Verlet::run( int max_iter,const double dt){
+	cout << __FILE__ << " " << __LINE__ << endl;
 	if (!_reporter.should_continue()) return;
+	cout << __FILE__ << " " << __LINE__ << endl;
 	_configuration.iterate(_calculate_acceleration);
+	cout << __FILE__ << " " << __LINE__ << endl;
 	Euler euler(0.5*dt);
 	Velocities velocities(dt);
 	Positions positions(dt);
 	_configuration.iterate(euler);
 	for (int iter=0;iter<max_iter and _reporter.should_continue();iter++) {
+		cout << __FILE__ << " " << __LINE__ << endl;
 		_configuration.iterate(positions);
+		cout << __FILE__ << " " << __LINE__ << endl;
 		_configuration.iterate(_calculate_acceleration);
+		cout << __FILE__ << " " << __LINE__ << endl;
 		_configuration.iterate(velocities);
+		cout << __FILE__ << " " << __LINE__ << endl;
 	}
 }
 

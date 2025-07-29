@@ -77,7 +77,7 @@ class Verlet {
   public:
 	Verlet(Configuration & configuration, Configuration::CompoundVisitor &calculate_acceleration,Reporter & reporter)
 	:  	_configuration(configuration),
-		_calculate_acceleration(_calculate_acceleration),
+		_calculate_acceleration(calculate_acceleration),
 		_reporter(reporter) {};
 	
 	/**
