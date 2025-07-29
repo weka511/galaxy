@@ -76,7 +76,8 @@ class Particle {
 	inline void getAcc(double& vx,	double& vy, double& vz) {;}   //FIXME
 
 	inline array<double,3> & get_acceleration() {return _acceleration;}  
-	// inline array<double,3> & get_position() {return _position;}
+	
+	inline void set_acceleration(array<double,3> &  acceleration) {_acceleration = acceleration;}
 	
 	inline double get_distance_sq(Particle&other)  {
 		return sqr(_position[0] - other._position[0]) + sqr(_position[1] - other._position[1]) + sqr(_position[2] - other._position[2]);
@@ -90,6 +91,10 @@ class Particle {
      */
 	friend ostream& operator<<(ostream& s, Particle& p);
 	
+	/**
+	 * The == operator is used when we calculate the attraction between particles
+	 * to ensure that a particle doesn't attract itself.
+	 */
 	bool operator == (const Particle & other)  const {return _id == other._id;} 
 	
 };

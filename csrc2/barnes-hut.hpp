@@ -30,7 +30,7 @@ using namespace std;
 /**
  * Calculate acceleration for all particles
  */
-void get_acceleration(unique_ptr<Particle[]> &particles, const double theta,const double G,const double softening_length);
+// void get_acceleration(unique_ptr<Particle[]> &particles, const double theta,const double G,const double softening_length);
 
 
 

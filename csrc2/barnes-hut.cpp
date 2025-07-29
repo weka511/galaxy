@@ -29,19 +29,6 @@
 using namespace std;
 
 
-	
-/**
- * Calculate acceleration for all particles
- */
- 
- // void get_acceleration(vector<Particle*>& particles,const double theta,const double G,const double a) {
-	// Node * root=create_tree(particles);
-	// for (int i=0;i<particles.size();i++)
-		// get_acceleration(i,particles,root,theta,G,a);
-	
-	// delete root;
-// }
-
 
 
 /**
@@ -102,8 +89,9 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 /**
  * Used at the end of calculation to store accelerations back into particle
  */
-void BarnesHutVisitor::store_accelerations() {   // FIXME
-	 // _me.setAcc(_acc_x,_acc_y,_acc_z);
+void BarnesHutVisitor::store_accelerations() {
+	auto acceleration = array<double,3>{_acc_x, _acc_y, _acc_z};
+	_me.set_acceleration(acceleration);
 }
 
 /**
