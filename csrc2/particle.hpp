@@ -54,27 +54,12 @@ class Particle {
 	
 	inline void set_position(array<double,3> &  position) {_position = position;}
 	
-	// [[deprecated("Use get_position() instead.")]]
-	inline void getPos(double& x,	double& y, double& z) {x=_position[0];y=_position[1];z=_position[2];}
-	
-	// [[deprecated("Use set_position() instead.")]]
-	inline void setPos(double x,	double y, double z) {;}
-	
 	inline array<double,3> & get_velocity() {return _velocity;}  
 	
-	// [[deprecated("Use get_velocity() instead.")]]
-	inline void getVel(double& vx,	double& vy, double& vz) {vx=_velocity[0];vy=_velocity[1];vz=_velocity[2];}  //FIXME
 	
-	// [[deprecated("Use set_veloecity() instead.")]]
-	inline void setVel(double vx,	double vy, double vz) {;}  //FIXME
 	
 	inline void set_velocity(array<double,3> &  velocity) {_velocity = velocity;}
 	
-
-	
-	// [[deprecated("Use get_aceleration() instead.")]]
-	inline void getAcc(double& vx,	double& vy, double& vz) {;}   //FIXME
-
 	inline array<double,3> & get_acceleration() {return _acceleration;}  
 	
 	inline void set_acceleration(array<double,3> &  acceleration) {_acceleration = acceleration;}

@@ -32,6 +32,9 @@ void AccelerationVisitor::create_tree(unique_ptr<Particle[]> &particles, int n) 
 	calculator.check_all_particles_processed();
 }
 
+/**
+ *  Calculate acceleration for one node only
+ */
 void AccelerationVisitor::visit(int i,Particle & particle){
 	cout << __FILE__ << " " << __LINE__ << endl;
 	BarnesHutVisitor visitor(i,particle,_theta,_G,_softening_length);

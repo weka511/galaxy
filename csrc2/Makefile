@@ -28,7 +28,6 @@ SRCS      = acceleration.cpp    \
 			center-of-mass.cpp  \
 			configuration.cpp 	\
 			particle.cpp		\
-			physics.cpp         \
 			tinyxml2.cpp		\
 			treecode.cpp		\
 			verlet.cpp

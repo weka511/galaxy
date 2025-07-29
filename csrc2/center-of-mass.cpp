@@ -39,7 +39,10 @@ Node::Visitor::Status CentreOfMassCalculator::visit(Node * node) {
 	if (particle_index >=0 ) {
 		_processed_particle[particle_index] = true;
 		double x,y,z;
-		_particles[particle_index].getPos(x,y,z);
+		auto pos = _particles[particle_index].get_position();
+		x = pos[0];
+		y = pos[1];
+		z = pos[2];
 		node->set_mass_and_centre(_particles[particle_index].get_mass(),x,y,z);
 	}
 	return Node::Visitor::Status::Continue;

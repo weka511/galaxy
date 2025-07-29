@@ -90,7 +90,10 @@ unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){
  */
 void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
 	double x,y,z; 
-	particles[new_particle_index].getPos(x,y,z);
+	auto pos = particles[new_particle_index].get_position();
+	x = pos[0];
+	y = pos[1];
+	z = pos[2];
 	_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
 	_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
 	_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
@@ -145,7 +148,10 @@ void Node::_insert_or_propagate(int particle_index,int incumbent,unique_ptr<Part
  */
 int Node::_get_child_index(Particle &particle) {
 	double x,y,z;
-	particle.getPos(x,y,z);
+	auto pos = particle.get_position();
+	x = pos[0];
+	y = pos[1];
+	z = pos[2];
 	const int i=x>_xmean;
 	const int j=y>_ymean;
 	const int k=z>_zmean;

@@ -1,5 +1,8 @@
+#ifndef _BARNES_HUT_HPP
+#define _BARNES_HUT_HPP
+
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +18,7 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-
-#ifndef _BARNES_HUT_HPP
-#define _BARNES_HUT_HPP
-#include <vector>
+#include <tuple>
 #include "configuration.hpp"
 #include "treecode.hpp"
 
@@ -65,6 +65,8 @@ class BarnesHutVisitor :  public Node::Visitor{
 	 * Used to add in the contribution to the acceleration from one Node
 	 */
 	void _accumulate_acceleration(double m,double x,double y,double z,double dsq);
+	
+	tuple<double,double,double> _get_acceleration(double m,double x,double y,double z,double _x,double _y,double _z,double dsq,double a, double G);
 	
 	/**
 	 * The particle whose acceleration is being calculated

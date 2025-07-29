@@ -1,5 +1,8 @@
+#ifndef _ACCELERATION_HPP
+#define _ACCELERATION_HPP
+
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +18,6 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#ifndef _ACCELERATION_HPP
-#define _ACCELERATION_HPP
-
 #include "configuration.hpp"
 #include "treecode.hpp"
 
@@ -33,6 +33,7 @@ class AccelerationVisitor : public Configuration::Visitor{
 	 *    particles
 	 */
 	void create_tree(unique_ptr<Particle[]> &particles, int n);
+	
 	void visit(int i,Particle & particle);
 
   private:
