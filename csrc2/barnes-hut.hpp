@@ -32,6 +32,46 @@ using namespace std;
  *
  */
 class BarnesHutVisitor :  public Node::Visitor{
+  private:
+  	/**
+	 * Keep track of particle index so we don't calculate acceleration of particle caused by itself!
+	 */
+	const int _index = -1;
+	
+	/**
+	 * The particle whose acceleration is being calculated
+	 */
+	Particle & _me;
+	
+	/**
+	 * Store squared theta to simplify comparisons
+	 */ 
+	const double _theta_squared;
+	
+	/**
+	 * Gravitational constant
+	 */
+	const double _G;
+
+	/**
+	 * Position of the particle whose acceleration is being calculated
+	 */
+	double _x;
+	double _y;
+	double _z;
+	
+	/**
+	 * Softening length
+	 */
+	const double _a;
+	
+	/**
+	 * We accumulate the acceleration here
+	 */
+	double _acc_x;
+	double _acc_y;
+	double _acc_z;
+  
   public:
    /**
    * Initialize BarnesHutVisitor for a specific particle
@@ -58,51 +98,16 @@ class BarnesHutVisitor :  public Node::Visitor{
   private:
   
 	/**
-	 * Keep track of particle index so we don't calculate acceleration of particle caused by itself!
-	 */
-	const int _index = -1;
-	/**
 	 * Used to add in the contribution to the acceleration from one Node
 	 */
 	void _accumulate_acceleration(double m,double x,double y,double z,double dsq);
 	
-	tuple<double,double,double> _get_acceleration(double m,double x,double y,double z,double _x,double _y,double _z,double dsq,double a, double G);
+	tuple<double,double,double> _get_acceleration(double m,double x,double y,double z,double _x,double _y,double _z,double dsq);
 	
-	/**
-	 * The particle whose acceleration is being calculated
-	 */
-	Particle & _me;
+	inline double _get_squared_distance(double x0,double y0,double z0,double x1,double y1,double z1) {
+		return sqr(x0-x1) + sqr(y0-y1) + sqr(z0-z1);
+	}
 	
-	/**
-	 * Store squared theta to simplify comparisons
-	 */ 
-	const double _theta_squared;
-	
-	/**
-	 * Gravitational constant
-	 */
-	const double _G;
-
-	/**
-	 * Position of the particle whose acceleration is being calculated
-	 */
-	double _x;
-	double _y;
-	double _z;
-	
-	
-	
-	/**
-	 * Softening length
-	 */
-	const double _a;
-	
-	/**
-	 * We accumulate the acceleration here
-	 */
-	double _acc_x;
-	double _acc_y;
-	double _acc_z;
 };
 
 #endif  //BARNES_HUT_HPP
