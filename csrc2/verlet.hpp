@@ -1,3 +1,6 @@
+#ifndef _VERLET_HPP
+#define _VERLET_HPP
+
 /**
  * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
@@ -17,8 +20,7 @@
  * Integrate an Ordinary Differential Equation using the Verlet algorithm
  */
  
-#ifndef _VERLET_HPP
-#define _VERLET_HPP
+
 
 #include "configuration.hpp"
 #include "treecode.hpp"
@@ -91,42 +93,7 @@ class Verlet {
 	void run( int max_iter,const double dt);
 };
 
-// ================================= legacy code starts here ====================================
 
-void  euler(Particle& particles,double dt);
-
-/**
- *  First half of Verlet algorithm - update positions
- *
- *  dt                Time step
- *  particles         Vector of particles
- */
-void  verlet_positions(Particle& particles,double dt);
-
-/**
- *  Second half of Verlet algorithm - update velocities
- *
- *  dt                Time step
- *  particles         Vector of particles
- */
-void  verlet_velocities(Particle& particles,double dt);
-
-/**
- * Integrate by taking one Euler step, followed by repeated Verlet steps. 
- *
- *  get_acceleration  Used to determine acceleration of all particles
- *  dt                Time step
- *  particles         Vector of particles
- *  shouldContinue    Used after each iteration, for reporting and to determine whher to continue
- *  start_iterations  Initial iteration number. Normally zero, but non-zero if we resume after an earlier run
- */
-void run_verlet(void (*get_acceleration)(vector<Particle*>),
-				int max_iter,
-				double dt,
-				unique_ptr<Particle[]> particles,
-				int n,
-				bool (*shouldContinue)(unique_ptr<Particle[]>& particles,int iter),
-				int start_iterations);
 
 
 
