@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,9 @@
 
 #include <vector>
 #include "treecode.hpp"
+
 using namespace std;
+
 /**
  * Used to calculate centre of mass for Internal and External Nodes
  */
@@ -63,7 +65,7 @@ class CentreOfMassCalculator : public Node::Visitor {
 	/**
 	 * Indicates whether each particle has been processed
 	 */
-	vector<bool> _processed_particle;              //FIXME - change to unique_ptr
+	vector<bool> _processed_particle; 
 };
 
 #endif   //_CENTRE_OF_MASS_HPP

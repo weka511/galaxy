@@ -2,7 +2,7 @@
 #define _TREECODE_HPP
 
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,13 @@
 using namespace std;
 
 /**
- *  Represents one node in Barnes Hut Octree
+ *  Represents one node in an Oct Tree. The space is partitioned into cubes,
+ *  each associated with one node.
+ *
+ *  Node                                Associated Cube
+ *  Unused   - Terminal Node            Empty cube
+ *  External - Terminal Node            Cube contains precisely one particle
+ *  Internal  - precosly 8 child nodes  Cube is subdivided into smaller cubes
  */
 class Node {
   public:
@@ -64,6 +70,7 @@ class Node {
       * associated particle instead of one of these values.
 	  */
   	enum Status {Internal=-2, Unused=-1};
+	
  private:	
 	/**
 	 *   Used to ensure we have an octree
@@ -90,7 +97,6 @@ class Node {
 	 * Bounding box for Node. This will be subdivided as we move down the tree
 	 */
 	double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax, _xmean, _ymean, _zmean;
-  private:
 	
 	/**
 	 * Descendants of this node - only for an Internal Node
@@ -114,14 +120,13 @@ class Node {
 	/**
 	 * Create an oct-tree from a set of particles
 	 */
-	static unique_ptr<Node> create(unique_ptr<Particle[]> &particles, int n);
+	static unique_ptr<Node> create(unique_ptr<Particle[]> &particles, int n); //FIXME - Issue 61
 	
 	/**
 	 * Number of nodes allocated: used in testing
 	 */
 	 
 	 static int get_count();
-
 
 
 	/**
@@ -157,9 +162,9 @@ class Node {
 	 * Set mass and centre of mass
 	 */
 	void set_mass_and_centre(double m, double x, double y, double z) {
-		_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
-		_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
-		_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
+		_verify_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
+		_verify_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
+		_verify_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
 		_m = m;
 		_x = x;
 		_y = y;
@@ -183,24 +188,17 @@ class Node {
     */
 	static tuple<double,double> get_limits(unique_ptr<Particle[]> &particles, int n, const double epsilon=0.0001);
 	
-	void validate(double x, double y, double z){
-		if (x<_xmin || _xmax<x || y<_ymin || _ymax<y || z<_zmin || _zmax<z) {
-			cerr<<__FILE__ <<", " <<__LINE__<< "Status: "<< getStatus()<<endl;
-			cerr << getStatus()<< " "<<_xmin << ", " << x << ", " << _xmax << endl;
-			cerr << getStatus()<< " "<<_ymin << ", " << y << ", " << _ymax << endl;
-			cerr << getStatus()<< " "<<_zmin << ", " << z << ", " << _zmax << endl;
-			stringstream message;
-			message<<__FILE__ <<", " <<__LINE__<<" Centre of mass out of range - see logfile."<<endl; 
-			throw logic_error(message.str().c_str()); 
-		}
-	}
+	/**
+	 * Used by center-of-mass.cpp as a sanity check.
+	 */
+	void validate(double x, double y, double z);
 	
   private:
 	
 	/**
 	 * Used to map a triple to an octant
 	 */
-	inline int _get_child_index(int i, int j, int k) {return 4*i+2*j+k;}
+	inline int _triple_to_octant(int i, int j, int k) {return 4*i+2*j+k;}
 	
 	/**
 	 * Find correct subtree to store particle, using bounding rectangular box
@@ -229,13 +227,7 @@ class Node {
 	/**
 	 *  Check that a point really does belong in this cube.
 	 */
-	inline void _check_range(string wname,double w,double wmin,double wmax,string file=__FILE__,int line=__LINE__) {
-		if (w < wmin || w > wmax) {
-			stringstream message;
-			message<<file <<" " <<line << " particle " << _particle_index <<":"<<wname <<" out of range: " <<w<< " (" << wmin << "," << wmax << ")";
-			throw  logic_error(message.str().c_str());
-		}
-	}
+	void _verify_range(string wname,double w,double wmin,double wmax,string file=__FILE__,int line=__LINE__);
 };
 
 #endif   // _TREECODE_HPP

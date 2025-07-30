@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,15 +16,20 @@
  */
  
 #include "center-of-mass.hpp"
-#include <algorithm>
+
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
 #include <limits>
-#include <stdlib.h>
+
 
 using namespace std;
 
+ /**
+  * Create CentreOfMassCalculator and mark all particles not processed
+  *  Parameters:
+  *   	particles These are the particles whose centre of mass is to be calculated. 
+  */
 CentreOfMassCalculator::CentreOfMassCalculator(unique_ptr<Particle[]> &particles, int n) 
   : _particles(particles) {
 	for (int i=0;i<n;i++)
@@ -36,10 +41,10 @@ CentreOfMassCalculator::CentreOfMassCalculator(unique_ptr<Particle[]> &particles
  */
 Node::Visitor::Status CentreOfMassCalculator::visit(Node * node) {
 	const int particle_index= node->getStatus();
-	if (particle_index >=0 ) {
+	if (particle_index >=0 ) {         // i.e. External node
 		_processed_particle[particle_index] = true;
-		double x,y,z;
 		auto pos = _particles[particle_index].get_position();
+		double x,y,z;
 		x = pos[0];
 		y = pos[1];
 		z = pos[2];

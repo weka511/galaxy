@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,23 +24,21 @@
 
 using namespace std;
 
-int Node::_count=0;
+int Node::_count=0;   // Initially tree is empty
 
 /**
- * Create a Node for a given region of space. Set it Unused until it has been added to Tree,
+ * Create an oct-tree from a set of particles
  */
- 
-Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id)
-  : 	_id(id),_particle_index(Unused),
-  	_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d),
-	_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
-	_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)) {
-	for (int i=0;i<N_Children;i++)
-		_child[i] = NULL;
-	_count++;
+unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){  // FIXME Issue #61
+	double zmin, zmax;
+	tie(zmin,zmax) = Node::get_limits(particles,n);
+	unique_ptr<Node> product = unique_ptr<Node>(new Node(zmin,zmax,zmin,zmax,zmin,zmax,"0"));
+
+	for (int index=0;index<n;index++)
+		product->insert(index,particles);
+
+	return product;
 }
-
-
 
 /**
  * Determine a cube that will serve as a bounding box for set of particles. 
@@ -69,19 +67,21 @@ tuple<double,double> Node::get_limits(unique_ptr<Particle[]>& particles,int n,co
 	return make_tuple(zmin,zmax);
 }
 
+
 /**
- * Create an oct-tree from a set of particles
+ * Create a Node for a given region of space. Set it Unused until it has been added to Tree,
  */
-unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){
-	double zmin, zmax;
-	tie(zmin,zmax) = Node::get_limits(particles,n);
-	unique_ptr<Node> product = unique_ptr<Node>(new Node(zmin,zmax,zmin,zmax,zmin,zmax,"0"));
-
-	for (int index=0;index<n;index++)
-		product->insert(index,particles);
-
-	return product;
+ 
+Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id)
+  : _id(id),_particle_index(Unused),
+  	_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d),
+	_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
+	_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)) {
+	for (int i=0;i<N_Children;i++)
+		_child[i] = NULL;
+	_count++;
 }
+
 
 /**
  * Insert one particle in tree.
@@ -94,29 +94,46 @@ void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
 	x = pos[0];
 	y = pos[1];
 	z = pos[2];
-	_check_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
-	_check_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
-	_check_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
+	_verify_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
+	_verify_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
+	_verify_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
 
 	const double epsilon=1e-12;
 	switch(_particle_index){
-		case Unused:   // we can add particle to Unused Node
+		case Unused:   // This Node is currently Unused, so we can add particle to it
 			_particle_index=new_particle_index;
 			return;
-		case Internal:  // we can add particle to appropriate subtree of Internal Node
+		case Internal:  // This Node is Internal, so we can add particle to the appropriate subtree
 			_child[_get_child_index(particles[new_particle_index])]->insert(new_particle_index,particles);
 			return;
-		default:     //oops - we already have a particle here, so have to move it
-			const int incumbent=_particle_index;
-			const double dsq=particles[new_particle_index].get_distance_sq(particles[incumbent]);
-			if (dsq<epsilon*(_xmax-_xmin)){
+		default:     // This Node is External, so we already have a particle here; we have to move it
+			const int incumbent = _particle_index;
+			if (particles[new_particle_index].get_distance_sq(particles[incumbent]) < epsilon*(_xmax-_xmin)){
 				stringstream message;
-				message<<"Particles "<<new_particle_index << " and " << incumbent << " within " << epsilon*(_xmax-_xmin) << " f each other"; 
+				message<<"Particles "<<new_particle_index << " and " << incumbent << " within " << epsilon*(_xmax-_xmin) << " of each other"; 
 				throw logic_error(message.str().c_str());
 			}
 			_pass_down(new_particle_index,incumbent,particles);
 	}
 }
+
+/**
+ * Find correct subtree to store particle, using bounding rectangular box.
+ * We split x, y, and z into halves, and determine which half each axis belongs to
+ */
+int Node::_get_child_index(Particle &particle) {
+	double x,y,z;
+	auto pos = particle.get_position();
+	x = pos[0];
+	y = pos[1];
+	z = pos[2];
+	const int i = (x > _xmean);
+	const int j = (y > _ymean);
+	const int k = (z > _zmean);
+	return _triple_to_octant(i,j,k);
+}
+
+// checked to here
 
 /**
  * Used when we have just split an External node, but the incumbent and new
@@ -142,21 +159,7 @@ void Node::_insert_or_propagate(int particle_index,int incumbent,unique_ptr<Part
 	}
 }
 
-/**
- * Find correct subtree to store particle, using bounding rectangular box.
- * We split x, y, and z into halves, and determine which half each axis belongs to
- */
-int Node::_get_child_index(Particle &particle) {
-	double x,y,z;
-	auto pos = particle.get_position();
-	x = pos[0];
-	y = pos[1];
-	z = pos[2];
-	const int i=x>_xmean;
-	const int j=y>_ymean;
-	const int k=z>_zmean;
-	return _get_child_index(i,j,k);
-}
+
 
 /**
  * Convert an External Node into an Internal one, and
@@ -192,8 +195,8 @@ void Node::_split_node() {
 				}
 
 				stringstream ss;
-				ss<<_id<<_get_child_index(i,j,k);
-				_child[_get_child_index(i,j,k)] = new Node(xmin, xmax, ymin, ymax, zmin, zmax,ss.str().c_str());
+				ss<<_id<<_triple_to_octant(i,j,k);
+				_child[_triple_to_octant(i,j,k)] = new Node(xmin, xmax, ymin, ymax, zmin, zmax,ss.str().c_str());
 	
 			}	// k
 		}		// j
@@ -248,3 +251,29 @@ Node::~Node() {
 }
 
 int Node::get_count() {return _count;}
+
+/**
+ * Used by center-of-mass.cpp as a sanity check.
+ */
+void Node::validate(double x, double y, double z){
+	if (x<_xmin || _xmax<x || y<_ymin || _ymax<y || z<_zmin || _zmax<z) {
+		cerr<<__FILE__ <<", " <<__LINE__<< "Status: "<< getStatus()<<endl;
+		cerr << getStatus()<< " "<<_xmin << ", " << x << ", " << _xmax << endl;
+		cerr << getStatus()<< " "<<_ymin << ", " << y << ", " << _ymax << endl;
+		cerr << getStatus()<< " "<<_zmin << ", " << z << ", " << _zmax << endl;
+		stringstream message;
+		message<<__FILE__ <<", " <<__LINE__<<" Centre of mass out of range - see logfile."<<endl; 
+		throw logic_error(message.str().c_str()); 
+	}
+}
+
+/**
+ *  Verify that a point really does belong in this cube.
+ */
+void Node::_verify_range(string wname,double w,double wmin,double wmax,string file,int line) {
+	if (w < wmin || w > wmax) {
+		stringstream message;
+		message<<file <<" " <<line << " particle " << _particle_index <<":"<<wname <<" out of range: " <<w<< " (" << wmin << "," << wmax << ")";
+		throw  logic_error(message.str().c_str());
+	}
+}

@@ -20,7 +20,7 @@
 #include "barnes-hut.hpp"
 
 /**
- *  Construct oct-tree from particles
+ *  Construct oct-tree from particles, and compute centre of mass for tree and its subtrees
  *
  *    particles
  */
