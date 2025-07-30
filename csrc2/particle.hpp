@@ -1,3 +1,6 @@
+#ifndef _PARTICLE_HPP
+#define _PARTICLE_HPP
+
 /**
  * Copyright (C) 2025 Simon Crase
  *
@@ -15,8 +18,7 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#ifndef _PARTICLE_HPP
-#define _PARTICLE_HPP
+
 
 #include <array>
 #include <iostream>

@@ -1,3 +1,6 @@
+ #ifndef _CONFIGURATION_HPP
+ #define _CONFIGURATION_HPP
+ 
 /**
  * Copyright (C) 2025 Simon Crase
  *
@@ -15,9 +18,6 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  *
  */
- 
- #ifndef _CONFIGURATION_HPP
- #define _CONFIGURATION_HPP
  
 #include <string> 
 #include <memory>

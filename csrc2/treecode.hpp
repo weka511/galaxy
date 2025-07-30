@@ -1,3 +1,6 @@
+#ifndef _TREECODE_HPP
+#define _TREECODE_HPP
+
 /**
  * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
@@ -15,8 +18,7 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#ifndef _TREECODE_HPP
-#define _TREECODE_HPP
+
 
 #include <memory>
 #include <sstream>
