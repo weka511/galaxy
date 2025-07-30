@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +15,7 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <assert.h> 
 #include <cmath>
-#include <iostream>
 #include "physics.hpp"
 
 using namespace std;
@@ -46,7 +44,7 @@ double Physics::get_kinetic_energy(unique_ptr<Particle[]> &particles, int n) {
 		auto mass = particles[i].get_mass();
 		auto velocity = particles[i].get_velocity();
 		for (int j=0;j<3;j++)
-			sum+=mass*sqr(velocity[j]);
+			sum += mass*sqr(velocity[j]);
 	}
 	return 0.5*sum;
 }

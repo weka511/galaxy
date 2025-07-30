@@ -2,7 +2,7 @@
 #define _PHYSICS_HPP
 
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 
 
 #include <memory>
-#include "configuration.hpp"
+#include "particle.hpp"
 
 using namespace std;
 
