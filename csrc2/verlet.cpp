@@ -19,9 +19,6 @@
  * See http://physics.ucsc.edu/~peter/242/leapfrog.pdf
  */
  
- 
-#include <algorithm>
-#include <cmath>
 #include <iostream>
 #include "acceleration.hpp"
 #include "verlet.hpp"
