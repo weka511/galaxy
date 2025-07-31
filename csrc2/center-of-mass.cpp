@@ -61,7 +61,7 @@ void CentreOfMassCalculator::record_particle(Node * node,const int particle_inde
 /**
  *  For an internal note we need to accumulate the mass and positions for each child
  */
-void CentreOfMassCalculator::propagate(Node * node,Node * child){
+void CentreOfMassCalculator::farewell(Node * node,Node * child){
 	if (node->getStatus() == Node::Internal) 
 		node->accumulatePhysics(child);
 }

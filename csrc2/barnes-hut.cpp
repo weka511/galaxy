@@ -56,7 +56,7 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 			 * Is this node distant enough that its particles can be lumped?
 			 */
 			auto l_sqr=sqr(node->getSide());
-			if (l_sqr/dsq_node < _theta_squared) {
+			if (l_sqr/dsq_node < _theta_squared) { // I have checked against Barnes and Hut's paper - they recommend 1.0 for theta
 				_accumulate_acceleration(m,x,y,z,dsq_node);
 				return Node::Visitor::Status::DontDescend;
 			} else

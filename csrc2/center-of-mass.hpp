@@ -55,7 +55,7 @@ class CentreOfMassCalculator : public Node::Visitor {
 	/**
 	 *  For an internal note we need to accumulate the mass and positions for each child
 	 */
-	virtual void propagate(Node * node,Node * child);
+	virtual void farewell(Node * node,Node * child);
 	
 	/**
 	* This is called when we finish processing a Node, which means that all children 

@@ -78,7 +78,7 @@ class BarnesHutVisitor :  public Node::Visitor{
    *
    *  index   Keep track of particle index so we don't calculate acceleration of particle caused by itself!
    *  me      Particle being processed
-   *  theta   Angle for Barnes G=Hut cutoff
+   *  theta   Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
    *  G       Gravitational constant
    *  a       Softening length
    */

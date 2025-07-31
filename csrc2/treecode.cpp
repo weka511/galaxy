@@ -195,7 +195,7 @@ bool Node::traverse(Visitor & visitor) {
 				bool should_continue=true;
 				for (int i=0;i<N_Children && should_continue;i++) {
 					should_continue = _child[i]->traverse(visitor);
-					visitor.propagate(this,_child[i]);
+					visitor.farewell(this,_child[i]);
 				}
 				if (should_continue)
 					return visitor.depart(this);

@@ -56,7 +56,7 @@ class Node {
 		/**
 		 *  Called once for each child Node, immediately after vist
 		 */
-		virtual void propagate(Node * node,Node * child){;}
+		virtual void farewell(Node * node,Node * child){;}
 			
 		/**
 		 *  Called once for each Internal Node, after all children have been visited
