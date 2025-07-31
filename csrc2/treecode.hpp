@@ -21,8 +21,7 @@
 
 
 #include <memory>
-#include <sstream>
-#include <string>
+
 #include <tuple>
 #include "particle.hpp"
 
@@ -45,14 +44,14 @@ class Node {
 	class Visitor {
 	  public:
 		enum Status{
-			Stop,     // abandon the traversal
-			Continue, // keep traversing
-			DontDescend // do not vist any more children of this node
+			Stop,        // abandon the traversal
+			Continue,    // keep traversing
+			DontDescend  // do not vist any more children of this node
 		};
 		/**
 		 * Called once for each node in tree, before any children are processed
 		 */
-		virtual Status visit(Node * node)=0;
+		virtual Status visit(Node * node) = 0;
 			
 		/**
 		 *  Called once for each child Node, immediately after vist
@@ -62,7 +61,7 @@ class Node {
 		/**
 		 *  Called once for each Internal Node, after all children have been visited
 		 */
-		virtual bool depart(Node * node) {return true;};
+		virtual bool depart(Node * node) {return true;}
 	  };
   
    /**
@@ -76,8 +75,6 @@ class Node {
 	 *   Used to ensure we have an octree
 	 */
 	enum {N_Children=8};
-	
-	string _id;
 	
 	/**
 	 * Indicates type of node. External Nodes use the index of the
@@ -113,7 +110,7 @@ class Node {
 	  *  Create one node for tree. I have made this private, 
 	  *  as clients should use the factory method Node::create(...)
 	  */	
-	Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id);
+	Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax);
 	
   public:
   
@@ -203,7 +200,7 @@ class Node {
 	/**
 	 * Find correct subtree to store particle, using bounding rectangular box
 	 */
-	int _get_child_index(Particle & particle);
+	int _get_octant_number(Particle & particle);
 	
 	/**
 	 * Used when we have just split an External node, but the incumbent and new

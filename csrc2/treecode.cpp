@@ -15,11 +15,11 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#include <algorithm>
 #include <iostream>
 #include <limits>
-#include <sstream>
 #include <stdexcept>
+#include <sstream>
+#include <string>
 #include "treecode.hpp"
 
 using namespace std;
@@ -32,7 +32,7 @@ int Node::_count=0;   // Initially tree is empty
 unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){  // FIXME Issue #61
 	double zmin, zmax;
 	tie(zmin,zmax) = Node::get_limits(particles,n);
-	unique_ptr<Node> product = unique_ptr<Node>(new Node(zmin,zmax,zmin,zmax,zmin,zmax,"0"));
+	unique_ptr<Node> product = unique_ptr<Node>(new Node(zmin,zmax,zmin,zmax,zmin,zmax));
 
 	for (int index=0;index<n;index++)
 		product->insert(index,particles);
@@ -72,8 +72,8 @@ tuple<double,double> Node::get_limits(unique_ptr<Particle[]>& particles,int n,co
  * Create a Node for a given region of space. Set it Unused until it has been added to Tree,
  */
  
-Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id)
-  : _id(id),_particle_index(Unused),
+Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax)
+  : _particle_index(Unused),
   	_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d),
 	_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
 	_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)) {
@@ -104,7 +104,7 @@ void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
 			_particle_index=new_particle_index;
 			return;
 		case Internal:  // This Node is Internal, so we can add particle to the appropriate subtree
-			_child[_get_child_index(particles[new_particle_index])]->insert(new_particle_index,particles);
+			_child[_get_octant_number(particles[new_particle_index])]->insert(new_particle_index,particles);
 			return;
 		default:     // This Node is External, so we already have a particle here; we have to move it
 			const int incumbent = _particle_index;
@@ -121,7 +121,7 @@ void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
  * Find correct subtree to store particle, using bounding rectangular box.
  * We split x, y, and z into halves, and determine which half each axis belongs to
  */
-int Node::_get_child_index(Particle &particle) {
+int Node::_get_octant_number(Particle &particle) {
 	double x,y,z;
 	auto pos = particle.get_position();
 	x = pos[0];
@@ -133,7 +133,6 @@ int Node::_get_child_index(Particle &particle) {
 	return _triple_to_octant(i,j,k);
 }
 
-// checked to here
 
 /**
  * Used when we have just split an External node, but the incumbent and new
@@ -144,18 +143,20 @@ void Node::_pass_down(int new_particle_index,int incumbent,unique_ptr<Particle[]
 	_insert_or_propagate(new_particle_index,incumbent,particles);
 } 
 
+// checked to here
+
 /**
  * Used when we have just split an External node, so we need to pass
  * the incumbent and a new particle down the tree
  */
 void Node::_insert_or_propagate(int particle_index,int incumbent,unique_ptr<Particle[]> &particles) {
-	const int child_index_new=_get_child_index(particles[particle_index]);
-	const int child_index_incumbent=_get_child_index(particles[incumbent]);
-	if (child_index_new==child_index_incumbent)
-		_child[child_index_incumbent]->_pass_down(particle_index,incumbent,particles);
+	const int octant_number_new = _get_octant_number(particles[particle_index]);
+	const int child_index_incumbent = _get_octant_number(particles[incumbent]);
+	if (octant_number_new ==  child_index_incumbent)
+		_child[ child_index_incumbent]->_pass_down(particle_index,incumbent,particles);
 	else {
-		_child[child_index_new]->insert(particle_index,particles);
-		_child[child_index_incumbent]->insert(incumbent,particles);
+		_child[octant_number_new]->insert(particle_index,particles);
+		_child[ child_index_incumbent]->insert(incumbent,particles);
 	}
 }
 
@@ -163,13 +164,14 @@ void Node::_insert_or_propagate(int particle_index,int incumbent,unique_ptr<Part
 
 /**
  * Convert an External Node into an Internal one, and
- * determine bounding boxes for children, so we can 
- * Propagate particle down
+ * partition bounding box into eight, one for each child, so we can 
+ * assign particle to a member of the partition.
  */
 void Node::_split_node() {
-	_particle_index=Internal;
-	double xmin, xmax, ymin, ymax, zmin, zmax;
+	_particle_index = Internal;
+	
 	for (int i=0;i<2;i++) {
+		double xmin, xmax;
 		if (i == 0) {
 			xmin = _xmin;
 			xmax = _xmean;
@@ -178,6 +180,7 @@ void Node::_split_node() {
 			xmax = _xmax;
 		}
 		for (int j=0;j<2;j++) {
+			double ymin, ymax;
 			if (j == 0) {
 				ymin = _ymin;
 				ymax = _ymean;
@@ -186,6 +189,7 @@ void Node::_split_node() {
 				ymax = _ymax;
 			}
 			for (int k=0;k<2;k++) {
+				double zmin, zmax;
 				if (k==0) {
 					zmin = _zmin;
 					zmax = _zmean;
@@ -194,9 +198,7 @@ void Node::_split_node() {
 					zmax = _zmax;
 				}
 
-				stringstream ss;
-				ss<<_id<<_triple_to_octant(i,j,k);
-				_child[_triple_to_octant(i,j,k)] = new Node(xmin, xmax, ymin, ymax, zmin, zmax,ss.str().c_str());
+				_child[_triple_to_octant(i,j,k)] = new Node(xmin, xmax, ymin, ymax, zmin, zmax);
 	
 			}	// k
 		}		// j
@@ -214,7 +216,7 @@ bool Node::visit(Visitor & visitor) {
 			if (_particle_index==Internal){
 				bool should_continue=true;
 				for (int i=0;i<N_Children&&should_continue;i++) {
-					should_continue=_child[i]->visit(visitor);
+					should_continue = _child[i]->visit(visitor);
 					visitor.propagate(this,_child[i]);
 				}
 				return should_continue ? visitor.depart(this) : false;		
@@ -250,6 +252,9 @@ Node::~Node() {
 	Node::_count--;
 }
 
+/**
+ * Used to get number of Nodes - normally to make sure tree has been destructed.
+ */
 int Node::get_count() {return _count;}
 
 /**
