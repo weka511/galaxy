@@ -19,7 +19,7 @@
  
 #include "catch.hpp"
 #include "treecode.hpp"
-#include "particle.hpp"
+
 using namespace std;
 
 
@@ -66,5 +66,19 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		REQUIRE(Node::get_count() == 17);
 	}
 	
+	SECTION("3rd layer Tree Insert: https://www.cs.princeton.edu/courses/archive/fall03/cs126/assignments/barnes-hut.html") {
+		unique_ptr<Particle[]> particles = make_unique<Particle[]>(8);
+		auto i = 0;
+		particles[i++].init(array{-2.0,2.0,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{1.5,3.5,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{0.5,2.5,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{2.5,0.5,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{-3.0,-1.0,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{-3.0,-3.0,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{-1.0,-3.0,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{2.0,-2.0,0.0},array{0.0,0.0,0.0},1.0,0);
+		unique_ptr<Node> tree = Node::create(particles,i);
+		REQUIRE(Node::get_count() == 33);
+	}
 	REQUIRE(Node::get_count() == 0);
 }
