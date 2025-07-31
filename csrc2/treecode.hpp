@@ -225,6 +225,16 @@ class Node {
 	 *  Check that a point really does belong in this cube.
 	 */
 	void _verify_range(string wname,double w,double wmin,double wmax,string file=__FILE__,int line=__LINE__);
+	 
+	/**
+	 *   Used when we split the box associated with a Node
+	 */
+	inline tuple<double,double> _get_refined_bounds(int i,double wmin, double wmax, double wmean){
+		if (i == 0)
+			return make_tuple(wmin, wmean);
+		else
+			return make_tuple(wmean, wmax);
+	}
 };
 
 #endif   // _TREECODE_HPP

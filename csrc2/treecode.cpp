@@ -41,7 +41,7 @@ unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){  // FIX
 }
 
 /**
- * Determine a cube that will serve as a bounding box for set of particles. 
+ * Determine a cube that will serve as a bounding box for the set of particles. 
  * Make it slightly larger than strictly needed,
  * so everything is guaranteed to be inside box
  */
@@ -143,8 +143,6 @@ void Node::_pass_down(int new_particle_index,int incumbent,unique_ptr<Particle[]
 	_insert_or_propagate(new_particle_index,incumbent,particles);
 } 
 
-// checked to here
-
 /**
  * Used when we have just split an External node, so we need to pass
  * the incumbent and a new particle down the tree
@@ -172,37 +170,17 @@ void Node::_split_node() {
 	
 	for (int i=0;i<2;i++) {
 		double xmin, xmax;
-		if (i == 0) {
-			xmin = _xmin;
-			xmax = _xmean;
-		} else {
-			xmin = _xmean;
-			xmax = _xmax;
-		}
+		tie (xmin,xmax) = _get_refined_bounds(i, _xmin,  _xmax,  _xmean);
 		for (int j=0;j<2;j++) {
 			double ymin, ymax;
-			if (j == 0) {
-				ymin = _ymin;
-				ymax = _ymean;
-			} else {
-				ymin = _ymean;
-				ymax = _ymax;
-			}
+			tie (ymin,ymax) = _get_refined_bounds(j, _ymin,  _ymax,  _ymean);
 			for (int k=0;k<2;k++) {
-				double zmin, zmax;
-				if (k==0) {
-					zmin = _zmin;
-					zmax = _zmean;
-				} else {
-					zmin = _zmean;
-					zmax = _zmax;
-				}
-
+				double zmin,zmax;
+				tie (zmin,zmax) = _get_refined_bounds(k, _zmin,  _zmax,  _zmean);
 				_child[_triple_to_octant(i,j,k)] = new Node(xmin, xmax, ymin, ymax, zmin, zmax);
-	
-			}	// k
-		}		// j
-	}			// i
+			}
+		}
+	}
 } 
 
 /**
