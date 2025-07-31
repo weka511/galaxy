@@ -159,7 +159,7 @@ def parse_args():
     n = 100
     path = '../configs'
     r = 1.0
-    theta = 0.5
+    theta = 1.0    # Reccommnded value from Barnes & Hut
     sigma = 2.0
     G = 1.0
 
