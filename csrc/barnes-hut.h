@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,22 +23,24 @@
 #include "treecode.h"
 #include "utils.h"
 
+using namespace std;
+
 /**
  * Calculate acceleration for all particles
  */
-void get_acceleration(std::vector<Particle*>&,const double theta,const double G,const double softening_length);
+void get_acceleration(vector<Particle*>&,const double theta,const double G,const double softening_length);
 
 /**
  *  Construct oct-tree from particles
  *
  *    particles
  */
-Node * create_tree(std::vector<Particle*>& particles);
+Node * create_tree(vector<Particle*>& particles);
 
 /**
  * Calculate acceleration for one specific particle
  */
-void get_acceleration(int i, std::vector<Particle*>& particles,Node * root,const double theta,const double G,const double a);
+void get_acceleration(int i, vector<Particle*>& particles,Node * root,const double theta,const double G,const double a);
 
 /**
  *  This class is used to calculate the acceleration of one particle 

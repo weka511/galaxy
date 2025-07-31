@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include <limits>
 #include <stdexcept>
 #include <sstream>
+using namespace std;
 
 int Node::_count=0;
 
@@ -29,7 +30,7 @@ int Node::_count=0;
  */
  
 #ifdef _RUNTIME_CHECKS
-	Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,std::string id)
+	Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax,string id)
 	  : _particle_index(Unused),
 		_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
 		_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)),
@@ -58,14 +59,14 @@ int Node::_count=0;
  * Determine the bounding box for set of particles. Make it slightly 
  * larger than strictly needed, so everything is guaranteed to be inside box
  */
-void Node::get_limits(std::vector<Particle*>& particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax,const double epsilon){
-	xmin=std::numeric_limits<double>::max();
+void Node::get_limits(vector<Particle*>& particles,double& xmin,double& xmax,double& ymin,double& ymax,double& zmin,double& zmax,const double epsilon){
+	xmin=numeric_limits<double>::max();
 	xmax=-xmin;
-	ymin=std::numeric_limits<double>::max();
+	ymin=numeric_limits<double>::max();
 	ymax=-ymin;
-	zmin=std::numeric_limits<double>::max();
+	zmin=numeric_limits<double>::max();
 	zmax=-zmin;
-	std::for_each(particles.begin(),
+	for_each(particles.begin(),
 					particles.end(),
 					[&xmin,&xmax,&ymin,&ymax,&zmin,&zmax](Particle* particle){
 						double x,y,z;
@@ -78,8 +79,8 @@ void Node::get_limits(std::vector<Particle*>& particles,double& xmin,double& xma
 						if (z>zmax) zmax=z;
 					});
 	
-	zmin=std::min(xmin,std::min(ymin,zmin));
-	zmax=std::max(xmax,std::max(ymax,zmax));
+	zmin=min(xmin,min(ymin,zmin));
+	zmax=max(xmax,max(ymax,zmax));
 	if (zmin<0) zmin*=(1+epsilon); else zmin/=(1+epsilon);
 	if (zmax<0) zmax/=(1+epsilon); else zmax*=(1+epsilon);
 	xmin=ymin=zmin;
@@ -89,7 +90,7 @@ void Node::get_limits(std::vector<Particle*>& particles,double& xmin,double& xma
 /**
  * Create an oct-tree from a set of particles
  */
-Node * Node::create(std::vector<Particle*>& particles){
+Node * Node::create(vector<Particle*>& particles){
 	double xmin, xmax, ymin, ymax, zmin, zmax;
 	Node::get_limits(particles,xmin, xmax, ymin, ymax, zmin, zmax);
 	#ifdef _RUNTIME_CHECKS
@@ -107,7 +108,7 @@ Node * Node::create(std::vector<Particle*>& particles){
  *
  * Recursively descend until we find an empty node.
  */
-void Node::insert(int new_particle_index,std::vector<Particle*>& particles) {
+void Node::insert(int new_particle_index,vector<Particle*>& particles) {
 
 	#ifdef _RUNTIME_CHECKS
 		double x,y,z; 
@@ -128,9 +129,9 @@ void Node::insert(int new_particle_index,std::vector<Particle*>& particles) {
 			const int incumbent=_particle_index;
 			const double dsq=particles[new_particle_index]->get_distance_sq(particles[incumbent]);
 			if (dsq<epsilon*(_xmax-_xmin)){
-				std::stringstream message;
+				stringstream message;
 				message<<"Particles "<<new_particle_index << " and " << incumbent << " within " << epsilon*(_xmax-_xmin) << " f each other"; 
-				throw std::logic_error(message.str().c_str());
+				throw logic_error(message.str().c_str());
 			}
 			_pass_down(new_particle_index,incumbent,particles);
 	}
@@ -140,7 +141,7 @@ void Node::insert(int new_particle_index,std::vector<Particle*>& particles) {
  * Used when we have just split an External node, but the incumbent and new
  * node both want to occupy the same child.
  */
-void Node::_pass_down(int new_particle_index,int incumbent,std::vector<Particle*>& particles) {
+void Node::_pass_down(int new_particle_index,int incumbent,vector<Particle*>& particles) {
 	_split_node();
 	_insert_or_propagate(new_particle_index,incumbent,particles);
 } 
@@ -149,7 +150,7 @@ void Node::_pass_down(int new_particle_index,int incumbent,std::vector<Particle*
  * Used when we have just split an External node, so we need to pass
  * the incumbent and a new particle down the tree
  */
-void Node::_insert_or_propagate(int particle_index,int incumbent,std::vector<Particle*>& particles) {
+void Node::_insert_or_propagate(int particle_index,int incumbent,vector<Particle*>& particles) {
 	const int child_index_new=_get_child_index(particles[particle_index]);
 	const int child_index_incumbent=_get_child_index(particles[incumbent]);
 	if (child_index_new==child_index_incumbent)
@@ -206,7 +207,7 @@ void Node::_split_node() {
 					zmax=_zmax;
 				}
 				#ifdef _RUNTIME_CHECKS
-					std::stringstream ss;
+					stringstream ss;
 					ss<<_id<<_get_child_index(i,j,k);
 					_child[_get_child_index(i,j,k)]=new Node(xmin, xmax, ymin, ymax, zmin, zmax,ss.str().c_str());
 				#else

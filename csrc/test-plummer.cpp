@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,17 +26,18 @@
 #include "physics.h"
 #include "plummer.h"
 #include "utils.h"
+using namespace std;
 
 TEST_CASE( "Plummer Tests for mass distribution", "[plummer]" ) {
-	const double q1=std::pow(std::pow(2.0,4.0/3.0)-1,-0.5);
-	const double q2=std::pow(std::pow(2.0,2.0/3.0)-1,-0.5);
-	const double q3=std::pow(std::pow(2.0,4.0/3.0)*std::pow(3.0,-2.0/3.0)-1,-0.5);
-	std::vector<double> q1s;
-	std::vector<double> q2s;
-	std::vector<double> q3s;
+	const double q1=pow(pow(2.0,4.0/3.0)-1,-0.5);
+	const double q2=pow(pow(2.0,2.0/3.0)-1,-0.5);
+	const double q3=pow(pow(2.0,4.0/3.0)*pow(3.0,-2.0/3.0)-1,-0.5);
+	vector<double> q1s;
+	vector<double> q2s;
+	vector<double> q3s;
 	for (int i=0;i<100;i++){
 		PlummerFactory factory (1000,1,  1,  1,i);
-		std::vector<Particle*> particles = factory.create( );
+		vector<Particle*> particles = factory.create( );
 		double x0=0,y0=0,z0=0,m_total=0;
 		for (int i=0;i<particles.size();i++){
 			double x,y,z;
@@ -46,17 +47,17 @@ TEST_CASE( "Plummer Tests for mass distribution", "[plummer]" ) {
 		}
 		x0/=m_total;y0/=m_total;z0/=m_total;
 
-		std::vector<double> distances;
+		vector<double> distances;
 		for (int i=0;i<particles.size();i++){
 			double x,y,z;
 			particles[i]->getPos(x,y,z);
 			distances.push_back(sqr(x-x0)+sqr(y-y0)+sqr(z-z0));
 		}
-		std::sort (distances.begin(), distances.end()); 
+		sort (distances.begin(), distances.end()); 
 
-		q1s.push_back(std::sqrt(distances[distances.size()/4-1]) );
-		q2s.push_back(std::sqrt(distances[distances.size()/2-1]) );
-		q3s.push_back(std::sqrt(distances[3*distances.size()/4-1]) );
+		q1s.push_back(sqrt(distances[distances.size()/4-1]) );
+		q2s.push_back(sqrt(distances[distances.size()/2-1]) );
+		q3s.push_back(sqrt(distances[3*distances.size()/4-1]) );
 	}
 	
 	const double mean1 = mean(q1s);
@@ -69,12 +70,12 @@ TEST_CASE( "Plummer Tests for mass distribution", "[plummer]" ) {
 
 TEST_CASE( "Plummer Tests for energy", "[plummer]" ) {
 
-	std::vector<double> Ts;
-	std::vector<double> Vs;
-	std::vector<double> ratios;
+	vector<double> Ts;
+	vector<double> Vs;
+	vector<double> ratios;
 	for (int i=0;i<100;i++){
 		PlummerFactory factory (1000,1,  1,  1,i);
-		std::vector<Particle*> particles = factory.create( );
+		vector<Particle*> particles = factory.create( );
 		double mass=factory.zero_centre_mass(particles);
 		factory.zero_linear_momentum(particles,mass);
 		const double T=get_kinetic_energy(particles);
@@ -86,14 +87,14 @@ TEST_CASE( "Plummer Tests for energy", "[plummer]" ) {
 
 	const double meanT=mean(Ts);
 	const double meanV=mean(Vs);
-	std::cout << "<T>=" << meanT << "("<< stdev(Ts,meanT)<<"), <V>="<<  meanV <<  "("<< stdev(Vs,meanV)<<"), "<< std::endl;
-	std::cout << "Ratio=(" <<
+	cout << "<T>=" << meanT << "("<< stdev(Ts,meanT)<<"), <V>="<<  meanV <<  "("<< stdev(Vs,meanV)<<"), "<< endl;
+	cout << "Ratio=(" <<
 				-2.0 * meanT/meanV - stdev(Ts,meanT)+stdev(Vs,meanV) << ","<<
-				-2.0 * meanT/meanV + stdev(Ts,meanT)+stdev(Vs,meanV)<< ")" << std::endl;
-	std::cout << "Ratio =(" <<
+				-2.0 * meanT/meanV + stdev(Ts,meanT)+stdev(Vs,meanV)<< ")" << endl;
+	cout << "Ratio =(" <<
 		mean(ratios)- stdev(ratios,mean(ratios),true) << "," <<
 		mean(ratios)+ stdev(ratios,mean(ratios),true) << ")"
-		<<std::endl;
+		<<endl;
 	REQUIRE(mean(ratios)==Approx(2).epsilon( stdev(ratios,2)) );
 	REQUIRE(meanT==Approx(-0.5*meanV).epsilon(stdev(Ts,meanT)+stdev(Vs,meanV)));
 

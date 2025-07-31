@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,10 @@
 #include <iostream>
 #include "particle-factory.h"
 #include "physics.h"
+using namespace std;
 
-std::vector<Particle*> ParticleFactory::create(std::string name){
-	std::vector<Particle*> product;
+vector<Particle*> ParticleFactory::create(string name){
+	vector<Particle*> product;
 	tinyxml2::XMLDocument doc;
     doc.LoadFile( name.c_str() );
 
@@ -39,7 +40,7 @@ std::vector<Particle*> ParticleFactory::create(std::string name){
 		double vx,vy,vz;
 		_get_attr(element,"vel",vx,vy,vz);
 		_factory->setNumBodies(numbodies);
-		std::vector<Particle*> cluster=_factory->create();
+		vector<Particle*> cluster=_factory->create();
 		_fix_centre_mass_and_linear_momentum(cluster,x,y,x,vx,vy,vz);
 		product.insert( product.end(), cluster.begin(), cluster.end() );
 	}
@@ -58,30 +59,30 @@ int ParticleFactory::_count_bodies(tinyxml2::XMLElement *system) {
 	return count;
 }
 
-int ParticleFactory::_get_attr(tinyxml2::XMLElement * element,std::string name,const int default_value){
+int ParticleFactory::_get_attr(tinyxml2::XMLElement * element,string name,const int default_value){
 	char * key=const_cast<char*>(name.c_str());
 	const char * attr=element->Attribute(key);
 	return attr==NULL? default_value : atoi(attr);		
 }
 
-void ParticleFactory::_get_attr(tinyxml2::XMLElement * element,std::string name,double &x,double &y,double &z){
+void ParticleFactory::_get_attr(tinyxml2::XMLElement * element,string name,double &x,double &y,double &z){
 	char * key=const_cast<char*>(name.c_str());
-	std::string attr=element->Attribute(key);
-	std::size_t found1 = attr.find(',');
+	string attr=element->Attribute(key);
+	size_t found1 = attr.find(',');
 	x=atof(attr.substr(0,found1).c_str());
-	std::size_t found2 = attr.find(',',found1+1);
+	size_t found2 = attr.find(',',found1+1);
 	y=atof(attr.substr(found1+1,found2-found1-1).c_str());
 	z=atof(attr.substr(found2+1).c_str());
 }
 
-void ParticleFactory::_fix_centre_mass_and_linear_momentum(std::vector<Particle*> particles,
+void ParticleFactory::_fix_centre_mass_and_linear_momentum(vector<Particle*> particles,
 	double xc, double yc, double zc,double vxc, double vyc, double vzc) {
 
 	double x0,y0,z0;
 	get_centre_of_mass(particles,x0,y0,z0);
 
 	double total_mass=0;
-	for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {
+	for (vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {
 		double x,y,z;
 		(*it)->getPos(x,y,z);
 		x+=(xc-x0);y+=(yc-y0);z+=(zc-z0);
@@ -91,7 +92,7 @@ void ParticleFactory::_fix_centre_mass_and_linear_momentum(std::vector<Particle*
 	
 	double px0,py0,pz0;
 	get_momentum(particles,px0,py0,pz0);
-	for (std::vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {	
+	for (vector<Particle*>::iterator it = particles.begin() ; it != particles.end(); ++it) {	
 		double vx,vy,vz;
 		(*it)->getVel(vx,vy,vz);
 		vx+=(vxc-px0/total_mass);vy+=(vyc-py0/total_mass);vz+=(vzc-pz0/total_mass);

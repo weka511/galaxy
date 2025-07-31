@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2019 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@
 #include "spdlog/spdlog.h"
 
 namespace spd = spdlog;
+using namespace std;
 
 Configuration configuration;
 
@@ -47,21 +48,20 @@ Configuration configuration;
  * Main program. Parse command line options, create bodies, then run simulation.
  */
 int main(int argc, char **argv) {
-	std::cout << VERSION << std::endl;
+	cout << VERSION << endl;
 	try {
-		std::string log_path="./logs/";
+		string log_path="./logs/";
 		ensure_path_exists(log_path);
-		auto daily_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_path+"logfile", 23, 59);
-		auto logger = std::make_shared<spdlog::logger>("galaxy", daily_sink);
+		auto daily_sink = make_shared<spdlog::sinks::daily_file_sink_mt>(log_path+"logfile", 23, 59);
+		auto logger = make_shared<spdlog::logger>("galaxy", daily_sink);
 		logger->set_level(spdlog::level::info);
 		spdlog::register_logger(logger);
 
-		auto start = std::chrono::system_clock::now();
-		std::time_t start_time = std::chrono::system_clock::to_time_t(start);
+		auto start = chrono::system_clock::now();
+		time_t start_time = chrono::system_clock::to_time_t(start);
 
 		if (configuration.extract_options(argc,argv)) {
-
-			std::vector<Particle*> particles;
+			vector<Particle*> particles;
 			int start_iterations=0;
 			if (get_resume_flag()) {
 				if (configuration.restore_config(particles,start_iterations) || 
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
 
 			if (configuration.get_n_threads()==0)
 				run_verlet(
-						[](	std::vector<Particle*> particles)->void{
+						[](	vector<Particle*> particles)->void{
 																	get_acceleration(
 																	particles,
 																	configuration.get_theta(),
@@ -100,8 +100,8 @@ int main(int argc, char **argv) {
 			else {
 				spdlog::set_async_mode(1024);
 				run_verlet(
-						[](	std::vector<Particle*> particles)->Node*{return create_tree(particles);},
-						[](	int i,std::vector<Particle*> particles,Node* root)->
+						[](	vector<Particle*> particles)->Node*{return create_tree(particles);},
+						[](	int i,vector<Particle*> particles,Node* root)->
 							void{get_acceleration(i,
 													particles,
 													root,
@@ -115,12 +115,12 @@ int main(int argc, char **argv) {
 						start_iterations,
 						configuration.get_n_threads());
 			}		
-			auto end = std::chrono::system_clock::now();
+			auto end = chrono::system_clock::now();
 		 
-			std::chrono::duration<double> elapsed_seconds = end-start;
-			std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+			chrono::duration<double> elapsed_seconds = end-start;
+			time_t end_time = chrono::system_clock::to_time_t(end);
 		 
-			logger->info("finished computation at {0}, elapsed time: {1} seconds", std::ctime(&end_time), elapsed_seconds.count());
+			logger->info("finished computation at {0}, elapsed time: {1} seconds", ctime(&end_time), elapsed_seconds.count());
 					  
 			return EXIT_SUCCESS;
 		} else {
@@ -130,8 +130,8 @@ int main(int argc, char **argv) {
 			return EXIT_FAILURE;
 		}
 		
-	} catch (const std::exception& ex){
-		std::cerr << argv[0]<< " halted following an exception: " << ex.what() << std::endl;
+	} catch (const exception& ex){
+		cerr << argv[0]<< " halted following an exception: " << ex.what() << endl;
 		return EXIT_FAILURE;
 	}
 }
@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
 /**
  * Used after iteration to write out data
 */
-bool report_all(std::vector<Particle*> particles,int iter){
+bool report_all(vector<Particle*> particles,int iter){
 	configuration.report_configuration(particles,iter);
 	return !killed();
 }

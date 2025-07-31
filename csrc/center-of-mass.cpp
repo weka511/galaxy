@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@
 #include <sstream>
 #include <limits>
 #include <stdlib.h>
-
-CentreOfMassCalculator::CentreOfMassCalculator(std::vector<Particle*> particles) 
+using namespace std;
+CentreOfMassCalculator::CentreOfMassCalculator(vector<Particle*> particles) 
   : _particles(particles) {
 	for (int i=0;i<particles.size();i++)
 		_processed_particle.push_back(false);
@@ -57,9 +57,9 @@ void CentreOfMassCalculator::propagate(Node * node,Node * child){
 void CentreOfMassCalculator::check_all_particles_processed() {
 	for (int i =0;i<_processed_particle.size();i++)
 		if (!_processed_particle[i]) {
-			std::stringstream message;
-			message<<__FILE__ <<", " <<__LINE__<<" Missing index: "<<_processed_particle[i]<<std::endl; 
-			throw std::logic_error(message.str().c_str());
+			stringstream message;
+			message<<__FILE__ <<", " <<__LINE__<<" Missing index: "<<_processed_particle[i]<<endl; 
+			throw logic_error(message.str().c_str());
 		}
 }
 
@@ -80,13 +80,13 @@ bool CentreOfMassCalculator::depart(Node * node)  {
 		default: ;
 	}
 	if (x<node->_xmin || node->_xmax<x || y<node->_ymin || node->_ymax<y || z<node->_zmin || node->_zmax<z) {
-		std::cerr<<__FILE__ <<", " <<__LINE__<< "Status: "<< node->getStatus()<<std::endl;   // FIXME - throw exception
-		std::cerr << node->getStatus()<< " "<<node->_xmin << ", " << x << ", " << node->_xmax << std::endl;
-		std::cerr << node->getStatus()<< " "<<node->_ymin << ", " << y << ", " << node->_ymax << std::endl;
-		std::cerr << node->getStatus()<< " "<<node->_zmin << ", " << z << ", " << node->_zmax << std::endl;
-		std::stringstream message;
-		message<<__FILE__ <<", " <<__LINE__<<" Centre of mass out of range - see logfile."<<std::endl; 
-		throw std::logic_error(message.str().c_str()); 
+		cerr<<__FILE__ <<", " <<__LINE__<< "Status: "<< node->getStatus()<<endl;   // FIXME - throw exception
+		cerr << node->getStatus()<< " "<<node->_xmin << ", " << x << ", " << node->_xmax << endl;
+		cerr << node->getStatus()<< " "<<node->_ymin << ", " << y << ", " << node->_ymax << endl;
+		cerr << node->getStatus()<< " "<<node->_zmin << ", " << z << ", " << node->_zmax << endl;
+		stringstream message;
+		message<<__FILE__ <<", " <<__LINE__<<" Centre of mass out of range - see logfile."<<endl; 
+		throw logic_error(message.str().c_str()); 
 	}
 	return true;
 }

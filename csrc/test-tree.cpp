@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +20,14 @@
 #include <vector>
 #include "catch.hpp"
 #include "treecode.h"
+using namespace std;
 
 TEST_CASE( "Tree Tests", "[tree]" ) {
 	REQUIRE(Node::_count==0);
 	
 	
 	SECTION("Trivial Tree Insert") {
-		std::vector<Particle*> particles;
+		vector<Particle*> particles;
 		particles.push_back(new Particle(-1,-1,-1,0,0,0,0));
 		particles.push_back(new Particle(-1,-1,1,0,0,0,0));
 		Node * tree = Node::create(particles);
@@ -35,7 +36,7 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 	}
 	
 	SECTION("Larger Tree Insert") {
-		std::vector<Particle*> particles;
+		vector<Particle*> particles;
 		particles.push_back(new Particle(-1, -1, -1,0,0,0,1));
 		particles.push_back(new Particle(-1, -1, +1,0,0,0,1));
 		particles.push_back(new Particle(-1, +1, -1,0,0,0,1));
@@ -50,7 +51,7 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 	}
 	
 	SECTION("2nd layer Tree Insert") {
-		std::vector<Particle*> particles;
+		vector<Particle*> particles;
 		particles.push_back(new Particle(-1, -1, -1,0,0,0,1));
 		particles.push_back(new Particle(-1, -1, +1,0,0,0,1));
 		particles.push_back(new Particle(-1, +1, -1,0,0,0,1));

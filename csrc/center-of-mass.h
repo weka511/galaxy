@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #define _CENTRE_OF_MASS_H
 
 #include "treecode.h"
-
+using namespace std;
 /**
  * Used to calculate centre of mass for Internal and External Nodes
  */
@@ -30,7 +30,7 @@ class CentreOfMassCalculator : public Node::Visitor {
 	*   Parameters:
 	*   	particles These are the particles whose centre of mass is to be calculated. 
     */
-	CentreOfMassCalculator(std::vector<Particle*> particles);
+	CentreOfMassCalculator(vector<Particle*> particles);
 	/**
 	 * When we visit an External Node, record the position and mass of the particle
 	 */
@@ -57,12 +57,12 @@ class CentreOfMassCalculator : public Node::Visitor {
    /**
     * These are the particles whose centre of mass is to be calculated. 
     */
-	std::vector<Particle*> _particles;
+	vector<Particle*> _particles;
 	
 	/**
 	 * Indicates whether each particle has been processed
 	 */
-	std::vector<bool> _processed_particle;
+	vector<bool> _processed_particle;
 };
 
 #endif

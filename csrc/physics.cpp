@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 #include <iostream>
 #include "physics.h"
 #include "utils.h"
-
-void get_acceleration(std::vector<Particle*> particles,double G) {
+using namespace std;
+void get_acceleration(vector<Particle*> particles,double G) {
 	for (int i=0;i<particles.size();i++)
 		particles[i]->resetAcc();
 	for (int i=1;i<particles.size();i++)
@@ -49,16 +49,16 @@ void get_acceleration_between_pair(Particle* p1,Particle* p2,double G) {
 	const double acc_z2 =  p1->getMass()*G*(z1-z2)*d_factor;
 	p2->accumulateAcc(acc_x2,acc_y2,acc_z2);
 	// check Newton's third law
-	assert( std::fabs(p1->getMass()*acc_x1+p2->getMass()*acc_x2)<=epsilon*(std::fabs(p1->getMass()*acc_x1)+std::fabs(p2->getMass()*acc_x2)));
-	assert( std::fabs(p1->getMass()*acc_y1+p2->getMass()*acc_y2)<=epsilon*(std::fabs(p1->getMass()*acc_y1)+std::fabs(p2->getMass()*acc_y2)));
-	assert( std::fabs(p1->getMass()*acc_z1+p2->getMass()*acc_z2)<=epsilon*(std::fabs(p1->getMass()*acc_z1)+std::fabs(p2->getMass()*acc_z2)));
+	assert( fabs(p1->getMass()*acc_x1+p2->getMass()*acc_x2)<=epsilon*(fabs(p1->getMass()*acc_x1)+fabs(p2->getMass()*acc_x2)));
+	assert( fabs(p1->getMass()*acc_y1+p2->getMass()*acc_y2)<=epsilon*(fabs(p1->getMass()*acc_y1)+fabs(p2->getMass()*acc_y2)));
+	assert( fabs(p1->getMass()*acc_z1+p2->getMass()*acc_z2)<=epsilon*(fabs(p1->getMass()*acc_z1)+fabs(p2->getMass()*acc_z2)));
 }
 
 
 /**
  *  Calculate kinetic energy for a system of particles
  */
-double get_kinetic_energy(std::vector<Particle*> particles) {
+double get_kinetic_energy(vector<Particle*> particles) {
 	double sum=0;
 	for (int i=0;i<particles.size();i++) {
 		double vx,vy,vz;
@@ -71,12 +71,12 @@ double get_kinetic_energy(std::vector<Particle*> particles) {
 /**
  *  Calculate gravitational potential energy for a system of particles
  */
-double get_potential_energy(std::vector<Particle*> particles,const double G,const double a) {
+double get_potential_energy(vector<Particle*> particles,const double G,const double a) {
 	double sum=0;
 	for (int i=1;i<particles.size();i++)
 		for (int j=0;j<i;j++)
 			sum += particles[i]->getMass() * particles[j]->getMass() /
-					std::sqrt( particles[i]->get_distance_sq(particles[j]) + sqr(a) );
+					sqrt( particles[i]->get_distance_sq(particles[j]) + sqr(a) );
 
 	return -G*sum;
 }
@@ -84,9 +84,9 @@ double get_potential_energy(std::vector<Particle*> particles,const double G,cons
 /**
  * Find linear momentum of a set of particles
  */
-void get_momentum(std::vector<Particle*> particles,double& px,double& py,double &pz) {
+void get_momentum(vector<Particle*> particles,double& px,double& py,double &pz) {
 	px=0;py=0;pz=0;
-	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
+	for (vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
 		double vx,vy,vz;
 		(*iter)->getVel(vx,vy,vz);
 		const double m=(*iter)->getMass();
@@ -99,10 +99,10 @@ void get_momentum(std::vector<Particle*> particles,double& px,double& py,double 
 /**
  * Find centre of mass of a set of particles.
  */
-void get_centre_of_mass(std::vector<Particle*> particles,double& x0,double& y0,double &z0) {
+void get_centre_of_mass(vector<Particle*> particles,double& x0,double& y0,double &z0) {
 	x0=0; y0=0; z0=0;
 	double m0=0;
-	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
+	for (vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
 		double x,y,z;
 		(*iter)->getPos(x,y,z);
 		const double m=(*iter)->getMass();
@@ -117,11 +117,11 @@ void get_centre_of_mass(std::vector<Particle*> particles,double& x0,double& y0,d
 /**
  * Find angular momentum of a set of particles
  */
-void get_angular_momentum(std::vector<Particle*> particles,double& lx,double& ly,double &lz) {
+void get_angular_momentum(vector<Particle*> particles,double& lx,double& ly,double &lz) {
 	lx=0;ly=0;lz=0;
 	double x0,y0,z0;
 	get_centre_of_mass(particles,x0,y0,z0);
-	for (std::vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
+	for (vector<Particle*>::iterator iter =particles.begin();iter!=particles.end();iter++){
 		double x,y,z;
 		(*iter)->getPos(x,y,z);
 		const double m=(*iter)->getMass();

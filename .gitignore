@@ -45,3 +45,6 @@ imgs/
 *.mp4
 virial/
 
+*.txt
+*.txt~
+

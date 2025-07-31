@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2019 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
  /**
   * encode
   *
@@ -32,7 +34,7 @@
   * Returns:
   *    Text string that can be written to a file
   */
- std::string encode(const double value);
+ string encode(const double value);
  
  /**
   * decode
@@ -44,7 +46,7 @@
   * Returns:
   *    Corresponding floating point value
   */
- double decode(std::string str);
+ double decode(string str);
  
 
  
@@ -56,27 +58,27 @@
   * Parameters:
   *      killfile     Name of file used to stop execution
   */
- bool killed(std::string killfile="kill");
+ bool killed(string killfile="kill");
  
  /**
  * If file exists, copy to backup
  */
- void backup(std::string file_name, std::string backup="~");
+ void backup(string file_name, string backup="~");
  
 /**
  *  Test string to see whether it ends with a prescribed substring.
  */ 
-bool ends_with(std::string const & value, std::string const & ending);
+bool ends_with(string const & value, string const & ending);
 
 /**
   * Create a directory if necessary, e.g. for logfile
   */
-void ensure_path_exists(std::string path);
+void ensure_path_exists(string path);
 
 /**
  *  Remove contents of config directory
  */
-void remove_old_configs(std::string path);
+void remove_old_configs(string path);
 
 /**
  * Square a number
@@ -88,24 +90,24 @@ inline double sqr(double x) {return x*x;}
  * 1. any extraneous parameters
  * 2. are value within range?
  */
-int get_number(std::string name, char * param, int high=std::numeric_limits<int>::max(),int low=0);
+int get_number(string name, char * param, int high=numeric_limits<int>::max(),int low=0);
 
 /**
  * Parse numeric command line parameter and validate:
  * 1. any extraneous parameters
  * 2. are value within range?
  */
-double get_double(std::string name,char * param, double high=std::numeric_limits<double>::max(),double low=0);
+double get_double(string name,char * param, double high=numeric_limits<double>::max(),double low=0);
 
 /**
  * Determine the mean of observations stored in a vector
  */
-double mean(std::vector<double> values);
+double mean(vector<double> values);
 
 /**
  * Determine the standard deviation of observations stored in a vector
  */
-double stdev(std::vector<double> q1s,double mean,bool bessel=false);
+double stdev(vector<double> q1s,double mean,bool bessel=false);
 
 #endif
  

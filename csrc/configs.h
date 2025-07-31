@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 
 #include "particle.h"
 #include "plummer.h"
+using namespace std;
 
 int get_resume_flag();
 
@@ -41,38 +42,38 @@ class Configuration {
    /**
 	* Create all bodies needed at start of run
 	*/
-	std::vector<Particle*>  createParticles();
+	vector<Particle*>  createParticles();
 	
 	/**
 	* Set centre of mass and total linear momentum to (0,0,0)
 	*/
-	void zero_centre_mass_and_linear_momentum(std::vector<Particle*> particles,int iter);
+	void zero_centre_mass_and_linear_momentum(vector<Particle*> particles,int iter);
 	
 	int get_max_digits_config();
 	
 	/**
 	 * Save configuration for restart.
 	 */
-	void save_config( std::vector<Particle*>& particles,int iter);
+	void save_config( vector<Particle*>& particles,int iter);
 	
 	/**
 	 * Used to retrieve one saved particle. 
 	 */
-	Particle * extract_particle(std::string line);
+	Particle * extract_particle(string line);
 	
 	/**
 	 * Restore saved configuration
 	 */
-	bool restore_config(std::vector<Particle*>& bodies,int& iter, bool use_backup=false);
+	bool restore_config(vector<Particle*>& bodies,int& iter, bool use_backup=false);
 	
 	/**
 	 * Write out configuration
 	 */
-	void report_configuration(std::vector<Particle*> particles,int iter);
+	void report_configuration(vector<Particle*> particles,int iter);
 	 
-	std::string get_config_file_name() {return _config_file_name;}
+	string get_config_file_name() {return _config_file_name;}
 
-	std::string get_path() {return _path;};
+	string get_path() {return _path;};
 	
 	inline double get_a() {return _a;}
 	
@@ -123,7 +124,7 @@ class Configuration {
 	/**
 	 * Version number for configuration records
 	 */
-	std::string _config_version   = "1.0";
+	string _config_version   = "1.0";
 	
 	/**
 	 *  Theta-criterion of the Barnes-Hut algorithm.
@@ -167,12 +168,12 @@ class Configuration {
 	/**
 	 * File Name for configuration records
 	 */
-	std::string _config_file_name = "config.txt";
+	string _config_file_name = "config.txt";
 
 	/**
 	 * Folder for configuration records
 	 */
-	std::string _path             = "./configs";
+	string _path             = "./configs";
 
 	Model _model                  = Plummer;
 
@@ -184,7 +185,7 @@ class Configuration {
 	
 	int _n_threads					= 0;
 	
-	std::string _initial_configuration_file ="";
+	string _initial_configuration_file ="";
 	
 };
 

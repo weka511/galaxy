@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #include "plummer.h"
 #include "physics.h"
 
+using namespace std;
+
 PlummerFactory::PlummerFactory(const int numbodies,const double ini_radius, const double a, const double M, long int seed) 
  : 	Factory(numbodies),
 	_ini_radius(ini_radius),
@@ -31,10 +33,10 @@ PlummerFactory::PlummerFactory(const int numbodies,const double ini_radius, cons
 /**
  * Create a selection of particles that satisfies Plummer distribution
  */	
-std::vector<Particle*>  PlummerFactory::create(){
-	std::vector<Particle*> product;
+vector<Particle*>  PlummerFactory::create(){
+	vector<Particle*> product;
 	for (int i=0;i<getNumbodies();i++) {
-		const double radius=_ini_radius*_a / ( std::sqrt(std::pow(_mt.random(),-(2.0/3.0))-1.0) ); 
+		const double radius=_ini_radius*_a / ( sqrt(pow(_mt.random(),-(2.0/3.0))-1.0) ); 
         double x; double y; double z;
 		_randomize_theta_phi(radius,x,y,z);
 	
@@ -52,11 +54,11 @@ std::vector<Particle*>  PlummerFactory::create(){
  */
 void PlummerFactory::_randomize_theta_phi(const double r,double & x,double & y,double& z) {
 	const double cos_theta   = -1+2.0*_mt.random();
-	const double theta        = std::acos(cos_theta);
+	const double theta        = acos(cos_theta);
 	const double phi          = 2*M_PI*_mt.random();
 	
-	x = r * std::sin(theta)*std::cos(phi);
-	y = r * std::sin(theta)*std::sin(phi);
+	x = r * sin(theta)*cos(phi);
+	y = r * sin(theta)*sin(phi);
 	z = r * cos_theta;
 }
 
@@ -67,11 +69,11 @@ void PlummerFactory::_randomize_theta_phi(const double r,double & x,double & y,d
 double PlummerFactory::_sample_velocity(const double radius) {
 	double x=0;
 	double y=0.1;
-	while (y > x*x*std::pow(1.0-x*x,3.5)){
+	while (y > x*x*pow(1.0-x*x,3.5)){
 		x=_mt.random();
 		y=0.1*_mt.random();
 	}
-	return  x * M_SQRT2 * std::pow( _a*_a + radius*radius,-0.25);
+	return  x * M_SQRT2 * pow( _a*_a + radius*radius,-0.25);
 }
 
 

@@ -17,37 +17,199 @@
 
 '''Create configuration for galaxy.exe'''
 
-import argparse
-import time
-import os
+from abc import ABC,abstractmethod
+from argparse import ArgumentParser
+from time import time
+from os import urandom
+from os.path import basename, join, splitext,exists
 import random
-import sys
-import struct
+from sys import exit
+from struct import pack,unpack
 from shutil import copyfile
 import xml.etree.ElementTree as ET
+from matplotlib import rc
 from matplotlib.pyplot import figure,show
 import mpl_toolkits.mplot3d
 import numpy as np
 
+class Body:
+    '''
+    This class represents one body in the simulation
+
+    Attributes:
+        position
+        mass
+        velocity
+    '''
+    def __init__(self,position,mass,velocity):
+        self.position = position
+        self.mass = mass
+        self.velocity = velocity
+
+    def encode(self):
+        '''
+         Convert fields in body to a string for serialization
+        '''
+        fields = self.position + [self.mass] + self.velocity
+        return ','.join([encode(f) for f in fields])
+
+    def get_T(self):
+        '''
+        Calculate kinetic energy
+        '''
+        return 0.5 * self.mass * sum([v**2 for v in self.velocity])
+
+    def get_distance(self,other):
+        '''
+        Calculate distance between two points
+
+        Parameters:
+            other
+        '''
+        return np.sqrt(sum([(self.position[i]-other.position[i])**2 for i in range(len(self.position))]))
+
+    def get_V(self,other):
+        '''
+        Calculate potential energy between this body and one other, ignoring G
+        '''
+        return - self.mass * other.mass/self.get_distance(other)
+
+    def create_with_offset(self,offset,vel):
+        '''
+        Create a new body shifted by an offset
+        '''
+        pos  = [sum(u) for u in zip(self.position,offset)]
+        vels = [sum(v) for v in zip(self.velocity,vel)]
+        return Body(pos,self.mass,vels)
+
+
+class ConfigurationFactory(ABC):
+    @staticmethod
+    def create_config_factory(model):
+        '''
+        Instantiate method for creating configuration
+
+        Parameters:
+            model       Name of model
+        '''
+        config_factory_dict = {
+            'plummer':Plummer()
+        }
+        if model in config_factory_dict:
+            return config_factory_dict[model]
+        else:
+            raise RuntimeError(f'Unrecognized model: {model}')
+
+    @abstractmethod
+    def create(self,number_bodies=100,
+                       radius=1.0,
+                       G=1.0):
+        pass
+
+    def randomize_on_sphere(self,radius=1.0):
+        '''
+        Randomly position point on surface of sphere
+        '''
+        theta = np.arccos(random.uniform(-1,1))
+        phi = random.uniform(0,2*np.pi)
+        return [radius * np.sin(theta) * np.cos(phi),
+                radius * np.sin(theta) * np.sin(phi),
+                radius * np.cos(theta)]
+
+class Plummer(ConfigurationFactory):
+    def create(self,number_bodies=100,
+                       radius=1.0,
+                       G=1.0):             # TODO
+        '''
+        Instantiate configuration for Plummer model
+
+        http://www.artcompsci.org/kali/vol/plummer/volume9.pdf
+        '''
+        return [self.create_body() for i in range(number_bodies)]
+
+    def get_velocity_ratio(self):
+        '''
+        Sampling used in A comparison of Numerical Methods for the Study of Star Cluster Dynamics,
+        by Sverre Aarseth, Michel Henon, and Roland Wielen, in Astron. Astroph.37, 183 (1974)
+        http://articles.adsabs.harvard.edu/full/1974A%26A....37..183A
+        '''
+        x = 0.0
+        y = 0.1
+        while y > x**2 * (1-x**2)**3.5:
+            x = random.uniform(0,1)
+            y = random.uniform(0,0.1)
+        return x
+
+    def create_velocity(self,radius=1):
+        '''Setup initial velocities'''
+        return self.randomize_on_sphere(radius=self.get_velocity_ratio() * np.sqrt(2.0) *(1 + radius**2)**(-0.25))
+
+    def create_body(self):
+        '''Create one body with random position and velocity'''
+        mass = 1.0/number_bodies
+        radius = 1.0/np.sqrt(random.uniform(0,1)**(-2/3) - 1)
+        return Body(self.randomize_on_sphere(radius=radius),mass,self.create_velocity(radius=radius))
+
+def parse_args():
+    '''Parse command line parameters'''
+    parser = ArgumentParser(__doc__)
+    dt = 0.1
+    model = 'plummer'
+    output = 'config.txt'
+    n = 100
+    path = '../configs'
+    r = 1.0
+    theta = 0.5
+    sigma = 2.0
+    G = 1.0
+
+    parser.add_argument('--dt', type=float, default=dt, help=f'Step size for integration [{dt}]')
+    parser.add_argument('--output', default=output, help=f'Configuration file [f{output}]')
+    parser.add_argument('--model', default=model, help=f'Used to initialize distribution [{model}]')
+    parser.add_argument('-n', '--number_bodies',  type=int, default=n, help=f'Number of bodies [{n}]')
+    parser.add_argument('-p', '--path', default=path,  help=f'Path for configuration files [{path}]')
+    parser.add_argument('-r', '--radius', type=float, default=r, help=f'Initial Radius [{r}]')
+    parser.add_argument('--seed', help='Initialize the random number generator')
+    parser.add_argument('--theta', type=float, default=theta, help=f'Theta-criterion of the Barnes-Hut algorithm [{theta}]')
+    parser.add_argument('--generate', action='store_true', default=False, help='Generate test data for serialization')
+    parser.add_argument('--show', action='store_true', default=False, help='Show generated points')
+    parser.add_argument('--nsigma', type=float, default=sigma, help=f'Scale data for show {sigma}')
+    parser.add_argument('-G', '--G', type=float, default=G, help=f'Gravitational constant [{G}]')
+    parser.add_argument('--xml', help='XML spec')
+    parser.add_argument('--figs', default = './figs', help = 'Name of folder where plots are to be stored')
+    parser.add_argument('-o', '--out', default = basename(splitext(__file__)[0]),help='Name of output file')
+    return parser.parse_args()
+
+def get_file_name(name,default_ext='png',figs='./figs',seq=None):
+    '''
+    Used to create file names
+
+    Parameters:
+        name          Basis for file name
+        default_ext   Extension if non specified
+        figs          Directory for storing figures
+        seq           Used if there are multiple files
+    '''
+    base,ext = splitext(name)
+    if len(ext) == 0:
+        ext = default_ext
+    if seq != None:
+        base = f'{base}{seq}'
+    qualified_name = f'{base}.{ext}'
+    return join(figs,qualified_name) if ext == 'png' else qualified_name
 
 def backup(output='config.txt'):
     '''
-    Test for the presence of an existing configuration file. Back it up it present
+    Test for the presence of an existing configuration file. Back it up if present
 
     Parameters:
         output     Path of configuration file
     '''
-    if os.path.exists(output):
+    if exists(output):
         copyfile(output,output+'~')
 
 
-def save_configuration(bodies,
-                       config_version = 1.0,
-                       output         = 'config_new.txt',
-                       number_bodies  = 1000,
-                       theta          = 1.0,
-                       dt             = 0.1,
-                       G              = 1.0):
+def save_configuration(bodies,config_version=1.0,output='config_new.txt',number_bodies=1000,theta=1.0,dt=0.1,G=1.0):
     '''
     Save configuration to specified file
 
@@ -61,23 +223,24 @@ def save_configuration(bodies,
         G
     '''
     with open(output,'w') as f:
-        f.write('Version={0}\n'.format(config_version))
-        f.write('iteration={0}\n'.format(0))
-        f.write('theta={0}\n'.format(encode(theta)))
-        f.write('G={0}\n'.format(encode(G)))
-        f.write('dt={0}\n'.format(encode(dt)))
+        f.write(f'Version={config_version}\n')
+        f.write(f'iteration={0}\n')
+        f.write(f'theta={encode(theta)}\n')
+        f.write(f'G={encode(G)}\n')
+        f.write(f'dt={encode(dt)}\n')
 
         for body in bodies:
-            f.write(','.join([encode(b) for b in body])+'\n' )
+            f.write(body.encode()+'\n' )
         f.write('End\n')
-    print('Stored configuration in {0}'.format(output))
+
+    print(f'Stored configuration in {output}')
 
 
-def generate_configuration(
+def create_configuration(
     model          = 'plummer',
     number_bodies  = 1000,
-    radius         = 1.0,    # TODO
-    G              = 1.0):   # TODO
+    radius         = 1.0,
+    G              = 1.0):
     '''
     Generate a configuration of bodies in phase space
 
@@ -87,115 +250,63 @@ def generate_configuration(
         radius
         G
     '''
-    config_factory = create_config_factory(model)
-    return config_factory(number_bodies=number_bodies)
-
-def create_config_factory(model):
-    '''
-    Instantiate method for creating configuration
-
-    Parameters:
-        model       Name of model
-    '''
-    config_factory_dict = {'plummer':create_plummer}
-    if model in config_factory_dict:
-        return config_factory_dict[model]
-    else:
-        print ('Unrecognized model: {0}'.format(model))
-        sys.exit(1)
-
-
-def create_plummer(number_bodies=100,
-                   radius=1.0,
-                   G=1.0):             # TODO
-    '''
-    # Instantiate configuration for Plummer model
-
-    http://www.artcompsci.org/kali/vol/plummer/volume9.pdf
-    '''
-
-    def randomize_on_sphere(radius=radius):
-        '''
-        Randomly position point on surface of sphere
-        '''
-        theta = np.arccos(random.uniform(-1,1))
-        phi = random.uniform(0,2*np.pi)
-        return [radius * np.sin(theta) * np.cos(phi),
-                radius * np.sin(theta) * np.sin(phi),
-                radius * np.cos(theta)]
-
-
-    def get_velocity_ratio():
-        '''
-        Sampling used in A comparison of Numerical Methods for the Study of Star Cluster Dynamics,
-        by Sverre Aarseth, Michel Henon, and Roland Wielen, in Astron. Astroph.37, 183 (1974)
-        http://articles.adsabs.harvard.edu/full/1974A%26A....37..183A
-        '''
-        x = 0.0
-        y = 0.1
-        while y > x**2 * (1-x**2)**3.5:
-            x = random.uniform(0,1)
-            y = random.uniform(0,0.1)
-        return x
-
-    def create_velocity(radius=1):
-        '''Setup initial velocities'''
-        return randomize_on_sphere(radius=get_velocity_ratio() * np.sqrt(2.0) *(1 + radius**2)**(-0.25))
-
-
-    def create_body():
-        '''Create one body with random position and velocity'''
-        mass = 1.0/number_bodies
-        radius = 1.0/np.sqrt(random.uniform(0,1)**(-2/3) - 1)
-        return randomize_on_sphere(radius=radius) + [mass] + create_velocity(radius=radius)
-
-    return [create_body() for i in range(number_bodies)]
-
+    return  ConfigurationFactory.create_config_factory(model).create(number_bodies=number_bodies,radius=radius,G=G)
 
 def create_configuration_from_xml(file):
-    '''Parse XML file to generate complex configuration'''
-    def shift(body,offset,vel):
-        pos  = [sum(u) for u in zip(body[:3],offset)]
-        vels = [sum(v) for v in zip(body[:3],vel)]
-        return pos + body[3:4] + vels
+    '''
+    Parse XML file to generate complex configuration
 
-    bodies = []
+    Sample configuration:
+        <?xml version="1.0" encoding="UTF-8"?>
+        <system name="Collision" model="plummer">
+            <system name="1st Galaxy" pos="-100,0.2,0.3" vel="0.5,0,0"        numbodies="5000"/>
+            <system name="2nd Galaxy" pos="100,0,0"     vel="-0.5,0.05,0.05" numbodies="1000"/>
+        </system>
+
+    Parameters:
+        file     Path to configuration file
+    '''
     root   = ET.parse(file).getroot()
     system = root.get('name')
     model  = root.get('model')
-    print (system,model)
+    print (f'Creating {system} using {model} model')
     n = sum([int(type_tag.get('numbodies')) for type_tag in root.findall('system')])
 
+    product = []
     for type_tag in root.findall('system'):
         name = type_tag.get('name')
         pos = [float(x) for x in type_tag.get('pos').split(',')]
         vel = [float(x) for x in type_tag.get('vel').split(',')]
         numbodies = int(type_tag.get('numbodies'))
-        print(name,pos,vel,numbodies)
-        subsystem = generate_configuration(model=model,number_bodies = numbodies,radius = args.radius,G = args.G)
-        bodies = bodies + [shift(b,pos,vel) for b in subsystem]
+        print(f'subsystem: {name}, centre={pos},velocity={vel},N={numbodies}')
+        for body in create_configuration(model=model,number_bodies = numbodies,radius = args.radius,G = args.G):
+            product.append(body.create_with_offset(pos,vel))
 
-    return bodies,n
+    return product,n
 
 def encode(x):
     '''
      Convert a floating point number to a string for serialization
+
+    Parameters:
+       x
     '''
-    return str(struct.unpack('!q', struct.pack('!d',x))[0])
+    return str(unpack('!q', pack('!d',x))[0])
 
 
-def plot_points(bodies=[],output='./',path='',n=2):
+def plot_points(bodies=[],output='./',path='',n=2,T=0.0,V=0.0):
     '''
     Plot generated data
     '''
+
     fig = figure(figsize=(20,20))
     ax = fig.add_subplot(111,  projection='3d')
-    sigma = n*max(np.std([body[0] for body in bodies]),
-                  np.std([body[1] for body in bodies]),
-                  np.std([body[2] for body in bodies]))
-    ax.scatter([body[0] for body in bodies],
-               [body[1] for body in bodies],
-               [body[2] for body in bodies],
+    sigma = n*max(np.std([body.position[0] for body in bodies]),
+                  np.std([body.position[1] for body in bodies]),
+                  np.std([body.position[2] for body in bodies]))
+    ax.scatter([body.position[0] for body in bodies],
+               [body.position[1] for body in bodies],
+               [body.position[2] for body in bodies],
                s = 1,
                c = 'b')
 
@@ -205,109 +316,65 @@ def plot_points(bodies=[],output='./',path='',n=2):
     ax.set_xlim(-n*sigma,n*sigma)
     ax.set_ylim(-n*sigma,n*sigma)
     ax.set_zlim(-n*sigma,n*sigma)
-    ax.set_title('Initial configuration for {0}'.format(output))
+    n = len(bodies)
+    centre = Body([0,0,0],0,[0,0,0])
+    distances = sorted([centre.get_distance(b) for b in bodies])
+    ax.set_title(f'$Q_1$: {distances[n//4]:.3f}[{(2**(4/3)-1)**(-1/2):.3f}],'
+                 f'$Q_2$: {distances[n//2]:.3f}[{(2**(2/3)-1)**(-1/2):.3f}],'
+                 f'$Q_3$: {distances[3*n//4]:.3f}[{(2**(4/3)*3**(-2/3)-1)**(-1/2):.3f}]')
+    fig.suptitle(f'Initial configuration for {output}: T={T:.3f},V={V:.3f},E={T+V:.3f},Virial Ratio={-V/T:.3f}.')
+    fig.savefig(get_file_name(args.out,figs=args.figs))
 
-
-def pairs(bodies):
+def generate_pairs(bodies):
     '''
     Generator used to iterate through distinct pairs of bodies
+
+    Parameters:
+        bodies     List of all bodies on model
     '''
-    for i in range(1,len(bodies)):
+    for i in range(0,len(bodies)):  #I have changed from range(1...)
         for j in range(i):
             yield(bodies[i],bodies[j])
 
-def dist(b1,b2):
-    '''
-    Calculate distance between two points
-    '''
-    return np.sqrt(sum([(b1[i]-b2[i])*(b1[i]-b2[i]) for i in range(3)]))
-
-
-def calculate_energy(bodies=[],G=1.0):
-    '''
-    Calculate energy, and work out ratio from Virial theorem (should be 2)
-    '''
-    return (
-        0.5 * sum([b[3]*sum(b[i]*b[i] for i in range(4,7)) for b in bodies]),
-        -  G * sum([G * b1[3] * b2[3]/dist(b1,b2) for (b1,b2) in pairs(bodies)])
-    )
-
-def check_energy(bodies=[],G=1.0):
-    kinetic_energy,potential_energy = calculate_energy(bodies=bodies,G=G)
-    print ('Total Energy           = {0}\n'
-           'Kinetic Energy         = {1}\n'
-           'Potential Energy       = {2}\n'
-           'Ratio (Virial Theorem) = {3}'.format(kinetic_energy+potential_energy,
-                                           kinetic_energy,
-                                           potential_energy,
-                                           -potential_energy/kinetic_energy))
-
-def  check_quartiles(bodies):
-    n         = len(bodies)
-    distances = sorted([dist(b,[0,0,0,1,0,0,0]) for b in bodies])
-    print ('Q1: was {0:4f}, expected {1:4f}'.format(distances[n//4],(2**(4/3)-1)**(-1/2)))
-    print ('Q2: was {0:4f}, expected {1:4f}'.format(distances[n//2],(2**(2/3)-1)**(-1/2)))
-    print ('Q3: was {0:4f}, expected {1:4f}'.format(distances[3*n//4],(2**(4/3)*3**(-2/3)-1)**(-1/2)))
-
-
-
 if __name__=='__main__':
-    parser = argparse.ArgumentParser(__doc__)
-    parser.add_argument(      '--dt', type=float,                default=0.1,          help='Step size for integration')
-    parser.add_argument(      '--output',                        default='config.txt', help='Configuration file')
-    parser.add_argument(      '--model',                         default='plummer',    help='Used to initialize distribution')
-    parser.add_argument('-n', '--number_bodies',  type=int,      default=100,          help='Number of bodies')
-    parser.add_argument('-p', '--path',                          default='./',  help='Path for configuration files')  #FIXME
-    parser.add_argument('-r', '--radius',   type=float,          default=1.0,          help='Initial Radius')
-    parser.add_argument('-s', '--seed',                                                help='Initialize the random number generator')
-    parser.add_argument('-t', '--theta',    type=float,          default=0.5,          help='Theta-criterion of the Barnes-Hut algorithm')
-    parser.add_argument(      '--generate', action='store_true', default=False,        help='Generate test data for serialization')
-    parser.add_argument(      '--show',     action='store_true', default=False,        help='Show generated points')
-    parser.add_argument(      '--nsigma',   type=float,          default=2,            help='Scale data for show')
-    parser.add_argument(      '--energy',   action='store_true', default=False,        help='Check energy')
-    parser.add_argument('-G',  '--G',       type=float,          default=1.0,          help='Gravitational constant')
-    parser.add_argument(      '--quartile', action='store_true', default=False,        help='Check quartiles')
-    parser.add_argument(      '--xml',                                                 help='XML spec')
-    args = parser.parse_args()
+    rc('font',**{'family':'serif','serif':['Palatino']})
+    rc('text', usetex=True)
+    start  = time()
+    args =   parse_args()
 
     if args.generate:
         for i in range(10):
             x = random.uniform(-5,5)
-            print ('\t\tREQUIRE(decode("{1}")=={0});'.format(x,encode(x)))
-        sys.exit(0)
+            print (f'\t\tREQUIRE(decode("{encode(x)}")=={x});')
+        exit(0)
 
     seed = args.seed
     if args.seed==None:
-        random_data = os.urandom(8)
-        seed = int.from_bytes(random_data, byteorder="big")
+        random_data = urandom(8)
+        seed = int.from_bytes(random_data, byteorder='big')
 
-    print ('Number of bodies = {0}\n'
-           'Specified seed   = {1}\n'
-           'Actual seed      = {2}\n'.format(args.number_bodies,args.seed,seed))
+    print (f'Number of bodies = {args.number_bodies}')
+    print (f'Specified seed   = {args.seed}')
+    print (f'Actual seed      = {seed}')
 
     random.seed(args.seed)
-    config_file = os.path.join(args.path,args.output)
-    start = time.time()
+    config_file = join(args.path,args.output)
+
     backup(output=config_file)
     number_bodies = args.number_bodies
     if args.xml == None:
-        bodies = generate_configuration(model         = args.model,
-                                        number_bodies = args.number_bodies,
-                                        radius        = args.radius,
-                                        G             = args.G)
+        bodies = create_configuration(model         = args.model,
+                                      number_bodies = number_bodies,
+                                      radius        = args.radius,
+                                      G             = args.G)
 
         save_configuration(bodies,
                            output        = config_file,
-                           number_bodies = args.number_bodies,
+                           number_bodies = number_bodies,
                            theta         = args.theta,
                            dt            = args.dt)
-        print ('Created {0}: n={1}, r={2}.'.format(args.model,number_bodies,args.radius))
+        print (f'Created {args.model}: n={number_bodies}, r={args.radius}.')
 
-        if args.energy:
-            check_energy(bodies=bodies,G=args.G)
-
-        if args.quartile:
-            check_quartiles(bodies)
     else:
         bodies,number_bodies = create_configuration_from_xml(args.xml)
         save_configuration(bodies,
@@ -315,12 +382,19 @@ if __name__=='__main__':
                            number_bodies = args.number_bodies,
                            theta         = args.theta,
                            dt            = args.dt)
-        print ('Created {0}: n={1}, r={2}.'.format(args.model,number_bodies,args.radius))
+        print (f'Created {args.model}: n={number_bodies}, r={args.radius}.')
 
     if args.show:
-        plot_points(bodies=bodies,output=args.output,path=args.path,n=args.nsigma)
+        T =  sum([b.get_T() for b in bodies])
+        V = args.G * sum([b1.get_V(b2) for (b1,b2) in generate_pairs(bodies)])
+        plot_points(bodies=bodies,output=args.output,path=args.path,n=args.nsigma,T=T,V=V)
+
+    elapsed = time() - start
+    minutes = int(elapsed/60)
+    seconds = elapsed - 60*minutes
+    print (f'Elapsed Time {minutes} m {seconds:.2f} s')
+
+    if args.show:
         show()
 
-    elapsed_time = time.time()-start
-    print ('Elapsed time={0:.1f} seconds. i.e. {1:.0f} msec per 1000 bodies'.format(elapsed_time,
-                                                                                    1000*elapsed_time/(number_bodies/1000)))
+

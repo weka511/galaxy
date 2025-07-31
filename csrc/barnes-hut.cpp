@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018 Greenweaves Software Limited
+ * Copyright (C) 2018-2025 Greenweaves Software Limited
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,13 @@
 #include "center-of-mass.h"
 #include "physics.h"
 
+using namespace std;
+
 /**
  * Calculate acceleration for all particles
  */
  
- void get_acceleration(std::vector<Particle*>& particles,const double theta,const double G,const double a) {
+ void get_acceleration(vector<Particle*>& particles,const double theta,const double G,const double a) {
 	Node * root=create_tree(particles);
 	for (int i=0;i<particles.size();i++)
 		get_acceleration(i,particles,root,theta,G,a);
@@ -42,7 +44,7 @@
  *
  *    particles
  */
-Node * create_tree(std::vector<Particle*>& particles) {
+Node * create_tree(vector<Particle*>& particles) {
 	assert(Node::_count==0 && "Oct Tree should have been removed at end of previous call"); 
 	Node * product=Node::create(particles);
 	CentreOfMassCalculator calculator(particles);
@@ -54,7 +56,7 @@ Node * create_tree(std::vector<Particle*>& particles) {
 /**
  * Calculate acceleration for one specific particle
  */
-void get_acceleration(int i, std::vector<Particle*>& particles,Node * root,const double theta,const double G,const double a) {
+void get_acceleration(int i, vector<Particle*>& particles,Node * root,const double theta,const double G,const double a) {
 	BarnesHutVisitor visitor(i,particles[i],theta,G,a);
 	root->visit(visitor);
 	visitor.store_accelerations();
