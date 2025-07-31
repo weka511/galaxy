@@ -15,13 +15,12 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#include "center-of-mass.hpp"
-
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
 #include <limits>
 
+#include "center-of-mass.hpp"
 
 using namespace std;
 
@@ -41,23 +40,29 @@ CentreOfMassCalculator::CentreOfMassCalculator(unique_ptr<Particle[]> &particles
  */
 Node::Visitor::Status CentreOfMassCalculator::visit(Node * node) {
 	const int particle_index= node->getStatus();
-	if (particle_index >=0 ) {         // i.e. External node
-		_processed_particle[particle_index] = true;
-		auto pos = _particles[particle_index].get_position();
-		double x,y,z;
-		x = pos[0];
-		y = pos[1];
-		z = pos[2];
-		node->set_mass_and_centre(_particles[particle_index].get_mass(),x,y,z);
-	}
+	if (particle_index >= 0)
+		record_particle(node,particle_index);
 	return Node::Visitor::Status::Continue;
+}
+
+/**
+ * When we visit an External Node, record the position and mass of the particle
+ */
+void CentreOfMassCalculator::record_particle(Node * node,const int particle_index) {   
+	_processed_particle[particle_index] = true;
+	auto pos = _particles[particle_index].get_position();
+	double x,y,z;
+	x = pos[0];
+	y = pos[1];
+	z = pos[2];
+	node->set_mass_and_centre(_particles[particle_index].get_mass(),x,y,z);
 }
 
 /**
  *  For an internal note we need to accumulate the mass and positions for each child
  */
 void CentreOfMassCalculator::propagate(Node * node,Node * child){
-	if (node->getStatus()==Node::Internal) 
+	if (node->getStatus() == Node::Internal) 
 		node->accumulatePhysics(child);
 }
 
@@ -79,12 +84,10 @@ void CentreOfMassCalculator::check_all_particles_processed() {
  */
 bool CentreOfMassCalculator::depart(Node * node)  {
 	double m,x,y,z;
-	auto mass_and_centre = node->get_mass_and_centre();
-	tie(m,x,y,z) = mass_and_centre;
+	tie(m,x,y,z) = node->get_mass_and_centre();
 	switch (node->getStatus()) {
 		case Node::Internal:
-			x/=m;y/=m;z/=m;
-			node->set_mass_and_centre(m,x,y,z);
+			node->set_mass_and_centre(m,x/m,y/m,z/m);
 			break;
 		case Node::Unused:
 			return true;

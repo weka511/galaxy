@@ -139,7 +139,7 @@ class Node {
 	/**
 	 * Used to traverse tree
 	 */
-	bool visit(Visitor& visitor);
+	bool traverse(Visitor& visitor);
 	
 	/**
 	 * Indicates type of node. External Nodes use the index of the

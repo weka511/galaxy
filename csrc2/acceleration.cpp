@@ -28,7 +28,7 @@ void AccelerationVisitor::create_tree(unique_ptr<Particle[]> &particles, int n) 
 	_tree.reset();
 	_tree = Node::create(particles,n); 
 	CentreOfMassCalculator calculator(particles,n);
-	_tree->visit(calculator);
+	_tree->traverse(calculator);
 	calculator.check_all_particles_processed();
 }
 
@@ -38,7 +38,7 @@ void AccelerationVisitor::create_tree(unique_ptr<Particle[]> &particles, int n) 
 void AccelerationVisitor::visit(int i,Particle & particle){
 	cout << __FILE__ << " " << __LINE__ << endl;
 	BarnesHutVisitor visitor(i,particle,_theta,_G,_softening_length);
-	_tree->visit(visitor);
+	_tree->traverse(visitor);
 	visitor.store_accelerations();
 }
 

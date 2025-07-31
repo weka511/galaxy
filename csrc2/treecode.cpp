@@ -186,18 +186,21 @@ void Node::_split_node() {
 /**
  * Traverse Tree. The Visitor decides whether we continue all the way down.
  */
-bool Node::visit(Visitor & visitor) {
+bool Node::traverse(Visitor & visitor) {
 	switch (visitor.visit(this)) {
 		case Node::Visitor::Stop:
 			return false;
 		case Node::Visitor::Continue:
 			if (_particle_index==Internal){
 				bool should_continue=true;
-				for (int i=0;i<N_Children&&should_continue;i++) {
-					should_continue = _child[i]->visit(visitor);
+				for (int i=0;i<N_Children && should_continue;i++) {
+					should_continue = _child[i]->traverse(visitor);
 					visitor.propagate(this,_child[i]);
 				}
-				return should_continue ? visitor.depart(this) : false;		
+				if (should_continue)
+					return visitor.depart(this);
+				else
+					return false;		
 			}  else
 				return true;
 
