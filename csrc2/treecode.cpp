@@ -73,7 +73,7 @@ tuple<double,double> Node::get_limits(unique_ptr<Particle[]>& particles,int n,co
  */
  
 Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax)
-  : _particle_index(Unused),
+  : _id(_count),_particle_index(Unused),
   	_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d),
 	_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
 	_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)) {
@@ -239,18 +239,27 @@ Node::~Node() {
 int Node::get_count() {return _count;}
 
 /**
- * Used by center-of-mass.cpp as a sanity check.
+ * Used to establish that a point
+ * is within the bounding box for it Node.
  */
-void Node::validate(double x, double y, double z){
-	if (x<_xmin || _xmax<x || y<_ymin || _ymax<y || z<_zmin || _zmax<z) {
-		cerr<<__FILE__ <<", " <<__LINE__<< "Status: "<< getStatus()<<endl;
-		cerr << getStatus()<< " "<<_xmin << ", " << x << ", " << _xmax << endl;
-		cerr << getStatus()<< " "<<_ymin << ", " << y << ", " << _ymax << endl;
-		cerr << getStatus()<< " "<<_zmin << ", " << z << ", " << _zmax << endl;
-		stringstream message;
-		message<<__FILE__ <<", " <<__LINE__<<" Centre of mass out of range - see logfile."<<endl; 
-		throw logic_error(message.str().c_str()); 
-	}
+bool Node::verify_within_bounding_box(double x, double y, double z){
+	if ((_xmin < x and x < _xmax) and (_ymin < y and y < _ymax) and (_zmin < z and z < _zmax)) return true;
+	
+	cerr<<__FILE__ <<" " <<__LINE__<< ": Status: "<< getStatus()<<endl;
+	cerr << "("<<_xmin << ", " << x << ", " << _xmax << ")" << endl;
+	cerr << "("<<_ymin << ", " << y << ", " << _ymax << ")" << endl;
+	cerr << "<"<<_zmin << ", " << z << ", " << _zmax << ")" << endl << endl;
+	for (int i=0;i<N_Children;i++)
+		switch(_child[i]->_particle_index) {
+			case Unused:
+				break;
+			default:
+				cerr << "("<<_child[i]->_x<< ", " << _child[i]->_y << ", " << _child[i]->_z << ") " << _child[i]->_m<< endl;
+		}
+
+	stringstream message;
+	message<<__FILE__ <<", " <<__LINE__<<" Centre of mass out of range - see logfile."<<endl; 
+	throw logic_error(message.str().c_str()); 
 }
 
 /**

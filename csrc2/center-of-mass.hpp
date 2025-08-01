@@ -66,7 +66,7 @@ class CentreOfMassCalculator : public Node::Visitor {
 	/**
 	 * Make sure every node was processed.
 	*/
-	void check_all_particles_processed();
+	void verify_all_particles_processed();
 };
 
 #endif   //_CENTRE_OF_MASS_HPP

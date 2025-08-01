@@ -46,7 +46,7 @@ Node::Visitor::Status CentreOfMassCalculator::visit(Node * node) {
 }
 
 /**
- * When we visit an External Node, record the position and mass of the particle
+ * Record the position and mass of the particle
  */
 void CentreOfMassCalculator::record_particle(Node * node,const int particle_index) {   
 	_processed_particle[particle_index] = true;
@@ -69,7 +69,7 @@ void CentreOfMassCalculator::farewell(Node * node,Node * child){
 /**
  * Make sure every node was processed
  */
-void CentreOfMassCalculator::check_all_particles_processed() {
+void CentreOfMassCalculator::verify_all_particles_processed() {
 	for (std::vector<bool>::size_type i =0;i<_processed_particle.size();i++)
 		if (!_processed_particle[i]) {
 			stringstream message;
@@ -85,6 +85,8 @@ void CentreOfMassCalculator::check_all_particles_processed() {
 bool CentreOfMassCalculator::depart(Node * node)  {
 	double m,x,y,z;
 	tie(m,x,y,z) = node->get_mass_and_centre();
+	cout <<__FILE__ <<", " <<__LINE__<< ": " << node->getStatus()
+		<<" (" <<x <<"," << y<< "," <<z<< ") " << m << endl;
 	switch (node->getStatus()) {
 		case Node::Internal:
 			node->set_mass_and_centre(m,x/m,y/m,z/m);
@@ -93,8 +95,6 @@ bool CentreOfMassCalculator::depart(Node * node)  {
 			return true;
 		default: ;
 	}
-	node->validate(x,y,z);
-
-	return true;
+	return node->verify_within_bounding_box(x,y,z);
 }
 

@@ -75,6 +75,11 @@ class Node {
 	 *   Used to ensure we have an octree
 	 */
 	enum {N_Children=8};
+
+	/**
+	 *  Used to keep track of nodes for debugging
+	 */
+	int _id;
 	
 	/**
 	 * Indicates type of node. External Nodes use the index of the
@@ -159,6 +164,8 @@ class Node {
 	 * Set mass and centre of mass
 	 */
 	void set_mass_and_centre(double m, double x, double y, double z) {
+		cout <<__FILE__ <<", " <<__LINE__<< ": " << getStatus()
+		<<" (" <<x <<"," << y<< "," <<z<< ") " << m << endl;
 		_verify_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
 		_verify_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
 		_verify_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
@@ -186,9 +193,10 @@ class Node {
 	static tuple<double,double> get_limits(unique_ptr<Particle[]> &particles, int n, const double epsilon=0.0001);
 	
 	/**
-	 * Used by center-of-mass.cpp as a sanity check.
+	 * Used to establish that a point
+	 * is within the bounding box for it Node.
 	 */
-	void validate(double x, double y, double z);
+	bool verify_within_bounding_box(double x, double y, double z);
 	
   private:
 	

@@ -29,7 +29,7 @@ void AccelerationVisitor::create_tree(unique_ptr<Particle[]> &particles, int n) 
 	_tree = Node::create(particles,n); 
 	CentreOfMassCalculator calculator(particles,n);
 	_tree->traverse(calculator);
-	calculator.check_all_particles_processed();
+	calculator.verify_all_particles_processed();
 }
 
 /**
