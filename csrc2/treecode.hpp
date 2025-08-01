@@ -164,8 +164,6 @@ class Node {
 	 * Set mass and centre of mass
 	 */
 	void set_mass_and_centre(double m, double x, double y, double z) {
-		cout <<__FILE__ <<", " <<__LINE__<< ": " << getStatus()
-		<<" (" <<x <<"," << y<< "," <<z<< ") " << m << endl;
 		_verify_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
 		_verify_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
 		_verify_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
@@ -194,9 +192,9 @@ class Node {
 	
 	/**
 	 * Used to establish that a point
-	 * is within the bounding box for it Node.
+	 * is within the bounding box for its Node.
 	 */
-	bool verify_within_bounding_box(double x, double y, double z);
+	bool verify_within_bounding_box();
 	
   private:
 	

@@ -239,16 +239,15 @@ Node::~Node() {
 int Node::get_count() {return _count;}
 
 /**
- * Used to establish that a point
- * is within the bounding box for it Node.
+ * Used to establish that the center of mass is within the bounding box for it Node.
  */
-bool Node::verify_within_bounding_box(double x, double y, double z){
-	if ((_xmin < x and x < _xmax) and (_ymin < y and y < _ymax) and (_zmin < z and z < _zmax)) return true;
+bool Node::verify_within_bounding_box(){
+	if ((_xmin < _x and _x < _xmax) and (_ymin < _y and _y < _ymax) and (_zmin < _z and _z < _zmax)) return true;
 	
 	cerr<<__FILE__ <<" " <<__LINE__<< ": Status: "<< getStatus()<<endl;
-	cerr << "("<<_xmin << ", " << x << ", " << _xmax << ")" << endl;
-	cerr << "("<<_ymin << ", " << y << ", " << _ymax << ")" << endl;
-	cerr << "<"<<_zmin << ", " << z << ", " << _zmax << ")" << endl << endl;
+	cerr << "("<<_xmin << ", " << _x << ", " << _xmax << ")" << endl;
+	cerr << "("<<_ymin << ", " << _y << ", " << _ymax << ")" << endl;
+	cerr << "("<<_zmin << ", " << _z << ", " << _zmax << ")" << endl << endl;
 	for (int i=0;i<N_Children;i++)
 		switch(_child[i]->_particle_index) {
 			case Unused:

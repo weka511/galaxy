@@ -85,8 +85,6 @@ void CentreOfMassCalculator::verify_all_particles_processed() {
 bool CentreOfMassCalculator::depart(Node * node)  {
 	double m,x,y,z;
 	tie(m,x,y,z) = node->get_mass_and_centre();
-	cout <<__FILE__ <<", " <<__LINE__<< ": " << node->getStatus()
-		<<" (" <<x <<"," << y<< "," <<z<< ") " << m << endl;
 	switch (node->getStatus()) {
 		case Node::Internal:
 			node->set_mass_and_centre(m,x/m,y/m,z/m);
@@ -95,6 +93,6 @@ bool CentreOfMassCalculator::depart(Node * node)  {
 			return true;
 		default: ;
 	}
-	return node->verify_within_bounding_box(x,y,z);
+	return node->verify_within_bounding_box();
 }
 

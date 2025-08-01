@@ -92,7 +92,6 @@ void FileReporter::report() {
 }
 
 bool FileReporter::should_continue() {
-	cout << __FILE__ << " " << __LINE__ << endl;
 	ifstream file(_killfile);
 	if (!file.is_open()) return true;
 	cout << "Found killfile: " <<_killfile<<endl;
