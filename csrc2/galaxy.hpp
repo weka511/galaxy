@@ -19,15 +19,13 @@
  
  #include <string>
  #include <tuple>
- #include "configuration.hpp"
- #include "reporter.hpp"
- #include "verlet.hpp"
+ 
  
  using namespace std;
 
 /**
  *  Parse command line parameters.
  */
-tuple <string,int,double> get_options(int argc, char **argv);
+tuple <string,int,double,string,string> get_options(int argc, char **argv);
 
 

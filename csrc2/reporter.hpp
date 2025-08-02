@@ -36,7 +36,7 @@ class Reporter : public Configuration::Visitor {
     string _killfile;
 	
   public:
-    Reporter(Configuration & configuration,string base="foo",string extension="csv",string path="configs/", string killfile="kill")
+    Reporter(Configuration & configuration,string base="foo",string path="configs/",string extension="csv", string killfile="kill")
  	: 	_configuration(configuration),
 		_output(),_base(base),_path(path),_extension(extension),_sequence(0),
 		_killfile(killfile) {;}

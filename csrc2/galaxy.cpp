@@ -32,7 +32,9 @@ int main(int argc, char **argv) {
 	string config_file;
 	int max_iter;
 	double softening_length;
-	tie(config_file,max_iter,softening_length) = get_options(argc,argv);
+	string base;
+	string path;
+	tie(config_file,max_iter,softening_length,base,path) = get_options(argc,argv);
 
 	auto start = chrono::high_resolution_clock::now();
 	cout << __FILE__ << " " << __LINE__ << " galaxy: " << VERSION << endl;
@@ -40,7 +42,7 @@ int main(int argc, char **argv) {
 	try {
 		Configuration configuration(config_file);
 		AccelerationVisitor calculate_acceleration(configuration, configuration.get_theta(),configuration.get_G(),softening_length);
-		Reporter reporter(configuration);
+		Reporter reporter(configuration,base,path);
 		Verlet integrator(configuration,  calculate_acceleration,reporter);
 		integrator.run(max_iter,configuration.get_dt());
 	}  catch (const exception& e) {
@@ -59,14 +61,18 @@ int main(int argc, char **argv) {
 /**
  *  Parse command line parameters.
  */
-tuple <string,int,double> get_options(int argc, char **argv) {
+tuple <string,int,double,string,string> get_options(int argc, char **argv) {
 	auto config_file = "../configs/config.txt";
 	auto max_iter = 100;
 	auto softening_length = 1.0;
+	auto base = "galaxy";
+	auto path = "configs/";
 	static struct option long_options[] ={ 
 		{"config", required_argument, NULL, 'c'},
 		{"max_iter", required_argument, NULL, 'N'},
 		{"softening_length", required_argument, NULL, 's'},
+		{"report", required_argument, NULL, 'r'},
+		{"path", required_argument, NULL, 'p'},
 		{NULL, 0, NULL, 0}
 	};
 	char ch;
@@ -81,9 +87,14 @@ tuple <string,int,double> get_options(int argc, char **argv) {
 		case 's':
 			softening_length = atof(optarg); 
 			break;
+		case 'r':
+			 base = optarg; 
+			 break;
+ 		 case 'p':
+			 path = optarg; 
+			 break;
 		}
 	}
-	cout << config_file<<","<<max_iter<<","<<softening_length<<endl;
-	return make_tuple(config_file,max_iter,softening_length);
+	return make_tuple(config_file,max_iter,softening_length,base,path);
 }
 
