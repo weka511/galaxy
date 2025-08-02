@@ -19,11 +19,42 @@
  *
  */
  
+ #include <fstream>
+ #include <string>
+ #include "configuration.hpp"
+ 
  using namespace std;
 
- class Reporter {
-	 
- };
+class Reporter : public Configuration::Visitor {
+  private:
+	Configuration & _configuration;
+	ofstream _output;
+	string _base;
+	string _path;
+	string _extension;
+	int _sequence;
+	
+  public:
+    Reporter(Configuration & configuration,string base="foo",string extension="csv",string path="configs/")
+ 	: _configuration(configuration),_output(),_base(base),_path(path),_extension(extension),_sequence(0) {;}
+	
+	/**
+	 *   Record configuration in a csv file
+	 */
+	void report();
+	
+	/**
+	 * Outout velocity and position for one particle.
+	 */
+	void visit(int i, Particle & particle);
+	
+    virtual bool should_continue() = 0;
+	
+  private:
+	string _get_file_name(int n=4);
+};
+
+
  
  #endif // #_REPORTER_HPP
  

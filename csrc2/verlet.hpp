@@ -2,7 +2,7 @@
 #define _VERLET_HPP
 
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,18 +21,14 @@
  */
  
 
-
 #include "configuration.hpp"
 #include "treecode.hpp"
 #include "barnes-hut.hpp"
+#include "reporter.hpp"
 
 using namespace std;
 
-class Reporter{
-  public:
-	virtual void report() = 0;
-    virtual bool should_continue() = 0;
-};
+
 
 class Verlet {
 	/**

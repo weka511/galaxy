@@ -68,6 +68,7 @@ class Configuration {
 	double _theta; 
 	double _G; 
 	double _dt; 
+	
   public:                 //FIXME
 	unique_ptr<Particle[]> _particles;
 	int _n;

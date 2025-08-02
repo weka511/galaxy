@@ -20,6 +20,7 @@
  #include <string>
  #include <tuple>
  #include "configuration.hpp"
+ #include "reporter.hpp"
  #include "verlet.hpp"
  using namespace std;
 
@@ -28,14 +29,13 @@
  */
 tuple <string,int,double> get_options(int argc, char **argv);
 
-class FileReporter : public Reporter{
+class GalaxyReporter : public Reporter{
   private:
     string _killfile;
-	Configuration  &_configuration;
 	
   public:
-    FileReporter(Configuration  &configuration, string killfile="kill") : _killfile(killfile),_configuration(configuration) {};
-	void report();
+    GalaxyReporter(Configuration  &configuration, string killfile="kill") 
+	: Reporter(configuration),_killfile(killfile) {};
     bool should_continue();
 };
 

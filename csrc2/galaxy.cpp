@@ -25,6 +25,7 @@
 #include "galaxy.hpp"
 #include "verlet.hpp"
 #include "barnes-hut.hpp"
+#include "reporter.hpp"
 
 using namespace std;
 
@@ -40,7 +41,7 @@ int main(int argc, char **argv) {
 	try {
 		Configuration configuration(config_file);
 		AccelerationVisitor calculate_acceleration(configuration, configuration.get_theta(),configuration.get_G(),softening_length);
-		FileReporter reporter(configuration);
+		GalaxyReporter reporter(configuration);
 		cout << __FILE__ << " " << __LINE__ << endl;
 		Verlet integrator(configuration,  calculate_acceleration,reporter);
 		integrator.run(max_iter,configuration.get_dt());
@@ -87,11 +88,9 @@ tuple <string,int,double> get_options(int argc, char **argv) {
 	return make_tuple(config_file,max_iter,softening_length);
 }
 
-void FileReporter::report() {
-	
-}
 
-bool FileReporter::should_continue() {
+
+bool GalaxyReporter::should_continue() {
 	ifstream file(_killfile);
 	if (!file.is_open()) return true;
 	cout << "Found killfile: " <<_killfile<<endl;

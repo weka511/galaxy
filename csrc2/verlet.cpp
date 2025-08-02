@@ -45,6 +45,7 @@ void Verlet::run( int max_iter,const double dt){
 		_calculate_acceleration.create_tree(_configuration._particles, _configuration._n); //FIXME - Issue 61
 		_configuration.iterate(_calculate_acceleration);
 		_configuration.iterate(velocities);
+		_reporter.report();
 	}
 }
 

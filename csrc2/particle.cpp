@@ -34,6 +34,6 @@
  * Output position, velocity, and mass.
  */
 ostream& operator<<(ostream& s, Particle& p) {
-	return s<< p._position[0] <<"," << p._position[1] <<"," << p._position[2] <<"," <<
+	return s<< p._id <<","<<p._position[0] <<"," << p._position[1] <<"," << p._position[2] <<"," <<
 			p._velocity[0] <<"," << p._velocity[1] <<"," << p._velocity[2] <<"," <<p._m;
 }

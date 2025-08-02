@@ -17,7 +17,39 @@
  */
  
 #include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <stdexcept>
 #include "reporter.hpp"
 
 
 using namespace std;
+
+string Reporter::_get_file_name(int n){
+	stringstream ss;
+	ss << setw(10) << setfill('0') << _sequence;
+	return _path + _base + ss.str() + "." + _extension;
+}
+
+/**
+ *   Record configuration in a csv file
+ */
+void Reporter::report(){
+	string file_name = _get_file_name();
+	_output.open(file_name);
+	if (_output.is_open()){
+        _configuration.iterate(*this);
+		_output.close();
+		_sequence++;
+    } else {
+		stringstream message;
+		message<<__FILE__ <<" " <<__LINE__<<" Error: Unable to open file " << file_name<<endl; 
+		throw logic_error(message.str().c_str()); 
+	}
+
+}
+
+void Reporter::visit(int i, Particle & particle) {
+	_output << particle << endl;
+}
+

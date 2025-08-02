@@ -73,6 +73,7 @@ class Particle {
 	void reset_acceleration() {};   // TODO
 	
 	void accumulate_acceleration (double x1,double y1,double z1) {};   // TODO
+	
 	/**
      * Output position, velocity, and mass.
      */
