@@ -27,6 +27,7 @@
 #include <string>
 #include <set>
 #include <sstream>
+#include <stdexcept>
 #include "configuration.hpp"
 
 using namespace std;
@@ -36,13 +37,22 @@ using namespace std;
  */
 int Configuration::_get_line_count(ifstream& inputFile) {
 	auto line_count = 0;
+	auto ended = false;
 	string line;
-	while (getline(inputFile, line))
-		line_count++;
-
+	while (getline(inputFile, line)){
+		if (!line.contains("="))
+			line_count++;
+	
+		ended = line.starts_with("End");
+		if (ended)
+			line_count -= 1;	
+	}
+	if (!ended)
+		throw logic_error("Configuration file not ended cleanly");
+	
 	inputFile.clear();
 	inputFile.seekg(0);
-	return line_count;
+	return line_count + 5 + 1;
 }
 
 Configuration::Configuration(string file_name){
@@ -53,70 +63,49 @@ Configuration::Configuration(string file_name){
 	_n = Configuration::_get_line_count(inputFile) - 6;
 	_particles = make_unique<Particle[]>(_n);
 	
-	auto line_number = 0;
+	auto index = 0;
 	string line;
     while (getline(inputFile, line)) {
-		if (line.compare(0,3,"End",0,3)==0) break;
+		if (line.starts_with("End")) break;
 		
 		auto tokens = StringSplitter::split(line, "=,", true);
 	
-		switch (line_number) {
-			case 0:
-				if (tokens[0].compare("Version")==0)
-					_version = tokens[1];
-				else
-					throw invalid_argument( "Error " + line);
-				break;
-			case 1:
-				if (tokens[0].compare("iteration")==0)
-					_iteration = stoi(tokens[1]);
-				else
-					throw invalid_argument( "Error " + line);
-				break;
-			case 2:
-				if (tokens[0].compare("theta")==0)
-					_theta = decode(tokens[1]);
-				else
-					throw invalid_argument( "Error " + line);
-				break;
-			case 3:
-				if (tokens[0].compare("G")==0)
-					_G = decode(tokens[1]);
-				else
-					throw invalid_argument( "Error " + line);
-				break;
-			case 4:
-				if (tokens[0].compare("dt")==0)
-					_dt = decode(tokens[1]);
-				else
-					throw invalid_argument( "Error " + line);
-				break;
-			default:
-				auto position = array{0.0,0.0,0.0};
-				auto mass = 0.0;
-				auto velocity = array{0.0,0.0,0.0};
-				for (int i=0;i<7;i++) {
-					auto value = decode(tokens[i]);
-					switch(i){
-						case 0:
-						case 1:
-						case 2:
-							position[i] = value;
-							break;
-						case 3:
-							mass = value;;
-							break;
-						case 4:
-						case 5:
-						case 6:
-							velocity[i-4] = value;
+		if (tokens[0].compare("Version")==0)
+			_version = tokens[1];
+		else if (tokens[0].compare("iteration")==0)
+			_iteration = stoi(tokens[1]);
+		else if (tokens[0].compare("theta")==0)
+			_theta = decode(tokens[1]);
+		else if (tokens[0].compare("G")==0)
+			_G = decode(tokens[1]);
+		else if (tokens[0].compare("dt")==0)
+			_dt = decode(tokens[1]);
+		else {
+			auto position = array{0.0,0.0,0.0};
+			auto mass = 0.0;
+			auto velocity = array{0.0,0.0,0.0};
+			for (int i=0;i<7;i++) {
+				auto value = decode(tokens[i]);
+				switch(i){
+					case 0:
+					case 1:
+					case 2:
+						position[i] = value;
+						break;
+					case 3:
+						mass = value;;
+						break;
+					case 4:
+					case 5:
+					case 6:
+						velocity[i-4] = value;
 					}
-				}
-				const int index = line_number-5;
-				_particles[index].init(position,velocity,mass,index);	
+			}
+			_particles[index].init(position,velocity,mass,index);	
+			index++;			
 		}
-		line_number++;
     }
+
 	cout << __FILE__ << " " << __LINE__ << ": " << _n << " particles"<<endl;
 }
 
