@@ -33,10 +33,13 @@ class Reporter : public Configuration::Visitor {
 	string _path;
 	string _extension;
 	int _sequence;
+    string _killfile;
 	
   public:
-    Reporter(Configuration & configuration,string base="foo",string extension="csv",string path="configs/")
- 	: _configuration(configuration),_output(),_base(base),_path(path),_extension(extension),_sequence(0) {;}
+    Reporter(Configuration & configuration,string base="foo",string extension="csv",string path="configs/", string killfile="kill")
+ 	: 	_configuration(configuration),
+		_output(),_base(base),_path(path),_extension(extension),_sequence(0),
+		_killfile(killfile) {;}
 	
 	/**
 	 *   Record configuration in a csv file
@@ -48,7 +51,7 @@ class Reporter : public Configuration::Visitor {
 	 */
 	void visit(int i, Particle & particle);
 	
-    virtual bool should_continue() = 0;
+    bool should_continue();
 	
   private:
 	string _get_file_name(int n=4);

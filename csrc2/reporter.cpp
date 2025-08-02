@@ -53,3 +53,11 @@ void Reporter::visit(int i, Particle & particle) {
 	_output << particle << endl;
 }
 
+bool Reporter::should_continue() {
+	ifstream file(_killfile);
+	if (!file.is_open()) return true;
+	cout << "Found killfile: " <<_killfile<<endl;
+	file.close();
+	remove(_killfile.c_str());
+	return false;
+}

@@ -19,7 +19,6 @@
 
 #include <iostream>
 #include <chrono>
-#include <fstream>
 #include <getopt.h>
 #include "acceleration.hpp"
 #include "galaxy.hpp"
@@ -41,12 +40,12 @@ int main(int argc, char **argv) {
 	try {
 		Configuration configuration(config_file);
 		AccelerationVisitor calculate_acceleration(configuration, configuration.get_theta(),configuration.get_G(),softening_length);
-		GalaxyReporter reporter(configuration);
-		cout << __FILE__ << " " << __LINE__ << endl;
+		Reporter reporter(configuration);
 		Verlet integrator(configuration,  calculate_acceleration,reporter);
 		integrator.run(max_iter,configuration.get_dt());
 	}  catch (const exception& e) {
-        cerr << __FILE__ << " " << __LINE__ << " Terminating because of errors: " << e.what() << endl;
+        cerr << __FILE__ << " " << __LINE__ << " Terminating because of errors: "<< endl;
+		cerr  << e.what() << endl;
 		exit(1);
     }
 	auto end = std::chrono::high_resolution_clock::now();
@@ -88,13 +87,3 @@ tuple <string,int,double> get_options(int argc, char **argv) {
 	return make_tuple(config_file,max_iter,softening_length);
 }
 
-
-
-bool GalaxyReporter::should_continue() {
-	ifstream file(_killfile);
-	if (!file.is_open()) return true;
-	cout << "Found killfile: " <<_killfile<<endl;
-	file.close();
-	remove(_killfile.c_str());
-	return false;
-}

@@ -51,7 +51,7 @@ TEST_MAIN = tests.exe
 all : $(MAIN)
 
 run : all 
-	${RM} foo*.csv
+	${RM} configs/foo*.csv
 	./$(MAIN)
 	
 tests : $(TEST_MAIN)

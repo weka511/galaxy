@@ -22,6 +22,7 @@
  #include "configuration.hpp"
  #include "reporter.hpp"
  #include "verlet.hpp"
+ 
  using namespace std;
 
 /**
@@ -29,13 +30,4 @@
  */
 tuple <string,int,double> get_options(int argc, char **argv);
 
-class GalaxyReporter : public Reporter{
-  private:
-    string _killfile;
-	
-  public:
-    GalaxyReporter(Configuration  &configuration, string killfile="kill") 
-	: Reporter(configuration),_killfile(killfile) {};
-    bool should_continue();
-};
 
