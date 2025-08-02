@@ -26,6 +26,6 @@
 /**
  *  Parse command line parameters.
  */
-tuple <string,int,double,string,string> get_options(int argc, char **argv);
+tuple <string,int,double,double,double,double,string,string> get_options(int argc, char **argv);
 
 

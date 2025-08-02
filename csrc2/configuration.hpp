@@ -64,10 +64,6 @@ class Configuration {
 	static int _get_line_count(ifstream& inputFile);
 	
     string _version; 
-	int _iteration;    // FIXME - initialized but not used
-	double _theta; 
-	double _G; 
-	double _dt; 
 	
   public:                 //FIXME
 	unique_ptr<Particle[]> _particles;
@@ -77,12 +73,6 @@ class Configuration {
 	Configuration(string file_name);
 	
 	const string get_version() { return _version;}
-	
-	const double get_theta() { return _theta;}
-	
-	const double get_G() { return _G;}
-	
-	const double get_dt() { return _dt;}
 	
 	/**
 	 * iterate through all Particles, visiting each in turn

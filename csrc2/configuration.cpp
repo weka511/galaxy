@@ -73,13 +73,13 @@ Configuration::Configuration(string file_name){
 		if (tokens[0].compare("Version")==0)
 			_version = tokens[1];
 		else if (tokens[0].compare("iteration")==0)
-			_iteration = stoi(tokens[1]);
-		else if (tokens[0].compare("theta")==0)
-			_theta = decode(tokens[1]);
+			cout << "Unused token"<<tokens[0]<<endl;
+		else if (tokens[0]. compare("theta")==0)
+			cout << "Unused token"<<tokens[0]<<endl;
 		else if (tokens[0].compare("G")==0)
-			_G = decode(tokens[1]);
+			cout << "Unused token"<<tokens[0]<<endl;
 		else if (tokens[0].compare("dt")==0)
-			_dt = decode(tokens[1]);
+			cout << "Unused token"<<tokens[0]<<endl;
 		else {
 			auto position = array{0.0,0.0,0.0};
 			auto mass = 0.0;

@@ -31,20 +31,23 @@ using namespace std;
 int main(int argc, char **argv) {
 	string config_file;
 	int max_iter;
-	double softening_length;
+	double a;
+	double G;
+	double dt;
+	double theta;
 	string base;
 	string path;
-	tie(config_file,max_iter,softening_length,base,path) = get_options(argc,argv);
+	tie(config_file,max_iter,a,G,dt,theta,base,path) = get_options(argc,argv);
 
 	auto start = chrono::high_resolution_clock::now();
 	cout << __FILE__ << " " << __LINE__ << " galaxy: " << VERSION << endl;
 
 	try {
 		Configuration configuration(config_file);
-		AccelerationVisitor calculate_acceleration(configuration, configuration.get_theta(),configuration.get_G(),softening_length);
+		AccelerationVisitor calculate_acceleration(configuration, theta,G,a);
 		Reporter reporter(configuration,base,path);
 		Verlet integrator(configuration,  calculate_acceleration,reporter);
-		integrator.run(max_iter,configuration.get_dt());
+		integrator.run(max_iter,dt);
 	}  catch (const exception& e) {
         cerr << __FILE__ << " " << __LINE__ << " Terminating because of errors: "<< endl;
 		cerr  << e.what() << endl;
@@ -61,16 +64,22 @@ int main(int argc, char **argv) {
 /**
  *  Parse command line parameters.
  */
-tuple <string,int,double,string,string> get_options(int argc, char **argv) {
+tuple <string,int,double,double,double,double,string,string> get_options(int argc, char **argv) {
 	auto config_file = "../configs/config.txt";
 	auto max_iter = 100;
-	auto softening_length = 1.0;
+	auto a = 1.0;
 	auto base = "galaxy";
 	auto path = "configs/";
+	auto G = 1.0;
+	auto dt = 0.1;
+	auto theta = 1.0;
 	static struct option long_options[] ={ 
 		{"config", required_argument, NULL, 'c'},
 		{"max_iter", required_argument, NULL, 'N'},
-		{"softening_length", required_argument, NULL, 's'},
+		{"softening_length", required_argument, NULL, 'a'},
+		{"G", required_argument, NULL, 'G'},
+		{"dt", required_argument, NULL, 'd'},
+		{"theta", required_argument, NULL, 'h'},
 		{"report", required_argument, NULL, 'r'},
 		{"path", required_argument, NULL, 'p'},
 		{NULL, 0, NULL, 0}
@@ -84,8 +93,17 @@ tuple <string,int,double,string,string> get_options(int argc, char **argv) {
 		 case 'N':
 			max_iter = atoi(optarg); 
 			break;
-		case 's':
-			softening_length = atof(optarg); 
+		case 'a':
+			a = atof(optarg); 
+			break;
+		case 'G':
+			G = atof(optarg); 
+			break;
+		case 'd':
+			dt = atof(optarg); 
+			break;
+		case 'h':
+			theta = atof(optarg); 
 			break;
 		case 'r':
 			 base = optarg; 
@@ -95,6 +113,6 @@ tuple <string,int,double,string,string> get_options(int argc, char **argv) {
 			 break;
 		}
 	}
-	return make_tuple(config_file,max_iter,softening_length,base,path);
+	return make_tuple(config_file,max_iter,a,G,dt,theta,base,path);
 }
 
