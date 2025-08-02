@@ -213,8 +213,7 @@ def save_configuration(bodies,config_version=1.1,output='config_new.txt',number_
     '''
     with open(output,'w') as f:
         f.write(f'Version={config_version}\n')
-        f.write(f'iteration={0}\n')
-
+  
         for body in bodies:
             f.write(body.encode()+'\n' )
         f.write('End\n')
