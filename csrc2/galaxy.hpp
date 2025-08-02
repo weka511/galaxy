@@ -28,13 +28,7 @@
  */
 class Parameters {
   public:
-	/**
-	 *  Parse command line parameters.
-	 */
-	static unique_ptr<Parameters>  get_options(int argc, char **argv);
-	static struct option long_options[];
-	
-	string config_file = "../configs/config.txt";
+  	string config_file = "../configs/config.txt";
 	int max_iter = 10000;
 	int a = 1.0;
 	string base = "galaxy";
@@ -43,6 +37,13 @@ class Parameters {
 	float dt = 0.1;
 	float theta = 1.0;
 	int frequency = 100;
+	
+  public:
+	/**
+	 *  Parse command line parameters.
+	 */
+	static unique_ptr<Parameters>  get_options(int argc, char **argv);
+	static struct option long_options[];
 };
 
 
