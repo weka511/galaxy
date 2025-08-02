@@ -19,13 +19,32 @@
  
  #include <string>
  #include <tuple>
- 
- 
+ #include <memory>
+ #include <getopt.h>
  using namespace std;
 
 /**
- *  Parse command line parameters.
+ *  A class for storing command line parameters.
  */
-tuple <string,int,double,double,double,double,string,string> get_options(int argc, char **argv);
+class Parameters {
+  public:
+	/**
+	 *  Parse command line parameters.
+	 */
+	static unique_ptr<Parameters>  get_options(int argc, char **argv);
+	static struct option long_options[];
+	
+	string config_file = "../configs/config.txt";
+	int max_iter = 10000;
+	int a = 1.0;
+	string base = "galaxy";
+	string path = "configs/";
+	float G = 1.0;
+	float dt = 0.1;
+	float theta = 1.0;
+	int frequency = 100;
+};
+
+
 
 

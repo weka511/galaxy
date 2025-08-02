@@ -19,7 +19,7 @@
 
 #include <iostream>
 #include <chrono>
-#include <getopt.h>
+
 #include "acceleration.hpp"
 #include "galaxy.hpp"
 #include "verlet.hpp"
@@ -29,25 +29,16 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-	string config_file;
-	int max_iter;
-	double a;
-	double G;
-	double dt;
-	double theta;
-	string base;
-	string path;
-	tie(config_file,max_iter,a,G,dt,theta,base,path) = get_options(argc,argv);
-
+	unique_ptr<Parameters> parameters=Parameters::get_options(argc, argv);
 	auto start = chrono::high_resolution_clock::now();
 	cout << __FILE__ << " " << __LINE__ << " galaxy: " << VERSION << endl;
 
 	try {
-		Configuration configuration(config_file);
-		AccelerationVisitor calculate_acceleration(configuration, theta,G,a);
-		Reporter reporter(configuration,base,path);
+		Configuration configuration(parameters->config_file);
+		AccelerationVisitor calculate_acceleration(configuration, parameters->theta,parameters->G,parameters->a);
+		Reporter reporter(configuration,parameters->base,parameters->path,"csv","kill",parameters->frequency);
 		Verlet integrator(configuration,  calculate_acceleration,reporter);
-		integrator.run(max_iter,dt);
+		integrator.run(parameters->max_iter,parameters->dt);
 	}  catch (const exception& e) {
         cerr << __FILE__ << " " << __LINE__ << " Terminating because of errors: "<< endl;
 		cerr  << e.what() << endl;
@@ -61,58 +52,55 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+struct option Parameters::long_options[] ={ 
+	{"config", required_argument, NULL, 'c'},
+	{"max_iter", required_argument, NULL, 'N'},
+	{"softening_length", required_argument, NULL, 'a'},
+	{"G", required_argument, NULL, 'G'},
+	{"dt", required_argument, NULL, 'd'},
+	{"theta", required_argument, NULL, 'h'},
+	{"report", required_argument, NULL, 'r'},
+	{"path", required_argument, NULL, 'p'},
+	{"frequency",required_argument,NULL,'f'},
+	{NULL, 0, NULL, 0}
+};
+
 /**
  *  Parse command line parameters.
  */
-tuple <string,int,double,double,double,double,string,string> get_options(int argc, char **argv) {
-	auto config_file = "../configs/config.txt";
-	auto max_iter = 100;
-	auto a = 1.0;
-	auto base = "galaxy";
-	auto path = "configs/";
-	auto G = 1.0;
-	auto dt = 0.1;
-	auto theta = 1.0;
-	static struct option long_options[] ={ 
-		{"config", required_argument, NULL, 'c'},
-		{"max_iter", required_argument, NULL, 'N'},
-		{"softening_length", required_argument, NULL, 'a'},
-		{"G", required_argument, NULL, 'G'},
-		{"dt", required_argument, NULL, 'd'},
-		{"theta", required_argument, NULL, 'h'},
-		{"report", required_argument, NULL, 'r'},
-		{"path", required_argument, NULL, 'p'},
-		{NULL, 0, NULL, 0}
-	};
+unique_ptr<Parameters> Parameters::get_options(int argc, char **argv){
+	unique_ptr<Parameters> parameters = make_unique<Parameters>();
 	char ch;
 	while ((ch = getopt_long(argc, argv, "c:N:s:", long_options, NULL)) != -1){
 	  switch (ch)    {
 		 case 'c':
-			 config_file = optarg; 
+			 parameters->config_file = optarg; 
 			 break;
-		 case 'N':
-			max_iter = atoi(optarg); 
+		case 'N':
+			parameters->max_iter = atoi(optarg); 
+			break;
+		case 'f':
+			parameters->frequency = atoi(optarg); 
 			break;
 		case 'a':
-			a = atof(optarg); 
+			parameters->a = atof(optarg); 
 			break;
 		case 'G':
-			G = atof(optarg); 
+			parameters->G = atof(optarg); 
 			break;
 		case 'd':
-			dt = atof(optarg); 
+			parameters->dt = atof(optarg); 
 			break;
 		case 'h':
-			theta = atof(optarg); 
+			parameters->theta = atof(optarg); 
 			break;
 		case 'r':
-			 base = optarg; 
+			 parameters->base = optarg; 
 			 break;
  		 case 'p':
-			 path = optarg; 
+			 parameters->path = optarg; 
 			 break;
 		}
 	}
-	return make_tuple(config_file,max_iter,a,G,dt,theta,base,path);
+	return parameters;
 }
-
