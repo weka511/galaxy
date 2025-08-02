@@ -35,12 +35,14 @@ string Reporter::_get_file_name(int n){
  *   Record configuration in a csv file
  */
 void Reporter::report(){
+	_sequence++;
+	if (--_count_down > 0) return;
+	_count_down = _frequency;
 	string file_name = _get_file_name();
 	_output.open(file_name);
 	if (_output.is_open()){
         _configuration.iterate(*this);
 		_output.close();
-		_sequence++;
     } else {
 		stringstream message;
 		message<<__FILE__ <<" " <<__LINE__<<" Error: Unable to open file " << file_name<<endl; 

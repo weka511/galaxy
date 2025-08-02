@@ -32,14 +32,29 @@ class Reporter : public Configuration::Visitor {
 	string _base;
 	string _path;
 	string _extension;
+	
+	/**
+	 *   Sequence number for files. This is incremented every time report() is called,
+	 *   so the file numbers have gap equal to _frequency.
+	 */
 	int _sequence;
+	
     string _killfile;
+	/**
+	 *   Gap between sequnce numbers for files.
+	 */
+	const int _frequency;
+	
+	/**
+	 *  Used to determine whetherit is time to output a file.
+	 */
+	int _count_down;
 	
   public:
-    Reporter(Configuration & configuration,string base="foo",string path="configs/",string extension="csv", string killfile="kill")
+    Reporter(Configuration & configuration,string base="foo",string path="configs/",string extension="csv", string killfile="kill",int frequency=1)
  	: 	_configuration(configuration),
 		_output(),_base(base),_path(path),_extension(extension),_sequence(0),
-		_killfile(killfile) {;}
+		_killfile(killfile),_frequency(frequency),_count_down(frequency) {;}
 	
 	/**
 	 *   Record configuration in a csv file
@@ -47,7 +62,7 @@ class Reporter : public Configuration::Visitor {
 	void report();
 	
 	/**
-	 * Outout velocity and position for one particle.
+	 * Output velocity and position for one particle.
 	 */
 	void visit(int i, Particle & particle);
 	
