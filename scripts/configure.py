@@ -102,8 +102,7 @@ class ConfigurationFactory(ABC):
 
     @abstractmethod
     def create(self,number_bodies=100,
-                       radius=1.0,
-                       G=1.0):
+                       radius=1.0):
         pass
 
     def randomize_on_sphere(self,radius=1.0):
@@ -118,8 +117,7 @@ class ConfigurationFactory(ABC):
 
 class Plummer(ConfigurationFactory):
     def create(self,number_bodies=100,
-                       radius=1.0,
-                       G=1.0):             # TODO
+                       radius=1.0):             # TODO
         '''
         Instantiate configuration for Plummer model
 
@@ -153,28 +151,22 @@ class Plummer(ConfigurationFactory):
 def parse_args():
     '''Parse command line parameters'''
     parser = ArgumentParser(__doc__)
-    dt = 0.1
     model = 'plummer'
     output = 'config.txt'
     n = 100
     path = '../configs'
     r = 1.0
-    theta = 1.0    # Reccommnded value from Barnes & Hut
     sigma = 2.0
-    G = 1.0
 
-    parser.add_argument('--dt', type=float, default=dt, help=f'Step size for integration [{dt}]')
     parser.add_argument('--output', default=output, help=f'Configuration file [f{output}]')
     parser.add_argument('--model', default=model, help=f'Used to initialize distribution [{model}]')
     parser.add_argument('-n', '--number_bodies',  type=int, default=n, help=f'Number of bodies [{n}]')
     parser.add_argument('-p', '--path', default=path,  help=f'Path for configuration files [{path}]')
     parser.add_argument('-r', '--radius', type=float, default=r, help=f'Initial Radius [{r}]')
     parser.add_argument('--seed', help='Initialize the random number generator')
-    parser.add_argument('--theta', type=float, default=theta, help=f'Theta-criterion of the Barnes-Hut algorithm [{theta}]')
     parser.add_argument('--generate', action='store_true', default=False, help='Generate test data for serialization')
     parser.add_argument('--show', action='store_true', default=False, help='Show generated points')
     parser.add_argument('--nsigma', type=float, default=sigma, help=f'Scale data for show {sigma}')
-    parser.add_argument('-G', '--G', type=float, default=G, help=f'Gravitational constant [{G}]')
     parser.add_argument('--xml', help='XML spec')
     parser.add_argument('--figs', default = './figs', help = 'Name of folder where plots are to be stored')
     parser.add_argument('-o', '--out', default = basename(splitext(__file__)[0]),help='Name of output file')
@@ -209,7 +201,7 @@ def backup(output='config.txt'):
         copyfile(output,output+'~')
 
 
-def save_configuration(bodies,config_version=1.0,output='config_new.txt',number_bodies=1000,theta=1.0,dt=0.1,G=1.0):
+def save_configuration(bodies,config_version=1.1,output='config_new.txt',number_bodies=1000):
     '''
     Save configuration to specified file
 
@@ -218,16 +210,10 @@ def save_configuration(bodies,config_version=1.0,output='config_new.txt',number_
         config_version
         output
         number_bodies
-        theta
-        dt
-        G
     '''
     with open(output,'w') as f:
         f.write(f'Version={config_version}\n')
         f.write(f'iteration={0}\n')
-        f.write(f'theta={encode(theta)}\n')
-        f.write(f'G={encode(G)}\n')
-        f.write(f'dt={encode(dt)}\n')
 
         for body in bodies:
             f.write(body.encode()+'\n' )
@@ -239,8 +225,7 @@ def save_configuration(bodies,config_version=1.0,output='config_new.txt',number_
 def create_configuration(
     model          = 'plummer',
     number_bodies  = 1000,
-    radius         = 1.0,
-    G              = 1.0):
+    radius         = 1.0):
     '''
     Generate a configuration of bodies in phase space
 
@@ -250,7 +235,7 @@ def create_configuration(
         radius
         G
     '''
-    return  ConfigurationFactory.create_config_factory(model).create(number_bodies=number_bodies,radius=radius,G=G)
+    return  ConfigurationFactory.create_config_factory(model).create(number_bodies=number_bodies,radius=radius)
 
 def create_configuration_from_xml(file):
     '''
@@ -365,14 +350,12 @@ if __name__=='__main__':
     if args.xml == None:
         bodies = create_configuration(model         = args.model,
                                       number_bodies = number_bodies,
-                                      radius        = args.radius,
-                                      G             = args.G)
+                                      radius        = args.radius)
 
         save_configuration(bodies,
                            output        = config_file,
-                           number_bodies = number_bodies,
-                           theta         = args.theta,
-                           dt            = args.dt)
+                           number_bodies = number_bodies)
+
         print (f'Created {args.model}: n={number_bodies}, r={args.radius}.')
 
     else:
