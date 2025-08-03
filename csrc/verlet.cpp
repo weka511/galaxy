@@ -19,28 +19,50 @@
  * See http://physics.ucsc.edu/~peter/242/leapfrog.pdf
  */
  
- 
-#include <algorithm>
-#include <cmath>
 #include <iostream>
+#include "acceleration.hpp"
+#include "verlet.hpp"
 
-#include "stepper.h"
-#include "verlet.h"
 using namespace std;
 
 /**
- *  Use Euler algorithm for first step. NB: this updates velocity only, so x
- *  remains at its initial value, which is what Verlet needs.
+ * This function is responsible for integrating an ODE.
+ *
+ * Parameters:
+ *     max_iter   Number of iterations
+ *     dt         Time step
+ */
+void Verlet::run( int max_iter,const double dt){
+	if (!_reporter.should_continue()) return;
+	_configuration.initialize(_calculate_acceleration);
+	_configuration.iterate(_calculate_acceleration);
+	Euler euler(0.5*dt);
+	Velocities velocities(dt);
+	Positions positions(dt);
+	_configuration.iterate(euler);
+	for (int iter=0;iter<max_iter and _reporter.should_continue();iter++) {
+		_configuration.iterate(positions);
+		_configuration.initialize(_calculate_acceleration);
+		_configuration.iterate(_calculate_acceleration);
+		_configuration.iterate(velocities);
+		_reporter.report();
+	}
+}
+
+/**
+ *  Use Euler algorithm for first step. NB: this updates velocity only, so 
+ *  position remains at its initial value, as Verlet expects.
  *
  *  dt                Time step
  *  particles         Vector of particles
  */
-void  euler(Particle* particle,double dt){
-	double vx,vy,vz;
-	particle->getVel( vx, vy,  vz);
-	double ax,ay,az;
-	particle->getAcc( ax, ay,  az);
-	particle->setVel( vx+dt*ax, vy+dt*ay,  vz+dt*az);
+ 
+void Verlet::Euler::visit(int i,Particle & particle){
+	array<double,3>  velocity = particle.get_velocity();
+	array<double,3>  acceleration = particle.get_acceleration();
+	for (int i=0;i<3;i++)
+		velocity[i] += _dt * acceleration[i];
+	particle.set_velocity(velocity);
 }
 
 /**
@@ -49,12 +71,12 @@ void  euler(Particle* particle,double dt){
  *  dt                Time step
  *  particles         Vector of particles
  */
-void  verlet_positions(Particle* particle,double dt) {
-	double x,y,z;
-	particle->getPos( x, y,  z);
-	double vx,vy,vz;
-	particle->getVel( vx, vy,  vz);
-	particle->setPos( x+dt*vx, y+dt*vy,  z+ dt*vz);
+void Verlet::Positions::visit(int i,Particle & particle){
+	array<double,3>  position = particle.get_position();
+	array<double,3>  velocity = particle.get_velocity();
+	for (int i=0;i<3;i++)
+		position[i] += _dt * velocity[i];
+	particle.set_position(position);
 }
 
 /**
@@ -63,78 +85,12 @@ void  verlet_positions(Particle* particle,double dt) {
  *  dt                Time step
  *  particles         Vector of particles
  */
-void  verlet_velocities(Particle* particle,double dt) {
-	double vx,vy,vz;
-	particle->getVel( vx, vy,  vz);
-	double ax,ay,az;
-	particle->getAcc( ax, ay,  az);
-	particle->setVel( vx+dt*ax, vy+dt*ay,  vz+dt*az);
-	
-}
-
-/**
- * Integrate by taking one Euler step, followed by repeated Verlet steps. 
- *
- *  get_acceleration  Used to determine acceleration of all particles
- *  dt                Time step
- *  particles         Vector of particles
- *  shouldContinue    Used after each iteration, for reporting and to determine whher to continue
- *  start_iterations  Initial iteration number. Normally zero, but non-zero if we resume after an earlier run
- */
-void run_verlet(void (*get_acceleration)(vector<Particle*>),
-				int max_iter,
-				double dt,
-				vector<Particle*> particles,
-				bool (*shouldContinue)(vector<Particle*> particles,int iter),
-				int start_iterations) {
-	if (start_iterations==0){
-		get_acceleration(particles);
-		// Take a half step, so acceleration corresponds to 0.5dt, 1.5dt, etc.
-		for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
-	}
-	
-	/**
-	 * Iterate through future times: notice that we need to incrment iter before checking shouldContinue
-	 * in order to fix issue #43 - On restart, galaxy.exe loses some time steps
-	 */
-	for (int iter=1+start_iterations;iter<max_iter+start_iterations && shouldContinue(particles,++iter);) {
-		for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_positions(particle,dt);});
-		get_acceleration(particles);
-		for_each(particles.begin(),particles.end(),[dt](Particle* particle){verlet_velocities(particle,dt);});
-	}
-}
-
-
-
-
-void run_verlet(Node * (*precondition)(vector<Particle*>),
-				void (*get_acceleration)(int i, vector<Particle*> particles,Node * root),
-				int max_iter,
-				double dt,
-				vector<Particle*> particles,
-				bool (*shouldContinue)(vector<Particle*> particles,int iter),
-				int start_iterations,
-				int nthreads) {
-					
-	if (start_iterations==0){
-		Node * root=precondition(particles);
-		for (int i=0;i<particles.size();i++)
-			get_acceleration(i,particles,root);
-	
-		delete root;
-		// Take a half step, so acceleration corresponds to 0.5dt, 1.5dt, etc.
-		for_each(particles.begin(),particles.end(),[dt](Particle* particle){euler(particle,0.5*dt);});
-
-	}
-	Stepper stepper(nthreads,
-					1+start_iterations,
-					max_iter+start_iterations,
-					particles,
-					precondition,
-					get_acceleration,
-					dt,
-					shouldContinue);
-	stepper.start();
+void Verlet::Velocities::visit(int i,Particle & particle){
+	array<double,3>  velocity = particle.get_velocity();
+	array<double,3> & acceleration = particle.get_acceleration();
+	for (int i=0;i<3;i++)
+		velocity[i] += _dt * acceleration[i];
+	particle.set_velocity(velocity);	
 }
 
 

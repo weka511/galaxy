@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,143 +13,94 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * Implementation of the Barnes Hut algorithm to simulate the evolution of a galaxy.
  */
- 
-#include <chrono>
-#include <ctime>
-#include <vector>
-#include <iomanip>
-#include <iostream>
-#include <fstream>
-#include <math.h>
-#include <ostream>
-#include <sstream>
-#include <getopt.h>
-#include <algorithm>
-#include <stdexcept>
-#include <stdlib.h> 
-#include <time.h> 
-#include "barnes-hut.h"
-#include "configs.h"
-#include "galaxy.h"
-#include "center-of-mass.h"
-#include "treecode.h"
-#include "utils.h"
-#include "verlet.h"
-#include "physics.h"
-#include "spdlog/spdlog.h"
 
-namespace spd = spdlog;
+#include <iostream>
+#include <chrono>
+
+#include "acceleration.hpp"
+#include "galaxy.hpp"
+#include "verlet.hpp"
+#include "barnes-hut.hpp"
+#include "reporter.hpp"
+
 using namespace std;
 
-Configuration configuration;
-
-/**
- * Main program. Parse command line options, create bodies, then run simulation.
- */
 int main(int argc, char **argv) {
-	cout << VERSION << endl;
+	unique_ptr<Parameters> parameters=Parameters::get_options(argc, argv);
+	auto start = chrono::high_resolution_clock::now();
+	cout << __FILE__ << " " << __LINE__ << " galaxy: " << VERSION << endl;
+
 	try {
-		string log_path="./logs/";
-		ensure_path_exists(log_path);
-		auto daily_sink = make_shared<spdlog::sinks::daily_file_sink_mt>(log_path+"logfile", 23, 59);
-		auto logger = make_shared<spdlog::logger>("galaxy", daily_sink);
-		logger->set_level(spdlog::level::info);
-		spdlog::register_logger(logger);
+		Configuration configuration(parameters->get_config_file());
+		AccelerationVisitor calculate_acceleration(configuration, parameters->get_theta(),parameters->get_G(),parameters->get_a());
+		Reporter reporter(configuration,parameters->get_base(),parameters->get_path(),"csv","kill",parameters->get_frequency());
+		Verlet integrator(configuration,  calculate_acceleration,reporter);
+		integrator.run(parameters->get_max_iter(),parameters->get_dt());
+	}  catch (const exception& e) {
+        cerr << __FILE__ << " " << __LINE__ << " Terminating because of errors: "<< endl;
+		cerr  << e.what() << endl;
+		exit(1);
+    }
+	auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
 
-		auto start = chrono::system_clock::now();
-		time_t start_time = chrono::system_clock::to_time_t(start);
-
-		if (configuration.extract_options(argc,argv)) {
-			vector<Particle*> particles;
-			int start_iterations=0;
-			if (get_resume_flag()) {
-				if (configuration.restore_config(particles,start_iterations) || 
-					configuration.restore_config(particles,start_iterations,true))
-					logger->info("Restarted from {0} {1} at {2}",
-								configuration.get_path(),
-								configuration.get_config_file_name(),
-								start_iterations);
-					else {
-						logger->info("Failed to restart from {0} {1}",
-							configuration.get_path(),
-							configuration.get_config_file_name());
-						return EXIT_FAILURE;
-					}
-			} else {
-				ensure_path_exists(configuration.get_path());
-				remove_old_configs(configuration.get_path());  // Issue #5 - remove old config files
-				particles = configuration.createParticles(  );
-			}
+    std::cout << "Execution time: " << duration.count() << " seconds" << std::endl;
 	
-			report_all(particles,start_iterations);
-
-			if (configuration.get_n_threads()==0)
-				run_verlet(
-						[](	vector<Particle*> particles)->void{
-																	get_acceleration(
-																	particles,
-																	configuration.get_theta(),
-																	configuration.getG(),
-																	configuration.get_a());},
-						configuration.get_max_iter(),
-						configuration.get_dt(),
-						particles,
-						&report_all,
-						start_iterations);
-			else {
-				spdlog::set_async_mode(1024);
-				run_verlet(
-						[](	vector<Particle*> particles)->Node*{return create_tree(particles);},
-						[](	int i,vector<Particle*> particles,Node* root)->
-							void{get_acceleration(i,
-													particles,
-													root,
-													configuration.get_theta(),
-													configuration.getG(),
-													configuration.get_a());},
-						configuration.get_max_iter(),
-						configuration.get_dt(),
-						particles,
-						&report_all,
-						start_iterations,
-						configuration.get_n_threads());
-			}		
-			auto end = chrono::system_clock::now();
-		 
-			chrono::duration<double> elapsed_seconds = end-start;
-			time_t end_time = chrono::system_clock::to_time_t(end);
-		 
-			logger->info("finished computation at {0}, elapsed time: {1} seconds", ctime(&end_time), elapsed_seconds.count());
-					  
-			return EXIT_SUCCESS;
-		} else {
-			logger->error("Terminating: failed to parse command line parameters.");
-			for (int i=0;i<argc;i++)
-				logger->info(argv[i]);
-			return EXIT_FAILURE;
-		}
-		
-	} catch (const exception& ex){
-		cerr << argv[0]<< " halted following an exception: " << ex.what() << endl;
-		return EXIT_FAILURE;
-	}
+    return 0;
 }
 
-
+struct option Parameters::long_options[] ={ 
+	{"config", required_argument, NULL, 'c'},
+	{"max_iter", required_argument, NULL, 'N'},
+	{"softening_length", required_argument, NULL, 'a'},
+	{"G", required_argument, NULL, 'G'},
+	{"dt", required_argument, NULL, 'd'},
+	{"theta", required_argument, NULL, 'h'},
+	{"report", required_argument, NULL, 'r'},
+	{"path", required_argument, NULL, 'p'},
+	{"frequency",required_argument,NULL,'f'},
+	{NULL, 0, NULL, 0}
+};
 
 /**
- * Used after iteration to write out data
-*/
-bool report_all(vector<Particle*> particles,int iter){
-	configuration.report_configuration(particles,iter);
-	return !killed();
+ *  Parse command line parameters.
+ */
+unique_ptr<Parameters> Parameters::get_options(int argc, char **argv){
+	unique_ptr<Parameters> parameters = make_unique<Parameters>();
+	char ch;
+	while ((ch = getopt_long(argc, argv, "c:N:s:", long_options, NULL)) != -1){
+	  switch (ch)    {
+		 case 'c':
+			 parameters->_config_file = optarg; 
+			 break;
+		case 'N':
+			parameters->_max_iter = atoi(optarg); 
+			break;
+		case 'f':
+			parameters->_frequency = atoi(optarg); 
+			break;
+		case 'a':
+			parameters->_a = atof(optarg); 
+			break;
+		case 'G':
+			parameters->_G = atof(optarg); 
+			break;
+		case 'd':
+			parameters->_dt = atof(optarg); 
+			break;
+		case 'h':
+			parameters->_theta = atof(optarg); 
+			break;
+		case 'r':
+			 parameters->_base = optarg; 
+			 break;
+ 		 case 'p':
+			 parameters->_path = optarg; 
+			 break;
+		}
+	}
+	return parameters;
 }
-
-
-
-
-
-
-
-

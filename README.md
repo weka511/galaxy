@@ -22,7 +22,7 @@ I am grateful to the following people who have geneously made code available the
 File |  Purpose 
 ---------------------|---------------------------------------------------------------------------------------
 csrc|C++ source
-csrc2|C++ source WIP
+csrc0|Obsolete C++ source
 scripts|Python scripts
 bolzmann.png|Image used by README.md
 energy00200.png|Image used by README.md

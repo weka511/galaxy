@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2019 Greenweaves Software Limited
+# Copyright (C) 2025 Simon Crase
 #
 # This is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,91 +16,67 @@
 # Makefile snarfed from https://stackoverflow.com/questions/2481269/how-to-make-a-simple-c-makefile
 
 GIT_VERSION := $(shell git describe --tags)
-CPPFLAGS    = -g -O3  -D_RUNTIME_CHECKS -pthread -I/sw/include/root  -std=gnu++11  -DVERSION="\"$(GIT_VERSION)\""
-LDFLAGS     = -g -O3
-LDLIBS      =
-CC          = gcc
-CXX         = g++
-RM          = rm -f
-MKDIR       = mkdir
-SRCS        =	barnes-hut.cpp			\
-				center-of-mass.cpp		\
-				configs.cpp				\
-				factory.cpp				\
-				mt.cc					\
-				particle.cpp			\
-				particle-factory.cpp	\
-				physics.cpp         	\
-				plummer.cpp				\
-				stepper.cpp				\
-				tinyxml2.cpp			\
-				treecode.cpp			\
-				utils.cpp				\
-				verlet.cpp
+CPPFLAGS  = -g -O3  -pthread -I/sw/include/root  -std=c++23 -DVERSION="\"$(GIT_VERSION)\"" -Wall
+LDFLAGS   = -g -O3
+LDLIBS    =
+CC        = gcc
+CXX       = g++
+RM        = rm -f
+MKDIR     = mkdir
+SRCS      = acceleration.cpp    \
+			barnes-hut.cpp      \
+			center-of-mass.cpp  \
+			configuration.cpp 	\
+			particle.cpp		\
+			physics.cpp         \
+			reporter.cpp		\
+			tinyxml2.cpp		\
+			treecode.cpp		\
+			verlet.cpp
 
-TESTS       = 	test-kepler.cpp			\
-				test-plummer.cpp		\
-				test-random.cpp    	 	\
-				test-tree.cpp           \
-				test-serialization.cpp
+TESTS     = test-configuration.cpp \
+			test-particle.cpp      \
+			test-treecode.cpp
 		
-OBJS1      = $(subst .cpp,.o,$(SRCS)) 
-OBJS       = $(subst .cc,.o,$(OBJS1)) 
-TEST_OBJS  = $(subst .cpp,.o,$(TESTS))
+OBJS1     = $(subst .cpp,.o,$(SRCS)) 
+OBJS      = $(subst .cc,.o,$(OBJS1)) 
+TEST_OBJS = $(subst .cpp,.o,$(TESTS))
 
 THREADING = threading.exe
 
 MAIN      = galaxy.exe
+TARGETS   = $(MAIN) 
 TEST_MAIN = tests.exe
 
-TARGETS   = $(MAIN) 
+all : $(MAIN)
 
-all : $(TARGETS) $(TEST_OBJS)
-
-run : all
-	$(MAIN)
+run : all 
+	${RM} configs/foo*.csv
+	./$(MAIN)
 	
 tests : $(TEST_MAIN)
 	./$(TEST_MAIN)
-	python make_3d.py kepler.csv
-	python make_3d.py -n 3 lagrange.csv
-
-threading : $(THREADING)
-	./$(THREADING)
-	
-mersenne : mtex.exe mttest.exe
-
-mtex.o :  mtex.cc
-
-mtex.exe : mt.o mtex.o
-	${CXX} $(LDFLAGS) -o mtex.exe mt.o mtex.o ${LDLIBS}
-
-mttest.exe : mttest.o mt.o
-	${CXX} $(LDFLAGS) -o mttest.exe mt.o mttest.o ${LDLIBS}	
 	
 clean :
 	${RM} *.o *.stackdump
 
 rebuild: clean all
 
-depend: .depend
+depend: Makefile .depend
 
 install: rebuild
 	cp $(MAIN) /usr/local/bin
 	
-.depend: $(SRCS)  galaxy.cpp $(TESTS) tests.cpp
+.depend: $(SRCS)   $(TESTS)  galaxy.cpp Makefile
 	$(RM) ./.depend
 	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
-	sed -i -e 's/\/home\/Weka\/galaxy\///$g' .depend
+	sed -i -e 's/\/home\/Weka\/smac\/book\///$g' .depend
 	
-$(MAIN): $(OBJS) galaxy.o mt.o
+$(MAIN): $(OBJS) galaxy.o 
 	${CXX} $(LDFLAGS) -o $(MAIN) galaxy.o ${OBJS} ${LDLIBS}
 	
 $(TEST_MAIN): $(OBJS) tests.o $(TEST_OBJS)
 	${CXX} $(LDFLAGS) -o $(TEST_MAIN) tests.o ${OBJS} $(TEST_OBJS) ${LDLIBS}
-
-$(THREADING) : threading.o
-	${CXX} $(LDFLAGS) -o $(THREADING) threading.o ${LDLIBS}
 	
 distclean: clean
 	$(RM) *~ .depend

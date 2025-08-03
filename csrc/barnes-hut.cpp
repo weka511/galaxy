@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,52 +15,12 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#include <algorithm>
-#include <assert.h>
-#include <limits>
-#include <string>
 #include <cmath>
-#include <iostream>
-#include "barnes-hut.h"
-#include "center-of-mass.h"
-#include "physics.h"
+
+#include "barnes-hut.hpp"
+#include "center-of-mass.hpp"
 
 using namespace std;
-
-/**
- * Calculate acceleration for all particles
- */
- 
- void get_acceleration(vector<Particle*>& particles,const double theta,const double G,const double a) {
-	Node * root=create_tree(particles);
-	for (int i=0;i<particles.size();i++)
-		get_acceleration(i,particles,root,theta,G,a);
-	
-	delete root;
-}
-
-/**
- *  Construct oct-tree from particles
- *
- *    particles
- */
-Node * create_tree(vector<Particle*>& particles) {
-	assert(Node::_count==0 && "Oct Tree should have been removed at end of previous call"); 
-	Node * product=Node::create(particles);
-	CentreOfMassCalculator calculator(particles);
-	product->visit(calculator);
-	calculator.check_all_particles_processed();
-	return product;
-}
-
-/**
- * Calculate acceleration for one specific particle
- */
-void get_acceleration(int i, vector<Particle*>& particles,Node * root,const double theta,const double G,const double a) {
-	BarnesHutVisitor visitor(i,particles[i],theta,G,a);
-	root->visit(visitor);
-	visitor.store_accelerations();
-} 
 
 /**
 * Initialize BarnesHutVisitor for a specific particle
@@ -71,37 +31,42 @@ void get_acceleration(int i, vector<Particle*>& particles,Node * root,const doub
 *  G       Gravitational constant
 *  a       Softening length
 */ 
-BarnesHutVisitor::BarnesHutVisitor(const int index,Particle* me,const double theta, const double G,const double a) :
-  _me(me),_theta_squared(sqr(theta)),_G(G),_acc_x(0),_acc_y(0),_acc_z(0),_index(index),_a(a) {
-	_me->getPos(_x,_y,_z);
+BarnesHutVisitor::BarnesHutVisitor(const int index,Particle& me,const double theta, const double G,const double a) :
+  _index(index),_me(me),_theta_squared(sqr(theta)),_G(G),_a(a),_acc_x(0),_acc_y(0),_acc_z(0) {
+	auto pos = _me.get_position();
+	_x = pos[0];
+	_y = pos[1];
+	_z = pos[2];
 }
 
 /**
  * Used to accumulate accelerations for each node
  */
 Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
+
 	double m,x,y,z;
-	node->getPhysics(m,x,y,z);
-	double dsq_node;
-	double l_sqr;
+	auto mass_and_centre = node->get_mass_and_centre();
+	tie(m,x,y,z) = mass_and_centre;
+
 	const int status = node->getStatus();
 	switch (status) {
-		case Node::Internal:
-			dsq_node=dsq(x,y,z,_x,_y,_z);
+		case Node::Internal: {
+			auto dsq_node=_get_squared_distance(x,y,z,_x,_y,_z);
 			/*
-			 * Is this node are enough away that its particles can be lumped?
+			 * Is this node distant enough that its particles can be lumped?
 			 */
-			l_sqr=sqr(node->getSide());
-			if (l_sqr/dsq_node<_theta_squared) {
+			auto l_sqr=sqr(node->getSide());
+			if (l_sqr/dsq_node < _theta_squared) { // I have checked against Barnes and Hut's paper - they recommend 1.0 for theta
 				_accumulate_acceleration(m,x,y,z,dsq_node);
 				return Node::Visitor::Status::DontDescend;
 			} else
 				return Node::Visitor::Status::Continue;
+		}
 		case Node::Unused:
 			return Node::Visitor::Status::Continue;
 		default: // External Node - accumulate except don't accumulate self!
 			if (status!=_index) 
-				_accumulate_acceleration(m,x,y,z,dsq(x,y,z,_x,_y,_z)); 			
+				_accumulate_acceleration(m,x,y,z,_get_squared_distance(x,y,z,_x,_y,_z)); 			
 			return Node::Visitor::Status::Continue;
 	}
 }
@@ -110,7 +75,8 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
  * Used at the end of calculation to store accelerations back into particle
  */
 void BarnesHutVisitor::store_accelerations() {
-	_me->setAcc(_acc_x,_acc_y,_acc_z);
+	auto acceleration = array<double,3>{_acc_x, _acc_y, _acc_z};
+	_me.set_acceleration(acceleration);
 }
 
 /**
@@ -120,8 +86,16 @@ void BarnesHutVisitor::store_accelerations() {
  */
 void BarnesHutVisitor::_accumulate_acceleration(double m,double x,double y,double z,double dsq){
 	double acc_x, acc_y, acc_z;
-	get_acceleration( m, x, y, z, _x, _y, _z, dsq,_a, _G, acc_x,  acc_y,  acc_z);
-	_acc_x+=acc_x;
-	_acc_y+=acc_y;
-	_acc_z+=acc_z;
+	tie(acc_x, acc_y, acc_z) = _get_acceleration( m, x, y, z, _x, _y, _z, dsq);
+	_acc_x += acc_x;
+	_acc_y += acc_y;
+	_acc_z += acc_z;
+}
+
+tuple<double,double,double>  BarnesHutVisitor::_get_acceleration(double m,double x,double y,double z,double _x,double _y,double _z,double dsq){
+	auto d_factor = pow(dsq + _a*_a,-3/2);
+	auto acc_x = _G*m*(x-_x)*d_factor;
+	auto acc_y = _G*m*(y-_y)*d_factor;
+	auto acc_z = _G*m*(z-_z)*d_factor;
+	return make_tuple(acc_x,acc_y,acc_z);
 }
