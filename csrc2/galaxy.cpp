@@ -34,11 +34,11 @@ int main(int argc, char **argv) {
 	cout << __FILE__ << " " << __LINE__ << " galaxy: " << VERSION << endl;
 
 	try {
-		Configuration configuration(parameters->config_file);
-		AccelerationVisitor calculate_acceleration(configuration, parameters->theta,parameters->G,parameters->a);
-		Reporter reporter(configuration,parameters->base,parameters->path,"csv","kill",parameters->frequency);
+		Configuration configuration(parameters->get_config_file());
+		AccelerationVisitor calculate_acceleration(configuration, parameters->get_theta(),parameters->get_G(),parameters->get_a());
+		Reporter reporter(configuration,parameters->get_base(),parameters->get_path(),"csv","kill",parameters->get_frequency());
 		Verlet integrator(configuration,  calculate_acceleration,reporter);
-		integrator.run(parameters->max_iter,parameters->dt);
+		integrator.run(parameters->get_max_iter(),parameters->get_dt());
 	}  catch (const exception& e) {
         cerr << __FILE__ << " " << __LINE__ << " Terminating because of errors: "<< endl;
 		cerr  << e.what() << endl;
@@ -74,31 +74,31 @@ unique_ptr<Parameters> Parameters::get_options(int argc, char **argv){
 	while ((ch = getopt_long(argc, argv, "c:N:s:", long_options, NULL)) != -1){
 	  switch (ch)    {
 		 case 'c':
-			 parameters->config_file = optarg; 
+			 parameters->_config_file = optarg; 
 			 break;
 		case 'N':
-			parameters->max_iter = atoi(optarg); 
+			parameters->_max_iter = atoi(optarg); 
 			break;
 		case 'f':
-			parameters->frequency = atoi(optarg); 
+			parameters->_frequency = atoi(optarg); 
 			break;
 		case 'a':
-			parameters->a = atof(optarg); 
+			parameters->_a = atof(optarg); 
 			break;
 		case 'G':
-			parameters->G = atof(optarg); 
+			parameters->_G = atof(optarg); 
 			break;
 		case 'd':
-			parameters->dt = atof(optarg); 
+			parameters->_dt = atof(optarg); 
 			break;
 		case 'h':
-			parameters->theta = atof(optarg); 
+			parameters->_theta = atof(optarg); 
 			break;
 		case 'r':
-			 parameters->base = optarg; 
+			 parameters->_base = optarg; 
 			 break;
  		 case 'p':
-			 parameters->path = optarg; 
+			 parameters->_path = optarg; 
 			 break;
 		}
 	}
