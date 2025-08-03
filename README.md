@@ -12,7 +12,7 @@ I am grateful to the following people who have geneously made code available the
 * Jason Blevins for [his version](https://jblevins.org/projects/mt) of the [Mersenne Twister by Mutsuo Saito and Makoto Matsumoto](http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html);
 * Martin Hořeňovský for the [_Catch2_ Unit testing framework](https://github.com/catchorg/Catch2);
 * Gabi Melman for the [_spdlog_ Fast C++ Logging Library](https://github.com/gabime/spdlog);
-* Lee Thomason for the [_TinyXML2_ XML Parser](http://www.grinninglizard.com/tinyxml/).
+* Lee Thomason for the [_TinyXML2_ XML Parser](https://github.com/leethomason/tinyxml2).
 
 *NB* Their source code is available under whichever licences the authors have used. It is _not_ covered by the license for the _galaxy_ package.
 

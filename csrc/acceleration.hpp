@@ -21,8 +21,11 @@
 #include "configuration.hpp"
 #include "treecode.hpp"
 
- using namespace std;
+using namespace std;
 
+/**
+ * This class calculates the acceleration for each particle.
+ */
 class AccelerationVisitor : public Configuration::Visitor, public Configuration::ParticleInitializer{
   private:
 	unique_ptr<Node> _tree = NULL;
@@ -41,6 +44,9 @@ class AccelerationVisitor : public Configuration::Visitor, public Configuration:
 	 */
 	void initialize(int n, unique_ptr<Particle[]> & particles);
 	
+	/**
+	 *  Invoked by Configuration to calculate the acceleration each particle.
+	 */
 	void visit(int i,Particle & particle);
 
 };

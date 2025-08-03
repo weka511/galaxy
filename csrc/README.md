@@ -7,12 +7,19 @@ to simulate the evolution of a galaxy. This code has been compiled under [Cygwin
 
 | File | Header | Purpose |
 |---------------------|------------------|---------------------------------------------------------------------|
+| acceleration.cpp |  acceleration.hpp |Calculates the acceleration for each particle |
+| barnes-hut.cpp |  | |
 | |catch.hpp | [Catch2](https://github.com/catchorg/Catch2) Unit testing framework |
+| center-of-mass.cpp |  | |
 | configuration.cpp | configs.hpp| Configuration management |
-| galaxy.cpp |galaxy.hpp| Simulate Galaxy using Barnes Hut|
+| galaxy.cpp |galaxy.hpp| Main program; parses command line parameters and initializes other classes|
 | Makefile || Build galaxy simulation |
 | particle.cpp| particle.hpp | Represents the particles whose motion is being simulated|
-| tinyxml2.cpp | tinyxml2.h |[Lee Thomason's XML Parser](http://www.grinninglizard.com/tinyxml/)|
+| physics.cpp |  | |
+| reporter.cpp |  | |
+| treecode.cpp |  | |
+| verlet.cpp |  | |
 | tests.cpp || Test harness |
-| test-serialization.cpp| | Test that serialization works OK |
-| utils.cpp | utils.hpp | Assorted utility functions|
+| test-configuration.cpp| | Test that serialization works OK |
+| test-particle.cpp |  | |
+| test_treecode.cpp |  | |

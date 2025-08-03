@@ -30,7 +30,6 @@ SRCS      = acceleration.cpp    \
 			particle.cpp		\
 			physics.cpp         \
 			reporter.cpp		\
-			tinyxml2.cpp		\
 			treecode.cpp		\
 			verlet.cpp
 
