@@ -24,14 +24,13 @@
  *
  *    particles
  */
-void AccelerationVisitor::create_tree(unique_ptr<Particle[]> &particles, int n) {
+void AccelerationVisitor::initialize(int n, unique_ptr<Particle[]> & particles){
 	_tree.reset();
 	_tree = Node::create(particles,n); 
 	CentreOfMassCalculator calculator(particles,n);
 	_tree->traverse(calculator);
 	calculator.verify_all_particles_processed();
 }
-
 /**
  *  Calculate acceleration for one node only
  */

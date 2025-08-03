@@ -30,43 +30,76 @@ using namespace std;
  *  This class manages a collection of Particles.
  */
 class Configuration {
+  public:
+	
+	/**
+	 * encode
+	 *
+	 * Encode a floating value so it can be stored and retrieved without loss of significant digits
+	 *
+	 * Parameters:
+	 *    value       Number to be stored
+	 * Returns:
+	 *    Text string that can be written to a file
+	 */
+	static string encode(const double value);
+ 
+	/**
+	 * decode
+	 *
+	 * Restore floating value stored by encode
+	 *
+	 * Parameters:
+	 *    value       Text string read from file
+	 * Returns:
+	 *    Corresponding floating point value
+	 */
+	static double decode(string str);
+	 
 	/**
 	 *  Descendents of this class are used to 
 	 * iterate through all Particles, visiting each in turn
 	 */
-  public:
-	class Visitor{
+  
+  
+	/**
+	 * Descendents of this class are used to initialize
+	 * things that need access to the stored particles.
+	 */
+	class ParticleInitializer{
 	  public:
-		virtual void visit(int i, Particle & particle) = 0;
+  	    virtual void initialize(int n, unique_ptr<Particle[]> & particles) =  0;
 	};
 	
 	/**
 	 * Descendents of this class are used to iterate 
-	 * through all pairs of Particles, visiting each pair in turn.
+	 * through all Particles.
 	 */
-	class PairVisitor {
+	class Visitor{
 	  public:
-		virtual void visit_pair(Particle & particle1,Particle & particle2) = 0;
+		virtual void visit(int i, Particle & particle) = 0;
 	};
-	
-	/**
-	 * Descendents of this class are used to iterate through all Particles,
-	 * visiting each in turn,then through all pairs of Particles, visiting 
-	 * each pair in turn. Typically the first pass is used for initialization
-	 */
-	class CompoundVisitor: public Visitor,  public PairVisitor{};
-	
+		
   private:
   
 	 /**
-	 * Count the number of lines == number of particles + 5 + 1
+	 * Count the number of particles described in configuration file
 	 */
 	static int _get_line_count(ifstream& inputFile);
 	
+	/**
+	 *  Version number for config file
+	 */
     string _version; 
 	
-  public:                 //FIXME
+	/**
+	 *   The particles making up the model
+	 */
 	unique_ptr<Particle[]> _particles;
+	
+	/**
+	 *   The number of particles
+	 */
 	int _n;
 	
   public:
@@ -80,56 +113,17 @@ class Configuration {
 	void iterate(Visitor & visitor) {
 		for (int i=0;i<_n;i++)
 			visitor.visit(i,_particles[i]);	
-
 	}
 	
 	/**
-	 * iterate through all pairs of Particles, visiting each pair in turn.
+	 * Used to initialize data structures that need to know about particles.
 	 */
-	void iterate(PairVisitor & visitor) {
-		for (int i=0;i<_n;i++)
-			for (int j=i+1;j<_n;j++)
-			visitor.visit_pair(_particles[i],_particles[2]);	
+	void initialize(ParticleInitializer & initializer){
+		initializer.initialize(_n,_particles);
 	}
-	
-	/**
-	 * iterate through all Particles, visiting each in turn,
-	 * then through all pairs of Particles, visiting each pair in turn.
-	 */
-	void iterate(CompoundVisitor & visitor) {
-		for (int i=0;i<_n;i++)
-			visitor.visit(i,_particles[i]);
-	
-		for (int i=0;i<_n;i++)
-			for (int j=i+1;j<_n;j++)
-				visitor.visit_pair(_particles[i],_particles[2]);
-	}
-	 
  };
  
- /**
-  * encode
-  *
-  * Encode a floating value so it can be stored and retrieved without loss of significant digits
-  *
-  * Parameters:
-  *    value       Number to be stored
-  * Returns:
-  *    Text string that can be written to a file
-  */
- string encode(const double value);
  
- /**
-  * decode
-  *
-  * Restore floating value stored by encode
-  *
-  * Parameters:
-  *    value       Text string read from file
-  * Returns:
-  *    Corresponding floating point value
-  */
- double decode(string str);
  
  /**
   * This class splits a string into a vector of tokens

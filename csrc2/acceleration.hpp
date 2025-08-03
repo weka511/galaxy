@@ -23,16 +23,17 @@
 
  using namespace std;
 
-class AccelerationVisitor : public Configuration::Visitor{
+class AccelerationVisitor : public Configuration::Visitor, public Configuration::ParticleInitializer{
   public:
     AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double softening_length)
 	 : _theta(theta),_G(G),_softening_length(softening_length){;}
+	 
 	/**
 	 *  Construct oct-tree from particles
 	 *
 	 *    particles
 	 */
-	void create_tree(unique_ptr<Particle[]> &particles, int n);
+	void initialize(int n, unique_ptr<Particle[]> & particles);
 	
 	void visit(int i,Particle & particle);
 

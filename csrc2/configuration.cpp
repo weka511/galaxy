@@ -33,7 +33,7 @@
 using namespace std;
 
 /**
- * Count the number of lines == number of particles + 5 + 1
+ * Count the number of particles described in configuration file
  */
 int Configuration::_get_line_count(ifstream& inputFile) {
 	auto line_count = 0;
@@ -111,7 +111,7 @@ Configuration::Configuration(string file_name){
  *
  * Snarfed from: https://stackoverflow.com/questions/27149246/how-to-implement-serialization-and-de-serialization-of-a-double
  */
- string encode(const double value) {
+ string Configuration::encode(const double value) {
 	const size_t maxPrecision = numeric_limits<double>::digits;
 	uint64_t* pi = (uint64_t*)&value;
 	stringstream stream;
@@ -128,7 +128,7 @@ Configuration::Configuration(string file_name){
   * Returns:
   *    Corresponding floating point value
   */
- double decode(string str){
+ double Configuration::decode(string str){
 	uint64_t out = stoull(str);
 	double* pf = (double*)&out;
 	return *pf;

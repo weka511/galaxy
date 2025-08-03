@@ -34,7 +34,7 @@ using namespace std;
  */
 void Verlet::run( int max_iter,const double dt){
 	if (!_reporter.should_continue()) return;
-	_calculate_acceleration.create_tree(_configuration._particles, _configuration._n); //FIXME - Issue 61
+	_configuration.initialize(_calculate_acceleration);
 	_configuration.iterate(_calculate_acceleration);
 	Euler euler(0.5*dt);
 	Velocities velocities(dt);
@@ -42,7 +42,7 @@ void Verlet::run( int max_iter,const double dt){
 	_configuration.iterate(euler);
 	for (int iter=0;iter<max_iter and _reporter.should_continue();iter++) {
 		_configuration.iterate(positions);
-		_calculate_acceleration.create_tree(_configuration._particles, _configuration._n); //FIXME - Issue 61
+		_configuration.initialize(_calculate_acceleration);
 		_configuration.iterate(_calculate_acceleration);
 		_configuration.iterate(velocities);
 		_reporter.report();
