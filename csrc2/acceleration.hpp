@@ -24,9 +24,15 @@
  using namespace std;
 
 class AccelerationVisitor : public Configuration::Visitor, public Configuration::ParticleInitializer{
+  private:
+	unique_ptr<Node> _tree = NULL;
+	const double _theta;
+	const double _G;
+	const double _a;   //softeninglength
+	
   public:
-    AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double softening_length)
-	 : _theta(theta),_G(G),_softening_length(softening_length){;}
+    AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double a)
+	 : _theta(theta),_G(G),_a(a){;}
 	 
 	/**
 	 *  Construct oct-tree from particles
@@ -37,11 +43,6 @@ class AccelerationVisitor : public Configuration::Visitor, public Configuration:
 	
 	void visit(int i,Particle & particle);
 
-  private:
-	unique_ptr<Node> _tree = NULL;
-	const double _theta;
-	const double _G;
-	const double _softening_length;
 };
 
 #endif  // _ACCELERATION_HPP

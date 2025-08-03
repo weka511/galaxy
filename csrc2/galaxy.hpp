@@ -18,9 +18,9 @@
  */
  
  #include <string>
- #include <tuple>
  #include <memory>
  #include <getopt.h>
+ 
  using namespace std;
 
 /**
@@ -38,7 +38,6 @@ class Parameters {
 	float theta = 1.0;
 	int frequency = 100;
 	
-  public:
 	/**
 	 *  Parse command line parameters.
 	 */

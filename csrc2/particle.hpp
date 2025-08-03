@@ -42,6 +42,7 @@ class Particle {
 	array<double,3> _acceleration;
 	double _m;
 	int _id;
+	
   public:
 	void init(array<double,3> position, array<double,3> velocity, double m, int id);
 	
@@ -57,8 +58,6 @@ class Particle {
 	inline void set_position(array<double,3> &  position) {_position = position;}
 	
 	inline array<double,3> & get_velocity() {return _velocity;}  
-	
-	
 	
 	inline void set_velocity(array<double,3> &  velocity) {_velocity = velocity;}
 	

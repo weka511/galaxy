@@ -30,7 +30,42 @@ using namespace std;
  *  This class manages a collection of Particles.
  */
 class Configuration {
+  private:
+	
+	/**
+	 *  Version number for config file
+	 */
+    string _version; 
+	
+	/**
+	 *   The particles making up the model
+	 */
+	unique_ptr<Particle[]> _particles;
+	
+	/**
+	 *   The number of particles
+	 */
+	int _n;
+	
   public:
+	
+	/**
+	 * Descendents of this class are used to initialize
+	 * things that need access to the stored particles.
+	 */
+	class ParticleInitializer{
+	  public:
+  	    virtual void initialize(int n, unique_ptr<Particle[]> & particles) =  0;
+	};
+	
+	/**
+	 * Descendents of this class are used to iterate 
+	 * through all Particles.
+	 */
+	class Visitor{
+	  public:
+		virtual void visit(int i, Particle & particle) = 0;
+	};
 	
 	/**
 	 * encode
@@ -55,54 +90,7 @@ class Configuration {
 	 *    Corresponding floating point value
 	 */
 	static double decode(string str);
-	 
-	/**
-	 *  Descendents of this class are used to 
-	 * iterate through all Particles, visiting each in turn
-	 */
   
-  
-	/**
-	 * Descendents of this class are used to initialize
-	 * things that need access to the stored particles.
-	 */
-	class ParticleInitializer{
-	  public:
-  	    virtual void initialize(int n, unique_ptr<Particle[]> & particles) =  0;
-	};
-	
-	/**
-	 * Descendents of this class are used to iterate 
-	 * through all Particles.
-	 */
-	class Visitor{
-	  public:
-		virtual void visit(int i, Particle & particle) = 0;
-	};
-		
-  private:
-  
-	 /**
-	 * Count the number of particles described in configuration file
-	 */
-	static int _get_line_count(ifstream& inputFile);
-	
-	/**
-	 *  Version number for config file
-	 */
-    string _version; 
-	
-	/**
-	 *   The particles making up the model
-	 */
-	unique_ptr<Particle[]> _particles;
-	
-	/**
-	 *   The number of particles
-	 */
-	int _n;
-	
-  public:
 	Configuration(string file_name);
 	
 	const string get_version() { return _version;}
@@ -121,6 +109,13 @@ class Configuration {
 	void initialize(ParticleInitializer & initializer){
 		initializer.initialize(_n,_particles);
 	}
+	
+  private:
+  
+	 /**
+	 * Count the number of particles described in configuration file
+	 */
+	static int _get_line_count(ifstream& inputFile);
  };
  
  

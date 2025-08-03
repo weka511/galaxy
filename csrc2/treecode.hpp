@@ -18,10 +18,7 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-
-
 #include <memory>
-
 #include <tuple>
 #include "particle.hpp"
 
@@ -37,40 +34,7 @@ using namespace std;
  *  Internal  - precosly 8 child nodes  Cube is subdivided into smaller cubes
  */
 class Node {
-  public:
-	/**
-	*  Used to traverse tree depth first
-	*/
-	class Visitor {
-	  public:
-		enum Status{
-			Stop,        // abandon the traversal
-			Continue,    // keep traversing
-			DontDescend  // do not vist any more children of this node
-		};
-		/**
-		 * Called once for each node in tree, before any children are processed
-		 */
-		virtual Status visit(Node * node) = 0;
-			
-		/**
-		 *  Called once for each child Node, immediately after vist
-		 */
-		virtual void farewell(Node * node,Node * child){;}
-			
-		/**
-		 *  Called once for each Internal Node, after all children have been visited
-		 */
-		virtual bool depart(Node * node) {return true;}
-	  };
-  
-   /**
-	  * Indicates type of node. External Nodes use the index of the
-      * associated particle instead of one of these values.
-	  */
-  	enum Status {Internal=-2, Unused=-1};
-	
- private:	
+  private:	
 	/**
 	 *   Used to ensure we have an octree
 	 */
@@ -108,38 +72,68 @@ class Node {
 	/**
 	 * Number of nodes allocated: used in testing
 	 */
-	 
 	 static int _count;
 	 
-	 /**
-	  *  Create one node for tree. I have made this private, 
-	  *  as clients should use the factory method Node::create(...)
-	  */	
-	Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax);
+  public:
+	/**
+	*  Used to traverse tree depth first
+	*/
+	class Visitor {
+	  public:
+		enum Status{
+			Stop,        // abandon the traversal
+			Continue,    // keep traversing
+			DontDescend  // do not vist any more children of this node
+		};
+		/**
+		 * Called once for each node in tree, before any children are processed
+		 */
+		virtual Status visit(Node * node) = 0;
+			
+		/**
+		 *  Called once for each child Node, immediately after vist
+		 */
+		virtual void farewell(Node * node,Node * child){;}
+			
+		/**
+		 *  Called once for each Internal Node, after all children have been visited
+		 */
+		virtual bool depart(Node * node) {return true;}
+	  };
+  
+	/**
+	  * Indicates type of node. External Nodes use the index of the
+      * associated particle instead of one of these values.
+	  */
+  	enum Status {Internal=-2, Unused=-1};
 	
   public:
+  
+  	/**
+	 * Number of nodes allocated: used in testing
+	 */
+	 static int get_count();
   
 	/**
 	 * Create an oct-tree from a set of particles
 	 */
-	static unique_ptr<Node> create(unique_ptr<Particle[]> &particles, int n); //FIXME - Issue 61
+	static unique_ptr<Node> create(unique_ptr<Particle[]> &particles, int n);
 	
 	/**
-	 * Number of nodes allocated: used in testing
-	 */
-	 
-	 static int get_count();
-
-
-	/**
-	 * Insert one particle in tree
-	 */
-	void insert(int new_particle_index,unique_ptr<Particle[]> &particles);
+	 *  Create one node for tree. I have made this private, 
+	 *  as clients should use the factory method Node::create(...)
+	 */	
+	Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax);
 	
 	/**
 	 * Destroy node and its descendants.
 	 */
 	virtual ~Node();
+
+	/**
+	 * Insert one particle in tree
+	 */
+	void insert(int new_particle_index,unique_ptr<Particle[]> &particles);
 	
 	/**
 	 * Used to traverse tree
@@ -159,7 +153,6 @@ class Node {
 		return make_tuple(_m,_x,_y,_z);
 	}
 	
-
 	/**
 	 * Set mass and centre of mass
 	 */
