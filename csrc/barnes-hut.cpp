@@ -18,7 +18,6 @@
 #include <cmath>
 
 #include "barnes-hut.hpp"
-#include "center-of-mass.hpp"
 
 using namespace std;
 

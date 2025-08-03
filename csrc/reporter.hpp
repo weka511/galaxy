@@ -25,6 +25,9 @@
  
  using namespace std;
 
+/**
+ *  This class is used to record the configuration periodically.
+ */
 class Reporter : public Configuration::Visitor {
   private:
 	Configuration & _configuration;
