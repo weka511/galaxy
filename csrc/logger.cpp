@@ -22,14 +22,15 @@
 #include <sstream>
 #include <string>
 #include <regex>
-#include <time.h>
+#include <ctime>
+
 #include "logger.hpp"
  
 using namespace std;
 namespace fs = std::filesystem;
 
 unique_ptr<Logger> Logger::_instance = NULL;
-string Logger::_base = "logger";
+string Logger::_base = "galaxy";
 string Logger::_path = "../logs";
 	
  unique_ptr<Logger> & Logger::get_instance() {
@@ -38,34 +39,9 @@ string Logger::_path = "../logs";
 	 return Logger::_instance;
  }
  
- string Logger::to_str2(int n){
-	stringstream result;
-	if (n < 10)
-		 result << "0" << n;
-	else
-		 result << n;
-	return result.str();
- }
- string Logger::get_file_name(){
-	auto theTime = time(NULL);
-	auto *aTime = localtime(&theTime);
-	auto day = aTime->tm_mday;
-	auto month = aTime->tm_mon + 1; 
-	auto year = aTime->tm_year + 1900;
-	auto hour = aTime->tm_hour;
-	auto minute = aTime->tm_min;
-	auto second = aTime->tm_sec;
-	stringstream file_name;
-	file_name << _base << "-" <<
-				year<< "-" << to_str2(month)<< "-" << to_str2(day) << "-" 
-				<< to_str2(hour) <<"-" << to_str2(minute) <<"-" << to_str2(second) <<".log";
-	fs::path full_path = _path;
-    full_path /= file_name.str();
-	return full_path;
-}
-
  Logger::Logger() {
-	auto full_path = Logger::get_file_name();
+	 _start_time = chrono::steady_clock::now();
+	auto full_path = Logger::_get_file_name();
 	_output.open(full_path);
 	if (_output.is_open()){
    		_output << "Opened" << endl;
@@ -76,10 +52,54 @@ string Logger::_path = "../logs";
 	}
  }
  
- void Logger::log(string file, int line, string s) {
-	 _output << file << " " << line << ": " << s << endl;
-}
-
-Logger::~Logger() {
+ Logger::~Logger() {
 	_output.close();
 }
+
+ void Logger::time_point(string file, int line) {
+	 _output << file << " " << line << ": " << _get_milliseconds_since_start() <<  " ms." <<endl;
+}
+
+ void Logger::log(string file, int line, string s) {
+	 _output << file << " " << line << ": " << s  << endl;
+}
+
+void Logger::log(string file, int line, string s1, string s2) {
+	 _output << file << " " << line << ": " << s1 << s2  << endl;
+}
+
+
+ string Logger::_to_str2(int n){
+	stringstream result;
+	if (n < 10)
+		 result << "0" << n;
+	else
+		 result << n;
+	return result.str();
+ }
+ 
+ string Logger::_get_file_name(){
+	auto now = time(NULL);
+	auto *aTime = localtime(&now);
+	auto day = aTime->tm_mday;
+	auto month = aTime->tm_mon + 1; 
+	auto year = aTime->tm_year + 1900;
+	auto hour = aTime->tm_hour;
+	auto minute = aTime->tm_min;
+	auto second = aTime->tm_sec;
+	stringstream file_name;
+	file_name << _base << "-" <<
+				year<< "-" << _to_str2(month)<< "-" << _to_str2(day) << "-" 
+				<< _to_str2(hour) <<"-" << _to_str2(minute) <<"-" << _to_str2(second) <<".log";
+	fs::path full_path = _path;
+    full_path /= file_name.str();
+	return full_path;
+}
+
+ 
+ 
+ chrono::duration<double> Logger::_get_milliseconds_since_start() {
+	const auto now{chrono::steady_clock::now()};
+    return now - _start_time;
+ }
+ 

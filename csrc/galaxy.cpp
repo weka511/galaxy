@@ -30,11 +30,11 @@
 using namespace std;
 
 int main(int argc, char **argv) {
+	auto start = std::chrono::high_resolution_clock::now();
 	unique_ptr<Parameters> parameters=Parameters::get_options(argc, argv);
-	auto start = chrono::high_resolution_clock::now();
 	cout << __FILE__ << " " << __LINE__ << " galaxy: " << VERSION << endl;
-	LOG("galaxy Starting ");
-
+	LOG2("Galaxy ",VERSION);
+	TIME();
 	try {
 		Configuration configuration(parameters->get_config_file());
 		AccelerationVisitor calculate_acceleration(configuration, parameters->get_theta(),parameters->get_G(),parameters->get_a());
@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
 
     std::cout << "Execution time: " << duration.count() << " seconds" << std::endl;
 	LOG("galaxy Ending ");
+	TIME();
     return 0;
 }
 

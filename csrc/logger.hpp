@@ -21,10 +21,15 @@
  
  #include <memory>
  #include <fstream>
+ #include <chrono>
  
  using namespace std;
  
  #define LOG(s) Logger::get_instance()->log(__FILE__,__LINE__,s)
+ 
+ #define LOG2(s1,s2) Logger::get_instance()->log(__FILE__,__LINE__,s1,s2)
+ 
+ #define TIME() Logger::get_instance()->time_point(__FILE__,__LINE__)
  
  /**
   *  This class is the logger for galaxy.
@@ -37,15 +42,20 @@
 	static string _base;
 	static string _path;
 	ofstream _output;
+	chrono::time_point<chrono::steady_clock> _start_time;
 	
   public:
 	static unique_ptr<Logger> & get_instance();
-	static string get_file_name();
-	static string to_str2(int n);
 	Logger();
 	virtual ~Logger();
 	void log(string file, int line, string s);
-  	
+	void log(string file, int line, string s1, string s2);
+	void time_point(string file, int line);
+	
+  private:
+  	static string _get_file_name();
+	static string _to_str2(int n);
+	chrono::duration<double> _get_milliseconds_since_start();	
  };
  
 
