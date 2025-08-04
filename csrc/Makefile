@@ -27,6 +27,7 @@ SRCS      = acceleration.cpp    \
 			barnes-hut.cpp      \
 			center-of-mass.cpp  \
 			configuration.cpp 	\
+			logger.cpp          \
 			particle.cpp		\
 			reporter.cpp		\
 			treecode.cpp		\

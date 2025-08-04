@@ -34,7 +34,6 @@
 # Generated Dependencies
 *.depend
 
-log*
 *png
 *Errors.xlsx
 __pycache__/

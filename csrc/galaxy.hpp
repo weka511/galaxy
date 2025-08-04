@@ -1,3 +1,6 @@
+#ifndef __GALAXY_HPP
+#define __GALAXY_HPP
+
 /**
  * Copyright (C) 2025 Simon Crase
  *
@@ -64,6 +67,4 @@ class Parameters {
 	int get_frequency() {return _frequency;}
 };
 
-
-
-
+#endif // __GALAXY_HPP
