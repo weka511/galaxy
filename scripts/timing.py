@@ -77,12 +77,26 @@ if __name__=='__main__':
                         dt[key] = []
                     dt[key].append( t - t0)
                 previous = (file,n,t)
+
+    m = 0
+    keys = []
     for key, times in dt.items():
         if len(times) > 1:
-            print (key,mean(times),stdev(times),stdev(times)/mean(times))
+            m += 1
+            keys.append(key)
+            # print (key,mean(times),stdev(times),stdev(times)/mean(times))
+    m1 = int(np.sqrt(m))
+    m2 = m1
+    while m1*m2 < m:
+        m2 += 1
     fig = figure(figsize=(12,12))
-    ax1 = fig.add_subplot(1,1,1)
-
+    for i in range(m1):
+        for j in range(m2):
+            k = i*m2 + j
+            if k < len(keys):
+                ax1 = fig.add_subplot(m1,m2,k+1)
+                ax1.hist(dt[keys[k]],bins='sqrt')
+                ax1.set_title(f'{keys[k]}')
     fig.savefig(get_file_name(args.out,figs=args.figs))
     elapsed = time() - start
     minutes = int(elapsed/60)
