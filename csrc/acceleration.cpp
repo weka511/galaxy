@@ -18,6 +18,7 @@
 #include "acceleration.hpp"
 #include "center-of-mass.hpp"
 #include "barnes-hut.hpp"
+#include "logger.hpp"
 
 /**
  *  Construct oct-tree from particles, and compute centre of mass for tree and its subtrees
@@ -25,11 +26,16 @@
  *    particles
  */
 void AccelerationVisitor::initialize(int n, unique_ptr<Particle[]> & particles){
-	_tree.reset();
+	_tree.reset();;
+	TIME();
 	_tree = Node::create(particles,n); 
+	TIME();
 	CentreOfMassCalculator calculator(particles,n);
+	TIME();
 	_tree->traverse(calculator);
+	TIME();
 	calculator.verify_all_particles_processed();
+	TIME();
 }
 /**
  *  Calculate acceleration for one node only
