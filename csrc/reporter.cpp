@@ -45,7 +45,7 @@ void Reporter::report(){
 		_output.close();
     } else {
 		stringstream message;
-		message<<__FILE__ <<" " <<__LINE__<<" Error: Unable to open file " << file_name<<endl; 
+		message<<__FILE__ <<" " <<__LINE__<<" Error: Unable to open report file " << file_name<<endl; 
 		throw logic_error(message.str().c_str()); 
 	}
 
