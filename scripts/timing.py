@@ -25,17 +25,51 @@ from matplotlib import rc
 from matplotlib.pyplot import figure, show
 from re import compile
 from statistics import mean,stdev
+
 def parse_arguments():
     '''Parse command line arguments'''
     parser = ArgumentParser(__doc__)
     parser.add_argument('--seed',type=int,default=None,help='Seed for random number generator')
     parser.add_argument('-o', '--out', default = basename(splitext(__file__)[0]),help='Name of output file')
-    parser.add_argument('-i', '--input', default = r'C:\cygwin64\home\Weka\galaxy\logs\galaxy-2025-08-04-20-31-48.log',help='Name of output file')
+    parser.add_argument('--input', default = r'C:\cygwin64\home\Weka\galaxy\logs',help='Name of output file')
     parser.add_argument('--figs', default = './figs', help = 'Name of folder where plots are to be stored')
     parser.add_argument('--show', action = 'store_true', help   = 'Show plot')
-    parser.add_argument('-N', '--N', type=int, default=100000, help='Number of iterations')
+    parser.add_argument('-d', '--delta', type=float, default=0.005, help='Range for histogram')
+    parser.add_argument('--bins', default='sqrt', type=get_bins, help = 'Binning strategy or number of bins')
+    parser.add_argument('file')
     return parser.parse_args()
 
+def get_bins(bins):
+    '''
+    Used to parse args.bins: either a number of bins, or the name of a binning strategy.
+    '''
+    try:
+        return int(bins)
+    except ValueError:
+        if bins in ['auto', 'fd', 'doane', 'scott', 'sturges', 'sqrt', 'stone', 'rice']:
+            return bins
+        raise ArgumentTypeError(f'Invalid binning strategy "{bins}"')
+
+def extract_observations(file_name):
+    pattern = compile(r'(\S+)\s(\d+):\s([.0123456789]+)')
+    previous = None
+    dt = dict()
+    with open(file_name) as f:
+        for line in f:
+            matched = pattern.match(line.strip())
+            if matched:
+                file = matched.group(1)
+                n = matched.group(2)
+                t = float(matched.group(3))
+                if previous != None:
+                    file0,n0,t0 = previous
+                    key = f'{file} {n}:'
+                    if not key in dt:
+                        dt[key] = []
+                    dt[key].append( t - t0)
+
+                previous = (file,n,t)
+    return dt
 
 def get_file_name(name,default_ext='png',figs='./figs',seq=None):
     '''
@@ -60,43 +94,19 @@ if __name__=='__main__':
     rc('text', usetex=True)
     start  = time()
     args = parse_arguments()
-    pattern = compile(r'(\S+)\s(\d+):\s([.0123456789]+)')
-    previous = None
-    dt = dict()
-    with open(args.input) as f:
-        for line in f:
-            matched = pattern.match(line.strip())
-            if matched:
-                file = matched.group(1)
-                n = matched.group(2)
-                t = float(matched.group(3))
-                if previous != None:
-                    file0,n0,t0 = previous
-                    key = f'{file}:{n}'
-                    if not key in dt:
-                        dt[key] = []
-                    dt[key].append( t - t0)
-                previous = (file,n,t)
+    dt = extract_observations(join(args.input,args.file))
 
-    m = 0
-    keys = []
-    for key, times in dt.items():
-        if len(times) > 1:
-            m += 1
-            keys.append(key)
-            # print (key,mean(times),stdev(times),stdev(times)/mean(times))
-    m1 = int(np.sqrt(m))
-    m2 = m1
-    while m1*m2 < m:
-        m2 += 1
     fig = figure(figsize=(12,12))
-    for i in range(m1):
-        for j in range(m2):
-            k = i*m2 + j
-            if k < len(keys):
-                ax1 = fig.add_subplot(m1,m2,k+1)
-                ax1.hist(dt[keys[k]],bins='sqrt')
-                ax1.set_title(f'{keys[k]}')
+    ax = fig.add_subplot(1,1,1)
+
+    for key,observations in dt.items():
+        if len(observations) > 1:
+            ax.hist(observations, args.bins, density=True, histtype='bar', stacked=True,
+                    label=f'{key} {mean(observations):.5f} {stdev(observations):.5f}')
+    ax.set_xlim((0,args.delta))
+    ax.set_xlabel('Time (milliseconds)')
+    ax.legend(title=f'Bins={args.bins}')
+    ax.set_title(args.file)
     fig.savefig(get_file_name(args.out,figs=args.figs))
     elapsed = time() - start
     minutes = int(elapsed/60)
