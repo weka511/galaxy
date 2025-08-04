@@ -33,23 +33,24 @@ int main(int argc, char **argv) {
 	unique_ptr<Parameters> parameters=Parameters::get_options(argc, argv);
 	auto start = chrono::high_resolution_clock::now();
 	cout << __FILE__ << " " << __LINE__ << " galaxy: " << VERSION << endl;
-	LOG("foo");
-	// try {
-		// Configuration configuration(parameters->get_config_file());
-		// AccelerationVisitor calculate_acceleration(configuration, parameters->get_theta(),parameters->get_G(),parameters->get_a());
-		// Reporter reporter(configuration,parameters->get_base(),parameters->get_path(),"csv","kill",parameters->get_frequency());
-		// Verlet integrator(configuration,  calculate_acceleration,reporter);
-		// integrator.run(parameters->get_max_iter(),parameters->get_dt());
-	// }  catch (const exception& e) {
-        // cerr << __FILE__ << " " << __LINE__ << " Terminating because of errors: "<< endl;
-		// cerr  << e.what() << endl;
-		// exit(1);
-    // }
+	LOG("galaxy Starting ");
+
+	try {
+		Configuration configuration(parameters->get_config_file());
+		AccelerationVisitor calculate_acceleration(configuration, parameters->get_theta(),parameters->get_G(),parameters->get_a());
+		Reporter reporter(configuration,parameters->get_base(),parameters->get_path(),"csv","kill",parameters->get_frequency());
+		Verlet integrator(configuration,  calculate_acceleration,reporter);
+		integrator.run(parameters->get_max_iter(),parameters->get_dt());
+	}  catch (const exception& e) {
+        cerr << __FILE__ << " " << __LINE__ << " Terminating because of errors: "<< endl;
+		cerr  << e.what() << endl;
+		exit(1);
+    }
 	auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
 
     std::cout << "Execution time: " << duration.count() << " seconds" << std::endl;
-	
+	LOG("galaxy Ending ");
     return 0;
 }
 

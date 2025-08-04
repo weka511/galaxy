@@ -13,6 +13,7 @@ catch.hpp || [Catch2](https://github.com/catchorg/Catch2) Unit testing framework
  center-of-mass.cpp | center-of-mass.hpp |Calculate centre of mass for Internal and External Nodes 
  configuration.cpp | configuration.hpp| Manages the collection of Particlest 
  galaxy.cpp |galaxy.hpp| Main program; parses command line parameters and initializes other classes
+ logger.cpp|logger.hpp|Record messages in logfile
  Makefile || Build galaxy simulation 
  particle.cpp| particle.hpp | Represents the particles whose motion is being simulated
  reporter.cpp |  reporter.hpp|Record the configuration periodically 

@@ -26,18 +26,25 @@
  
  #define LOG(s) Logger::get_instance()->log(__FILE__,__LINE__,s)
  
+ /**
+  *  This class is the logger for galaxy.
+  */
  class Logger {
+	 
   private:
 	static unique_ptr<Logger> _instance;
+	static string directory_path;
+	static string _base;
+	static string _path;
 	ofstream _output;
 	
   public:
-  	Logger();
 	static unique_ptr<Logger> & get_instance();
+	static string get_file_name();
+	static string to_str2(int n);
+	Logger();
 	virtual ~Logger();
 	void log(string file, int line, string s);
-	
-  private:
   	
  };
  
