@@ -29,8 +29,12 @@
  
  #define LOG2(s1,s2) Logger::get_instance()->log(__FILE__,__LINE__,s1,s2)
  
- #define TIME() Logger::get_instance()->time_point(__FILE__,__LINE__)
- 
+ #ifdef TIMER_ON
+	#define TIME() Logger::get_instance()->time_point(__FILE__,__LINE__)
+#else
+	#define TIME() 
+#endif
+
  /**
   *  This class is the logger for galaxy.
   */

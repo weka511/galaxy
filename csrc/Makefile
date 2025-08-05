@@ -15,8 +15,9 @@
 #
 # Makefile snarfed from https://stackoverflow.com/questions/2481269/how-to-make-a-simple-c-makefile
 
+TIMER ?= OFF
 GIT_VERSION := $(shell git describe --tags)
-CPPFLAGS  = -g -O3  -pthread -I/sw/include/root  -std=c++23 -DVERSION="\"$(GIT_VERSION)\"" -Wall
+CPPFLAGS  = -g -O3  -pthread -I/sw/include/root  -std=c++23 -DVERSION="\"$(GIT_VERSION)\"" -Wall -D$(TIMER)
 LDFLAGS   = -g -O3
 LDLIBS    =
 CC        = gcc
