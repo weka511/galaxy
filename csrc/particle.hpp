@@ -36,14 +36,35 @@ inline double sqr(double x) {return x*x;}
  * It is just a passive container for data
  */
 class Particle {
+ 
   private:
     array<double,3> _position;
 	array<double,3> _velocity;
 	array<double,3> _acceleration;
+	/**
+	 * Mass
+	 */
 	double _m;
+	/**
+	 *  The ID if a particle is equal to its index in the array of configurations
+	 */
 	int _id;
 	
   public:
+  
+  	/**
+	 * Determine squared distance between two particles
+	 */
+	static inline double get_distance_sq(Particle&particle1,Particle&particle2)  {
+		double sum = 0.0;
+		for (int i=0;i<3;i++)
+			sum += sqr(particle1._position[i] - particle2._position[i]);
+		return sum;
+	}
+	
+	/**
+	 *   Used to set initial position and velocity when configuration is initialized.
+	 */
 	void init(array<double,3> position, array<double,3> velocity, double m, int id);
 	
 	/**
@@ -51,6 +72,9 @@ class Particle {
 	 */
 	inline double get_mass() {return _m;}
 	
+	/**
+	 *  Accessor for ID
+	 */
 	inline int get_id() {return _id;}
 	
 	inline array<double,3> & get_position() {return _position;} 
@@ -64,15 +88,8 @@ class Particle {
 	inline array<double,3> & get_acceleration() {return _acceleration;}  
 	
 	inline void set_acceleration(array<double,3> &  acceleration) {_acceleration = acceleration;}
-	
-	inline double get_distance_sq(Particle&other)  {
-		return sqr(_position[0] - other._position[0]) + sqr(_position[1] - other._position[1]) + sqr(_position[2] - other._position[2]);
-	}
-	
-	void reset_acceleration() {};   // TODO
-	
-	void accumulate_acceleration (double x1,double y1,double z1) {};   // TODO
-	
+	 
+
 	/**
      * Output position, velocity, and mass.
      */

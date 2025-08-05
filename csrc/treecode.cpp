@@ -108,7 +108,7 @@ void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
 			return;
 		default:     // This Node is External, so we already have a particle here; we have to move it
 			const int incumbent = _particle_index;
-			if (particles[new_particle_index].get_distance_sq(particles[incumbent]) < epsilon*(_xmax-_xmin)){
+			if (Particle::get_distance_sq(particles[new_particle_index],particles[incumbent]) < epsilon*(_xmax-_xmin)){
 				stringstream message;
 				message<<"Particles "<<new_particle_index << " and " << incumbent << " within " << epsilon*(_xmax-_xmin) << " of each other"; 
 				throw logic_error(message.str().c_str());
