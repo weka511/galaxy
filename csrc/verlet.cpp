@@ -22,6 +22,7 @@
 #include <iostream>
 #include "acceleration.hpp"
 #include "verlet.hpp"
+#include "logger.hpp"
 
 using namespace std;
 
@@ -41,10 +42,15 @@ void Verlet::run( int max_iter,const double dt){
 	Positions positions(dt);
 	_configuration.iterate(euler);
 	for (int iter=0;iter<max_iter and _reporter.should_continue();iter++) {
+		TIME();
 		_configuration.iterate(positions);
+		TIME();
 		_configuration.initialize(_calculate_acceleration);
+		TIME();
 		_configuration.iterate(_calculate_acceleration);
+		TIME();
 		_configuration.iterate(velocities);
+		TIME();
 		_reporter.report();
 	}
 }
