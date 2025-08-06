@@ -70,6 +70,9 @@ class Parameters {
 	bool should_list_particles() {return _should_list_particles;}
 };
 
+/**
+ *  Show list of command line parameters.
+ */
 void usage();
 
 #endif // __GALAXY_HPP

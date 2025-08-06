@@ -119,6 +119,9 @@ unique_ptr<Parameters> Parameters::get_options(int argc, char **argv){
 	return parameters;
 }
 
+/**
+ *  Show list of command line parameters.
+ */
 void usage() {
 	cout << "Galaxy " << VERSION << endl;
 	cout << "Implementation of the Barnes Hut algorithm to simulate the evolution of a galaxy." << endl << endl;
