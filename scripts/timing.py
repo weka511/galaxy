@@ -15,7 +15,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-''' Template for Python programs'''
+'''Determine execution times for sections of code'''
 
 from argparse import ArgumentParser
 from os.path import basename, join, splitext
@@ -35,7 +35,7 @@ def parse_arguments():
     parser.add_argument('--figs', default = './figs', help = 'Name of folder where plots are to be stored')
     parser.add_argument('--show', action = 'store_true', help   = 'Show plot')
     parser.add_argument('-d', '--delta', type=float, default=0.005, help='Range for histogram')
-    parser.add_argument('--bins', default='sqrt', type=get_bins, help = 'Binning strategy or number of bins')
+    parser.add_argument('--bins', default='scott', type=get_bins, help = 'Binning strategy or number of bins')
     parser.add_argument('file')
     return parser.parse_args()
 
@@ -103,6 +103,7 @@ if __name__=='__main__':
         if len(observations) > 1:
             ax.hist(observations, args.bins, density=True, histtype='bar', stacked=True,
                     label=f'{key} {mean(observations):.5f} {stdev(observations):.5f}')
+
     ax.set_xlim((0,args.delta))
     ax.set_xlabel('Time (milliseconds)')
     ax.legend(title=f'Bins={args.bins}')
