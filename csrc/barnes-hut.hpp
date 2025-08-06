@@ -18,6 +18,7 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
+#include <array>
 #include <tuple>
 #include "configuration.hpp"
 #include "treecode.hpp"
@@ -56,10 +57,7 @@ class BarnesHutVisitor :  public Node::Visitor{
 	/**
 	 * Position of the particle whose acceleration is being calculated
 	 */
-	double _x;
-	double _y;
-	double _z;
-	
+	array<double,3> _position;
 	/**
 	 * Softening length
 	 */
@@ -100,14 +98,10 @@ class BarnesHutVisitor :  public Node::Visitor{
 	/**
 	 * Used to add in the contribution to the acceleration from one Node
 	 */
-	void _accumulate_acceleration(double m,double x,double y,double z,double dsq);
+	void _accumulate_acceleration(double m,array<double,3> X,double dsq);
 	
-	tuple<double,double,double> _get_acceleration(double m,double x,double y,double z,double _x,double _y,double _z,double dsq);
-	
-	inline double _get_squared_distance(double x0,double y0,double z0,double x1,double y1,double z1) {
-		return sqr(x0-x1) + sqr(y0-y1) + sqr(z0-z1);
-	}
-	
+	tuple<double,double,double> _get_acceleration(double m,array<double,3> X,double dsq);
+		
 };
 
 #endif  //BARNES_HUT_HPP

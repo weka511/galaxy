@@ -1,3 +1,6 @@
+#ifndef _CENTRE_OF_MASS_HPP
+#define _CENTRE_OF_MASS_HPP
+
 /**
  * Copyright (C) 2025 Simon Crase
  *
@@ -15,8 +18,7 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#ifndef _CENTRE_OF_MASS_HPP
-#define _CENTRE_OF_MASS_HPP
+
 
 #include <vector>
 #include "treecode.hpp"

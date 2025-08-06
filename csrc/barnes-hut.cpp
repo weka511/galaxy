@@ -32,10 +32,7 @@ using namespace std;
 */ 
 BarnesHutVisitor::BarnesHutVisitor(const int index,Particle& me,const double theta, const double G,const double a) :
   _index(index),_me(me),_theta_squared(sqr(theta)),_G(G),_a(a),_acc_x(0),_acc_y(0),_acc_z(0) {
-	auto pos = _me.get_position();
-	_x = pos[0];
-	_y = pos[1];
-	_z = pos[2];
+	_position = _me.get_position();
 }
 
 /**
@@ -50,13 +47,13 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 	const int status = node->getStatus();
 	switch (status) {
 		case Node::Internal: {
-			auto dsq_node=_get_squared_distance(X[0],X[1],X[2],_x,_y,_z);
+			auto dsq_node=Particle::get_distance_sq(X,_position);
 			/*
 			 * Is this node distant enough that its particles can be lumped?
 			 */
 			auto l_sqr=sqr(node->getSide());
 			if (l_sqr/dsq_node < _theta_squared) { // I have checked against Barnes and Hut's paper - they recommend 1.0 for theta
-				_accumulate_acceleration(m,X[0],X[1],X[2],dsq_node);
+				_accumulate_acceleration(m,X,dsq_node);
 				return Node::Visitor::Status::DontDescend;
 			} else
 				return Node::Visitor::Status::Continue;
@@ -65,7 +62,7 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 			return Node::Visitor::Status::Continue;
 		default: // External Node - accumulate except don't accumulate self!
 			if (status!=_index) 
-				_accumulate_acceleration(m,X[0],X[1],X[2],_get_squared_distance(X[0],X[1],X[2],_x,_y,_z)); 			
+				_accumulate_acceleration(m,X,Particle::get_distance_sq(X,_position)); 			
 			return Node::Visitor::Status::Continue;
 	}
 }
@@ -83,18 +80,18 @@ void BarnesHutVisitor::store_accelerations() {
  * NB: there is a new instance of the visitor for each particle, so
  * acceleration is always zero at the start.
  */
-void BarnesHutVisitor::_accumulate_acceleration(double m,double x,double y,double z,double dsq){
+void BarnesHutVisitor::_accumulate_acceleration(double m,array<double,3> X,double dsq){
 	double acc_x, acc_y, acc_z;
-	tie(acc_x, acc_y, acc_z) = _get_acceleration( m, x, y, z, _x, _y, _z, dsq);
+	tie(acc_x, acc_y, acc_z) = _get_acceleration( m, X, dsq);
 	_acc_x += acc_x;
 	_acc_y += acc_y;
 	_acc_z += acc_z;
 }
 
-tuple<double,double,double>  BarnesHutVisitor::_get_acceleration(double m,double x,double y,double z,double _x,double _y,double _z,double dsq){
+tuple<double,double,double>  BarnesHutVisitor::_get_acceleration(double m,array<double,3> X,double dsq){
 	auto d_factor = pow(dsq + _a*_a,-3/2);
-	auto acc_x = _G*m*(x-_x)*d_factor;
-	auto acc_y = _G*m*(y-_y)*d_factor;
-	auto acc_z = _G*m*(z-_z)*d_factor;
+	auto acc_x = _G*m*(X[0]-_position[0])*d_factor;
+	auto acc_y = _G*m*(X[1]-_position[1])*d_factor;
+	auto acc_z = _G*m*(X[2]-_position[2])*d_factor;
 	return make_tuple(acc_x,acc_y,acc_z);
 }

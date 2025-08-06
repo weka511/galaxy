@@ -50,11 +50,6 @@ Node::Visitor::Status CentreOfMassCalculator::visit(Node * node) {
  */
 void CentreOfMassCalculator::record_particle(Node * node,const int particle_index) {   
 	_processed_particle[particle_index] = true;
-	// auto pos = _particles[particle_index].get_position();
-	// double x,y,z;
-	// x = pos[0];
-	// y = pos[1];
-	// z = pos[2];
 	node->set_mass_and_centre(_particles[particle_index].get_mass(),_particles[particle_index].get_position());
 }
 
