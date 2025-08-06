@@ -91,7 +91,7 @@ class Configuration {
 	 */
 	static double decode(string str);
   
-	Configuration(string file_name);
+	Configuration(string file_name,bool should_list_particles);
 	
 	const string get_version() { return _version;}
 	

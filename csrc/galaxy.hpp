@@ -40,6 +40,7 @@ class Parameters {
 	float _dt = 0.1;
 	float _theta = 1.0;
 	int _frequency = 100;
+	bool _should_list_particles = false;
 	
   public:
 	/**
@@ -65,6 +66,10 @@ class Parameters {
 	float get_theta() {return _theta;}
 	
 	int get_frequency() {return _frequency;}
+	
+	bool should_list_particles() {return _should_list_particles;}
 };
+
+void usage();
 
 #endif // __GALAXY_HPP

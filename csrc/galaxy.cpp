@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
 	LOG2("Galaxy ",VERSION);
 	TIME();
 	try {
-		Configuration configuration(parameters->get_config_file());
+		Configuration configuration(parameters->get_config_file(),parameters->should_list_particles());
 		AccelerationVisitor calculate_acceleration(configuration, parameters->get_theta(),parameters->get_G(),parameters->get_a());
 		Reporter reporter(configuration,parameters->get_base(),parameters->get_path(),"csv","kill",parameters->get_frequency());
 		Verlet integrator(configuration,  calculate_acceleration,reporter);
@@ -61,10 +61,12 @@ struct option Parameters::long_options[] ={
 	{"softening_length", required_argument, NULL, 'a'},
 	{"G", required_argument, NULL, 'G'},
 	{"dt", required_argument, NULL, 'd'},
-	{"theta", required_argument, NULL, 'h'},
+	{"theta", required_argument, NULL, 'e'},
 	{"report", required_argument, NULL, 'r'},
 	{"path", required_argument, NULL, 'p'},
 	{"frequency",required_argument,NULL,'f'},
+	{"should_list_particles",no_argument,NULL,'l'},
+	{"help",no_argument,NULL,'h'},
 	{NULL, 0, NULL, 0}
 };
 
@@ -74,7 +76,7 @@ struct option Parameters::long_options[] ={
 unique_ptr<Parameters> Parameters::get_options(int argc, char **argv){
 	unique_ptr<Parameters> parameters = make_unique<Parameters>();
 	char ch;
-	while ((ch = getopt_long(argc, argv, "c:N:s:", long_options, NULL)) != -1){
+	while ((ch = getopt_long(argc, argv, "c:N:s:f:a:G:d:e:r:p:lh", long_options, NULL)) != -1){
 	  switch (ch)    {
 		 case 'c':
 			 parameters->_config_file = optarg; 
@@ -94,16 +96,41 @@ unique_ptr<Parameters> Parameters::get_options(int argc, char **argv){
 		case 'd':
 			parameters->_dt = atof(optarg); 
 			break;
-		case 'h':
+		case 'e':
 			parameters->_theta = atof(optarg); 
 			break;
 		case 'r':
 			 parameters->_base = optarg; 
 			 break;
- 		 case 'p':
+ 		case 'p':
 			 parameters->_path = optarg; 
 			 break;
+		case 'l':
+			parameters->_should_list_particles = true; 
+			 break;
+		case 'h':
+			usage(); 
+			exit(0);
+		default:
+			usage();
+			exit(2);
 		}
 	}
 	return parameters;
+}
+
+void usage() {
+	cout << "Galaxy " << VERSION << endl;
+	cout << "Implementation of the Barnes Hut algorithm to simulate the evolution of a galaxy." << endl << endl;
+	cout << "\t-c" << "\t--config" << endl;
+	cout << "\t-N" << "\t--max_iter" << endl;
+	cout << "\t-a" << "\t--softening_length" << endl;
+	cout << "\t-G" << "\t--G" << endl;
+	cout << "\t-d" << "\t--dt" << endl;
+	cout << "\t-e" << "\t--theta" << endl;
+	cout << "\t-r" << "\t--report" << endl;
+	cout << "\t-p" << "\t--path" << endl;
+	cout << "\t-f" << "\t--frequency" << endl;
+	cout << "\t-l" << "\t--should_list_particles" << endl;
+	cout <<"\t-h" << "\t--help"  << endl;
 }
