@@ -152,8 +152,8 @@ class Node {
 	/**
 	 * Get mass and centre of mass
 	 */
-	tuple <double,double,double,double>  get_mass_and_centre() {
-		return make_tuple(_m,_center_of_mass[0],_center_of_mass[1],_center_of_mass[2]);
+	tuple <double,array<double,3>>  get_mass_and_centre() {
+		return make_tuple(_m,_center_of_mass);
 	}
 	
 	/**

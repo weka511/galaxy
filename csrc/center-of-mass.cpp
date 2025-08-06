@@ -84,11 +84,12 @@ void CentreOfMassCalculator::verify_all_particles_processed() {
  */
 bool CentreOfMassCalculator::depart(Node * node)  {
 	array<double,3> X;
-	double m,x,y,z;
-	tie(m,x,y,z) = node->get_mass_and_centre();
+	double m;
+	tie(m,X) = node->get_mass_and_centre();
 	switch (node->getStatus()) {
 		case Node::Internal:
-			X = {x/m,y/m,z/m};
+			for (int i=0;i<3;i++)
+				X[i] /= m;
 			node->set_mass_and_centre(m,X);
 			break;
 		case Node::Unused:

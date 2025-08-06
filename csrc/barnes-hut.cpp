@@ -42,21 +42,21 @@ BarnesHutVisitor::BarnesHutVisitor(const int index,Particle& me,const double the
  * Used to accumulate accelerations for each node
  */
 Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
-
-	double m,x,y,z;
+	double m;
+	array<double,3> X;
 	auto mass_and_centre = node->get_mass_and_centre();
-	tie(m,x,y,z) = mass_and_centre;
+	tie(m,X) = mass_and_centre;
 
 	const int status = node->getStatus();
 	switch (status) {
 		case Node::Internal: {
-			auto dsq_node=_get_squared_distance(x,y,z,_x,_y,_z);
+			auto dsq_node=_get_squared_distance(X[0],X[1],X[2],_x,_y,_z);
 			/*
 			 * Is this node distant enough that its particles can be lumped?
 			 */
 			auto l_sqr=sqr(node->getSide());
 			if (l_sqr/dsq_node < _theta_squared) { // I have checked against Barnes and Hut's paper - they recommend 1.0 for theta
-				_accumulate_acceleration(m,x,y,z,dsq_node);
+				_accumulate_acceleration(m,X[0],X[1],X[2],dsq_node);
 				return Node::Visitor::Status::DontDescend;
 			} else
 				return Node::Visitor::Status::Continue;
@@ -65,7 +65,7 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 			return Node::Visitor::Status::Continue;
 		default: // External Node - accumulate except don't accumulate self!
 			if (status!=_index) 
-				_accumulate_acceleration(m,x,y,z,_get_squared_distance(x,y,z,_x,_y,_z)); 			
+				_accumulate_acceleration(m,X[0],X[1],X[2],_get_squared_distance(X[0],X[1],X[2],_x,_y,_z)); 			
 			return Node::Visitor::Status::Continue;
 	}
 }
