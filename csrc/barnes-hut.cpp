@@ -31,7 +31,7 @@ using namespace std;
 *  a       Softening length
 */ 
 BarnesHutVisitor::BarnesHutVisitor(const int index,Particle& me,const double theta, const double G,const double a) :
-  _index(index),_me(me),_theta_squared(sqr(theta)),_G(G),_a(a),_acc_x(0),_acc_y(0),_acc_z(0) {
+  _index(index),_me(me),_theta_squared(sqr(theta)),_G(G),_a(a),_acceleration({0.0,0.0,0.0}){
 	_position = _me.get_position();
 }
 
@@ -71,8 +71,7 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
  * Used at the end of calculation to store accelerations back into particle
  */
 void BarnesHutVisitor::store_accelerations() {
-	auto acceleration = array<double,3>{_acc_x, _acc_y, _acc_z};
-	_me.set_acceleration(acceleration);
+	_me.set_acceleration(_acceleration);
 }
 
 /**
@@ -81,17 +80,8 @@ void BarnesHutVisitor::store_accelerations() {
  * acceleration is always zero at the start.
  */
 void BarnesHutVisitor::_accumulate_acceleration(double m,array<double,3> X,double dsq){
-	double acc_x, acc_y, acc_z;
-	tie(acc_x, acc_y, acc_z) = _get_acceleration( m, X, dsq);
-	_acc_x += acc_x;
-	_acc_y += acc_y;
-	_acc_z += acc_z;
+	auto d_factor = pow(dsq + _a*_a,-3/2);
+	for (int i=0;i<3;i++)
+		 _acceleration[i] += _G*m*(X[i]-_position[i])*d_factor;
 }
 
-tuple<double,double,double>  BarnesHutVisitor::_get_acceleration(double m,array<double,3> X,double dsq){
-	auto d_factor = pow(dsq + _a*_a,-3/2);
-	auto acc_x = _G*m*(X[0]-_position[0])*d_factor;
-	auto acc_y = _G*m*(X[1]-_position[1])*d_factor;
-	auto acc_z = _G*m*(X[2]-_position[2])*d_factor;
-	return make_tuple(acc_x,acc_y,acc_z);
-}

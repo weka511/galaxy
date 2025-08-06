@@ -66,9 +66,7 @@ class BarnesHutVisitor :  public Node::Visitor{
 	/**
 	 * We accumulate the acceleration here
 	 */
-	double _acc_x;
-	double _acc_y;
-	double _acc_z;
+	array<double,3> _acceleration;
   
   public:
    /**
@@ -99,8 +97,6 @@ class BarnesHutVisitor :  public Node::Visitor{
 	 * Used to add in the contribution to the acceleration from one Node
 	 */
 	void _accumulate_acceleration(double m,array<double,3> X,double dsq);
-	
-	tuple<double,double,double> _get_acceleration(double m,array<double,3> X,double dsq);
 		
 };
 
