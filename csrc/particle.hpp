@@ -62,6 +62,12 @@ class Particle {
 		return sum;
 	}
 	
+	static inline double get_distance_sq(array<double,3> position1,array<double,3> position2)  {
+		double sum = 0.0;
+		for (int i=0;i<3;i++)
+			sum += sqr(position1[i] - position2[i]);
+		return sum;
+	}
 	/**
 	 *   Used to set initial position and velocity when configuration is initialized.
 	 */

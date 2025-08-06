@@ -50,12 +50,12 @@ Node::Visitor::Status CentreOfMassCalculator::visit(Node * node) {
  */
 void CentreOfMassCalculator::record_particle(Node * node,const int particle_index) {   
 	_processed_particle[particle_index] = true;
-	auto pos = _particles[particle_index].get_position();
-	double x,y,z;
-	x = pos[0];
-	y = pos[1];
-	z = pos[2];
-	node->set_mass_and_centre(_particles[particle_index].get_mass(),x,y,z);
+	// auto pos = _particles[particle_index].get_position();
+	// double x,y,z;
+	// x = pos[0];
+	// y = pos[1];
+	// z = pos[2];
+	node->set_mass_and_centre(_particles[particle_index].get_mass(),_particles[particle_index].get_position());
 }
 
 /**
@@ -63,7 +63,7 @@ void CentreOfMassCalculator::record_particle(Node * node,const int particle_inde
  */
 void CentreOfMassCalculator::farewell(Node * node,Node * child){
 	if (node->getStatus() == Node::Internal) 
-		node->accumulatePhysics(child);
+		node->accumulate_center_of_mass(child);
 }
 
 /**
@@ -83,11 +83,13 @@ void CentreOfMassCalculator::verify_all_particles_processed() {
  * have been processed. Store centre of mass.
  */
 bool CentreOfMassCalculator::depart(Node * node)  {
+	array<double,3> X;
 	double m,x,y,z;
 	tie(m,x,y,z) = node->get_mass_and_centre();
 	switch (node->getStatus()) {
 		case Node::Internal:
-			node->set_mass_and_centre(m,x/m,y/m,z/m);
+			X = {x/m,y/m,z/m};
+			node->set_mass_and_centre(m,X);
 			break;
 		case Node::Unused:
 			return true;

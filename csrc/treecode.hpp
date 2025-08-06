@@ -18,6 +18,7 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
+#include <array>
 #include <memory>
 #include <tuple>
 #include "particle.hpp"
@@ -38,7 +39,7 @@ class Node {
 	/**
 	 *   Used to ensure we have an octree
 	 */
-	enum {N_Children=8};
+	enum {N_Children=2*2*2};
 
 	/**
 	 *  Used to keep track of nodes for debugging
@@ -55,14 +56,15 @@ class Node {
 	 *  Mass and centre of mass
 	 */
 	double _m;
-	double _x;
-	double _y;
-	double _z;
+	
+	array<double,3> _center_of_mass;
 
 	/**
 	 * Bounding box for Node. This will be subdivided as we move down the tree
 	 */
-	double _xmin, _xmax, _ymin, _ymax, _zmin, _zmax, _xmean, _ymean, _zmean;
+	array<double,3> _Xmin;
+	array<double,3> _Xmax;
+	array<double,3>	_Xmean;
 	
 	/**
 	 * Descendants of this node - only for an Internal Node
@@ -123,7 +125,8 @@ class Node {
 	 *  Create one node for tree. I have made this private, 
 	 *  as clients should use the factory method Node::create(...)
 	 */	
-	Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax);
+	Node(array<double,3> Xmin, array<double,3> Xmax);
+
 	
 	/**
 	 * Destroy node and its descendants.
@@ -150,31 +153,30 @@ class Node {
 	 * Get mass and centre of mass
 	 */
 	tuple <double,double,double,double>  get_mass_and_centre() {
-		return make_tuple(_m,_x,_y,_z);
+		return make_tuple(_m,_center_of_mass[0],_center_of_mass[1],_center_of_mass[2]);
 	}
 	
 	/**
 	 * Set mass and centre of mass
 	 */
-	void set_mass_and_centre(double m, double x, double y, double z) {
-		_verify_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
-		_verify_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
-		_verify_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
+	void set_mass_and_centre(double m, array<double,3> X) {
+		for (int i=0;i<3;i++)
+			_verify_range("X",X[i],_Xmin[i],_Xmax[i],__FILE__,__LINE__);// FIXME #59
 		_m = m;
-		_x = x;
-		_y = y;
-		_z = z;
+		_center_of_mass = X;
 	}
 	
 	/**
 	 *   Used to calculate centre of mass for internal nodes.
 	 */
-	void accumulatePhysics(Node* other);
+	void accumulate_center_of_mass(Node* other);
 
 	/**
 	 * Determine length of side: since Node is a cube, any side will do
 	 */
-	inline double getSide() {return _xmax - _xmin;}
+	inline double getSide() {
+		return _Xmax[0] - _Xmin[0];
+	}
 	
 	/**
      * Determine a cube that will serve as a bounding box for set of particles. 
@@ -194,8 +196,12 @@ class Node {
 	/**
 	 * Used to map a triple to an octant
 	 */
-	inline int _triple_to_octant(int i, int j, int k) {return 4*i+2*j+k;}
+	inline int _triple_to_octant(array<int,3> indices) {
+		return 2*(2*indices[0] + indices[1]) + indices[2];
+	}
 	
+	inline int _triple_to_octant(int i, int j, int k) {return 4*i+2*j+k;}
+
 	/**
 	 * Find correct subtree to store particle, using bounding rectangular box
 	 */

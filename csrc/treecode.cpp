@@ -32,7 +32,9 @@ int Node::_count=0;   // Initially tree is empty
 unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){  // FIXME Issue #61
 	double zmin, zmax;
 	tie(zmin,zmax) = Node::get_limits(particles,n);
-	unique_ptr<Node> product = unique_ptr<Node>(new Node(zmin,zmax,zmin,zmax,zmin,zmax));
+	array<double,3> Xmin = {zmin,zmin,zmin};
+	array<double,3> Xmax = {zmax,zmax,zmax};
+	unique_ptr<Node> product = unique_ptr<Node>(new Node(Xmin,Xmax));
 
 	for (int index=0;index<n;index++)
 		product->insert(index,particles);
@@ -72,11 +74,12 @@ tuple<double,double> Node::get_limits(unique_ptr<Particle[]>& particles,int n,co
  * Create a Node for a given region of space. Set it Unused until it has been added to Tree,
  */
  
-Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zmax)
+Node::Node(array<double,3> Xmin,array<double,3> Xmax)
   : _id(_count),_particle_index(Unused),
-  	_m(0.0d),_x(0.0d),_y(0.0d),_z(0.0d),
-	_xmin(xmin), _xmax(xmax), _ymin(ymin), _ymax(ymax), _zmin(zmin), _zmax(zmax),
-	_xmean(0.5*(xmin+ xmax)), _ymean(0.5*(ymin+ ymax)), _zmean(0.5*(zmin+ zmax)) {
+  	_m(0.0d), _center_of_mass({0.0d,0.0d,0.0d}),
+	_Xmin(Xmin), _Xmax(Xmax){
+	for (int i=0;i<3;i++)
+		_Xmean[i] = 0.5 * (Xmin[i] + Xmax[i]);
 	for (int i=0;i<N_Children;i++)
 		_child[i] = NULL;
 	_count++;
@@ -89,28 +92,24 @@ Node::Node(double xmin,double xmax,double ymin,double ymax,double zmin,double zm
  * Recursively descend until we find an empty node.
  */
 void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
-	double x,y,z; 
-	auto pos = particles[new_particle_index].get_position();
-	x = pos[0];
-	y = pos[1];
-	z = pos[2];
-	_verify_range("x",x,_xmin,_xmax,__FILE__,__LINE__);
-	_verify_range("y",y,_ymin,_ymax,__FILE__,__LINE__);
-	_verify_range("z",z,_zmin,_zmax,__FILE__,__LINE__);
+	auto X = particles[new_particle_index].get_position();
+	for (int i=0;i<3;i++)
+		_verify_range("X",X[i],_Xmin[i],_Xmax[i],__FILE__,__LINE__);// FIXME #59
 
 	const double epsilon=1e-12;
 	switch(_particle_index){
 		case Unused:   // This Node is currently Unused, so we can add particle to it
-			_particle_index=new_particle_index;
+			_particle_index = new_particle_index;
 			return;
 		case Internal:  // This Node is Internal, so we can add particle to the appropriate subtree
 			_child[_get_octant_number(particles[new_particle_index])]->insert(new_particle_index,particles);
 			return;
 		default:     // This Node is External, so we already have a particle here; we have to move it
 			const int incumbent = _particle_index;
-			if (Particle::get_distance_sq(particles[new_particle_index],particles[incumbent]) < epsilon*(_xmax-_xmin)){
+			const double distance_sq_min = epsilon*sqr(_Xmax[0] -_Xmin[0]);
+			if (Particle::get_distance_sq(particles[new_particle_index],particles[incumbent]) < distance_sq_min){
 				stringstream message;
-				message<<"Particles "<<new_particle_index << " and " << incumbent << " within " << epsilon*(_xmax-_xmin) << " of each other"; 
+				message<<"Particles "<<new_particle_index << " and " << incumbent << " within " << distance_sq_min << " of each other"; 
 				throw logic_error(message.str().c_str());
 			}
 			_pass_down(new_particle_index,incumbent,particles);
@@ -122,15 +121,12 @@ void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
  * We split x, y, and z into halves, and determine which half each axis belongs to
  */
 int Node::_get_octant_number(Particle &particle) {
-	double x,y,z;
 	auto pos = particle.get_position();
-	x = pos[0];
-	y = pos[1];
-	z = pos[2];
-	const int i = (x > _xmean);
-	const int j = (y > _ymean);
-	const int k = (z > _zmean);
-	return _triple_to_octant(i,j,k);
+	array<int,3> indices;
+	for (int i=0;i<3;i++)
+		indices[i] = (pos[i] > _Xmean[i]);
+	
+	return _triple_to_octant(indices);
 }
 
 
@@ -167,17 +163,15 @@ void Node::_insert_or_propagate(int particle_index,int incumbent,unique_ptr<Part
  */
 void Node::_split_node() {
 	_particle_index = Internal;
-	
+	array<double,3> Xmin;
+	array<double,3> Xmax;
 	for (int i=0;i<2;i++) {
-		double xmin, xmax;
-		tie (xmin,xmax) = _get_refined_bounds(i, _xmin,  _xmax,  _xmean);
+		tie (Xmin[0], Xmax[0]) = _get_refined_bounds(i, _Xmin[0], _Xmax[0],  _Xmean[0]);
 		for (int j=0;j<2;j++) {
-			double ymin, ymax;
-			tie (ymin,ymax) = _get_refined_bounds(j, _ymin,  _ymax,  _ymean);
+			tie (Xmin[1], Xmax[1])  = _get_refined_bounds(j, _Xmin[1], _Xmax[1],  _Xmean[1]);
 			for (int k=0;k<2;k++) {
-				double zmin,zmax;
-				tie (zmin,zmax) = _get_refined_bounds(k, _zmin,  _zmax,  _zmean);
-				_child[_triple_to_octant(i,j,k)] = new Node(xmin, xmax, ymin, ymax, zmin, zmax);
+				tie (Xmin[2], Xmax[2])  = _get_refined_bounds(k, _Xmin[2],  _Xmax[2],  _Xmean[2]);
+				_child[_triple_to_octant(i,j,k)] = new Node(Xmin, Xmax);
 			}
 		}
 	}
@@ -214,11 +208,10 @@ bool Node::traverse(Visitor & visitor) {
  *   Used to calculate centre of mass for internal nodes.
  *   We accumulate mx,my,mz, so we need to treat External nodes differently
  */
-void Node::accumulatePhysics(Node* other) {
+void Node::accumulate_center_of_mass(Node* other) {
 	_m += other->_m;
-	_x += other->_m * other->_x;
-	_y += other->_m * other->_y;
-	_z += other->_m * other->_z;
+	for (int i=0;i<3;i++)
+		_center_of_mass[i] += other->_m * other->_center_of_mass[i];
 }
 
 /**
@@ -241,19 +234,24 @@ int Node::get_count() {return _count;}
 /**
  * Used to establish that the center of mass is within the bounding box for it Node.
  */
-bool Node::verify_within_bounding_box(){
-	if ((_xmin < _x and _x < _xmax) and (_ymin < _y and _y < _ymax) and (_zmin < _z and _z < _zmax)) return true;
+bool Node::verify_within_bounding_box(){  // FIXME #59
+	bool is_within_bounds = true;
+	for (int i=0;i<3 and is_within_bounds;i++)
+		is_within_bounds  = (_Xmin[i] < _center_of_mass[i]) and (_center_of_mass[i] < _Xmax[i]);
+	if (is_within_bounds) return true;
 	
 	cerr<<__FILE__ <<" " <<__LINE__<< ": Status: "<< getStatus()<<endl;
-	cerr << "("<<_xmin << ", " << _x << ", " << _xmax << ")" << endl;
-	cerr << "("<<_ymin << ", " << _y << ", " << _ymax << ")" << endl;
-	cerr << "("<<_zmin << ", " << _z << ", " << _zmax << ")" << endl << endl;
+	for (int i=0;i<3;i++)
+		cerr << "("<<_Xmin[i] << ", " << _center_of_mass[i] << ", " << _Xmax[i] << ")" << endl;
+
 	for (int i=0;i<N_Children;i++)
 		switch(_child[i]->_particle_index) {
 			case Unused:
 				break;
 			default:
-				cerr << "("<<_child[i]->_x<< ", " << _child[i]->_y << ", " << _child[i]->_z << ") " << _child[i]->_m<< endl;
+				cerr 	<< "("<<_child[i]->_center_of_mass[0]<< ", " 
+						<< _child[i]->_center_of_mass[1] << ", "
+						<< _child[i]->_center_of_mass[2] << ") " << _child[i]->_m<< endl;
 		}
 
 	stringstream message;
