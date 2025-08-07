@@ -19,7 +19,7 @@
 
 from argparse import ArgumentParser
 from os import listdir
-from os.path import join
+from os.path import basename, join, splitext
 from re import search
 from sys import exit
 import numpy as np
@@ -28,7 +28,10 @@ import mpl_toolkits.mplot3d
 
 def parse_args():
     parser = ArgumentParser(description=__doc__)
-    parser.add_argument('--bodies','-b', type=int, default=1000, help='Number of bodies from simulation')
+    parser.add_argument('--seed',type=int,default=None,help='Seed for random number generator')
+    parser.add_argument('-o', '--out', default = basename(splitext(__file__)[0]),help='Name of output file')
+    parser.add_argument('--figs', default = './figs', help = 'Name of folder where plots are to be stored')
+    parser.add_argument('--show', action = 'store_true', help   = 'Show plot')
     parser.add_argument('--dpi', type=int, default=300, help='Dots per inch for displaying and saving figure')
     parser.add_argument('--norbits','-n', type=int, default=7, help='Number of orbits')
     parser.add_argument('--maxsamples','-m', type=int, default=1000, help='Maximum number of sample per orbit (-1 to process all samples)')
@@ -36,12 +39,27 @@ def parse_args():
     parser.add_argument('--suffix','-s', default='csv', help='Suffix for configuration files')
     parser.add_argument('--delimiter','-d', default=',', help='Delimiter for fields in config file')
     parser.add_argument('--nsigma','-g', type=int,  default=3, help='Number of standard deviations to use for scaling')
-    parser.add_argument('--seed', type=int,  default=None, help='Seed for random number generator')
-    parser.add_argument('--images','-i',  default='./figs', help='Path to store images')
     parser.add_argument('--path','-p', default='../csrc/configs', help='Path for config files')
-    parser.add_argument('--show', action = 'store_true', help   = 'Show plot')
+    parser.add_argument('--title','-t',default=None,help='Title for plot')
     return parser.parse_args()
 
+def get_file_name(name,default_ext='png',figs='./figs',seq=None):
+    '''
+    Used to create file names
+
+    Parameters:
+        name          Basis for file name
+        default_ext   Extension if non specified
+        figs          Directory for storing figures
+        seq           Used if there are multiple files
+    '''
+    base,ext = splitext(name)
+    if len(ext) == 0:
+        ext = default_ext
+    if seq != None:
+        base = f'{base}{seq}'
+    qualified_name = f'{base}.{ext}'
+    return join(figs,qualified_name) if ext == 'png' else qualified_name
 
 def get_limits(xs,n=1):
     '''
@@ -63,7 +81,8 @@ def plot(Orbits,selector,
          n=2,
          images='.',
          linestyles = ['-', '--', '-.', ':'],
-         dpi=300):
+         dpi=300,
+         title=None):
     '''
     Plot orbits
     Parameters:
@@ -87,18 +106,19 @@ def plot(Orbits,selector,
                    label=f'{k}',
                    s=50,marker='x')
     ax.legend(loc='best',title='Starts of Orbits')
-    ax.set_title(f'Orbits of {K} randomly selected stars out of {m}')
+    if title == None:
+        title = f'Orbits of {K} randomly selected stars out of {m}'
+    ax.set_title(title)
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
     ax.set_xlim(get_limits(Orbits[:,:,0],n=n))
     ax.set_ylim(get_limits(Orbits[:,:,1],n=n))
     ax.set_zlim(get_limits(Orbits[:,:,2],n=n))
-    fig.savefig(join(images,f'orbits-{m}-{K}.png'), dpi=dpi)
-    return True
+    fig.savefig(get_file_name(args.out,figs=args.figs), dpi=dpi)
 
 def extract(config_path = './configs/',
-            k = 6,
+            n = 6,
             maxsamples=1000,
             prefix='bodies',
             suffix='csv',
@@ -109,7 +129,7 @@ def extract(config_path = './configs/',
 
        Parameters:
            config_path     Location of data
-           k
+           n
            maxsamples      Maximum number of points sampled in each orbit
            prefix          Prefix for configuration files
            suffix          Suffix for configuration files
@@ -130,8 +150,8 @@ def extract(config_path = './configs/',
             if i%skip == 0:
                 if m == None:
                     m = len(record)
-                    selector = rng.choice(m,size=k)
-                    Result = np.zeros((len(listdir(config_path)),k,3))
+                    selector = rng.choice(m,size=n)
+                    Result = np.zeros((len(listdir(config_path)),n,3))
             Result[i,:,:] = record[selector,1:4]
             i += 1
 
@@ -148,8 +168,8 @@ if __name__=='__main__':
                               prefix = args.prefix,
                               suffix = args.suffix,
                               delimiter = args.delimiter,
-                              k = args.norbits)
-    plot(Orbits,selector)
+                              n = args.norbits)
+    plot(Orbits,selector,title=args.title)
 
     if args.show:
         show()
