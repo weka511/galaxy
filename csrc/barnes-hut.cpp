@@ -21,19 +21,6 @@
 
 using namespace std;
 
-/**
-* Initialize BarnesHutVisitor for a specific particle
-*
-*  index   Keep track of particle index so we don't calculate acceleration of particle caused by itself!
-*  me      Particle being processed
-*  theta   Angle for Barnes G=Hut cutoff
-*  G       Gravitational constant
-*  a       Softening length
-*/ 
-BarnesHutVisitor::BarnesHutVisitor(const int index,Particle& me,const double theta, const double G,const double a) :
-  _index(index),_me(me),_theta_squared(sqr(theta)),_G(G),_a(a),_acceleration({0.0,0.0,0.0}){
-	_position = _me.get_position();
-}
 
 /**
  * Used to accumulate accelerations for each node
@@ -41,17 +28,16 @@ BarnesHutVisitor::BarnesHutVisitor(const int index,Particle& me,const double the
 Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 	double m;
 	array<double,3> X;
-	auto mass_and_centre = node->get_mass_and_centre();
-	tie(m,X) = mass_and_centre;
+	tie(m,X) = node->get_mass_and_centre();
 
 	const int status = node->getStatus();
 	switch (status) {
 		case Node::Internal: {
-			auto dsq_node=Particle::get_distance_sq(X,_position);
+			const auto dsq_node=Particle::get_distance_sq(X,_position);
 			/*
 			 * Is this node distant enough that its particles can be lumped?
 			 */
-			auto l_sqr=sqr(node->getSide());
+			const auto l_sqr=sqr(node->getSide());
 			if (l_sqr/dsq_node < _theta_squared) { // I have checked against Barnes and Hut's paper - they recommend 1.0 for theta
 				_accumulate_acceleration(m,X,dsq_node);
 				return Node::Visitor::Status::DontDescend;
@@ -61,7 +47,7 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 		case Node::Unused:
 			return Node::Visitor::Status::Continue;
 		default: // External Node - accumulate except don't accumulate self!
-			if (status!=_index) 
+			if (status != _id) 
 				_accumulate_acceleration(m,X,Particle::get_distance_sq(X,_position)); 			
 			return Node::Visitor::Status::Continue;
 	}

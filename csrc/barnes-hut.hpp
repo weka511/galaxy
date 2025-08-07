@@ -37,7 +37,7 @@ class BarnesHutVisitor :  public Node::Visitor{
   	/**
 	 * Keep track of particle index so we don't calculate acceleration of particle caused by itself!
 	 */
-	const int _index = -1;
+	const int _id = -1;
 	
 	/**
 	 * The particle whose acceleration is being calculated
@@ -70,15 +70,15 @@ class BarnesHutVisitor :  public Node::Visitor{
   
   public:
    /**
-   * Initialize BarnesHutVisitor for a specific particle
-   *
-   *  index   Keep track of particle index so we don't calculate acceleration of particle caused by itself!
-   *  me      Particle being processed
-   *  theta   Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
-   *  G       Gravitational constant
-   *  a       Softening length
-   */
-	BarnesHutVisitor(const int index,Particle& me,const double theta, const double G,const double a);
+    * Initialize BarnesHutVisitor for a specific particle
+    *
+    *  me      Particle being processed
+    *  theta   Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
+    *  G       Gravitational constant
+    *  a       Softening length
+    */
+	BarnesHutVisitor(Particle& me,const double theta, const double G,const double a)
+	: _id(me.get_id()),_me(me),_theta_squared(sqr(theta)),_G(G),_position(me.get_position()),_a(a),_acceleration({0.0,0.0,0.0}){};
 	
 	/**
 	 * Used to accumulate accelerations for each node
