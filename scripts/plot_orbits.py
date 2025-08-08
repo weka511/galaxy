@@ -27,18 +27,22 @@ from matplotlib.pyplot import figure, show
 import mpl_toolkits.mplot3d
 
 def parse_args():
+    dpi = 333
+    norbits = 7
+    maxsamples = -1
+    nsigma = 3
     parser = ArgumentParser(description=__doc__)
     parser.add_argument('--seed',type=int,default=None,help='Seed for random number generator')
     parser.add_argument('-o', '--out', default = basename(splitext(__file__)[0]),help='Name of output file')
     parser.add_argument('--figs', default = './figs', help = 'Name of folder where plots are to be stored')
     parser.add_argument('--show', action = 'store_true', help   = 'Show plot')
-    parser.add_argument('--dpi', type=int, default=300, help='Dots per inch for displaying and saving figure')
-    parser.add_argument('--norbits','-n', type=int, default=7, help='Number of orbits')
-    parser.add_argument('--maxsamples','-m', type=int, default=1000, help='Maximum number of sample per orbit (-1 to process all samples)')
+    parser.add_argument('--dpi', type=int, default=dpi, help=f'Dots per inch for displaying and saving figure [{dpi}]')
+    parser.add_argument('--norbits','-K', type=int, default=norbits, help=f'Number of orbits [{norbits}]')
+    parser.add_argument('--maxsamples','-m', type=int, default=maxsamples, help=f'Maximum number of sample per orbit [{maxsamples} (process all samples)]')
     parser.add_argument('--prefix', default='galaxy', help='Prefix for configuration files')
     parser.add_argument('--suffix','-s', default='csv', help='Suffix for configuration files')
     parser.add_argument('--delimiter','-d', default=',', help='Delimiter for fields in config file')
-    parser.add_argument('--nsigma','-g', type=int,  default=3, help='Number of standard deviations to use for scaling')
+    parser.add_argument('--nsigma','-g', type=int,  default=nsigma, help=f'Number of standard deviations to use for scaling [{nsigma}]')
     parser.add_argument('--path','-p', default='../csrc/configs', help='Path for config files')
     parser.add_argument('--title','-t',default=None,help='Title for plot')
     return parser.parse_args()
@@ -74,6 +78,52 @@ def get_limits(xs,n=1):
     mean  = np.mean(xs)
     sigma = np.std(xs)
     return (mean-n*sigma,mean+n*sigma)
+
+def extract(config_path = './configs/',
+            K = 6,
+            maxsamples=1000,
+            prefix='bodies',
+            suffix='csv',
+            delimiter=',',
+            rng = np.random.default_rng()):
+    '''
+    Extract data from configuration files
+
+       Parameters:
+           config_path     Location of data
+           n
+           maxsamples      Maximum number of points sampled in each orbit
+           prefix          Prefix for configuration files
+           suffix          Suffix for configuration files
+           delimiter       Delimiter for fields in config file
+    '''
+    def get_n():
+        '''
+        Determine total number of points in a single orbit and the number of
+        points to skip so the number of sample won't exceed maxsamples
+        '''
+        n = len(listdir(config_path))
+        skip = 1
+        while maxsamples > 0 and n//skip > maxsamples:
+            skip *= 10
+        return skip,n
+
+    number_of_bodies = None         # Will be set when we read first file
+    Data = None                     # Will be set when we know how many bodies there are
+    skip,n = get_n()
+
+    for i,file_name in enumerate(listdir(config_path)):
+        match = search(r'{0}[0-9]+\.{1}'.format(prefix,suffix),file_name)
+        if match:
+            record = np.loadtxt(join(config_path,match.group(0)),delimiter=delimiter)
+            if i%skip == 0:
+                if number_of_bodies == None:
+                    number_of_bodies = len(record)
+                    selector = rng.choice(number_of_bodies,size=K)
+                    Data = np.zeros((len(listdir(config_path)),K,3))
+            Data[i,:,:] = record[selector,1:4]
+
+    return (Data,selector)
 
 def plot(Orbits,selector,
          colours=['xkcd:purple','xkcd:green','xkcd:blue','xkcd:pink','xkcd:brown','xkcd:red',
@@ -117,47 +167,6 @@ def plot(Orbits,selector,
     ax.set_zlim(get_limits(Orbits[:,:,2],n=n))
     fig.savefig(get_file_name(args.out,figs=args.figs), dpi=dpi)
 
-def extract(config_path = './configs/',
-            n = 6,
-            maxsamples=1000,
-            prefix='bodies',
-            suffix='csv',
-            delimiter=',',
-            rng = np.random.default_rng()):
-    '''
-    Extract data from configuration files
-
-       Parameters:
-           config_path     Location of data
-           n
-           maxsamples      Maximum number of points sampled in each orbit
-           prefix          Prefix for configuration files
-           suffix          Suffix for configuration files
-           delimiter       Delimiter for fields in config file
-    '''
-    m = None
-    Result = None
-    n = len(listdir(config_path))   # Total number of points
-    skip = 1                              # Used to skip over data so number of points won't exceed maxsamples
-    while maxsamples > 0 and n//skip > maxsamples:
-        skip *= 10
-
-    i = 0
-    for file_name in listdir(config_path):
-        match = search(r'{0}[0-9]+\.{1}'.format(prefix,suffix),file_name)
-        if match:
-            record = np.loadtxt(join(config_path,match.group(0)),delimiter=delimiter)
-            if i%skip == 0:
-                if m == None:
-                    m = len(record)
-                    selector = rng.choice(m,size=n)
-                    Result = np.zeros((len(listdir(config_path)),n,3))
-            Result[i,:,:] = record[selector,1:4]
-            i += 1
-
-    return (Result,selector)
-
-
 if __name__=='__main__':
     args = parse_args()
 
@@ -168,7 +177,7 @@ if __name__=='__main__':
                               prefix = args.prefix,
                               suffix = args.suffix,
                               delimiter = args.delimiter,
-                              n = args.norbits)
+                              K = args.norbits)
     plot(Orbits,selector,title=args.title)
 
     if args.show:
