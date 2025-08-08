@@ -60,17 +60,24 @@ string Logger::_path = "../logs";
 
 
 /**
- *  This function is invoked by the LOG macro to log a single integer
+ *  This function is invoked by the LOG macro to log a single string
  */
  void Logger::log(string file, int line, string s) {
 	 _output << file << " " << line << ": " << s  << endl << flush;
 }
 
 /**
- *  This function is invoked by the LOG macro to log a single string
+ *  This function is invoked by the LOG macro to log a single integer
  */
 void Logger::log(string file, int line, int n) {
 	 _output << file << " " << line << ": " << n  << endl << flush;
+}
+
+/**
+ *  This function is invoked by the LOG macro to log a 3 vector
+ */
+void Logger::log(string file, int line, array<double,3> v) {
+	 _output << file << " " << line << ": (" << v[0] << "," << v[1] <<"," << v[2] << ")"  << endl << flush;
 }
 
 /**

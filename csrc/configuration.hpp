@@ -110,6 +110,8 @@ class Configuration {
 		initializer.initialize(_n,_particles);
 	}
 	
+	array<double,3>  get_momentum();
+	
   private:
   
 	 /**

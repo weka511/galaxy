@@ -22,6 +22,7 @@
  #include <memory>
  #include <fstream>
  #include <chrono>
+ #include <array>
  
  using namespace std;
  
@@ -68,6 +69,11 @@
 	 *  This function is invoked by the LOG macro to log a single integer
 	 */
 	void log(string file, int line, int n);
+	
+	/**
+	 *  This function is invoked by the LOG macro to log a 3 vector
+	 */
+	void log(string file, int line, array<double,3> v);
 	
 	/**
 	 *  This function is invoked by the LOG macro to log a single string

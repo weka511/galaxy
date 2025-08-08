@@ -165,5 +165,14 @@ Configuration::Configuration(string file_name,bool should_list_particles){
     return tokens;
 }
 
+array<double,3>  Configuration::get_momentum(){
+	array<double,3> momentum = {0.0,0.0,0.0};
+	for (int i=0;i<_n;i++)
+		for (int j=0;j<3;j++)
+			momentum[j] += _particles[i].get_mass() * _particles[i].get_velocity()[j];
+		
+	return momentum;
+}
+
  
 
