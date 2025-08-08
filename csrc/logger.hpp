@@ -25,10 +25,20 @@
  
  using namespace std;
  
+ /**
+  * This macro is used to record one entity.
+  */
  #define LOG(s) Logger::get_instance()->log(__FILE__,__LINE__,s)
  
+ /**
+  * This macro is used to record two entities.
+  */
  #define LOG2(s1,s2) Logger::get_instance()->log(__FILE__,__LINE__,s1,s2)
  
+ /**
+  * This macro is used to record the time that a statement was reached
+  * if the metavaiable TIMER_ON is set.
+  */
  #ifdef TIMER_ON
 	#define TIME() Logger::get_instance()->time_point(__FILE__,__LINE__)
 #else
@@ -36,7 +46,8 @@
 #endif
 
  /**
-  *  This class is the logger for galaxy.
+  *  This class is the logger for Galaxy. Only
+  *  one instance is allowed.
   */
  class Logger {
 	 
@@ -52,9 +63,26 @@
 	static unique_ptr<Logger> & get_instance();
 	Logger();
 	virtual ~Logger();
+	
+	/**
+	 *  This function is invoked by the LOG macro to log a single integer
+	 */
 	void log(string file, int line, int n);
+	
+	/**
+	 *  This function is invoked by the LOG macro to log a single string
+	 */
 	void log(string file, int line, string s);
+	
+	/**
+	 *  This function is invoked by the LOG macro to log two strings
+	 */
 	void log(string file, int line, string s1, string s2);
+	
+	/**
+	 *  This function is invoked by the TIME macro to record when 
+	 *  something occurred
+	 */
 	void time_point(string file, int line);
 	
   private:
@@ -65,4 +93,3 @@
  
 
 #endif //__LOGGER_HPP
-

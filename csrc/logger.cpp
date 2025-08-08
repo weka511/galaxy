@@ -57,22 +57,36 @@ string Logger::_path = "../logs";
 	_output.close();
 }
 
- void Logger::time_point(string file, int line) {
-	 _output << file << " " << line << ": " << _get_milliseconds_since_start() <<  " ms." <<endl;
-}
 
+
+/**
+ *  This function is invoked by the LOG macro to log a single integer
+ */
  void Logger::log(string file, int line, string s) {
 	 _output << file << " " << line << ": " << s  << endl << flush;
 }
 
+/**
+ *  This function is invoked by the LOG macro to log a single string
+ */
 void Logger::log(string file, int line, int n) {
 	 _output << file << " " << line << ": " << n  << endl << flush;
 }
 
+/**
+ *  This function is invoked by the LOG macro to log two strings
+ */
 void Logger::log(string file, int line, string s1, string s2) {
 	 _output << file << " " << line << ": " << s1 << s2  << endl << flush;
 }
 
+/**
+ *  This function is invoked by the TIME macro to record when 
+ *  something occurred
+ */
+ void Logger::time_point(string file, int line) {
+	 _output << file << " " << line << ": " << _get_milliseconds_since_start() <<  " ms." <<endl;
+}
 
  string Logger::_to_str2(int n){
 	stringstream result;
