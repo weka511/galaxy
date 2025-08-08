@@ -50,7 +50,9 @@ class Body:
         '''
          Convert fields in body to a string for serialization
         '''
-        fields = self.position + [self.mass] + self.velocity
+        fields = [self.position[0],self.position[1],self.position[2],
+                  self.mass,
+                  self.velocity[0],self.velocity[1],self.velocity[2]]
         return ','.join([encode(f) for f in fields])
 
     def get_T(self):
@@ -111,9 +113,9 @@ class ConfigurationFactory(ABC):
         '''
         theta = np.arccos(random.uniform(-1,1))
         phi = random.uniform(0,2*np.pi)
-        return [radius * np.sin(theta) * np.cos(phi),
+        return np.array([radius * np.sin(theta) * np.cos(phi),
                 radius * np.sin(theta) * np.sin(phi),
-                radius * np.cos(theta)]
+                radius * np.cos(theta)])
 
 class Plummer(ConfigurationFactory):
     def create(self,number_bodies=100,
@@ -213,7 +215,7 @@ def save_configuration(bodies,config_version=1.1,output='config_new.txt',number_
     '''
     with open(output,'w') as f:
         f.write(f'Version={config_version}\n')
-  
+
         for body in bodies:
             f.write(body.encode()+'\n' )
         f.write('End\n')
@@ -221,10 +223,7 @@ def save_configuration(bodies,config_version=1.1,output='config_new.txt',number_
     print(f'Stored configuration in {output}')
 
 
-def create_configuration(
-    model          = 'plummer',
-    number_bodies  = 1000,
-    radius         = 1.0):
+def create_configuration(model = 'plummer', number_bodies = 1000, radius = 1.0):
     '''
     Generate a configuration of bodies in phase space
 
@@ -320,6 +319,14 @@ def generate_pairs(bodies):
         for j in range(i):
             yield(bodies[i],bodies[j])
 
+def get_mean_velocity(bodies):
+    momentum = np.zeros(3)
+    M = 0.0
+    for body in bodies:
+        momentum += body.mass * body.velocity
+        M += body.mass
+    return momentum / M
+
 if __name__=='__main__':
     rc('font',**{'family':'serif','serif':['Palatino']})
     rc('text', usetex=True)
@@ -350,9 +357,11 @@ if __name__=='__main__':
         bodies = create_configuration(model         = args.model,
                                       number_bodies = number_bodies,
                                       radius        = args.radius)
-
-        save_configuration(bodies,
-                           output        = config_file,
+        v = get_mean_velocity(bodies)
+        for body in bodies:
+            body.velocity -= v
+        v0 = get_mean_velocity(bodies)
+        save_configuration(bodies, output = config_file,
                            number_bodies = number_bodies)
 
         print (f'Created {args.model}: n={number_bodies}, r={args.radius}.')
@@ -365,6 +374,8 @@ if __name__=='__main__':
                            theta         = args.theta,
                            dt            = args.dt)
         print (f'Created {args.model}: n={number_bodies}, r={args.radius}.')
+
+
 
     if args.show:
         T =  sum([b.get_T() for b in bodies])
