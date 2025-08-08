@@ -29,6 +29,7 @@
 #include <sstream>
 #include <stdexcept>
 #include "configuration.hpp"
+#include "logger.hpp"
 
 using namespace std;
 
@@ -73,6 +74,11 @@ Configuration::Configuration(string file_name,bool should_list_particles){
 		if (tokens[0].compare("Version")==0)
 			_version = tokens[1];
 		else {
+			if (tokens.size() != 7){
+				stringstream message;
+				message<<__FILE__ <<" " <<__LINE__<<" Error in line " << line << " of "<<file_name << endl; 
+				throw logic_error(message.str()); 
+			}
 			auto position = array{0.0,0.0,0.0};
 			auto mass = 0.0;
 			auto velocity = array{0.0,0.0,0.0};
