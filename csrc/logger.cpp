@@ -23,6 +23,7 @@
 #include <string>
 #include <regex>
 #include <ctime>
+#include <iomanip>
 
 #include "logger.hpp"
  
@@ -61,11 +62,15 @@ string Logger::_path = "../logs";
 }
 
  void Logger::log(string file, int line, string s) {
-	 _output << file << " " << line << ": " << s  << endl;
+	 _output << file << " " << line << ": " << s  << endl << flush;
+}
+
+void Logger::log(string file, int line, int n) {
+	 _output << file << " " << line << ": " << n  << endl << flush;
 }
 
 void Logger::log(string file, int line, string s1, string s2) {
-	 _output << file << " " << line << ": " << s1 << s2  << endl;
+	 _output << file << " " << line << ": " << s1 << s2  << endl << flush;
 }
 
 

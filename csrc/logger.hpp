@@ -52,6 +52,7 @@
 	static unique_ptr<Logger> & get_instance();
 	Logger();
 	virtual ~Logger();
+	void log(string file, int line, int n);
 	void log(string file, int line, string s);
 	void log(string file, int line, string s1, string s2);
 	void time_point(string file, int line);
