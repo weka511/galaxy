@@ -34,7 +34,7 @@ def parse_arguments():
     parser.add_argument('--figs', default = './figs', help = 'Name of folder where plots are to be stored')
     parser.add_argument('--show', action = 'store_true', help   = 'Show plot')
     parser.add_argument('-N', '--N', type=int, default=100000, help='Number of iterations')
-    parser.add_argument('-i', '--input', default = 'galaxy-2025-08-09-11-42-25.log',help='Name of output file')
+    parser.add_argument('log', help='Name of log file for input')
     return parser.parse_args()
 
 
@@ -56,19 +56,15 @@ def get_file_name(name,default_ext='png',figs='./figs',seq=None):
     qualified_name = f'{base}.{ext}'
     return join(figs,qualified_name) if ext == 'png' else qualified_name
 
-if __name__=='__main__':
-    rc('font',**{'family':'serif','serif':['Palatino']})
-    rc('text', usetex=True)
-    start  = time()
-    args = parse_arguments()
-    rng = np.random.default_rng(args.seed)
-    pattern = compile(r'.*\((.*),(.*),(.*)\)')
-    path = join('../logs/',args.input)
+def count_observations(path,pattern):
     n = 0
     for line in open(path):
         matched = pattern.match(line.strip())
         if matched:
             n += 1
+    return n
+
+def read_momenta(path,pattern,n=100):
     momenta = np.zeros((n,3))
     i = 0
     for line in open(path):
@@ -77,13 +73,23 @@ if __name__=='__main__':
             for j in range(3):
                 momenta[i,j] = float(matched.group(j+1))
             i += 1
-    momentum = momenta.sum(axis=0)
+    return momenta
+
+if __name__=='__main__':
+    rc('font',**{'family':'serif','serif':['Palatino']})
+    rc('text', usetex=True)
+    start  = time()
+    args = parse_arguments()
+    rng = np.random.default_rng(args.seed)
+    pattern = compile(r'.*\((.*),(.*),(.*)\)')
+    path = join('../logs/',args.log)
+    momenta = read_momenta(path,pattern,n=count_observations(path,pattern))
 
     fig = figure(figsize=(12,12))
     ax1 = fig.add_subplot(111,projection='3d')
     ax1.scatter(momenta[:,0],momenta[:,1],momenta[:,2],s=1)
-    ax1.set_title(f'({momentum[0]},{momentum[1]},{momentum[2]})')
-    fig.suptitle(args.input)
+    ax1.set_title(f'({momenta[-1,0]},{momenta[-1,1]},{momenta[-1,2]})')
+    fig.suptitle(args.log)
     fig.savefig(get_file_name(args.out,figs=args.figs))
     elapsed = time() - start
     minutes = int(elapsed/60)
