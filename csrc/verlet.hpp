@@ -35,36 +35,50 @@ class Verlet {
 	 *  Use Euler algorithm for first step. NB: this updates velocity only, so x
 	 *  remains at its initial value, which is what Verlet needs.
 	 *
-	 *  dt                Time step
-	 *  particles         Vector of particles
 	 */
 	class Euler : public Configuration::Visitor {
 	  private:
-		const double _dt;
+		/**
+		 *  _dt_half  Time step - set to half the timestep for Verlet
+		 */ 
+		const double _dt_half;
 		
 	  public:
-		Euler(const double dt) :_dt(dt){;}
+		Euler(const double _dt_half) :_dt_half(_dt_half){;}
 		
 		void visit(Particle & particle);
 	};
-	
-	class Positions : public Configuration::Visitor {
+
+	/**
+	 * Class used to implement second half of Verlet algorithm - update positions
+	 */	
+	class PositionUpdater : public Configuration::Visitor {
 	  private:
 		const double _dt;
 		
 	  public:
-		Positions(const double dt) :_dt(dt){;}
+		PositionUpdater(const double dt) :_dt(dt){;}
 		
+		/**
+		 * Calculate position one step ahead
+		 */
 		void visit(Particle & particle);
 	};	
 
-	class Velocities : public Configuration::Visitor {
+	/**
+	 * Class used to implement first half of Verlet algorithm - update velocities
+	 */
+	class VelocityUpdater : public Configuration::Visitor {
 	  private:
 		const double _dt;
 		
 	  public:
-		Velocities(const double dt) :_dt(dt){;}
+		VelocityUpdater(const double dt) :_dt(dt){;}
 		
+		/**
+		 * Calculate velocity one step ahead, 
+		 * which is half a step ahead of position
+		 */
 		void visit(Particle & particle);
 	};	
 

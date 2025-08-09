@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  *
  * Integrate an Ordinary Differential Equation using Verlet algorithm.
  *
- * See http://physics.ucsc.edu/~peter/242/leapfrog.pdf
+ * See https://courses.physics.ucsd.edu/2019/Winter/physics141/Assignments/leapfrog.pdf
  */
  
 #include <iostream>
@@ -34,23 +34,26 @@ using namespace std;
  *     dt         Time step
  */
 void Verlet::run( int max_iter,const double dt){
-	if (!_reporter.should_continue()) return;
+	VelocityUpdater velocity_updater(dt);
+	PositionUpdater position_updater(dt);
+	/**
+	 *  First, take a half step and update velocities
+	 */
 	_configuration.initialize(_calculate_acceleration);
 	_configuration.iterate(_calculate_acceleration);
 	Euler euler(0.5*dt);
-	Velocities velocities(dt);
-	Positions positions(dt);
 	_configuration.iterate(euler);
+	
+	/**
+	 *  Now the valocties are one half step ahead of the position. We keep
+	 *  leapfrogging: use the "half ahead" velocity to update positions,
+	 *  calculate accelerations for the new positions, then update velocity.
+	 */
 	for (int iter=0;iter<max_iter and _reporter.should_continue();iter++) {
-		TIME();
-		_configuration.iterate(positions);
-		TIME();
+		_configuration.iterate(position_updater);
 		_configuration.initialize(_calculate_acceleration);
-		TIME();
 		_configuration.iterate(_calculate_acceleration);
-		TIME();
-		_configuration.iterate(velocities);
-		TIME();
+		_configuration.iterate(velocity_updater);
 		_reporter.report();
 	}
 }
@@ -59,7 +62,6 @@ void Verlet::run( int max_iter,const double dt){
  *  Use Euler algorithm for first step. NB: this updates velocity only, so 
  *  position remains at its initial value, as Verlet expects.
  *
- *  dt                Time step
  *  particles         Vector of particles
  */
  
@@ -67,7 +69,7 @@ void Verlet::Euler::visit(Particle & particle){
 	array<double,3>  velocity = particle.get_velocity();
 	array<double,3>  acceleration = particle.get_acceleration();
 	for (int i=0;i<3;i++)
-		velocity[i] += _dt * acceleration[i];
+		velocity[i] += _dt_half * acceleration[i];
 	particle.set_velocity(velocity);
 }
 
@@ -77,7 +79,7 @@ void Verlet::Euler::visit(Particle & particle){
  *  dt                Time step
  *  particles         Vector of particles
  */
-void Verlet::Positions::visit(Particle & particle){
+void Verlet::PositionUpdater::visit(Particle & particle){
 	array<double,3>  position = particle.get_position();
 	array<double,3>  velocity = particle.get_velocity();
 	for (int i=0;i<3;i++)
@@ -91,9 +93,9 @@ void Verlet::Positions::visit(Particle & particle){
  *  dt                Time step
  *  particles         Vector of particles
  */
-void Verlet::Velocities::visit(Particle & particle){
+void Verlet::VelocityUpdater::visit(Particle & particle){
 	array<double,3>  velocity = particle.get_velocity();
-	array<double,3> & acceleration = particle.get_acceleration();
+	array<double,3>  acceleration = particle.get_acceleration();
 	for (int i=0;i<3;i++)
 		velocity[i] += _dt * acceleration[i];
 	particle.set_velocity(velocity);	
