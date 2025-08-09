@@ -76,7 +76,7 @@ Configuration::Configuration(string file_name,bool should_list_particles){
 		else {
 			if (tokens.size() != 7){
 				stringstream message;
-				message<<__FILE__ <<" " <<__LINE__<<" Error in line " << line << " of "<<file_name << endl; 
+				message<<__FILE__ <<" " <<__LINE__<<" Error in line " << line << " of "<<file_name; 
 				throw logic_error(message.str()); 
 			}
 			auto position = array{0.0,0.0,0.0};
