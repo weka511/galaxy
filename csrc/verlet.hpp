@@ -45,7 +45,7 @@ class Verlet {
 	  public:
 		Euler(const double dt) :_dt(dt){;}
 		
-		void visit(int i,Particle & particle);
+		void visit(Particle & particle);
 	};
 	
 	class Positions : public Configuration::Visitor {
@@ -55,7 +55,7 @@ class Verlet {
 	  public:
 		Positions(const double dt) :_dt(dt){;}
 		
-		void visit(int i,Particle & particle);
+		void visit(Particle & particle);
 	};	
 
 	class Velocities : public Configuration::Visitor {
@@ -65,7 +65,7 @@ class Verlet {
 	  public:
 		Velocities(const double dt) :_dt(dt){;}
 		
-		void visit(int i,Particle & particle);
+		void visit(Particle & particle);
 	};	
 
   private:

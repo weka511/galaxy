@@ -40,7 +40,7 @@ void AccelerationVisitor::initialize(int n, unique_ptr<Particle[]> & particles){
 /**
  *  Calculate acceleration for one node only
  */
-void AccelerationVisitor::visit(int i,Particle & particle){
+void AccelerationVisitor::visit(Particle & particle){
 	BarnesHutVisitor visitor(particle,_theta,_G,_a);
 	_tree->traverse(visitor);
 	visitor.store_accelerations();

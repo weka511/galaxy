@@ -63,7 +63,7 @@ void Verlet::run( int max_iter,const double dt){
  *  particles         Vector of particles
  */
  
-void Verlet::Euler::visit(int i,Particle & particle){
+void Verlet::Euler::visit(Particle & particle){
 	array<double,3>  velocity = particle.get_velocity();
 	array<double,3>  acceleration = particle.get_acceleration();
 	for (int i=0;i<3;i++)
@@ -77,7 +77,7 @@ void Verlet::Euler::visit(int i,Particle & particle){
  *  dt                Time step
  *  particles         Vector of particles
  */
-void Verlet::Positions::visit(int i,Particle & particle){
+void Verlet::Positions::visit(Particle & particle){
 	array<double,3>  position = particle.get_position();
 	array<double,3>  velocity = particle.get_velocity();
 	for (int i=0;i<3;i++)
@@ -91,7 +91,7 @@ void Verlet::Positions::visit(int i,Particle & particle){
  *  dt                Time step
  *  particles         Vector of particles
  */
-void Verlet::Velocities::visit(int i,Particle & particle){
+void Verlet::Velocities::visit(Particle & particle){
 	array<double,3>  velocity = particle.get_velocity();
 	array<double,3> & acceleration = particle.get_acceleration();
 	for (int i=0;i<3;i++)

@@ -56,7 +56,15 @@ int Configuration::_get_line_count(ifstream& inputFile) {
 	return line_count + 5 + 1;
 }
 
-Configuration::Configuration(string file_name,bool should_list_particles){
+/**
+ *  Create a configuration from a list of particles 
+ *  that has been stored in a file.
+ *
+ *  Parameters:
+ *      file_name   Name of file (created by configure.py)
+ */
+	 
+Configuration::Configuration(string file_name){
 	ifstream inputFile(file_name);
 	if (!inputFile.is_open()) 
 		throw invalid_argument( "Could not open configuration file " + file_name);
@@ -100,8 +108,6 @@ Configuration::Configuration(string file_name,bool should_list_particles){
 					}
 			}
 			_particles[index].init(position,velocity,mass,index);	
-			if (should_list_particles)
-				cout << __FILE__ << " " << __LINE__ << ": " << _particles[index] << endl;
 			index++;			
 		}
     }

@@ -48,7 +48,7 @@ void Reporter::report(){
 /**
  *  Output velocity and position for one particle.
  */
-void Reporter::visit(int i, Particle & particle) {
+void Reporter::visit(Particle & particle) {
 	_output << particle << endl;
 }
 

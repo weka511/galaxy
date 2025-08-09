@@ -64,7 +64,10 @@ class Configuration {
 	 */
 	class Visitor{
 	  public:
-		virtual void visit(int i, Particle & particle) = 0;
+	   /**
+	    *  This will be called by iterate() once for each particle.
+		*/
+		virtual void visit(Particle & particle) = 0;
 	};
 	
 	/**
@@ -91,8 +94,18 @@ class Configuration {
 	 */
 	static double decode(string str);
   
-	Configuration(string file_name,bool should_list_particles);
+	/**
+	 *  Create a configuration from a list of particles 
+	 *  that has been stored in a file.
+	 *
+	 *  Parameters:
+	 *      file_name   Name of file (created by configure.py)
+	 */
+	Configuration(string file_name);
 	
+	/**
+	 *    Used when we display version numberS
+	 */
 	const string get_version() { return _version;}
 	
 	/**
@@ -100,7 +113,7 @@ class Configuration {
 	 */
 	void iterate(Visitor & visitor) {
 		for (int i=0;i<_n;i++)
-			visitor.visit(i,_particles[i]);	
+			visitor.visit(_particles[i]);	
 	}
 	
 	/**

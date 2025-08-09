@@ -47,7 +47,7 @@ class AccelerationVisitor : public Configuration::Visitor, public Configuration:
 	/**
 	 *  Invoked by Configuration to calculate the acceleration each particle.
 	 */
-	void visit(int i,Particle & particle);
+	void visit(Particle & particle);
 
 };
 

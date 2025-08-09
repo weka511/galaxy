@@ -67,7 +67,7 @@ class Reporter : public Configuration::Visitor {
 	/**
 	 * Output velocity and position for one particle.
 	 */
-	void visit(int i, Particle & particle);
+	void visit(Particle & particle);
 	
 	/**
 	 *   Verify that parogram should continue executing,
