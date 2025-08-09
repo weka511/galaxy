@@ -21,15 +21,9 @@
 #include <iomanip>
 #include <stdexcept>
 #include "reporter.hpp"
-
+#include "logger.hpp"
 
 using namespace std;
-
-string Reporter::_get_file_name(int n){
-	stringstream ss;
-	ss << setw(10) << setfill('0') << _sequence;
-	return _path + _base + ss.str() + "." + _extension;
-}
 
 /**
  *   Record configuration in a csv file
@@ -43,18 +37,25 @@ void Reporter::report(){
 	if (_output.is_open()){
         _configuration.iterate(*this);
 		_output.close();
+		LOG(_configuration.get_momentum());
     } else {
 		stringstream message;
 		message<<__FILE__ <<" " <<__LINE__<<" Error: Unable to open report file " << file_name<<endl; 
 		throw logic_error(message.str().c_str()); 
 	}
-
 }
 
+/**
+ *  Output velocity and position for one particle.
+ */
 void Reporter::visit(int i, Particle & particle) {
 	_output << particle << endl;
 }
 
+/**
+ *   Verify that parogram should continue executing,
+ *   i.e. killfile not present
+ */
 bool Reporter::should_continue() {
 	ifstream file(_killfile);
 	if (!file.is_open()) return true;
@@ -62,4 +63,13 @@ bool Reporter::should_continue() {
 	file.close();
 	remove(_killfile.c_str());
 	return false;
+}
+
+/**
+ *  Used to establish name for report file, including sequence number
+ */
+string Reporter::_get_file_name(int n){
+	stringstream ss;
+	ss << setw(10) << setfill('0') << _sequence;
+	return _path + _base + ss.str() + "." + _extension;
 }

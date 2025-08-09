@@ -165,6 +165,9 @@ Configuration::Configuration(string file_name,bool should_list_particles){
     return tokens;
 }
 
+/**
+ * Determine total linear momentum
+ */
 array<double,3>  Configuration::get_momentum(){
 	array<double,3> momentum = {0.0,0.0,0.0};
 	for (int i=0;i<_n;i++)

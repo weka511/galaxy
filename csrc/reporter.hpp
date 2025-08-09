@@ -49,12 +49,12 @@ class Reporter : public Configuration::Visitor {
 	const int _frequency;
 	
 	/**
-	 *  Used to determine whetherit is time to output a file.
+	 *  Used to determine whether it is time to output a file.
 	 */
 	int _count_down;
 	
   public:
-    Reporter(Configuration & configuration,string base="foo",string path="configs/",string extension="csv", string killfile="kill",int frequency=1)
+    Reporter(Configuration & configuration,string base="galaxy",string path="configs/",string extension="csv", string killfile="kill",int frequency=1)
  	: 	_configuration(configuration),
 		_output(),_base(base),_path(path),_extension(extension),_sequence(0),
 		_killfile(killfile),_frequency(frequency),_count_down(frequency) {;}
@@ -69,9 +69,16 @@ class Reporter : public Configuration::Visitor {
 	 */
 	void visit(int i, Particle & particle);
 	
+	/**
+	 *   Verify that parogram should continue executing,
+	 *   i.e. killfile not present
+	 */
     bool should_continue();
 	
   private:
+	/**
+	 *  Used to establish name for report file, including sequence number
+	 */
 	string _get_file_name(int n=4);
 };
 

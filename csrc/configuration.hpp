@@ -110,6 +110,9 @@ class Configuration {
 		initializer.initialize(_n,_particles);
 	}
 	
+	/**
+	 * Determine total linear momentum
+	 */
 	array<double,3>  get_momentum();
 	
   private:
