@@ -27,7 +27,8 @@ using namespace std;
 
  /**
   * Create CentreOfMassCalculator and mark all particles not processed
-  *  Parameters:
+  *
+  * Parameters:
   *   	particles These are the particles whose centre of mass is to be calculated. 
   */
 CentreOfMassCalculator::CentreOfMassCalculator(unique_ptr<Particle[]> &particles, int n) 
@@ -56,12 +57,12 @@ Node::Visitor::Status CentreOfMassCalculator::visit(Node * node) {
  */
 void CentreOfMassCalculator::record_particle(Node * node,const int particle_index) {   
 	Particle & particle = _particles[particle_index];
-	node->set_mass_and_centre(particle.get_mass(),particle.get_position());	_processed_particle[particle_index] = true;
+	node->set_mass_and_centre(particle.get_mass(),particle.get_position());
 	_processed_particle[particle_index] = true;
 }
 
 /**
- *  For an internal note we need to accumulate the mass and positions for each child
+ *  We need to accumulate the mass and positions for each child of an internal node
  */
 void CentreOfMassCalculator::accumulate(Node * node,Node * child){
 	assert (node->getType() == Node::Internal); 
@@ -82,9 +83,11 @@ void CentreOfMassCalculator::verify_all_particles_processed() {
 
 /**
  * This is called when we finish processing a Node, which means that all children 
- * have been processed. Store centre of mass.
+ * have been processed. At this statge we have accumulated total mass, and a weighted 
+ * sum of positions of centres for children. Divide total by mass,
+ * and store centre of mass.
  */
-bool CentreOfMassCalculator::depart(Node * node)  {
+void CentreOfMassCalculator::depart(Node * node)  {
 	assert(node->getType() == Node::Internal);
 	array<double,3> X;
 	double m;
@@ -93,6 +96,6 @@ bool CentreOfMassCalculator::depart(Node * node)  {
 		X[i] /= m;
 	node->set_mass_and_centre(m,X);
 
-	return node->verify_within_bounding_box();
+	assert( node->verify_within_bounding_box());
 }
 

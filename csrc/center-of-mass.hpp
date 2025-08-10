@@ -72,7 +72,7 @@ class CentreOfMassCalculator : public Node::Visitor {
 	* This is called when we finish processing a Node, which means that all children 
 	* have been processed. Store centre of mass.
 	*/
-	virtual bool depart(Node * node);
+	virtual void depart(Node * node);
 	
 	/**
 	 * Make sure every node was processed.

@@ -71,12 +71,13 @@ tuple<double,double> Node::get_limits(unique_ptr<Particle[]>& particles,int n,co
 
 
 /**
- * Create a Node for a given region of space. Set it Unused until it has been added to Tree,
+ * Create a Node for a given region of space. Set it Unused until 
+ * it has been added to Tree and has at least one child node
  */
  
 Node::Node(array<double,3> Xmin,array<double,3> Xmax)
   : _id(_count),_particle_index(Unused),
-  	_m(0.0d), _center_of_mass({0.0d,0.0d,0.0d}),
+  	_m(0.0), _center_of_mass({0.0,0.0,0.0}),
 	_Xmin(Xmin), _Xmax(Xmax){
 	for (int i=0;i<3;i++)
 		_Xmean[i] = 0.5 * (Xmin[i] + Xmax[i]);
@@ -200,7 +201,6 @@ void Node::traverse(Visitor & visitor) {
 			return;
 		default:
 			visitor.visit(this);
-			return;
 	}
 }
 
@@ -208,17 +208,16 @@ void Node::traverse(Visitor & visitor) {
  *   Used to calculate centre of mass for internal nodes.
  *   We accumulate mx,my,mz, so we need to treat External nodes differently
  */
-void Node::accumulate_center_of_mass(Node* other) {
-	_m += other->_m;
+void Node::accumulate_center_of_mass(Node* child) {
+	_m += child->_m;
 	for (int i=0;i<3;i++)
-		_center_of_mass[i] += other->_m * other->_center_of_mass[i];
+		_center_of_mass[i] += child->_m * child->_center_of_mass[i];
 }
 
 /**
  * Used to delete tree
  */ 
 Node::~Node() {
-	
 	for (int i=0;i<N_Children;i++)
 		if (_child[i]!=NULL)
 			delete _child[i];

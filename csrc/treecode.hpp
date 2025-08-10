@@ -88,12 +88,13 @@ class Node {
 		};
 		
 		/**
-		 * Called once for each node in tree, before any children are processed
+		 * Called once for each node in tree, before node's children are processed
 		 */
 		virtual Status visit(Node * node) = 0;
 			
 		/**
-		 *  Called once for each child of current Node, immediately after visit
+		 *  Called once for each child of current Node, immediately after visit,
+		 *  e.g. to accumulate centre of mass
 		 *
 		 *  Parameters:
 		 *      node          An internal node
@@ -107,7 +108,7 @@ class Node {
 		 *  Returns:
 		 *     An indication of whether traversal should continue
 		 */
-		virtual bool depart(Node * node) {return true;}
+		virtual void depart(Node * node) {;}
 	  };
   
 	/**
@@ -174,7 +175,7 @@ class Node {
 	 */
 	void set_mass_and_centre(double m, array<double,3> X) {
 		for (int i=0;i<3;i++)
-			_verify_range("X",X[i],_Xmin[i],_Xmax[i],__FILE__,__LINE__);// FIXME #59
+			_verify_range("X",X[i],_Xmin[i],_Xmax[i],__FILE__,__LINE__);
 		_m = m;
 		_center_of_mass = X;
 	}
@@ -182,7 +183,7 @@ class Node {
 	/**
 	 *   Used to calculate centre of mass for internal nodes.
 	 */
-	void accumulate_center_of_mass(Node* other);
+	void accumulate_center_of_mass(Node* child);
 
 	/**
 	 * Determine length of side: since Node is a cube, any side will do
@@ -207,13 +208,16 @@ class Node {
   private:
 	
 	/**
-	 * Used to map a triple to an octant
+	 * Used to map an array of 3 ints to an octant
 	 */
 	inline int _triple_to_octant(array<int,3> indices) {
 		return 2*(2*indices[0] + indices[1]) + indices[2];
 	}
 	
-	inline int _triple_to_octant(int i, int j, int k) {return 4*i+2*j+k;}
+	/**
+	 * Used to map a triple to an octant
+	 */
+	inline int _triple_to_octant(int i, int j, int k) {return 2*(2*i + j) + k;}
 
 	/**
 	 * Find correct subtree to store particle, using bounding rectangular box
