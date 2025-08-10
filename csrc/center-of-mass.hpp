@@ -47,17 +47,26 @@ class CentreOfMassCalculator : public Node::Visitor {
 	*   	particles These are the particles whose centre of mass is to be calculated. 
     */
 	CentreOfMassCalculator(unique_ptr<Particle[]> &particles, int n);
+	
 	/**
-	 * When we visit an External Node, record the position and mass of the particle
+	 * Called for each node, but unly does something for an External Node:
+	 * record the position and mass of the particle
 	 */
 	Node::Visitor::Status visit(Node * node);
 	
+	/**
+	 * Record the position and mass of a particle
+	 *
+	 * Parameters:
+	 *     node             An external node (this is visit()'s responsibility)
+	 *     particle_index   Identifies the particle being recorded
+	 */
 	void record_particle(Node * node,const int particle_index);
 	
 	/**
 	 *  For an internal note we need to accumulate the mass and positions for each child
 	 */
-	virtual void farewell(Node * node,Node * child);
+	virtual void accumulate(Node * node,Node * child);
 	
 	/**
 	* This is called when we finish processing a Node, which means that all children 

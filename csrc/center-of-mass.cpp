@@ -19,6 +19,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <limits>
+#include <cassert>
 
 #include "center-of-mass.hpp"
 
@@ -36,29 +37,35 @@ CentreOfMassCalculator::CentreOfMassCalculator(unique_ptr<Particle[]> &particles
 }
 
 /**
- * When we visit an External Node, record the position and mass of the particle
+ * Called for each node, but unly does something for an External Node:
+ * record the position and mass of the particle
  */
 Node::Visitor::Status CentreOfMassCalculator::visit(Node * node) {
-	const int particle_index= node->getStatus();
+	const int particle_index = node->getType();
 	if (particle_index >= 0)
 		record_particle(node,particle_index);
 	return Node::Visitor::Status::Continue;
 }
 
 /**
- * Record the position and mass of the particle
+ * Record the position and mass of a particle
+ *
+ * Parameters:
+ *     node             An external node (this is visit()'s responsibility)
+ *     particle_index   Identifies the particle being recorded
  */
 void CentreOfMassCalculator::record_particle(Node * node,const int particle_index) {   
+	Particle & particle = _particles[particle_index];
+	node->set_mass_and_centre(particle.get_mass(),particle.get_position());	_processed_particle[particle_index] = true;
 	_processed_particle[particle_index] = true;
-	node->set_mass_and_centre(_particles[particle_index].get_mass(),_particles[particle_index].get_position());
 }
 
 /**
  *  For an internal note we need to accumulate the mass and positions for each child
  */
-void CentreOfMassCalculator::farewell(Node * node,Node * child){
-	if (node->getStatus() == Node::Internal) 
-		node->accumulate_center_of_mass(child);
+void CentreOfMassCalculator::accumulate(Node * node,Node * child){
+	assert (node->getType() == Node::Internal); 
+	node->accumulate_center_of_mass(child);
 }
 
 /**
@@ -74,23 +81,18 @@ void CentreOfMassCalculator::verify_all_particles_processed() {
 }
 
 /**
- *This is called when we finish processing a Node, which means that all children 
+ * This is called when we finish processing a Node, which means that all children 
  * have been processed. Store centre of mass.
  */
 bool CentreOfMassCalculator::depart(Node * node)  {
+	assert(node->getType() == Node::Internal);
 	array<double,3> X;
 	double m;
 	tie(m,X) = node->get_mass_and_centre();
-	switch (node->getStatus()) {
-		case Node::Internal:
-			for (int i=0;i<3;i++)
-				X[i] /= m;
-			node->set_mass_and_centre(m,X);
-			break;
-		case Node::Unused:
-			return true;
-		default: ;
-	}
+	for (int i=0;i<3;i++)
+		X[i] /= m;
+	node->set_mass_and_centre(m,X);
+
 	return node->verify_within_bounding_box();
 }
 

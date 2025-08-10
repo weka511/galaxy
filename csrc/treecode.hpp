@@ -82,23 +82,30 @@ class Node {
 	*/
 	class Visitor {
 	  public:
-		enum Status{
-			Stop,        // abandon the traversal
+		enum Status {
 			Continue,    // keep traversing
-			DontDescend  // do not vist any more children of this node
+			DontDescend  // Used by barnes-hut.cpp to treat node as a proxy for its children
 		};
+		
 		/**
 		 * Called once for each node in tree, before any children are processed
 		 */
 		virtual Status visit(Node * node) = 0;
 			
 		/**
-		 *  Called once for each child Node, immediately after vist
+		 *  Called once for each child of current Node, immediately after visit
+		 *
+		 *  Parameters:
+		 *      node          An internal node
+		 *      child         The child that has just been processes
 		 */
-		virtual void farewell(Node * node,Node * child){;}
+		virtual void accumulate(Node * node,Node * child){;}
 			
 		/**
 		 *  Called once for each Internal Node, after all children have been visited
+		 *
+		 *  Returns:
+		 *     An indication of whether traversal should continue
 		 */
 		virtual bool depart(Node * node) {return true;}
 	  };
@@ -107,7 +114,7 @@ class Node {
 	  * Indicates type of node. External Nodes use the index of the
       * associated particle instead of one of these values.
 	  */
-  	enum Status {Internal=-2, Unused=-1};
+  	enum Type {Internal=-2, Unused=-1};
 	
   public:
   
@@ -139,15 +146,21 @@ class Node {
 	void insert(int new_particle_index,unique_ptr<Particle[]> &particles);
 	
 	/**
-	 * Used to traverse tree
-	 */
-	bool traverse(Visitor& visitor);
+	 * Traverse Tree, visiting each node depth first.  The Visitor decides whether
+	 * we continue all the way down. After visiting each child of the current node
+	 * we call farewell() on the node itself, and then finally call depart() on 
+	 * the current node after all children processed.
+	 *
+	 * Returns:
+	 *     true iff traversal completed, i.e. no visit() decided to terminate processing.
+	*/
+	void traverse(Visitor& visitor);
 	
 	/**
 	 * Indicates type of node. External Nodes use the index of the
      * associated particle instead of one of these values.
 	 */
-	int getStatus() { return _particle_index;}
+	int getType() { return _particle_index;}
 	
 	/**
 	 * Get mass and centre of mass

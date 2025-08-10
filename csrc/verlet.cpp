@@ -45,7 +45,7 @@ void Verlet::run( int max_iter,const double dt){
 	_configuration.iterate(euler);
 	
 	/**
-	 *  Now the valocties are one half step ahead of the position. We keep
+	 *  Now the velocities are one half step ahead of the position. We keep
 	 *  leapfrogging: use the "half ahead" velocity to update positions,
 	 *  calculate accelerations for the new positions, then update velocity.
 	 */

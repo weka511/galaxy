@@ -30,8 +30,8 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 	array<double,3> X;
 	tie(m,X) = node->get_mass_and_centre();
 
-	const int status = node->getStatus();
-	switch (status) {
+	const int node_type = node->getType();
+	switch (node_type) {
 		case Node::Internal: {
 			const auto dsq_node=Particle::get_distance_sq(X,_position);
 			/*
@@ -47,7 +47,7 @@ Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
 		case Node::Unused:
 			return Node::Visitor::Status::Continue;
 		default: // External Node - accumulate except don't accumulate self!
-			if (status != _id) 
+			if (node_type != _id) 
 				_accumulate_acceleration(m,X,Particle::get_distance_sq(X,_position)); 			
 			return Node::Visitor::Status::Continue;
 	}

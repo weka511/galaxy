@@ -178,30 +178,30 @@ void Node::_split_node() {
 } 
 
 /**
- * Traverse Tree. The Visitor decides whether we continue all the way down.
+ * Traverse Tree, visiting each node depth first.  The Visitor decides whether
+ * we continue all the way down. After visiting each child of the current node
+ * we call accumulate() on the node itself, and then finally call depart() on 
+ * the current node after all children processed.
+ *
+ * Returns:
+ *     true iff traversal completed, i.e. no visit() decided to terminate processing.
  */
-bool Node::traverse(Visitor & visitor) {
-	switch (visitor.visit(this)) {
-		case Node::Visitor::Stop:
-			return false;
-		case Node::Visitor::Continue:
-			if (_particle_index==Internal){
-				bool should_continue=true;
-				for (int i=0;i<N_Children && should_continue;i++) {
-					should_continue = _child[i]->traverse(visitor);
-					visitor.farewell(this,_child[i]);
-				}
-				if (should_continue)
-					return visitor.depart(this);
-				else
-					return false;		
-			}  else
-				return true;
-
-		case Node::Visitor::DontDescend:
-			return true;
+void Node::traverse(Visitor & visitor) {
+	switch (_particle_index) {
+		case Internal:
+			visitor.visit(this);
+			for (int i=0;i<N_Children;i++) {
+				_child[i]->traverse(visitor);
+				visitor.accumulate(this,_child[i]);
+			}
+			visitor.depart(this);
+			return;
+		case Unused:
+			return;
+		default:
+			visitor.visit(this);
+			return;
 	}
-	return true;
 }
 
 /**
@@ -240,7 +240,7 @@ bool Node::verify_within_bounding_box(){  // FIXME #59
 		is_within_bounds  = (_Xmin[i] < _center_of_mass[i]) and (_center_of_mass[i] < _Xmax[i]);
 	if (is_within_bounds) return true;
 	
-	cerr<<__FILE__ <<" " <<__LINE__<< ": Status: "<< getStatus()<<endl;
+	cerr<<__FILE__ <<" " <<__LINE__<< ": Status: "<< getType()<<endl;
 	for (int i=0;i<3;i++)
 		cerr << "("<<_Xmin[i] << ", " << _center_of_mass[i] << ", " << _Xmax[i] << ")" << endl;
 
