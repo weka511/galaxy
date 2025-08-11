@@ -25,40 +25,32 @@ using namespace std;
 /**
  * Used to accumulate accelerations for each node
  */
-Node::Visitor::Status BarnesHutVisitor::visit(Node * node) {
+Node::Visitor::Status BarnesHutVisitor::visit_internal(Node * node) { //FIXME
+	double m;
+	array<double,3> X;
+	tie(m,X) = node->get_mass_and_centre();
+	const auto dsq_node=Particle::get_distance_sq(X,_position);
+	/*
+	 * Is this node distant enough that its particles can be lumped?
+	 * I have checked against Barnes and Hut's paper - they recommend 1.0 for theta.
+	 */
+	if ( sqr(node->getSide())/dsq_node < _theta_squared ) {
+		_accumulate_acceleration(m,X,dsq_node);
+		return Node::Visitor::Status::DontDescend;
+	}
+	return Node::Visitor::Status::Continue;
+}
+
+Node::Visitor::Status BarnesHutVisitor::visit_external(Node * node) {  //FIXME
 	double m;
 	array<double,3> X;
 	tie(m,X) = node->get_mass_and_centre();
 
-	const int node_type = node->getType();
-	switch (node_type) {
-		case Node::Internal: {
-			const auto dsq_node=Particle::get_distance_sq(X,_position);
-			/*
-			 * Is this node distant enough that its particles can be lumped?
-			 */
-			const auto l_sqr=sqr(node->getSide());
-			if (l_sqr/dsq_node < _theta_squared) { // I have checked against Barnes and Hut's paper - they recommend 1.0 for theta
-				_accumulate_acceleration(m,X,dsq_node);
-				return Node::Visitor::Status::DontDescend;
-			} else
-				return Node::Visitor::Status::Continue;
-		}
-		case Node::Unused:
-			return Node::Visitor::Status::Continue;
-		default: // External Node - accumulate except don't accumulate self!
-			if (node_type != _id) 
-				_accumulate_acceleration(m,X,Particle::get_distance_sq(X,_position)); 			
-			return Node::Visitor::Status::Continue;
-	}
+	if (node->get_index() != _id) //  accumulate except don't accumulate self!
+		_accumulate_acceleration(m,X,Particle::get_distance_sq(X,_position)); 			
+	return Node::Visitor::Status::Continue;
 }
 
-/**
- * Used at the end of calculation to store accelerations back into particle
- */
-void BarnesHutVisitor::store_accelerations() {
-	_me.set_acceleration(_acceleration);
-}
 
 /**
  * Used to add in the contribution to the acceleration from one Node

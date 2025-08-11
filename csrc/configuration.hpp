@@ -55,7 +55,7 @@ class Configuration {
 	 */
 	class ParticleInitializer{
 	  public:
-  	    virtual void initialize(int n, unique_ptr<Particle[]> & particles) =  0;
+  	    virtual void initialize(unique_ptr<Particle[]> & particles,int n) =  0;
 	};
 	
 	/**
@@ -120,7 +120,7 @@ class Configuration {
 	 * Used to initialize data structures that need to know about particles.
 	 */
 	void initialize(ParticleInitializer & initializer){
-		initializer.initialize(_n,_particles);
+		initializer.initialize(_particles,_n);
 	}
 	
 	/**

@@ -29,7 +29,7 @@ int Node::_count=0;   // Initially tree is empty
 /**
  * Create an oct-tree from a set of particles
  */
-unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){  // FIXME Issue #61
+unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){
 	double zmin, zmax;
 	tie(zmin,zmax) = Node::get_limits(particles,n);
 	array<double,3> Xmin = {zmin,zmin,zmin};
@@ -93,11 +93,7 @@ Node::Node(array<double,3> Xmin,array<double,3> Xmax)
  * Recursively descend until we find an empty node.
  */
 void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
-	auto X = particles[new_particle_index].get_position();
-	for (int i=0;i<3;i++)
-		_verify_range("X",X[i],_Xmin[i],_Xmax[i],__FILE__,__LINE__);// FIXME #59
 
-	const double epsilon=1e-12;
 	switch(_particle_index){
 		case Unused:   // This Node is currently Unused, so we can add particle to it
 			_particle_index = new_particle_index;
@@ -107,7 +103,7 @@ void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
 			return;
 		default:     // This Node is External, so we already have a particle here; we have to move it
 			const int incumbent = _particle_index;
-			const double distance_sq_min = epsilon*sqr(_Xmax[0] -_Xmin[0]);
+			const double distance_sq_min = _epsilon*sqr(_Xmax[0] -_Xmin[0]);
 			if (Particle::get_distance_sq(particles[new_particle_index],particles[incumbent]) < distance_sq_min){
 				stringstream message;
 				message<<"Particles "<<new_particle_index << " and " << incumbent << " within " << distance_sq_min << " of each other"; 
@@ -155,8 +151,6 @@ void Node::_insert_or_propagate(int particle_index,int incumbent,unique_ptr<Part
 	}
 }
 
-
-
 /**
  * Convert an External Node into an Internal one, and
  * partition bounding box into eight, one for each child, so we can 
@@ -190,7 +184,7 @@ void Node::_split_node() {
 void Node::traverse(Visitor & visitor) {
 	switch (_particle_index) {
 		case Internal:
-			visitor.visit(this);
+			visitor.visit_internal(this);
 			for (int i=0;i<N_Children;i++) {
 				_child[i]->traverse(visitor);
 				visitor.accumulate(this,_child[i]);
@@ -200,7 +194,7 @@ void Node::traverse(Visitor & visitor) {
 		case Unused:
 			return;
 		default:
-			visitor.visit(this);
+			visitor.visit_external(this);
 	}
 }
 
@@ -219,7 +213,7 @@ void Node::accumulate_center_of_mass(Node* child) {
  */ 
 Node::~Node() {
 	for (int i=0;i<N_Children;i++)
-		if (_child[i]!=NULL)
+		if (_child[i] != NULL)
 			delete _child[i];
 
 	Node::_count--;
@@ -230,41 +224,4 @@ Node::~Node() {
  */
 int Node::get_count() {return _count;}
 
-/**
- * Used to establish that the center of mass is within the bounding box for it Node.
- */
-bool Node::verify_within_bounding_box(){  // FIXME #59
-	bool is_within_bounds = true;
-	for (int i=0;i<3 and is_within_bounds;i++)
-		is_within_bounds  = (_Xmin[i] < _center_of_mass[i]) and (_center_of_mass[i] < _Xmax[i]);
-	if (is_within_bounds) return true;
-	
-	cerr<<__FILE__ <<" " <<__LINE__<< ": Status: "<< getType()<<endl;
-	for (int i=0;i<3;i++)
-		cerr << "("<<_Xmin[i] << ", " << _center_of_mass[i] << ", " << _Xmax[i] << ")" << endl;
-
-	for (int i=0;i<N_Children;i++)
-		switch(_child[i]->_particle_index) {
-			case Unused:
-				break;
-			default:
-				cerr 	<< "("<<_child[i]->_center_of_mass[0]<< ", " 
-						<< _child[i]->_center_of_mass[1] << ", "
-						<< _child[i]->_center_of_mass[2] << ") " << _child[i]->_m<< endl;
-		}
-
-	stringstream message;
-	message<<__FILE__ <<", " <<__LINE__<<" Centre of mass out of range - see logfile."<<endl; 
-	throw logic_error(message.str().c_str()); 
-}
-
-/**
- *  Verify that a point really does belong in this cube.
- */
-void Node::_verify_range(string wname,double w,double wmin,double wmax,string file,int line) {
-	if (w < wmin || w > wmax) {
-		stringstream message;
-		message<<file <<" " <<line << " particle " << _particle_index <<":"<<wname <<" out of range: " <<w<< " (" << wmin << "," << wmax << ")";
-		throw  logic_error(message.str().c_str());
-	}
-}
+const double Node::_epsilon=1e-12;

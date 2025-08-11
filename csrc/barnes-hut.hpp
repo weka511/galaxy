@@ -58,6 +58,7 @@ class BarnesHutVisitor :  public Node::Visitor{
 	 * Position of the particle whose acceleration is being calculated
 	 */
 	array<double,3> _position;
+	
 	/**
 	 * Softening length
 	 */
@@ -81,14 +82,19 @@ class BarnesHutVisitor :  public Node::Visitor{
 	: _id(me.get_id()),_me(me),_theta_squared(sqr(theta)),_G(G),_position(me.get_position()),_a(a),_acceleration({0.0,0.0,0.0}){};
 	
 	/**
-	 * Used to accumulate accelerations for each node
+	 * Used to accumulate accelerations for each internal node
 	 */
-	virtual Node::Visitor::Status visit(Node * node);
+	Node::Visitor::Status visit_internal(Node * node);
+	
+	/**
+	 * Used to accumulate accelerations for each external node
+	 */
+	Node::Visitor::Status visit_external(Node * node);
 	
 	/**
 	 * Used at the end of calculation to store accelerations back into particle
 	 */
-	void store_accelerations();
+	void store_accelerations() {_me.set_acceleration(_acceleration);}
 	
 	
   private:

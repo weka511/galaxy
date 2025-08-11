@@ -42,7 +42,7 @@ class AccelerationVisitor : public Configuration::Visitor, public Configuration:
 	 *
 	 *    particles
 	 */
-	void initialize(int n, unique_ptr<Particle[]> & particles);
+	void initialize(unique_ptr<Particle[]> & particles, int n);
 	
 	/**
 	 *  Invoked by Configuration to calculate the acceleration each particle.

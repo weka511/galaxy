@@ -76,6 +76,8 @@ class Node {
 	 */
 	 static int _count;
 	 
+	 static const double _epsilon;
+	 
   public:
 	/**
 	*  Used to traverse tree depth first
@@ -88,9 +90,14 @@ class Node {
 		};
 		
 		/**
-		 * Called once for each node in tree, before node's children are processed
+		 * Called once for each internal node in tree, before node's children are processed
 		 */
-		virtual Status visit(Node * node) = 0;
+		virtual Status visit_internal(Node * node) = 0;
+		
+		/**
+		 * Called once for each external node in tree
+		 */
+		virtual Status visit_external(Node * node) = 0;
 			
 		/**
 		 *  Called once for each child of current Node, immediately after visit,
@@ -161,7 +168,7 @@ class Node {
 	 * Indicates type of node. External Nodes use the index of the
      * associated particle instead of one of these values.
 	 */
-	int getType() { return _particle_index;}
+	int get_index() { return _particle_index;}
 	
 	/**
 	 * Get mass and centre of mass
@@ -174,8 +181,6 @@ class Node {
 	 * Set mass and centre of mass
 	 */
 	void set_mass_and_centre(double m, array<double,3> X) {
-		for (int i=0;i<3;i++)
-			_verify_range("X",X[i],_Xmin[i],_Xmax[i],__FILE__,__LINE__);
 		_m = m;
 		_center_of_mass = X;
 	}
@@ -198,12 +203,6 @@ class Node {
      * so everything is guaranteed to be inside box
     */
 	static tuple<double,double> get_limits(unique_ptr<Particle[]> &particles, int n, const double epsilon=0.0001);
-	
-	/**
-	 * Used to establish that a point
-	 * is within the bounding box for its Node.
-	 */
-	bool verify_within_bounding_box();
 	
   private:
 	
@@ -242,11 +241,6 @@ class Node {
 	 * Propagate particle down
 	 */
 	void _split_node();
-	
-	/**
-	 *  Check that a point really does belong in this cube.
-	 */
-	void _verify_range(string wname,double w,double wmin,double wmax,string file=__FILE__,int line=__LINE__);
 	 
 	/**
 	 *   Used when we split the box associated with a Node
