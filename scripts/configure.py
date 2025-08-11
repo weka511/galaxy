@@ -78,14 +78,13 @@ class Body:
         '''
         Create a new body shifted by an offset
         '''
-        pos  = [sum(u) for u in zip(self.position,offset)]
-        vels = [sum(v) for v in zip(self.velocity,vel)]
+        pos  = self.position + offset
+        vels = self.velocity + vel
         return Body(pos,self.mass,vels)
 
 
 class ConfigurationFactory(ABC):
-    config_factory_dict = {
-    }
+    config_factory_dict = {}
 
     @staticmethod
     def create_config_factory(model):
@@ -264,11 +263,11 @@ def create_configuration_from_xml(file):
     product = []
     for type_tag in root.findall('system'):
         name = type_tag.get('name')
-        pos = [float(x) for x in type_tag.get('pos').split(',')]
-        vel = [float(x) for x in type_tag.get('vel').split(',')]
+        pos = np.array([float(x) for x in type_tag.get('pos').split(',')])
+        vel = np.array([float(x) for x in type_tag.get('vel').split(',')])
         numbodies = int(type_tag.get('numbodies'))
         print(f'subsystem: {name}, centre={pos},velocity={vel},N={numbodies}')
-        for body in create_configuration(model=model,number_bodies = numbodies,radius = args.radius,G = args.G):
+        for body in create_configuration(model_name=model,number_bodies = numbodies,radius = args.radius):
             product.append(body.create_with_offset(pos,vel))
 
     return product,n
@@ -368,10 +367,8 @@ if __name__=='__main__':
     else:
         bodies,number_bodies = create_configuration_from_xml(args.xml)
         save_configuration(bodies,
-                           output        = config_file,
-                           number_bodies = args.number_bodies,
-                           theta         = args.theta,
-                           dt            = args.dt)
+                           output = config_file,
+                           number_bodies = args.number_bodies)
         print (f'Created {args.model}: n={number_bodies}, r={args.radius}.')
 
 
