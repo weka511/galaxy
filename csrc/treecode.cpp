@@ -15,11 +15,7 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#include <iostream>
 #include <limits>
-#include <stdexcept>
-#include <sstream>
-#include <string>
 #include "treecode.hpp"
 
 using namespace std;
@@ -98,18 +94,13 @@ void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
 		case Unused:   // This Node is currently Unused, so we can add particle to it
 			_particle_index = new_particle_index;
 			return;
-		case Internal:  // This Node is Internal, so we can add particle to the appropriate subtree
-			_child[_get_octant_number(particles[new_particle_index])]->insert(new_particle_index,particles);
+		case Internal: { // This Node is Internal, so we can add particle to the appropriate subtree
+			Node * subtree = _child[_get_octant_number(particles[new_particle_index])];
+			subtree->insert(new_particle_index,particles);
 			return;
-		default:     // This Node is External, so we already have a particle here; we have to move it
-			const int incumbent = _particle_index;
-			const double distance_sq_min = _epsilon*sqr(_Xmax[0] -_Xmin[0]);
-			if (Particle::get_distance_sq(particles[new_particle_index],particles[incumbent]) < distance_sq_min){
-				stringstream message;
-				message<<"Particles "<<new_particle_index << " and " << incumbent << " within " << distance_sq_min << " of each other"; 
-				throw logic_error(message.str().c_str());
-			}
-			_pass_down(new_particle_index,incumbent,particles);
+		}
+		default:    // This Node is External, so we already have a particle here; we have to move it
+			_split_and_insert_below(new_particle_index,_particle_index,particles);
 	}
 }
 
@@ -128,10 +119,9 @@ int Node::_get_octant_number(Particle &particle) {
 
 
 /**
- * Used when we have just split an External node, but the incumbent and new
- * node both want to occupy the same child.
+ * Split an External node, and insert the new particle and the incumbent into subtrees.
  */
-void Node::_pass_down(int new_particle_index,int incumbent,unique_ptr<Particle[]> &particles) {
+void Node::_split_and_insert_below(int new_particle_index,int incumbent,unique_ptr<Particle[]> &particles) {
 	_split_node();
 	_insert_or_propagate(new_particle_index,incumbent,particles);
 } 
@@ -140,21 +130,22 @@ void Node::_pass_down(int new_particle_index,int incumbent,unique_ptr<Particle[]
  * Used when we have just split an External node, so we need to pass
  * the incumbent and a new particle down the tree
  */
-void Node::_insert_or_propagate(int particle_index,int incumbent,unique_ptr<Particle[]> &particles) {
-	const int octant_number_new = _get_octant_number(particles[particle_index]);
+void Node::_insert_or_propagate(int new_particle_index,int incumbent,unique_ptr<Particle[]> &particles) {
+	const int child_index_new = _get_octant_number(particles[new_particle_index]);
 	const int child_index_incumbent = _get_octant_number(particles[incumbent]);
-	if (octant_number_new ==  child_index_incumbent)
-		_child[ child_index_incumbent]->_pass_down(particle_index,incumbent,particles);
+	if (child_index_new ==  child_index_incumbent)
+		_child[child_index_incumbent]->_split_and_insert_below(new_particle_index,incumbent,particles);
 	else {
-		_child[octant_number_new]->insert(particle_index,particles);
-		_child[ child_index_incumbent]->insert(incumbent,particles);
+		_child[child_index_new]->insert(new_particle_index,particles);
+		_child[child_index_incumbent]->insert(incumbent,particles);
 	}
 }
 
 /**
  * Convert an External Node into an Internal one, and
  * partition bounding box into eight, one for each child, so we can 
- * assign particle to a member of the partition.
+ * assign particle to a member of the partition. We end up with 8
+ * unused nodes below this one.
  */
 void Node::_split_node() {
 	_particle_index = Internal;
@@ -223,5 +214,3 @@ Node::~Node() {
  * Used to get number of Nodes - normally to make sure tree has been destructed.
  */
 int Node::get_count() {return _count;}
-
-const double Node::_epsilon=1e-12;

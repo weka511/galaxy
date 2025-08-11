@@ -76,8 +76,6 @@ class Node {
 	 */
 	 static int _count;
 	 
-	 static const double _epsilon;
-	 
   public:
 	/**
 	*  Used to traverse tree depth first
@@ -224,16 +222,15 @@ class Node {
 	int _get_octant_number(Particle & particle);
 	
 	/**
-	 * Used when we have just split an External node, but the incumbent and new
-	 * node both want to occupy the same child.
+	 * Split an External node, and insert the new particle and the incumbent into subtrees.
 	 */
-	void _pass_down(int particle_index,int incumbent,unique_ptr<Particle[]> &particles);
+	void _split_and_insert_below(int particle_index,int incumbent,unique_ptr<Particle[]> &particles);
 	
 	/**
 	 * Used when we have just split an External node, so we need to pass
 	 * the incumbent and a new particle down the tree
 	 */
-	void _insert_or_propagate(int particle_index,int incumbent,unique_ptr<Particle[]> &particles);
+	void _insert_or_propagate(int new_particle_index,int incumbent,unique_ptr<Particle[]> &particles);
 	
 	/**
 	 * Convert an External Node into an Internal one, and
@@ -244,6 +241,15 @@ class Node {
 	 
 	/**
 	 *   Used when we split the box associated with a Node
+	 *
+	 *   Parameters:
+	 *      i      Identifies whether we are computing the lower half (0) or upper half (1) of the split
+	 *		wmin   Lower bound of  box along one dimension 
+	 *      wmax   Upper bound of box along one dimension 
+	 *      wmean  Mid point of box along one dimension 
+	 *
+	 *   Returns:
+	 *      Lower and upper bound of half along one dimension
 	 */
 	inline tuple<double,double> _get_refined_bounds(int i,double wmin, double wmax, double wmean){
 		if (i == 0)
