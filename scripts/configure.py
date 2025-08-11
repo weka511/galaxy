@@ -20,9 +20,7 @@
 from abc import ABC,abstractmethod
 from argparse import ArgumentParser
 from time import time
-from os import urandom
 from os.path import basename, join, splitext,exists
-import random
 from sys import exit
 from struct import pack,unpack
 from shutil import copyfile
@@ -59,7 +57,7 @@ class Body:
         '''
         Calculate kinetic energy
         '''
-        return 0.5 * self.mass * sum([v**2 for v in self.velocity])
+        return 0.5 * self.mass * sum(self.velocity**2)
 
     def get_distance(self,other):
         '''
@@ -68,7 +66,7 @@ class Body:
         Parameters:
             other
         '''
-        return np.sqrt(sum([(self.position[i]-other.position[i])**2 for i in range(len(self.position))]))
+        return np.linalg.norm(self.position - other.position)
 
     def get_V(self,other):
         '''
@@ -86,6 +84,9 @@ class Body:
 
 
 class ConfigurationFactory(ABC):
+    config_factory_dict = {
+    }
+
     @staticmethod
     def create_config_factory(model):
         '''
@@ -94,11 +95,9 @@ class ConfigurationFactory(ABC):
         Parameters:
             model       Name of model
         '''
-        config_factory_dict = {
-            'plummer':Plummer()
-        }
-        if model in config_factory_dict:
-            return config_factory_dict[model]
+
+        if model in ConfigurationFactory.config_factory_dict:
+            return ConfigurationFactory.config_factory_dict[model]
         else:
             raise RuntimeError(f'Unrecognized model: {model}')
 
@@ -107,19 +106,24 @@ class ConfigurationFactory(ABC):
                        radius=1.0):
         pass
 
-    def randomize_on_sphere(self,radius=1.0):
+    def __init__(self):
+        self.rng = np.random.default_rng()
+
+    def randomize_on_sphere(self,radius=1.0,d=3):
         '''
-        Randomly position point on surface of sphere
+        Randomly position point on surface of sphere using Algorithm 1.22
+        form Statistical Mechanics: Algoritms and Cumputations
+        by Werner Krauth
+        ISBN 978-0-19-851536-4
         '''
-        theta = np.arccos(random.uniform(-1,1))
-        phi = random.uniform(0,2*np.pi)
-        return np.array([radius * np.sin(theta) * np.cos(phi),
-                radius * np.sin(theta) * np.sin(phi),
-                radius * np.cos(theta)])
+        sigma = 1/np.sqrt(3)
+        x = self.rng.normal(scale=sigma,size=3)
+        Sigma = np.sum(x**2)
+        return radius*x/np.sqrt(Sigma)
 
 class Plummer(ConfigurationFactory):
     def create(self,number_bodies=100,
-                       radius=1.0):             # TODO
+                    radius=1.0):             # TODO
         '''
         Instantiate configuration for Plummer model
 
@@ -136,8 +140,8 @@ class Plummer(ConfigurationFactory):
         x = 0.0
         y = 0.1
         while y > x**2 * (1-x**2)**3.5:
-            x = random.uniform(0,1)
-            y = random.uniform(0,0.1)
+            x = self.rng.uniform(0,1)
+            y = self.rng.uniform(0,0.1)
         return x
 
     def create_velocity(self,radius=1):
@@ -147,7 +151,7 @@ class Plummer(ConfigurationFactory):
     def create_body(self):
         '''Create one body with random position and velocity'''
         mass = 1.0/number_bodies
-        radius = 1.0/np.sqrt(random.uniform(0,1)**(-2/3) - 1)
+        radius = 1.0/np.sqrt(self.rng.uniform(0,1)**(-2/3) - 1)
         return Body(self.randomize_on_sphere(radius=radius),mass,self.create_velocity(radius=radius))
 
 def parse_args():
@@ -223,7 +227,7 @@ def save_configuration(bodies,config_version=1.1,output='config_new.txt',number_
     print(f'Stored configuration in {output}')
 
 
-def create_configuration(model = 'plummer', number_bodies = 1000, radius = 1.0):
+def create_configuration(model_name = 'plummer', number_bodies = 1000, radius = 1.0, rng = np.random.default_rng()):
     '''
     Generate a configuration of bodies in phase space
 
@@ -233,7 +237,9 @@ def create_configuration(model = 'plummer', number_bodies = 1000, radius = 1.0):
         radius
         G
     '''
-    return  ConfigurationFactory.create_config_factory(model).create(number_bodies=number_bodies,radius=radius)
+    model = ConfigurationFactory.create_config_factory(model_name)
+    model.rng = rng
+    return  model.create(number_bodies=number_bodies,radius=radius)
 
 def create_configuration_from_xml(file):
     '''
@@ -328,39 +334,32 @@ def get_mean_velocity(bodies):
     return momentum / M
 
 if __name__=='__main__':
+    ConfigurationFactory.config_factory_dict['plummer'] = Plummer()
     rc('font',**{'family':'serif','serif':['Palatino']})
     rc('text', usetex=True)
-    start  = time()
+    start = time()
     args =   parse_args()
-
     if args.generate:
         for i in range(10):
-            x = random.uniform(-5,5)
+            x = rng.uniform(-5,5)
             print (f'\t\tREQUIRE(decode("{encode(x)}")=={x});')
         exit(0)
 
-    seed = args.seed
-    if args.seed==None:
-        random_data = urandom(8)
-        seed = int.from_bytes(random_data, byteorder='big')
-
     print (f'Number of bodies = {args.number_bodies}')
     print (f'Specified seed   = {args.seed}')
-    print (f'Actual seed      = {seed}')
 
-    random.seed(args.seed)
     config_file = join(args.path,args.output)
 
     backup(output=config_file)
     number_bodies = args.number_bodies
     if args.xml == None:
-        bodies = create_configuration(model         = args.model,
+        bodies = create_configuration(model_name = args.model,
                                       number_bodies = number_bodies,
-                                      radius        = args.radius)
+                                      radius = args.radius,
+                                      rng = np.random.default_rng(args.seed))
         v = get_mean_velocity(bodies)
         for body in bodies:
             body.velocity -= v
-        v0 = get_mean_velocity(bodies)
         save_configuration(bodies, output = config_file,
                            number_bodies = number_bodies)
 
@@ -379,7 +378,7 @@ if __name__=='__main__':
 
     if args.show:
         T =  sum([b.get_T() for b in bodies])
-        V = args.G * sum([b1.get_V(b2) for (b1,b2) in generate_pairs(bodies)])
+        V =  sum([b1.get_V(b2) for (b1,b2) in generate_pairs(bodies)])
         plot_points(bodies=bodies,output=args.output,path=args.path,n=args.nsigma,T=T,V=V)
 
     elapsed = time() - start
