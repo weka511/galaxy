@@ -324,13 +324,27 @@ def generate_pairs(bodies):
         for j in range(i):
             yield(bodies[i],bodies[j])
 
+def get_mean_position(bodies):
+    n = len(bodies)
+    X = np.zeros((n,3))
+    masses = np.zeros((n))
+    for i in range(n):
+        X[i,:] = bodies[i].position
+        masses[i] = bodies[i].mass
+    mean = np.average(X,axis=0,weights=masses)
+    sigma = np.std(X,axis=0)
+    return mean,sigma
+
 def get_mean_velocity(bodies):
-    momentum = np.zeros(3)
-    M = 0.0
-    for body in bodies:
-        momentum += body.mass * body.velocity
-        M += body.mass
-    return momentum / M
+    n = len(bodies)
+    velocities = np.zeros((n,3))
+    masses = np.zeros((n))
+    for i in range(n):
+        velocities[i,:] = bodies[i].velocity
+        masses[i] = bodies[i].mass
+    mean = np.average(velocities,axis=0,weights=masses)
+    sigma = np.std(velocities,axis=0)
+    return mean,sigma
 
 if __name__=='__main__':
     ConfigurationFactory.config_factory_dict['plummer'] = Plummer()
@@ -356,9 +370,19 @@ if __name__=='__main__':
                                       number_bodies = number_bodies,
                                       radius = args.radius,
                                       rng = np.random.default_rng(args.seed))
-        v = get_mean_velocity(bodies)
+        v,s = get_mean_velocity(bodies)
+        print (v,s)
+
+        X,s1 = get_mean_position(bodies)
+        print (X,s1)
         for body in bodies:
             body.velocity -= v
+            body.position -= X
+        v,s = get_mean_velocity(bodies)
+        print (v,s)
+
+        X,s1 = get_mean_position(bodies)
+        print (X,s1)
         save_configuration(bodies, output = config_file,
                            number_bodies = number_bodies)
 
