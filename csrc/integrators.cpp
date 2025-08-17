@@ -21,7 +21,7 @@
  
 #include <iostream>
 #include "acceleration.hpp"
-#include "verlet.hpp"
+#include "integrators.hpp"
 #include "logger.hpp"
 
 using namespace std;

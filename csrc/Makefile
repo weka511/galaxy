@@ -28,11 +28,11 @@ SRCS      = acceleration.cpp    \
 			barnes-hut.cpp      \
 			center-of-mass.cpp  \
 			configuration.cpp 	\
+			integrators.cpp     \
 			logger.cpp          \
 			particle.cpp		\
 			reporter.cpp		\
-			treecode.cpp		\
-			verlet.cpp
+			treecode.cpp
 
 TESTS     = test-configuration.cpp \
 			test-particle.cpp      \

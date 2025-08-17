@@ -23,7 +23,7 @@
 #include "acceleration.hpp"
 #include "logger.hpp"
 #include "galaxy.hpp"
-#include "verlet.hpp"
+#include "integrators.hpp"
 #include "barnes-hut.hpp"
 #include "reporter.hpp"
 
