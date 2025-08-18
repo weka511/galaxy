@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 		Configuration configuration(parameters->get_config_file());
 		AccelerationVisitor calculate_acceleration(configuration, parameters->get_theta(),parameters->get_G(),parameters->get_a());
 		Reporter reporter(configuration,parameters->get_base(),parameters->get_path(),"csv","kill",parameters->get_frequency());
-		Verlet integrator(configuration,  calculate_acceleration,reporter);
+		Leapfrog integrator(configuration,  calculate_acceleration,reporter);
 		integrator.run(parameters->get_max_iter(),parameters->get_dt());
 	}  catch (const exception& e) {
         cerr << __FILE__ << " " << __LINE__ << " Terminating because of errors: "<< endl;

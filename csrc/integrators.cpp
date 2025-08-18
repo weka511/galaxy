@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  *
- * Integrate an Ordinary Differential Equation using Verlet algorithm.
+ * Integrate an Ordinary Differential Equation using Leapfrog algorithm.
  *
  * See https://courses.physics.ucsd.edu/2019/Winter/physics141/Assignments/leapfrog.pdf
  */
@@ -33,7 +33,7 @@ using namespace std;
  *     max_iter   Number of iterations
  *     dt         Time step
  */
-void Verlet::run( int max_iter,const double dt){
+void Leapfrog::run( int max_iter,const double dt){
 	VelocityUpdater velocity_updater(dt);
 	PositionUpdater position_updater(dt);
 	/**
@@ -60,26 +60,26 @@ void Verlet::run( int max_iter,const double dt){
 
 /**
  *  Use Euler algorithm for first step. NB: this updates velocity only, so 
- *  position remains at its initial value, as Verlet expects.
+ *  position remains at its initial value, as Leapfrog expects.
  *
  *  particles         Vector of particles
  */
  
-void Verlet::Euler::visit(Particle & particle){
+void Euler::visit(Particle & particle){
 	array<double,3>  velocity = particle.get_velocity();
 	array<double,3>  acceleration = particle.get_acceleration();
 	for (int i=0;i<3;i++)
-		velocity[i] += _dt_half * acceleration[i];
+		velocity[i] += _dt * acceleration[i];
 	particle.set_velocity(velocity);
 }
 
 /**
- *  First half of Verlet algorithm - update positions
+ *  First half of Leapfrog algorithm - update positions
  *
  *  dt                Time step
  *  particles         Vector of particles
  */
-void Verlet::PositionUpdater::visit(Particle & particle){
+void Leapfrog::PositionUpdater::visit(Particle & particle){
 	array<double,3>  position = particle.get_position();
 	array<double,3>  velocity = particle.get_velocity();
 	for (int i=0;i<3;i++)
@@ -88,12 +88,12 @@ void Verlet::PositionUpdater::visit(Particle & particle){
 }
 
 /**
- *  Second half of Verlet algorithm - update velocities
+ *  Second half of Leapfrog algorithm - update velocities
  *
  *  dt                Time step
  *  particles         Vector of particles
  */
-void Verlet::VelocityUpdater::visit(Particle & particle){
+void Leapfrog::VelocityUpdater::visit(Particle & particle){
 	array<double,3>  velocity = particle.get_velocity();
 	array<double,3>  acceleration = particle.get_acceleration();
 	for (int i=0;i<3;i++)

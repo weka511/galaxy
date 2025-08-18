@@ -1,5 +1,5 @@
-#ifndef _VERLET_HPP
-#define _VERLET_HPP
+#ifndef _INTEGRATORS_HPP
+#define _INTEGRATORS_HPP
 
 /**
  * Copyright (C) 2025 Simon Crase
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  *
- * Integrate an Ordinary Differential Equation using the Verlet algorithm
+ * Integrate an Ordinary Differential Equation using the Leapfrog algorithm
  */
  
 
@@ -28,26 +28,26 @@
 
 using namespace std;
 
-
-
-class Verlet {
+/**
+ *  Use Euler algorithm for first step. NB: this updates velocity only, so x
+ *  remains at its initial value, which is what Leapfrog needs.
+ *
+ */
+class Euler : public Configuration::Visitor {
+  private:
 	/**
-	 *  Use Euler algorithm for first step. NB: this updates velocity only, so x
-	 *  remains at its initial value, which is what Verlet needs.
-	 *
-	 */
-	class Euler : public Configuration::Visitor {
-	  private:
-		/**
-		 *  _dt_half  Time step - set to half the timestep for Verlet
-		 */ 
-		const double _dt_half;
-		
-	  public:
-		Euler(const double _dt_half) :_dt_half(_dt_half){;}
-		
-		void visit(Particle & particle);
-	};
+	 *  _dt  Time step - set to half the timestep for Leapfrog
+	 */ 
+	const double _dt;
+	
+  public:
+	Euler(const double dt) :_dt(dt){;}
+	
+	void visit(Particle & particle);
+};
+
+class Leapfrog {
+
 
 	/**
 	 * Class used to implement second half of Verlet algorithm - update positions
@@ -88,7 +88,7 @@ class Verlet {
 	Reporter & _reporter;
 	
   public:
-	Verlet(Configuration & configuration, AccelerationVisitor &calculate_acceleration,Reporter & reporter)
+	Leapfrog(Configuration & configuration, AccelerationVisitor &calculate_acceleration,Reporter & reporter)
 	:  	_configuration(configuration),
 		_calculate_acceleration(calculate_acceleration),
 		_reporter(reporter) {};
@@ -104,7 +104,4 @@ class Verlet {
 };
 
 
-
-
-
-#endif  // _VERLET_HPP
+#endif  // _INTEGRATORS_HPP
