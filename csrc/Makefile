@@ -35,6 +35,7 @@ SRCS      = acceleration.cpp    \
 			treecode.cpp
 
 TESTS     = test-configuration.cpp \
+			test-integrators.cpp	\
 			test-particle.cpp      \
 			test-treecode.cpp
 		
