@@ -104,6 +104,11 @@ class Configuration {
 	Configuration(string file_name);
 	
 	/**
+	 *   Create a  configiration for testing.
+	 */
+	Configuration(int n, double particles[]);
+	
+	/**
 	 *    Used when we display version numberS
 	 */
 	const string get_version() { return _version;}

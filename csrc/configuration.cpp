@@ -63,7 +63,9 @@ int Configuration::_get_line_count(ifstream& inputFile) {
  *  Parameters:
  *      file_name   Name of file (created by configure.py)
  */
+
 	 
+
 Configuration::Configuration(string file_name){
 	ifstream inputFile(file_name);
 	if (!inputFile.is_open()) 
@@ -113,6 +115,21 @@ Configuration::Configuration(string file_name){
     }
 
 	cout << __FILE__ << " " << __LINE__ << ": " << _n << " particles"<<endl;
+}
+
+
+/**
+ *   Create a  configiration for testing.
+ */
+Configuration::Configuration(int n, double particles[]){
+	_n = n;
+	_particles = make_unique<Particle[]>(_n);
+	for (int index=0;index<n;index++){
+		auto position = array{particles[7*index],particles[7*index+1],particles[7*index+2]};
+		auto mass = particles[7*index+3];
+		auto velocity = array{particles[7*index+4],particles[7*index+5],particles[7*index+6]};
+		_particles[index].init(position,velocity,mass,index);	
+	}
 }
 
 /**
