@@ -41,12 +41,14 @@ class Particle {
     array<double,3> _position;
 	array<double,3> _velocity;
 	array<double,3> _acceleration;
+	
 	/**
 	 * Mass
 	 */
 	double _m;
+	
 	/**
-	 *  The ID if a particle is equal to its index in the array of configurations
+	 *  The ID of a particle is equal to its index in the array of configurations
 	 */
 	int _id;
 	
@@ -83,14 +85,23 @@ class Particle {
 	 */
 	inline int get_id() {return _id;}
 	
+	/**
+	 *  Accessor for position
+	 */
 	inline array<double,3> & get_position() {return _position;} 
 	
 	inline void set_position(array<double,3> &  position) {_position = position;}
 	
+	/**
+	 *  Accessor for velocity
+	 */
 	inline array<double,3> & get_velocity() {return _velocity;}  
 	
 	inline void set_velocity(array<double,3> &  velocity) {_velocity = velocity;}
 	
+	/**
+	 *  Accessor for acceleration
+	 */
 	inline array<double,3> & get_acceleration() {return _acceleration;}  
 	
 	inline void set_acceleration(array<double,3> &  acceleration) {_acceleration = acceleration;}
@@ -108,7 +119,5 @@ class Particle {
 	bool operator == (const Particle & other)  const {return _id == other._id;} 
 	
 };
-
-
 
 #endif //_PARTICLE_HPP
