@@ -54,6 +54,8 @@ class Particle {
 	
   public:
   
+	Particle();
+	
   	/**
 	 * Determine squared distance between two particles
 	 */
@@ -70,6 +72,7 @@ class Particle {
 			sum += sqr(position1[i] - position2[i]);
 		return sum;
 	}
+	
 	/**
 	 *   Used to set initial position and velocity when configuration is initialized.
 	 */
@@ -90,6 +93,9 @@ class Particle {
 	 */
 	inline array<double,3> & get_position() {return _position;} 
 	
+	/**
+	 *  Used to assign a new position
+	 */
 	inline void set_position(array<double,3> &  position) {_position = position;}
 	
 	/**
@@ -97,6 +103,9 @@ class Particle {
 	 */
 	inline array<double,3> & get_velocity() {return _velocity;}  
 	
+	/**
+	 *  Used to assign a new velocity
+	 */
 	inline void set_velocity(array<double,3> &  velocity) {_velocity = velocity;}
 	
 	/**
@@ -104,6 +113,9 @@ class Particle {
 	 */
 	inline array<double,3> & get_acceleration() {return _acceleration;}  
 	
+	/**
+	 *  Used to assign acceleration
+	 */
 	inline void set_acceleration(array<double,3> &  acceleration) {_acceleration = acceleration;}
 	 
 

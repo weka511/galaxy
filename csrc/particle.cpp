@@ -19,6 +19,16 @@
  
  using namespace std;
  
+ Particle::Particle() {
+	 _id = -1;
+	 _m = 0.0;
+	 for (int i=0;i<3;i++){
+		 _position[i] = 0.0;
+		 _velocity[i] = 0.0;
+		 _acceleration[i] = 0.0;
+	 }
+}
+
 /**
  *   Used to set initial position and velocity when configuration is initialized.
  */
