@@ -26,6 +26,29 @@
 
 using namespace std;
 
+Euler::Euler(const double dt) 
+   :_dt(dt){}
+   
+/**
+ *  Use Euler algorithm for first step. NB: this updates velocity only, so 
+ *  position remains at its initial value, as Leapfrog expects.
+ *
+ *  particles         Vector of particles
+ */
+ 
+void Euler::visit(Particle & particle){
+	array<double,3>  velocity = particle.get_velocity();
+	array<double,3>  acceleration = particle.get_acceleration();
+	for (int i=0;i<3;i++)
+		velocity[i] += _dt * acceleration[i];
+	particle.set_velocity(velocity);
+}
+
+Leapfrog::Leapfrog(Configuration & configuration, IAccelerationVisitor &calculate_acceleration,IReporter & reporter)
+	:  	_configuration(configuration),
+		_calculate_acceleration(calculate_acceleration),
+		_reporter(reporter) {;}
+		
 /**
  * This function is responsible for integrating an ODE.
  *
@@ -58,20 +81,7 @@ void Leapfrog::run( int max_iter,const double dt){
 	}
 }
 
-/**
- *  Use Euler algorithm for first step. NB: this updates velocity only, so 
- *  position remains at its initial value, as Leapfrog expects.
- *
- *  particles         Vector of particles
- */
- 
-void Euler::visit(Particle & particle){
-	array<double,3>  velocity = particle.get_velocity();
-	array<double,3>  acceleration = particle.get_acceleration();
-	for (int i=0;i<3;i++)
-		velocity[i] += _dt * acceleration[i];
-	particle.set_velocity(velocity);
-}
+
 
 /**
  *  First half of Leapfrog algorithm - update positions

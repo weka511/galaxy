@@ -23,10 +23,14 @@
 
 using namespace std;
 
+class IAccelerationVisitor : public Configuration::Visitor, public Configuration::ParticleInitializer{
+	virtual void initialize(unique_ptr<Particle[]> & particles, int n) {;}
+};
+
 /**
  * This class calculates the acceleration for each particle.
  */
-class AccelerationVisitor : public Configuration::Visitor, public Configuration::ParticleInitializer{
+class AccelerationVisitor : public IAccelerationVisitor {
   private:
 	unique_ptr<Node> _tree = NULL;
 	const double _theta;

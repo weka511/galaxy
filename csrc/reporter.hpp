@@ -25,10 +25,25 @@
  
  using namespace std;
 
+class IReporter : public Configuration::Visitor {
+  public:
+	/**
+	 *   Record configuration in a csv file
+	 */
+	virtual void report() = 0;
+	
+	/**
+	 *   Verify that parogram should continue executing,
+	 *   i.e. killfile not present
+	 */
+    virtual bool should_continue() = 0;
+};
+
 /**
  *  This class is used to record the configuration periodically.
  */
-class Reporter : public Configuration::Visitor {
+class Reporter : public IReporter {
+	
   private:
 	Configuration & _configuration;
 	ofstream _output;

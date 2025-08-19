@@ -20,10 +20,8 @@
  * Integrate an Ordinary Differential Equation using the Leapfrog algorithm
  */
  
-
+#include "acceleration.hpp"
 #include "configuration.hpp"
-#include "treecode.hpp"
-#include "barnes-hut.hpp"
 #include "reporter.hpp"
 
 using namespace std;
@@ -41,7 +39,7 @@ class Euler : public Configuration::Visitor {
 	const double _dt;
 	
   public:
-	Euler(const double dt) :_dt(dt){;}
+	Euler(const double dt);
 	
 	void visit(Particle & particle);
 };
@@ -84,14 +82,11 @@ class Leapfrog {
 
   private:
 	Configuration & _configuration;
-	AccelerationVisitor &_calculate_acceleration;
-	Reporter & _reporter;
+	IAccelerationVisitor &_calculate_acceleration;
+	IReporter & _reporter;
 	
   public:
-	Leapfrog(Configuration & configuration, AccelerationVisitor &calculate_acceleration,Reporter & reporter)
-	:  	_configuration(configuration),
-		_calculate_acceleration(calculate_acceleration),
-		_reporter(reporter) {};
+	Leapfrog(Configuration & configuration, IAccelerationVisitor &calculate_acceleration,IReporter & reporter);
 	
 	/**
 	 * This function is responsible for integrating an ODE.
