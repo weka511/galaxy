@@ -26,7 +26,7 @@
 
 using namespace std;
 
-Euler::Euler(const double dt) 
+Leapfrog::Euler::Euler(const double dt) 
    :_dt(dt){}
    
 /**
@@ -36,7 +36,7 @@ Euler::Euler(const double dt)
  *  particles         Vector of particles
  */
  
-void Euler::visit(Particle & particle){
+void Leapfrog::Euler::visit(Particle & particle){
 	array<double,3>  velocity = particle.get_velocity();
 	array<double,3>  acceleration = particle.get_acceleration();
 	for (int i=0;i<3;i++)

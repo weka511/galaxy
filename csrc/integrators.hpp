@@ -26,26 +26,26 @@
 
 using namespace std;
 
-/**
- *  Use Euler algorithm for first step. NB: this updates velocity only, so x
- *  remains at its initial value, which is what Leapfrog needs.
- *
- */
-class Euler : public Configuration::Visitor {
-  private:
-	/**
-	 *  _dt  Time step - set to half the timestep for Leapfrog
-	 */ 
-	const double _dt;
-	
-  public:
-	Euler(const double dt);
-	
-	void visit(Particle & particle);
-};
 
 class Leapfrog {
 
+	/**
+	 *  Use Euler algorithm for first step. NB: this updates velocity only, so x
+	 *  remains at its initial value, which is what Leapfrog needs.
+	 *
+	 */
+	class Euler : public Configuration::Visitor {
+	  private:
+		/**
+		 *  _dt  Time step - set to half the timestep for Leapfrog
+		 */ 
+		const double _dt;
+		
+	  public:
+		Euler(const double dt);
+		
+		void visit(Particle & particle);
+	};
 
 	/**
 	 * Class used to implement second half of Verlet algorithm - update positions
