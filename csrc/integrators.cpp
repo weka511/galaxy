@@ -66,7 +66,6 @@ void Leapfrog::run( int max_iter,const double dt){
 	_configuration.iterate(_calculate_acceleration);
 	Euler euler(0.5*dt);
 	_configuration.iterate(euler);
-	
 	/**
 	 *  Now the velocities are one half step ahead of the position. We keep
 	 *  leapfrogging: use the "half ahead" velocity to update positions,

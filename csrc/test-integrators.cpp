@@ -20,43 +20,61 @@
 #include "catch.hpp"
 #include "integrators.hpp"
 #include <numbers>
+#include <cmath>
+#include <array>
+#include <iostream>
+#include <iomanip>
 
 using namespace std;
 using namespace std::numbers;
 
 class MockAccelerationVisitor : public IAccelerationVisitor{
+  private:
+	Particle _origin;
+	
+  public:
+	MockAccelerationVisitor() {}
+	
 	/**
 	 *  Invoked by Configuration to calculate the acceleration each particle.
 	 */
-	void visit(Particle & particle) {;}
-};
+	void visit(Particle & particle) {
+		auto radius = sqrt(Particle::get_distance_sq(particle,_origin));
+		auto denominator = radius * radius * radius;
+		auto position = particle.get_position();
+		array<double,3> acceleration = {-position[0]/denominator, -position[1]/denominator, -position[2]/denominator};
+		particle.set_acceleration(acceleration);
+	}
+}; 
 
 
 class MockReporter : public IReporter {
+  private:
+	Configuration & _configuration;
   public:
-	void visit(Particle & particle) {;}
+	MockReporter(Configuration  &configuration) : _configuration(configuration) {;}
 	
-	/**
-	 *   Record configuration in a csv file
-	 */
-	void report() {;}
+	void visit(Particle & particle) {
+		cout << particle << endl;
+	}
 	
-	/**
-	 *   Verify that parogram should continue executing,
-	 *   i.e. killfile not present
-	 */
+	void report() {
+		_configuration.iterate(*this);
+	}
+	
     bool should_continue() {return true;}
 };
 
 TEST_CASE( "Integrator Tests", "[integrator]" ) {
 	
 	SECTION("1 body test") {
-		double params [] = {1.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0};
+		double params [] = {1.0, 0.0, 0.0, 0.1, 0.0, 1.0, 0.0};
 		Configuration configuration(1, params);
 		MockAccelerationVisitor calculate_acceleration;
-		MockReporter reporter;
+		MockReporter reporter(configuration);
 		Leapfrog integrator(configuration,  calculate_acceleration,reporter);
-		integrator.run(1,0.1);
+		auto n = 100;
+		integrator.run(n,1.0/n);
 	}
 
 }
