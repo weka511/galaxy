@@ -116,17 +116,12 @@ class Configuration {
 	/**
 	 * iterate through all Particles, visiting each in turn
 	 */
-	void iterate(Visitor & visitor) {
-		for (int i=0;i<_n;i++)
-			visitor.visit(_particles[i]);	
-	}
+	void iterate(Visitor & visitor);
 	
 	/**
 	 * Used to initialize data structures that need to know about particles.
 	 */
-	void initialize(ParticleInitializer & initializer){
-		initializer.initialize(_particles,_n);
-	}
+	void initialize(ParticleInitializer & initializer);
 	
 	/**
 	 * Determine total linear momentum

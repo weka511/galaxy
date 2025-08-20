@@ -28,6 +28,7 @@
 #include <set>
 #include <sstream>
 #include <stdexcept>
+#include <iomanip>
 #include "configuration.hpp"
 #include "logger.hpp"
 
@@ -128,7 +129,7 @@ Configuration::Configuration(int n, double particles[]){
 		auto position = array{particles[7*index],particles[7*index+1],particles[7*index+2]};
 		auto mass = particles[7*index+3];
 		auto velocity = array{particles[7*index+4],particles[7*index+5],particles[7*index+6]};
-		_particles[index].init(position,velocity,mass,index);	
+		_particles[index].init(position,velocity,mass,index);
 	}
 }
 
@@ -198,6 +199,21 @@ array<double,3>  Configuration::get_momentum(){
 			momentum[j] += _particles[i].get_mass() * _particles[i].get_velocity()[j];
 		
 	return momentum;
+}
+
+/**
+ * iterate through all Particles, visiting each in turn
+ */
+void Configuration::iterate(Visitor & visitor) {
+	for (int i=0;i<_n;i++) 
+		visitor.visit(_particles[i]);	
+}
+
+/**
+ * Used to initialize data structures that need to know about particles.
+ */
+void Configuration::initialize(ParticleInitializer & initializer){
+	initializer.initialize(_particles,_n);
 }
 
  
