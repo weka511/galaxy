@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ bool Reporter::should_continue() {
 /**
  *  Used to establish name for report file, including sequence number
  */
-string Reporter::_get_file_name(int n){
+string Reporter::_get_file_name(){
 	stringstream ss;
 	ss << setw(10) << setfill('0') << _sequence;
 	return _path + _base + ss.str() + "." + _extension;

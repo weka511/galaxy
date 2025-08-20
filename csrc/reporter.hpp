@@ -2,7 +2,7 @@
 #define _REPORTER_HPP
 
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,7 +94,7 @@ class Reporter : public IReporter {
 	/**
 	 *  Used to establish name for report file, including sequence number
 	 */
-	string _get_file_name(int n=4);
+	string _get_file_name();
 };
 
 
