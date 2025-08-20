@@ -85,8 +85,8 @@ TEST_CASE( "Integrator Tests", "[integrator]" ) {
 		configuration.iterate(reporter);
 		integrator.run(2*n*N,pi/n);
 		REQUIRE_THAT(reporter.positions[0][0], WithinAbs(reporter.positions[2*n*N][0], 1.0e-6));
-		REQUIRE_THAT(abs(reporter.positions[0][1]), WithinAbs(abs(reporter.positions[2*n*N][1]), 1.0e-6));  // FIXME
-		REQUIRE_THAT(abs(reporter.velocities[0][0]), WithinAbs(abs(reporter.velocities[2*n*N][0]), 2.0e-4));  // FIXME
+		REQUIRE_THAT(reporter.positions[0][1], WithinAbs(reporter.positions[2*n*N][1], 1.0e-6));
+		REQUIRE_THAT(reporter.velocities[0][0], WithinAbs(reporter.velocities[2*n*N][0], 2.0e-4));
 		REQUIRE_THAT(reporter.velocities[0][1], WithinAbs(reporter.velocities[2*n*N][1], 1.0e-6));
 	}
 
