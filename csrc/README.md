@@ -9,7 +9,6 @@ to simulate the evolution of a galaxy. This code has been compiled under [Cygwin
 ---------------------|------------------|---------------------------------------------------------------------
 acceleration.cpp |  acceleration.hpp |Calculates the acceleration for each particle 
 barnes-hut.cpp | barnes-hut.hpp | Used the Oct-tree to drive acceleration.cpp
-catch.hpp || [Catch2](https://github.com/catchorg/Catch2) Unit testing framework 
 center-of-mass.cpp | center-of-mass.hpp |Calculate centre of mass for Internal and External Nodes 
 configuration.cpp | configuration.hpp| Manages the collection of Particlest 
 galaxy.cpp |galaxy.hpp| Main program; parses command line parameters and initializes other classes
@@ -24,6 +23,7 @@ treecode.cpp |treecode.hpp  | The Barnes Hut Oct-tree
 
 File | Header | Purpose 
 ---------------------|------------------|---------------------------------------------------------------------
+catch.hpp || [Catch2]( https://github.com/catchorg/Catch2/tree/v2.x/single_include/catch2) Unit testing framework 
 tests.cpp || main() for unit tests 
 test-configuration.cpp| | Test that serialization works OK
 test-integration.cpp | | Tests for integration.cpp 
