@@ -23,7 +23,7 @@
 #include <cmath>
 #include <array>
 #include <iostream>
-#include <iomanip>
+#include <vector>
 
 using namespace std;
 using namespace std::numbers;
@@ -51,11 +51,16 @@ class MockAccelerationVisitor : public IAccelerationVisitor{
 class MockReporter : public IReporter {
   private:
 	Configuration & _configuration;
+
   public:
+  	vector<array<double,DIM>> positions;
+	vector<array<double,DIM>> velocities;
+	
 	MockReporter(Configuration  &configuration) : _configuration(configuration) {;}
 	
 	void visit(Particle & particle) {
-		cout << particle << endl;
+		positions.push_back(particle.get_position());
+		velocities.push_back(particle.get_velocity());
 	}
 	
 	void report() {
@@ -63,20 +68,25 @@ class MockReporter : public IReporter {
 	}
 	
     bool should_continue() {return true;}
+	
 };
 
 TEST_CASE( "Integrator Tests", "[integrator]" ) {
 	
 	SECTION("1 body test") {
+		auto n = 10000;
+		auto N = 1;
 		double params [] = {1.0, 0.0, 0.0, 0.1, 0.0, 1.0, 0.0};
 		Configuration configuration(1, params);
 		MockAccelerationVisitor calculate_acceleration;
 		MockReporter reporter(configuration);
 		Leapfrog integrator(configuration,  calculate_acceleration,reporter);
-		auto n = 100;
-		integrator.run(n,1.0/n);
+		configuration.iterate(reporter);
+		integrator.run(2*n*N,pi/n);
+		array<double,DIM> p0 = reporter.positions[0];
+		array<double,DIM> p_nN = reporter.positions[2*n*N];
+		REQUIRE_THAT(p0[0], Catch::Matchers::WithinAbs(p_nN[0], 1.0e-6));
+	
 	}
 
 }
-
-// REQUIRE(pi == Approx(3.1415926536));
