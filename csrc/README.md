@@ -23,7 +23,7 @@ treecode.cpp |treecode.hpp  | The Barnes Hut Oct-tree
 
 File | Header | Purpose 
 ---------------------|------------------|---------------------------------------------------------------------
-catch.hpp || [Catch2]( https://github.com/catchorg/Catch2/tree/v2.x/single_include/catch2) Unit testing framework 
+|catch.hpp | [Catch2]( https://github.com/catchorg/Catch2/tree/v2.x/single_include/catch2) Unit testing framework 
 tests.cpp || main() for unit tests 
 test-configuration.cpp| | Test that serialization works OK
 test-integration.cpp | | Tests for integration.cpp 
