@@ -21,7 +21,7 @@
  
  Particle::Particle() {
 	 _id = -1;
-	 _m = 0.0;
+	 _m = 1.0;
 	 for (int i=0;i<3;i++){
 		 _position[i] = 0.0;
 		 _velocity[i] = 0.0;
