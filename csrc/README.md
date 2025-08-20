@@ -12,7 +12,7 @@ barnes-hut.cpp | barnes-hut.hpp | Used the Oct-tree to drive acceleration.cpp
 center-of-mass.cpp | center-of-mass.hpp |Calculate centre of mass for Internal and External Nodes 
 configuration.cpp | configuration.hpp| Manages the collection of Particlest 
 galaxy.cpp |galaxy.hpp| Main program; parses command line parameters and initializes other classes
-integration.cpp | integration.hpp | Integrate an Ordinary Differential Equation using the Leapfrog algorithm
+integrators.cpp | integrators.hpp | Integrate an Ordinary Differential Equation using the Leapfrog algorithm
 logger.cpp|logger.hpp|Record messages in logfile
 Makefile || Build galaxy simulation 
 particle.cpp| particle.hpp | Represents the particles whose motion is being simulated
@@ -26,6 +26,6 @@ File | Header | Purpose
 -|catch.hpp | [Catch2]( https://github.com/catchorg/Catch2/tree/v2.x/single_include/catch2) Unit testing framework 
 tests.cpp || main() for unit tests 
 test-configuration.cpp| | Test that serialization works OK
-test-integration.cpp | | Tests for integration.cpp 
+test-integrators.cpp | | Tests for integrators.cpp 
 test-particle.cpp |  | Tests for particle.cpp 
 test_treecode.cpp |  | Tests for treecode.cpp
