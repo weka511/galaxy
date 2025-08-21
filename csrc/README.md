@@ -11,10 +11,11 @@ acceleration.cpp |  acceleration.hpp |Calculates the acceleration for each parti
 barnes-hut.cpp | barnes-hut.hpp | Used the Oct-tree to drive acceleration.cpp
 center-of-mass.cpp | center-of-mass.hpp |Calculate centre of mass for Internal and External Nodes 
 configuration.cpp | configuration.hpp| Manages the collection of Particlest 
-galaxy.cpp |galaxy.hpp| Main program; parses command line parameters and initializes other classes
+galaxy.cpp || Main program; parses command line parameters and initializes other classes
 integrators.cpp | integrators.hpp | Integrate an Ordinary Differential Equation using the Leapfrog algorithm
 logger.cpp|logger.hpp|Record messages in logfile
 Makefile || Build galaxy simulation 
+parameters.cpp|parameters.hpp|Command line parameters and environment variables.
 particle.cpp| particle.hpp | Represents the particles whose motion is being simulated
 reporter.cpp |  reporter.hpp|Record the configuration periodically 
 treecode.cpp |treecode.hpp  | The Barnes Hut Oct-tree

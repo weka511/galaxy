@@ -21,7 +21,9 @@
 
 #include "parameters.hpp"
 
-
+/**
+ *  Options for caommand line
+ */
 struct option Parameters::long_options[] ={ 
 	{"config", required_argument, NULL, 'c'},
 	{"max_iter", required_argument, NULL, 'N'},
@@ -36,6 +38,9 @@ struct option Parameters::long_options[] ={
 	{NULL, 0, NULL, 0}
 };
 
+/**
+ *  Read environment variables
+ */
 Parameters::Parameters() {
 	if (const char* env_p = getenv("GALAXY_BASE"))
 		_base = env_p;
@@ -72,17 +77,11 @@ unique_ptr<Parameters> Parameters::get_options(int argc, char **argv){
 		case 'e':
 			parameters->_theta = atof(optarg); 
 			break;
-		// case 'r':
-			 // parameters->_base = optarg; 
-			 // break;
- 		// case 'p':
-			 // parameters->_path = optarg; 
-			 // break;
 		case 'h':
-			usage(); 
+			parameters->usage(); 
 			exit(0);
 		default:
-			usage();
+			parameters->usage();
 			exit(2);
 		}
 	}
@@ -92,17 +91,15 @@ unique_ptr<Parameters> Parameters::get_options(int argc, char **argv){
 /**
  *  Show list of command line parameters.
  */
-void usage() {
+void Parameters::usage() {
 	cout << "Galaxy " << VERSION << endl;
 	cout << "Implementation of the Barnes Hut algorithm to simulate the evolution of a galaxy." << endl << endl;
 	cout << "\t-c" << "\t--config" << endl;
 	cout << "\t-N" << "\t--max_iter" << endl;
 	cout << "\t-a" << "\t--softening_length" << endl;
-	cout << "\t-G" << "\t--G" << endl;
+	cout << "\t-G" << "\t--G -- Gravitational constant" << endl;
 	cout << "\t-d" << "\t--dt" << endl;
 	cout << "\t-e" << "\t--theta" << endl;
-	// cout << "\t-r" << "\t--report" << endl;
-	// cout << "\t-p" << "\t--path" << endl;
 	cout << "\t-f" << "\t--frequency" << endl;
 	cout <<"\t-h" << "\t--help"  << endl;
 }

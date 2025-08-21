@@ -27,52 +27,121 @@
  using namespace std;
 
 /**
- *  A class for storing command line parameters.
+ *  A class for storing parameters, both command line and environment variables.
  */
 class Parameters {
+	
   private:
   	string _config_file = "../configs/config.txt";
+	
+	/**
+	 *   Maximum number of iterations for simulation
+	 */
 	int _max_iter = 10000;
+	
+	/**
+	 *   Softening constant for gravitation field
+	 */
 	int _a = 1.0;
+	
+	/**
+	 *   Base name for report files (a sequence number will be appended).
+	 */
 	string _base = "galaxy";
+	
+	/**
+	 *   Folder name for report files
+	 */
 	string _path = "configs/";
+	
+	/**
+	 *   Gravitational constant
+	 */
 	float _G = 1.0;
+	
+	/**
+	 *   Get time step for integration
+	 */
 	float _dt = 0.1;
+	
+	/**
+	 *   Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
+	 */
 	float _theta = 1.0;
+	
+	/**
+	 *   Get Number of iterations that occur between reports
+	 */
 	int _frequency = 100;
 	
   public:
+  
+	/**
+	 *  Read environment variables
+	 */
 	Parameters();
 	
 	/**
 	 *  Parse command line parameters.
 	 */
 	static unique_ptr<Parameters>  get_options(int argc, char **argv);
+	
+	/**
+	 *  Options for caommand line
+	 */
 	static struct option long_options[];
 	
+	/**
+	 * Name of configuration file
+	 */
 	string get_config_file() {return _config_file;}
 	
+	/**
+	 *   Get maximum number of iterations for simulation
+	 */
 	int get_max_iter() {return _max_iter;}
 	
+	/**
+	 *   Get softening constant for gravitation field
+	 */
 	int get_a () {return _a;}
 	
+	/**
+	 *   Get base name for report files (a sequence number will be appended).
+	 */
 	string get_base() {return _base;}
 	
+	/**
+	 *   Get folder name for report files
+	 */
 	string get_path() {return _path;}
 	
+	/**
+	 *   Get gravitational constant
+	 */
 	float get_G() {return _G;}
 	
+	/**
+	 *   Get time step for integration
+	 */
 	float get_dt() {return _dt;}
 	
+	/**
+	 *   Get ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
+	 */
 	float get_theta() {return _theta;}
 	
+	/**
+	 *   Get number of iterations that occur between reports
+	 */
 	int get_frequency() {return _frequency;}
 	
+	/**
+	 *  Show list of command line parameters.
+	 */
+	void usage();
 };
 
-/**
- *  Show list of command line parameters.
- */
-void usage();
+
 
 #endif // __PARAMETERS_HPP

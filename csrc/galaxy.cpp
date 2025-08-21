@@ -19,25 +19,22 @@
 
 #include <iostream>
 #include <chrono>
-#include <cstdlib>
 
 #include "acceleration.hpp"
-#include "logger.hpp"
-#include "galaxy.hpp"
-#include "integrators.hpp"
 #include "barnes-hut.hpp"
-#include "reporter.hpp"
+#include "integrators.hpp"
+#include "logger.hpp"
 #include "parameters.hpp"
+#include "reporter.hpp"
 
 using namespace std;
 
 int main(int argc, char **argv) {
 	auto start = std::chrono::high_resolution_clock::now();
-	unique_ptr<Parameters> parameters=Parameters::get_options(argc, argv);
-	cout << __FILE__ << " " << __LINE__ << " galaxy: " << VERSION << endl;
-	LOG2("Galaxy ",VERSION);
-	TIME();
 	try {
+		unique_ptr<Parameters> parameters=Parameters::get_options(argc, argv);
+		cout << __FILE__ << " " << __LINE__ << " galaxy: " << VERSION << endl;
+		LOG2("Galaxy ",VERSION);
 		Configuration configuration(parameters->get_config_file());
 		AccelerationVisitor calculate_acceleration(configuration, parameters->get_theta(),parameters->get_G(),parameters->get_a());
 		Reporter reporter(configuration,parameters->get_base(),parameters->get_path(),"csv","kill",parameters->get_frequency());
@@ -53,6 +50,5 @@ int main(int argc, char **argv) {
 
     std::cout << "Execution time: " << duration.count() << " seconds" << std::endl;
 	LOG("galaxy Ending ");
-	TIME();
     return 0;
 }

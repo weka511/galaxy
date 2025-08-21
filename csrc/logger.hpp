@@ -53,6 +53,9 @@
  class Logger {
 	 
   private:
+	/**
+	 *  Unique instance of logger
+	 */
 	static unique_ptr<Logger> _instance;
 	static string directory_path;
 	static string _base;
@@ -61,8 +64,13 @@
 	chrono::time_point<chrono::steady_clock> _start_time;
 	
   public:
+	/**
+	 *   Accessor for unique instance
+	 */
 	static unique_ptr<Logger> & get_instance();
+	
 	Logger();
+	
 	virtual ~Logger();
 	
 	/**
