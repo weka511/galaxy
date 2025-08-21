@@ -154,6 +154,12 @@ class Parameters {
 	 *  Show list of command line parameters.
 	 */
 	void usage();
+	
+  private:
+	/**
+	 * Convert an enviromnent variable to a full path name.
+	 */
+	string _get_path_name(const char* env_p);
 };
 
 

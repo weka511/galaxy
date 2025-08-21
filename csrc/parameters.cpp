@@ -21,8 +21,12 @@
  */
 
 #include <iostream>
+#include <filesystem>
 
 #include "parameters.hpp"
+
+using namespace std;
+using namespace filesystem;
 
 /**
  *  Options for command line
@@ -40,16 +44,19 @@ struct option Parameters::long_options[] ={
 	{NULL, 0, NULL, 0}
 };
 
+
 /**
  *  Read environment variables
  */
 Parameters::Parameters() {
 	if (const char* env_p = getenv("GALAXY_BASE"))
 		_base = env_p;
+	
 	if (const char* env_p = getenv("GALAXY_PATH"))
-		_path = env_p;
+		_path = _get_path_name(env_p);
+	
 	if (const char* env_p = getenv("GALAXY_LOG_PATH"))
-		_log_path = env_p;
+		_log_path = _get_path_name(env_p);
 }
 
 /**
@@ -106,4 +113,13 @@ void Parameters::usage() {
 	cout << "\t-e" << "\t--theta" << endl;
 	cout << "\t-f" << "\t--frequency" << endl;
 	cout <<"\t-h" << "\t--help"  << endl;
+}
+
+/**
+ * Convert an enviromnent variable to a full path name.
+ */
+string Parameters::_get_path_name(const char* env_p){
+	path path1 = getenv("HOME");
+	path1 /= env_p;
+	return path1;
 }
