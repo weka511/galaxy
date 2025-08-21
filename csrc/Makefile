@@ -23,7 +23,7 @@ LDLIBS    =
 CC        = gcc
 CXX       = g++
 RM        = rm -f
-MKDIR     = mkdir
+MKDIR     = mkdir -p
 SRCS      = acceleration.cpp    \
 			barnes-hut.cpp      \
 			center-of-mass.cpp  \
@@ -68,6 +68,8 @@ depend: Makefile .depend
 
 install: rebuild
 	cp $(MAIN) /usr/local/bin
+	mkdir -p ../logs
+	mkdir -p ../config
 	
 .depend: $(SRCS)   $(TESTS)  galaxy.cpp Makefile
 	$(RM) ./.depend
@@ -84,8 +86,8 @@ distclean: clean
 	$(RM) *~ .depend
 
 setup:
-	-$(MKDIR) configs
-	-$(MKDIR) imgs
-	-$(MKDIR) logs
+	-$(MKDIR) ../logs
+	-$(MKDIR) ../config
+
 	
 include .depend
