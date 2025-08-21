@@ -30,6 +30,7 @@ SRCS      = acceleration.cpp    \
 			configuration.cpp 	\
 			integrators.cpp     \
 			logger.cpp          \
+			parameters.cpp      \
 			particle.cpp		\
 			reporter.cpp		\
 			treecode.cpp

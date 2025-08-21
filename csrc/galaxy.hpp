@@ -26,51 +26,7 @@
  
  using namespace std;
 
-/**
- *  A class for storing command line parameters.
- */
-class Parameters {
-  private:
-  	string _config_file = "../configs/config.txt";
-	int _max_iter = 10000;
-	int _a = 1.0;
-	string _base = "galaxy";
-	string _path = "configs/";
-	float _G = 1.0;
-	float _dt = 0.1;
-	float _theta = 1.0;
-	int _frequency = 100;
-	
-  public:
-	/**
-	 *  Parse command line parameters.
-	 */
-	static unique_ptr<Parameters>  get_options(int argc, char **argv);
-	static struct option long_options[];
-	
-	string get_config_file() {return _config_file;}
-	
-	int get_max_iter() {return _max_iter;}
-	
-	int get_a () {return _a;}
-	
-	string get_base() {return _base;}
-	
-	string get_path() {return _path;}
-	
-	float get_G() {return _G;}
-	
-	float get_dt() {return _dt;}
-	
-	float get_theta() {return _theta;}
-	
-	int get_frequency() {return _frequency;}
-	
-};
 
-/**
- *  Show list of command line parameters.
- */
-void usage();
+
 
 #endif // __GALAXY_HPP
