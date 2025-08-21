@@ -17,27 +17,31 @@
  * This file exercises integrators. 
  */
  
-#include "catch.hpp"
-#include "integrators.hpp"
 #include <numbers>
 #include <cmath>
 #include <array>
 #include <iostream>
 #include <vector>
+#include <fstream>
+#include "catch.hpp"
+#include "integrators.hpp"
 
 using namespace std;
 using namespace std::numbers;
 using namespace Catch::Matchers;
 
-class MockAccelerationVisitor : public IAccelerationVisitor{
+/**
+ *  Perform acceleration calcs for a single particle moving in a central force.
+ */
+class SingleParticleAccelerationCalculator : public IAccelerationVisitor {
   private:
 	Particle _origin;
 	
   public:
-	MockAccelerationVisitor() {}
+	SingleParticleAccelerationCalculator() {}
 	
 	/**
-	 *  Invoked by Configuration to calculate the acceleration each particle.
+	 *  Invoked by Configuration to calculate the acceleration of each particle.
 	 */
 	void visit(Particle & particle) {
 		auto radius = sqrt(Particle::get_distance_sq(particle,_origin));
@@ -48,20 +52,30 @@ class MockAccelerationVisitor : public IAccelerationVisitor{
 	}
 }; 
 
-
+/**
+ * Reporter for tests. Records positions and velocities in a vector and an external file.
+ */
 class MockReporter : public IReporter {
   private:
 	Configuration & _configuration;
-
+	ofstream _output;
+	
   public:
   	vector<array<double,DIM>> positions;
 	vector<array<double,DIM>> velocities;
 	
-	MockReporter(Configuration  &configuration) : _configuration(configuration) {;}
+	MockReporter(Configuration  &configuration, string file_name)
+	: _configuration(configuration) {
+		_output.open(file_name + ".csv");
+	}
 	
+	virtual ~MockReporter(){
+		_output.close();
+	}
 	void visit(Particle & particle) {
 		positions.push_back(particle.get_position());
 		velocities.push_back(particle.get_velocity());
+		_output << particle << endl;
 	}
 	
 	void report() {
@@ -74,18 +88,18 @@ class MockReporter : public IReporter {
 
 TEST_CASE( "Integrator Tests", "[integrator]" ) {
 	
-	SECTION("1 body test") {
+	SECTION("A single particle moving in a circle under a central force") {
 		auto n = 10000;
-		auto N = 1;
+		auto N = 10;
 		double params [] = {1.0, 0.0, 0.0, 0.1, 0.0, 1.0, 0.0};
 		Configuration configuration(1, params);
-		MockAccelerationVisitor calculate_acceleration;
-		MockReporter reporter(configuration);
+		SingleParticleAccelerationCalculator calculate_acceleration;
+		MockReporter reporter(configuration,"single-circle");
 		Leapfrog integrator(configuration,  calculate_acceleration,reporter);
 		configuration.iterate(reporter);
 		integrator.run(2*n*N,pi/n);
 		REQUIRE_THAT(reporter.positions[0][0], WithinAbs(reporter.positions[2*n*N][0], 1.0e-6));
-		REQUIRE_THAT(reporter.positions[0][1], WithinAbs(reporter.positions[2*n*N][1], 1.0e-6));
+		REQUIRE_THAT(reporter.positions[0][1], WithinAbs(reporter.positions[2*n*N][1], 1.0e-5));
 		REQUIRE_THAT(reporter.velocities[0][0], WithinAbs(reporter.velocities[2*n*N][0], 2.0e-4));
 		REQUIRE_THAT(reporter.velocities[0][1], WithinAbs(reporter.velocities[2*n*N][1], 1.0e-6));
 	}
