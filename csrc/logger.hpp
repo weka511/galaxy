@@ -64,6 +64,9 @@
 	chrono::time_point<chrono::steady_clock> _start_time;
 	
   public:
+  
+	static void set_paths( string base,  string path);
+	
 	/**
 	 *   Accessor for unique instance
 	 */

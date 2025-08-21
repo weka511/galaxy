@@ -33,9 +33,10 @@ int main(int argc, char **argv) {
 	auto start = std::chrono::high_resolution_clock::now();
 	try {
 		unique_ptr<Parameters> parameters=Parameters::get_options(argc, argv);
+		Logger::set_paths( parameters->get_base(),  parameters->get_log_path());
 		cout << __FILE__ << " " << __LINE__ << " galaxy: " << VERSION << endl;
 		LOG2("Galaxy ",VERSION);
-		Configuration configuration(parameters->get_config_file());
+		Configuration configuration(parameters->get_path()  +parameters->get_config_file());
 		AccelerationVisitor calculate_acceleration(configuration, parameters->get_theta(),parameters->get_G(),parameters->get_a());
 		Reporter reporter(configuration,parameters->get_base(),parameters->get_path(),"csv","kill",parameters->get_frequency());
 		Leapfrog integrator(configuration,  calculate_acceleration,reporter);
@@ -49,6 +50,6 @@ int main(int argc, char **argv) {
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
 
     std::cout << "Execution time: " << duration.count() << " seconds" << std::endl;
-	LOG("galaxy Ending ");
+	LOG("galaxy Ending");
     return 0;
 }

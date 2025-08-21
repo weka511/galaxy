@@ -33,7 +33,11 @@ namespace fs = std::filesystem;
 unique_ptr<Logger> Logger::_instance = NULL;
 string Logger::_base = "galaxy";
 string Logger::_path = "../logs";
-	
+
+void Logger::set_paths( string base,  string path){
+	_base = base;
+	_path = path;
+}	
  unique_ptr<Logger> & Logger::get_instance() {
 	 if (Logger::_instance == NULL)
 		 Logger::_instance = make_unique<Logger>();

@@ -17,7 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  *
- * Implementation of the Barnes Hut algorithm to simulate the evolution of a galaxy.
+ * This file contains a class to extract command line parameters and 
+ * environment variables. Parameters that can vary from one run to another
+ * are specified using the command line; ones that shoudl remain fixed are
+ * specified using environment varabales.
  */
  
  #include <string>
@@ -32,7 +35,7 @@
 class Parameters {
 	
   private:
-  	string _config_file = "../configs/config.txt";
+  	string _config_file = "config.txt";
 	
 	/**
 	 *   Maximum number of iterations for simulation
@@ -50,9 +53,14 @@ class Parameters {
 	string _base = "galaxy";
 	
 	/**
-	 *   Folder name for report files
+	 *   Folder name for report and config files
 	 */
 	string _path = "configs/";
+	
+	/**
+	 *   Folder name for log files
+	 */
+	string _log_path = "logs/";
 	
 	/**
 	 *   Gravitational constant
@@ -115,6 +123,12 @@ class Parameters {
 	 *   Get folder name for report files
 	 */
 	string get_path() {return _path;}
+	
+	/**
+	 *   Get folder name for log files
+	 */
+	string get_log_path() {return _log_path;}
+
 	
 	/**
 	 *   Get gravitational constant

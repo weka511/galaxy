@@ -14,7 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  *
- * Implementation of the Barnes Hut algorithm to simulate the evolution of a galaxy.
+ * This file contains a class to extract command line parameters and 
+ * environment variables. Parameters that can vary from one run to another
+ * are specified using the command line; ones that shoudl remain fixed are
+ * specified using environment varabales.
  */
 
 #include <iostream>
@@ -22,7 +25,7 @@
 #include "parameters.hpp"
 
 /**
- *  Options for caommand line
+ *  Options for command line
  */
 struct option Parameters::long_options[] ={ 
 	{"config", required_argument, NULL, 'c'},
@@ -32,7 +35,6 @@ struct option Parameters::long_options[] ={
 	{"dt", required_argument, NULL, 'd'},
 	{"theta", required_argument, NULL, 'e'},
 	{"report", required_argument, NULL, 'r'},
-	{"path", required_argument, NULL, 'p'},
 	{"frequency",required_argument,NULL,'f'},
 	{"help",no_argument,NULL,'h'},
 	{NULL, 0, NULL, 0}
@@ -46,6 +48,8 @@ Parameters::Parameters() {
 		_base = env_p;
 	if (const char* env_p = getenv("GALAXY_PATH"))
 		_path = env_p;
+	if (const char* env_p = getenv("GALAXY_LOG_PATH"))
+		_log_path = env_p;
 }
 
 /**
