@@ -151,7 +151,9 @@ void Logger::log(string file, int line, string s1, string s2) {
 }
 
  
- 
+ /**
+  *  Calculate the time since logfile opened
+  */
  chrono::duration<double> Logger::_get_milliseconds_since_start() {
 	const auto now{chrono::steady_clock::now()};
     return now - _start_time;
