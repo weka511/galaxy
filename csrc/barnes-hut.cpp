@@ -42,7 +42,7 @@ BarnesHutVisitor::BarnesHutVisitor(Particle& me,const double theta, const double
  */
 Node::Visitor::Status BarnesHutVisitor::visit_internal(Node * internal_node) {
 	double m;
-	array<double,DIM> X;
+	array<double,NDIM> X;
 	tie(m,X) = internal_node->get_mass_and_centre();
 	const auto dsq_node=Particle::get_distance_sq(X,_position);
 	/*
@@ -65,7 +65,7 @@ Node::Visitor::Status BarnesHutVisitor::visit_internal(Node * internal_node) {
  */
 Node::Visitor::Status BarnesHutVisitor::visit_external(Node * external_node) {
 	double m;
-	array<double,DIM> X;
+	array<double,NDIM> X;
 	tie(m,X) = external_node->get_mass_and_centre();
 
 	if (external_node->get_index() != _id) //  accumulate except don't accumulate self!
@@ -79,9 +79,9 @@ Node::Visitor::Status BarnesHutVisitor::visit_external(Node * external_node) {
  * NB: there is a new instance of the visitor for each particle, so
  * acceleration is always zero at the start.
  */
-void BarnesHutVisitor::_accumulate_acceleration(double m,array<double,3> X,double dsq){
+void BarnesHutVisitor::_accumulate_acceleration(double m,array<double,NDIM> X,double dsq){
 	auto d_factor = pow(dsq + _a*_a,-3/2);
-	for (int i=0;i<DIM;i++)
+	for (int i=0;i<NDIM;i++)
 		 _acceleration[i] += _G*m*(X[i]-_position[i])*d_factor;
 }
 

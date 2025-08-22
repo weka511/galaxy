@@ -57,7 +57,7 @@ class BarnesHutVisitor :  public Node::Visitor{
 	/**
 	 * Position of the particle whose acceleration is being calculated
 	 */
-	array<double,DIM> _position;
+	array<double,NDIM> _position;
 	
 	/**
 	 * Softening length
@@ -67,7 +67,7 @@ class BarnesHutVisitor :  public Node::Visitor{
 	/**
 	 * We accumulate the acceleration here
 	 */
-	array<double,DIM> _acceleration;
+	array<double,NDIM> _acceleration;
   
   public:
    /**
@@ -107,7 +107,7 @@ class BarnesHutVisitor :  public Node::Visitor{
 	/**
 	 * Used to add in the contribution to the acceleration from one Node
 	 */
-	void _accumulate_acceleration(double m,array<double,DIM> X,double dsq);
+	void _accumulate_acceleration(double m,array<double,NDIM> X,double dsq);
 		
 };
 

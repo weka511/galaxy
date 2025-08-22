@@ -23,7 +23,8 @@
 using namespace std;
 
 /**
- * This class is used to calculate centre of mass for each Node in the Oct Tree.
+ * This class is used by the AccelerationVisitor to calculate
+ * the centre of mass for each Node in the Oct Tree.
  */
 class CentreOfMassCalculator : public Node::Visitor {
 	
@@ -54,16 +55,17 @@ class CentreOfMassCalculator : public Node::Visitor {
 	 */
 	Node::Visitor::Status visit_external(Node * external_node);
 	
-	
 	/**
 	 *  For an internal note we need to accumulate the mass and positions for each child
 	 */
 	virtual void accumulate(Node * node,Node * child);
 	
 	/**
-	* This is called when we finish processing a Node, which means that all children 
-	* have been processed. Store centre of mass.
-	*/
+	 * This is called when we finish processing an internal Node, after all children 
+	 * have been processed. At this stage we have accumulated the total mass, and a weighted 
+	 * sum of positions of centres for children. Divide weighted sum by total mass,
+	 * and store total mass and centre of mass.
+	 */
 	virtual void depart(Node * node);
 	
 };

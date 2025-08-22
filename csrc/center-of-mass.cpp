@@ -43,16 +43,16 @@ void CentreOfMassCalculator::accumulate(Node * node,Node * child){
 
 
 /**
- * This is called when we finish processing an internal Node, which means that all children 
- * have been processed. At this stage we have accumulated total mass, and a weighted 
+ * This is called when we finish processing an internal Node, after all children 
+ * have been processed. At this stage we have accumulated the total mass, and a weighted 
  * sum of positions of centres for children. Divide weighted sum by total mass,
  * and store total mass and centre of mass.
  */
 void CentreOfMassCalculator::depart(Node * node)  {
-	array<double,DIM> X;
+	array<double,NDIM> X;
 	double m;
 	tie(m,X) = node->get_mass_and_centre();
-	for (int i=0;i<DIM;i++)
+	for (int i=0;i<NDIM;i++)
 		X[i] /= m;
 	node->set_mass_and_centre(m,X);
 }
