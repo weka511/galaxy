@@ -32,9 +32,13 @@ using namespace std;
  *  Node                                Associated Cube
  *  Unused   - Terminal Node            Empty cube
  *  External - Terminal Node            Cube contains precisely one particle
- *  Internal  - precosly 8 child nodes  Cube is subdivided into smaller cubes
+ *  Internal  - precisely 8 child nodes  Cube is subdivided into smaller cubes
+ *
+ *  When we build the tree we will sometimes have to split External nodes if another
+ *  particle wants to live in the associated cube.
  */
 class Node {
+	
   private:	
 	/**
 	 *   Used to ensure we have an octree
@@ -57,14 +61,14 @@ class Node {
 	 */
 	double _m;
 	
-	array<double,3> _center_of_mass;
+	array<double,NDIM> _center_of_mass;
 
 	/**
 	 * Bounding box for Node. This will be subdivided as we move down the tree
 	 */
-	array<double,3> _Xmin;
-	array<double,3> _Xmax;
-	array<double,3>	_Xmean;
+	array<double,NDIM> _Xmin;
+	array<double,NDIM> _Xmax;
+	array<double,NDIM>	_Xmean;
 	
 	/**
 	 * Descendants of this node - only for an Internal Node
@@ -138,7 +142,7 @@ class Node {
 	 *  Create one node for tree. I have made this private, 
 	 *  as clients should use the factory method Node::create(...)
 	 */	
-	Node(array<double,3> Xmin, array<double,3> Xmax);
+	Node(array<double,NDIM> Xmin, array<double,NDIM> Xmax);
 
 	
 	/**
@@ -171,14 +175,14 @@ class Node {
 	/**
 	 * Get mass and centre of mass
 	 */
-	tuple <double,array<double,3>>  get_mass_and_centre() {
+	tuple <double,array<double,NDIM>>  get_mass_and_centre() {
 		return make_tuple(_m,_center_of_mass);
 	}
 	
 	/**
 	 * Set mass and centre of mass
 	 */
-	void set_mass_and_centre(double m, array<double,3> X) {
+	void set_mass_and_centre(double m, array<double,NDIM> X) {
 		_m = m;
 		_center_of_mass = X;
 	}
@@ -196,9 +200,9 @@ class Node {
 	}
 	
 	/**
-     * Determine a cube that will serve as a bounding box for set of particles. 
-     * Make it slightly larger than strictly needed,
-     * so everything is guaranteed to be inside box
+     * Determine a cube that will serve as a bounding box for the
+	 * set of particles.  Make it slightly larger than strictly
+	 * needed, so everything is guaranteed to be inside box
     */
 	static tuple<double,double> get_limits(unique_ptr<Particle[]> &particles, int n, const double epsilon=0.0001);
 	
@@ -207,7 +211,7 @@ class Node {
 	/**
 	 * Used to map an array of 3 ints to an octant
 	 */
-	inline int _triple_to_octant(array<int,3> indices) {
+	inline int _triple_to_octant(array<int,NDIM> indices) {
 		return 2*(2*indices[0] + indices[1]) + indices[2];
 	}
 	

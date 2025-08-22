@@ -91,16 +91,16 @@ Node::Node(array<double,3> Xmin,array<double,3> Xmax)
 void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
 
 	switch(_particle_index){
-		case Unused:   // This Node is currently Unused, so we can add particle to it
-			_particle_index = new_particle_index;
+		case Unused:                              // This Node is currently Unused
+			_particle_index = new_particle_index; // so we can add particle to it, making it External
 			return;
-		case Internal: { // This Node is Internal, so we can add particle to the appropriate subtree
-			Node * subtree = _child[_get_octant_number(particles[new_particle_index])];
+		case Internal: { 																// This Node is Internal
+			Node * subtree = _child[_get_octant_number(particles[new_particle_index])]; // so we can add particle to the appropriate subtree
 			subtree->insert(new_particle_index,particles);
 			return;
 		}
-		default:    // This Node is External, so we already have a particle here; we have to move it
-			_split_and_insert_below(new_particle_index,_particle_index,particles);
+		default:                                                                   // This Node is External
+			_split_and_insert_below(new_particle_index,_particle_index,particles); // so we already have a particle here; we have to move it
 	}
 }
 
