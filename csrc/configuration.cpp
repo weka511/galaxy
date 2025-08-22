@@ -192,10 +192,10 @@ Configuration::Configuration(int n, double particles[]){
 /**
  * Determine total linear momentum
  */
-array<double,3>  Configuration::get_momentum(){
-	array<double,3> momentum = {0.0,0.0,0.0};
+array<double,NDIM>  Configuration::get_momentum(){
+	array<double,NDIM> momentum = {0.0,0.0,0.0};
 	for (int i=0;i<_n;i++)
-		for (int j=0;j<3;j++)
+		for (int j=0;j<NDIM;j++)
 			momentum[j] += _particles[i].get_mass() * _particles[i].get_velocity()[j];
 		
 	return momentum;

@@ -23,7 +23,7 @@
  *   Create one stationary particle at origin with unit mass
  */
  Particle::Particle() :_id(-1),_m(1.0) {
-	for (int i=0;i<DIM;i++){
+	for (int i=0;i<NDIM;i++){
 		_position[i] = 0.0;
 		_velocity[i] = 0.0;
 		_acceleration[i] = 0.0;
@@ -33,7 +33,7 @@
 /**
  *   Used to set initial position and velocity when configuration is initialized.
  */
- void Particle::init(array<double,DIM> position, array<double,DIM> velocity, double m, int id) {
+ void Particle::init(array<double,NDIM> position, array<double,NDIM> velocity, double m, int id) {
 	_id = id;
 	_m = m;
 	_position = position;

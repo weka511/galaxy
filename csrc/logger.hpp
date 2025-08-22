@@ -58,13 +58,32 @@
 	 */
 	static unique_ptr<Logger> _instance;
 	static string directory_path;
+	
+	/**
+	 *   Prefix for names of log files
+	 */
 	static string _base;
+	
+	/**
+	 *   Folder name for log files
+	 */
 	static string _path;
+	
+	/**
+	 * Used to write to log file.
+	 */
 	ofstream _output;
+	
+	/**
+	 *  Remember when logfile opened (used to calculate elapsed time)
+	 */
 	chrono::time_point<chrono::steady_clock> _start_time;
 	
   public:
   
+	/**
+	 *   Used to specifiy name and location for logfiles
+	 */
 	static void set_paths( string base,  string path);
 	
 	/**
@@ -72,8 +91,14 @@
 	 */
 	static unique_ptr<Logger> & get_instance();
 	
+	/**
+	 *   Assign a unique name to the logfile, and open it.
+	 */
 	Logger();
 	
+	/**
+	 * Close logfile
+	 */
 	virtual ~Logger();
 	
 	/**
@@ -84,7 +109,7 @@
 	/**
 	 *  This function is invoked by the LOG macro to log a 3 vector
 	 */
-	void log(string file, int line, array<double,3> v);
+	void log(string file, int line, array<double,NDIM> v);
 	
 	/**
 	 *  This function is invoked by the LOG macro to log a single string
@@ -103,8 +128,14 @@
 	void time_point(string file, int line);
 	
   private:
+	/**
+	 *  Create unique file name using date and time
+	 */
   	static string _get_file_name();
-	static string _to_str2(int n);
+	
+	/**
+	 *  Calculate the time since logfile opened
+ 	 */
 	chrono::duration<double> _get_milliseconds_since_start();	
  };
  

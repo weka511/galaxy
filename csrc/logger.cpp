@@ -25,25 +25,48 @@
 #include <ctime>
 #include <iomanip>
 
+#include "particle.hpp"
 #include "logger.hpp"
  
 using namespace std;
 namespace fs = std::filesystem;
 
+/**
+ *  Unique instance of logger
+ */
 unique_ptr<Logger> Logger::_instance = NULL;
+
+/**
+ *   Prefix for names of log files
+ */
 string Logger::_base = "galaxy";
+
+/**
+ *   Folder name for log files
+ */
 string Logger::_path = "../logs";
 
+/**
+ *   Used to specifiy name and location for logfiles
+ */
 void Logger::set_paths( string base,  string path){
 	_base = base;
 	_path = path;
-}	
+}
+
+/**
+ *   Accessor for unique instance
+ */
+	 
  unique_ptr<Logger> & Logger::get_instance() {
 	 if (Logger::_instance == NULL)
 		 Logger::_instance = make_unique<Logger>();
 	 return Logger::_instance;
  }
  
+ /**
+  *   Assign a unique name to the logfile, and open it.
+  */
  Logger::Logger() {
 	 _start_time = chrono::steady_clock::now();
 	auto full_path = Logger::_get_file_name();
@@ -57,6 +80,9 @@ void Logger::set_paths( string base,  string path){
 	}
  }
  
+ /**
+  * Close logfile
+  */
  Logger::~Logger() {
 	_output.close();
 }
@@ -80,7 +106,7 @@ void Logger::log(string file, int line, int n) {
 /**
  *  This function is invoked by the LOG macro to log a 3 vector
  */
-void Logger::log(string file, int line, array<double,3> v) {
+void Logger::log(string file, int line, array<double,NDIM> v) {
 	 _output << file << " " << line << ": (" << v[0] << "," << v[1] <<"," << v[2] << ")"  << endl << flush;
 }
 
@@ -99,15 +125,9 @@ void Logger::log(string file, int line, string s1, string s2) {
 	 _output << file << " " << line << ": " << _get_milliseconds_since_start() <<  " ms." <<endl;
 }
 
- string Logger::_to_str2(int n){
-	stringstream result;
-	if (n < 10)
-		 result << "0" << n;
-	else
-		 result << n;
-	return result.str();
- }
- 
+/**
+ *  Create unique file name using date and time
+ */
  string Logger::_get_file_name(){
 	auto now = time(NULL);
 	auto *aTime = localtime(&now);
@@ -119,8 +139,12 @@ void Logger::log(string file, int line, string s1, string s2) {
 	auto second = aTime->tm_sec;
 	stringstream file_name;
 	file_name << _base << "-" <<
-				year<< "-" << _to_str2(month)<< "-" << _to_str2(day) << "-" 
-				<< _to_str2(hour) <<"-" << _to_str2(minute) <<"-" << _to_str2(second) <<".log";
+				year<< "-" <<
+				setw(2) << std::setfill('0') << month << "-" <<
+				setw(2) << std::setfill('0') << day << "-" <<
+				setw(2) << std::setfill('0') << hour << "-" <<
+				setw(2) << std::setfill('0') << minute << "-" <<
+				setw(2) << std::setfill('0') << second << ".log";
 	fs::path full_path = _path;
     full_path /= file_name.str();
 	return full_path;

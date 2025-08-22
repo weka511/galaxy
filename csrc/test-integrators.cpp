@@ -61,8 +61,8 @@ class MockReporter : public IReporter {
 	ofstream _output;
 	
   public:
-  	vector<array<double,DIM>> positions;
-	vector<array<double,DIM>> velocities;
+  	vector<array<double,NDIM>> positions;
+	vector<array<double,NDIM>> velocities;
 	
 	MockReporter(Configuration  &configuration, string file_name)
 	: _configuration(configuration) {

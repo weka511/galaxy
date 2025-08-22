@@ -26,7 +26,10 @@
 
 using namespace std;
 
-#define DIM 3
+/**
+ *   Number of dimensions in space
+ */
+const int NDIM = 3;
 
 /**
  * Square a number
@@ -48,20 +51,20 @@ class Particle {
 	/**
 	 *  Location of particle
 	 */
-    array<double,DIM> _position;
+    array<double,NDIM> _position;
 	
 	/**
 	 *   Velocity of particle
 	 */
-	array<double,DIM> _velocity;
+	array<double,NDIM> _velocity;
 	
 	/**
 	 *  Acceleration of particle
 	 */
-	array<double,DIM> _acceleration;
+	array<double,NDIM> _acceleration;
 	
 	/**
-	 * Mass
+	 * Mass of particle
 	 */
 	double _m;
 	
@@ -77,14 +80,14 @@ class Particle {
 	 */
 	static inline double get_distance_sq(Particle&particle1,Particle&particle2)  {
 		double sum = 0.0;
-		for (int i=0;i<DIM;i++)
+		for (int i=0;i<NDIM;i++)
 			sum += sqr(particle1._position[i] - particle2._position[i]);
 		return sum;
 	}
 	
-	static inline double get_distance_sq(array<double,3> position1,array<double,3> position2)  {
+	static inline double get_distance_sq(array<double,NDIM> position1,array<double,NDIM> position2)  {
 		double sum = 0.0;
-		for (int i=0;i<DIM;i++)
+		for (int i=0;i<NDIM;i++)
 			sum += sqr(position1[i] - position2[i]);
 		return sum;
 	}
@@ -92,7 +95,7 @@ class Particle {
 	/**
 	 *   Used to set initial position and velocity when configuration is initialized.
 	 */
-	void init(array<double,DIM> position, array<double,3> velocity, double m, int id);
+	void init(array<double,NDIM> position, array<double,NDIM> velocity, double m, int id);
 	
 	/**
 	 *  Accessor for mass
@@ -107,32 +110,32 @@ class Particle {
 	/**
 	 *  Accessor for position
 	 */
-	inline array<double,DIM> & get_position() {return _position;} 
+	inline array<double,NDIM> & get_position() {return _position;} 
 	
 	/**
 	 *  Used to assign a new position
 	 */
-	inline void set_position(array<double,DIM> &  position) {_position = position;}
+	inline void set_position(array<double,NDIM> &  position) {_position = position;}
 	
 	/**
 	 *  Accessor for velocity
 	 */
-	inline array<double,DIM> & get_velocity() {return _velocity;}  
+	inline array<double,NDIM> & get_velocity() {return _velocity;}  
 	
 	/**
 	 *  Used to assign a new velocity
 	 */
-	inline void set_velocity(array<double,DIM> &  velocity) {_velocity = velocity;}
+	inline void set_velocity(array<double,NDIM> &  velocity) {_velocity = velocity;}
 	
 	/**
 	 *  Accessor for acceleration
 	 */
-	inline array<double,DIM> & get_acceleration() {return _acceleration;}  
+	inline array<double,NDIM> & get_acceleration() {return _acceleration;}  
 	
 	/**
 	 *  Used to assign acceleration
 	 */
-	inline void set_acceleration(array<double,DIM> &  acceleration) {_acceleration = acceleration;}
+	inline void set_acceleration(array<double,NDIM> &  acceleration) {_acceleration = acceleration;}
 	 
 
 	/**
