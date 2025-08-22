@@ -36,7 +36,9 @@ int main(int argc, char **argv) {
 		Logger::set_paths( parameters->get_base(),  parameters->get_log_path());
 		cout << __FILE__ << " " << __LINE__ << " galaxy: " << VERSION << endl;
 		LOG2("Galaxy ",VERSION);
-		Configuration configuration(parameters->get_path()  +parameters->get_config_file());
+		path configuration_file = parameters->get_path();
+		configuration_file /=  parameters->get_config_file();
+		Configuration configuration(configuration_file);
 		AccelerationVisitor calculate_acceleration(configuration, parameters->get_theta(),parameters->get_G(),parameters->get_a());
 		Reporter reporter(configuration,parameters->get_base(),parameters->get_path(),"csv","kill",parameters->get_frequency());
 		Leapfrog integrator(configuration,  calculate_acceleration,reporter);
