@@ -21,12 +21,11 @@
  */
 
 #include <iostream>
-#include <filesystem>
+
 
 #include "parameters.hpp"
 
-using namespace std;
-using namespace filesystem;
+
 
 /**
  *  Options for command line
@@ -116,10 +115,10 @@ void Parameters::usage() {
 }
 
 /**
- * Convert an enviromnent variable to a full path name.
+ * Convert an environment variable to a full path name.
  */
-string Parameters::_get_path_name(const char* env_p){
-	path path1 = getenv("HOME");
-	path1 /= env_p;
-	return path1;
+path Parameters::_get_path_name(const char* env_p){
+	path result = getenv("HOME");
+	result /= env_p;
+	return result;
 }

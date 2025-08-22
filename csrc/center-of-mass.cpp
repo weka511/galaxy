@@ -15,25 +15,21 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#include <iostream>
-#include <stdexcept>
-#include <sstream>
-#include <limits>
-#include <cassert>
-
 #include "center-of-mass.hpp"
 
 using namespace std;
 
+CentreOfMassCalculator::CentreOfMassCalculator(unique_ptr<Particle[]> &particles) 
+ : _particles(particles) {}
 
 /**
  * Called for each External Node: record the position and mass of the particle
  */
 
-Node::Visitor::Status CentreOfMassCalculator::visit_external(Node * node) {
-	const int particle_index = node->get_index(); 
+Node::Visitor::Status CentreOfMassCalculator::visit_external(Node * external_node) {
+	const int particle_index = external_node->get_index(); 
 	Particle & particle = _particles[particle_index];
-	node->set_mass_and_centre(particle.get_mass(),particle.get_position());
+	external_node->set_mass_and_centre(particle.get_mass(),particle.get_position());
 	return Node::Visitor::Status::Continue;
 }
 
@@ -47,16 +43,16 @@ void CentreOfMassCalculator::accumulate(Node * node,Node * child){
 
 
 /**
- * This is called when we finish processing a Node, which means that all children 
- * have been processed. At this statge we have accumulated total mass, and a weighted 
- * sum of positions of centres for children. Divide total by mass,
- * and store centre of mass.
+ * This is called when we finish processing an internal Node, which means that all children 
+ * have been processed. At this stage we have accumulated total mass, and a weighted 
+ * sum of positions of centres for children. Divide weighted sum by total mass,
+ * and store total mass and centre of mass.
  */
 void CentreOfMassCalculator::depart(Node * node)  {
-	array<double,3> X;
+	array<double,DIM> X;
 	double m;
 	tie(m,X) = node->get_mass_and_centre();
-	for (int i=0;i<3;i++)
+	for (int i=0;i<DIM;i++)
 		X[i] /= m;
 	node->set_mass_and_centre(m,X);
 }

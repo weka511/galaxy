@@ -26,8 +26,10 @@
  #include <string>
  #include <memory>
  #include <getopt.h>
+ #include <filesystem>
  
- using namespace std;
+using namespace std;
+using namespace filesystem;
 
 /**
  *  A class for storing parameters, both command line and environment variables.
@@ -55,12 +57,12 @@ class Parameters {
 	/**
 	 *   Folder name for report and config files
 	 */
-	string _path = "configs/";
+	path _path = "configs/";
 	
 	/**
 	 *   Folder name for log files
 	 */
-	string _log_path = "logs/";
+	path _log_path = "logs/";
 	
 	/**
 	 *   Gravitational constant
@@ -122,12 +124,12 @@ class Parameters {
 	/**
 	 *   Get folder name for report files
 	 */
-	string get_path() {return _path;}
+	path get_path() {return _path;}
 	
 	/**
 	 *   Get folder name for log files
 	 */
-	string get_log_path() {return _log_path;}
+	path get_log_path() {return _log_path;}
 
 	
 	/**
@@ -159,7 +161,7 @@ class Parameters {
 	/**
 	 * Convert an enviromnent variable to a full path name.
 	 */
-	string _get_path_name(const char* env_p);
+	path _get_path_name(const char* env_p);
 };
 
 

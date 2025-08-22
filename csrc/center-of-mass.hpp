@@ -23,9 +23,10 @@
 using namespace std;
 
 /**
- * Used to calculate centre of mass for Internal and External Nodes
+ * This class is used to calculate centre of mass for each Node in the Oct Tree.
  */
 class CentreOfMassCalculator : public Node::Visitor {
+	
   private:
    /**
     * These are the particles whose centre of mass is to be calculated. 
@@ -33,24 +34,25 @@ class CentreOfMassCalculator : public Node::Visitor {
 	unique_ptr<Particle[]> & _particles;
 	
   public:
+  
     /**
     * Create CentreOfMassCalculator.
 	*   Parameters:
 	*   	particles These are the particles whose centre of mass is to be calculated. 
     */
-	CentreOfMassCalculator(unique_ptr<Particle[]> &particles)  : _particles(particles) {;}
+	CentreOfMassCalculator(unique_ptr<Particle[]> &particles);
 	
 	/**
-	 * Called for each internal node
+	 * Called for each internal node: dummy -- does nothing.
 	 */
-	Node::Visitor::Status visit_internal(Node * node) {
+	Node::Visitor::Status visit_internal(Node * internal_node) {
 		return Node::Visitor::Status::Continue;
 	}
 	
 	/**
-	 * Called for each external node
+	 * Called for each external node: record the position and mass of the particle
 	 */
-	Node::Visitor::Status visit_external(Node * node);
+	Node::Visitor::Status visit_external(Node * external_node);
 	
 	
 	/**

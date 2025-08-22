@@ -31,25 +31,54 @@ class IAccelerationVisitor : public Configuration::Visitor, public Configuration
  * This class calculates the acceleration for each particle.
  */
 class AccelerationVisitor : public IAccelerationVisitor {
+	
   private:
+	/**
+	 * Oct Tree containing particles
+	 */
 	unique_ptr<Node> _tree = NULL;
+	
+	/**
+	 *   Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
+	 */
 	const double _theta;
+	
+	/**
+	 *   Gravitational constant
+	 */
 	const double _G;
-	const double _a;   //softeninglength
+	
+	/**
+	 *   Softening length
+	 */
+	const double _a; 
 	
   public:
-    AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double a)
-	 : _theta(theta),_G(G),_a(a){;}
+	/**
+	 *  Create acceleration visitor
+	 *
+	 *  Parameters:
+	 *      configuration	Container for particles
+	 *		theta           Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
+	 *      G				Gravitational constant
+	 *      a				Softening length
+	 */
+    AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double a);
 	 
 	/**
 	 *  Construct oct-tree from particles
 	 *
-	 *    particles
+	 *  Parameters:
+	 *      particles    Pointer to particles
+	 *      n            Number of particles
 	 */
 	void initialize(unique_ptr<Particle[]> & particles, int n);
 	
 	/**
-	 *  Invoked by Configuration to calculate the acceleration each particle.
+	 *  Invoked by Configuration to calculate the acceleration of each particle.
+	 *
+	 *  Parameters:
+	 *      particle   The particle whose acceleration is to be computed
 	 */
 	void visit(Particle & particle);
 

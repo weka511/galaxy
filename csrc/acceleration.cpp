@@ -21,9 +21,23 @@
 #include "logger.hpp"
 
 /**
+ *  Create acceleration visitor
+ *
+ *  Parameters:
+ *      configuration	Container for particles
+ *		theta           Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
+ *      G				Gravitational constant
+ *      a				Softening length
+ */
+AccelerationVisitor::AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double a)
+	 : _theta(theta),_G(G),_a(a){}
+	 
+/**
  *  Construct oct-tree from particles, and compute centre of mass for tree and its subtrees
  *
- *    particles
+ *  Parameters:
+ *      particles    Pointer to particles
+ *      n            Number of particles
  */
 void AccelerationVisitor::initialize(unique_ptr<Particle[]> & particles, int n){
 	_tree.reset();
@@ -31,8 +45,13 @@ void AccelerationVisitor::initialize(unique_ptr<Particle[]> & particles, int n){
 	CentreOfMassCalculator calculator(particles);
 	_tree->traverse(calculator);
 }
+
 /**
- *  Calculate acceleration for one node only
+ *  Calculate acceleration for one node only. The real work is delegated to the Barnes Hut Visitor,
+ *  which computes the force on this particles from each other particle.
+ *
+ *  Parameters:
+ *      particle   The particle whose acceleration is to be computed
  */
 void AccelerationVisitor::visit(Particle & particle){
 	BarnesHutVisitor visitor(particle,_theta,_G,_a);
