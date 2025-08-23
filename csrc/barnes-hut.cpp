@@ -24,20 +24,21 @@ using namespace std;
  /**
   * Initialize BarnesHutVisitor for a specific particle
   *
-  *  me      Particle being processed
-  *  theta   Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
-  *  G       Gravitational constant
-  *  a       Softening length
+  * Parameters:
+  *  	me      Particle being processed
+  *  	theta   Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
+  *  	G       Gravitational constant
+  * 	a       Softening length
   */
 BarnesHutVisitor::BarnesHutVisitor(Particle& me,const double theta, const double G,const double a)
-	: _id(me.get_id()),_me(me),_theta_squared(sqr(theta)),_G(G),_position(me.get_position()),
-	_a(a),_acceleration({0.0,0.0,0.0}){}
+	: _id(me.get_id()),_me(me),_theta_squared(sqr(theta)),_G(G),
+	_position(me.get_position()),_a(a),_acceleration({0.0,0.0,0.0}){}
 	
 /**
  * Used to accumulate accelerations for each node
  *
  * Parameters:
- *     internal_node
+ *     internal_node   Current node while iterating over tree
  *
  */
 Node::Visitor::Status BarnesHutVisitor::visit_internal(Node * internal_node) {
@@ -48,7 +49,7 @@ Node::Visitor::Status BarnesHutVisitor::visit_internal(Node * internal_node) {
 	 * Is this node distant enough that its particles can be lumped?
 	 * I have checked against Barnes and Hut's paper - they recommend 1.0 for theta.
 	 */
-	if ( sqr(internal_node->getSide())/dsq_node < _theta_squared ) {
+	if ( sqr(internal_node->get_side())/dsq_node < _theta_squared ) {
 		_accumulate_acceleration(m,X,dsq_node);
 		return Node::Visitor::Status::DontDescend;
 	}
@@ -59,7 +60,7 @@ Node::Visitor::Status BarnesHutVisitor::visit_internal(Node * internal_node) {
  * Used to accumulate accelerations for each external node
  *
  * Parameters:
- *     external_node
+ *     external_node   Current node while iterating over tree
  *
  */
 Node::Visitor::Status BarnesHutVisitor::visit_external(Node * external_node) {
@@ -67,7 +68,8 @@ Node::Visitor::Status BarnesHutVisitor::visit_external(Node * external_node) {
 	const auto m = external_node->get_mass();
 	const auto X = external_node->get_centre_of_mass();
 	const auto dsq_node=Particle::get_distance_sq(X,_position);
-	_accumulate_acceleration(m,X,dsq_node); 			
+	_accumulate_acceleration(m,X,dsq_node); 
+			
 	return Node::Visitor::Status::Continue;
 }
 
@@ -76,6 +78,11 @@ Node::Visitor::Status BarnesHutVisitor::visit_external(Node * external_node) {
  * Used to add in the contribution to the acceleration from one Node
  * NB: there is a new instance of the visitor for each particle, so
  * acceleration is always zero at the start.
+ *
+ * Parameters:
+ *     m       Mass contained in contibuting Node
+ *     X       Center of mass of contibuting Node
+ *     dsq     Squared distance from corrent particle to centre of mass of contibuting Node
  */
 void BarnesHutVisitor::_accumulate_acceleration(double m,array<double,NDIM> X,double dsq){
 	auto d_factor = pow(dsq + _a*_a,-3/2);

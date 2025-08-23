@@ -20,12 +20,11 @@
  
 #include <array>
 #include <tuple>
+
 #include "configuration.hpp"
 #include "treecode.hpp"
 
-
 using namespace std;
-
 
 /**
  *  This class is used to calculate the acceleration of one particle 
@@ -33,6 +32,7 @@ using namespace std;
  *
  */
 class BarnesHutVisitor :  public Node::Visitor{
+	
   private:
   	/**
 	 * Keep track of particle index so we don't calculate acceleration of particle caused by itself!
@@ -73,18 +73,19 @@ class BarnesHutVisitor :  public Node::Visitor{
    /**
     * Initialize BarnesHutVisitor for a specific particle
     *
-    *  me      Particle being processed
-    *  theta   Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
-    *  G       Gravitational constant
-    *  a       Softening length
+	*  Parameters:
+    *  		me      Particle being processed
+    *  		theta   Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
+    *  		G       Gravitational constant
+    *  		a       Softening length
     */
-	BarnesHutVisitor(Particle& me,const double theta, const double G,const double a);
+	BarnesHutVisitor(Particle& me, const double theta, const double G,const double a);
 	
 	/**
 	 * Used to accumulate accelerations for each internal node
 	 *
 	 * Parameters:
-	 *   internal_node
+	 *   internal_node   Current node while iterating over tree
 	 */
 	Node::Visitor::Status visit_internal(Node * internal_node);
 	
@@ -92,7 +93,7 @@ class BarnesHutVisitor :  public Node::Visitor{
 	 * Used to accumulate accelerations for each external node
 	 *
 	 * Parameters:
-	 *   external_node
+	 *   external_node   Current node while iterating over tree
 	 */
 	Node::Visitor::Status visit_external(Node * external_node);
 	
@@ -100,12 +101,18 @@ class BarnesHutVisitor :  public Node::Visitor{
 	 * Used at the end of calculation to store accelerations back into particle
 	 */
 	void store_accelerations() {_me.set_acceleration(_acceleration);}
-	
-	
+
   private:
   
 	/**
 	 * Used to add in the contribution to the acceleration from one Node
+	 * NB: there is a new instance of the visitor for each particle, so
+	 * acceleration is always zero at the start.
+	 *
+	 * Parameters:
+	 *     m       Mass contained in contibuting Node
+	 *     X       Center of mass of contibuting Node
+	 *     dsq     Squared distance from corrent particle to centre of mass of contibuting Node
 	 */
 	void _accumulate_acceleration(double m,array<double,NDIM> X,double dsq);
 		

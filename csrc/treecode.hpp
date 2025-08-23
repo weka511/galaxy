@@ -142,7 +142,7 @@ class Node {
 	/**
 	 * Create an oct-tree from a set of particles
 	 */
-	static unique_ptr<Node> create(unique_ptr<Particle[]> &particles, int n);
+	static unique_ptr<Node> create(unique_ptr<Particle[]> &particles, const int n, const double pad=1.0e-4);
 	
 	/**
 	 *  Create one node for tree. I have made this private, 
@@ -190,16 +190,12 @@ class Node {
 	/**
 	 * Set mass and centre of mass
 	 */
-	inline void set_mass(double m) {
-		_m = m;
-	}
+	inline void set_mass(double m) {_m = m;	}
 	
 	/**
 	 * Set mass and centre of mass
 	 */
-	inline void set_centre_of_mass(array<double,NDIM> X) {
-		_center_of_mass = X;
-	}
+	inline void set_centre_of_mass(array<double,NDIM> X) {	_center_of_mass = X;}
 	
 	/**
 	 *   Used to calculate centre of mass for internal nodes.
@@ -207,21 +203,24 @@ class Node {
 	void accumulate_center_of_mass(Node* child);
 
 	/**
-	 * Determine length of side: since Node is a cube, any side will do
+	 * Determine length of any side of cube.
 	 */
-	inline double getSide() {
-		return _Xmax[0] - _Xmin[0];
-	}
-	
+	inline double get_side() {return _Xmax[0] - _Xmin[0];}
+
+  private:
+  
 	/**
      * Determine a cube that will serve as a bounding box for the
 	 * set of particles.  Make it slightly larger than strictly
 	 * needed, so everything is guaranteed to be inside box
-    */
-	static tuple<double,double> get_limits(unique_ptr<Particle[]> &particles, int n, const double epsilon=0.0001);
-	
-  private:
-	
+	 *
+	 * Parameters:
+	 *     particles    The paritcles
+	 *     n			Number of particles
+	 *     pad			Box will be expanded by a factor of (1+pad)
+     */
+	static tuple<double,double> _get_limits(unique_ptr<Particle[]> &particles, int n, const double pad=1.0e-4);
+		
 	/**
 	 * Used to map an array of 3 ints to an octant
 	 */

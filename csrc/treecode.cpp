@@ -25,9 +25,9 @@ int Node::_count=0;   // Initially tree is empty
 /**
  * Create an oct-tree from a set of particles
  */
-unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){
+unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n,const double pad){
 	double zmin, zmax;
-	tie(zmin,zmax) = Node::get_limits(particles,n);
+	tie(zmin,zmax) = _get_limits(particles,n,pad);
 	array<double,NDIM> Xmin = {zmin,zmin,zmin};
 	array<double,NDIM> Xmax = {zmax,zmax,zmax};
 	unique_ptr<Node> product = unique_ptr<Node>(new Node(Xmin,Xmax));
@@ -38,12 +38,17 @@ unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){
 	return product;
 }
 
-/**
- * Determine a cube that will serve as a bounding box for the set of particles. 
- * Make it slightly larger than strictly needed,
- * so everything is guaranteed to be inside box
- */
-tuple<double,double> Node::get_limits(unique_ptr<Particle[]>& particles,int n,const double epsilon){
+	/**
+     * Determine a cube that will serve as a bounding box for the
+	 * set of particles.  Make it slightly larger than strictly
+	 * needed, so everything is guaranteed to be inside box
+	 *
+	 * Parameters:
+	 *     particles    The paritcles
+	 *     n			Number of particles
+	 *     pad			Box will be expanded by a factor of (1+pad)
+     */
+tuple<double,double> Node::_get_limits(unique_ptr<Particle[]>& particles,int n,const double pad){
 	auto zmin = numeric_limits<double>::max();
 	auto zmax = -zmin;
 	for (int i=0;i<n;i++)
@@ -53,14 +58,14 @@ tuple<double,double> Node::get_limits(unique_ptr<Particle[]>& particles,int n,co
 		}
 
 	if (zmin < 0)
-		zmin *= (1+epsilon);
+		zmin *= (1+pad);
 	else 
-		zmin /= (1+epsilon);
+		zmin /= (1+pad);
 	
 	if (zmax < 0)
-		zmax /= (1+epsilon);
+		zmax /= (1+pad);
 	else
-		zmax *= (1+epsilon);
+		zmax *= (1+pad);
 	
 	return make_tuple(zmin,zmax);
 }
@@ -168,9 +173,6 @@ void Node::_split_node() {
  * we continue all the way down. After visiting each child of the current node
  * we call accumulate() on the node itself, and then finally call depart() on 
  * the current node after all children processed.
- *
- * Returns:
- *     true iff traversal completed, i.e. no visit() decided to terminate processing.
  */
 void Node::traverse(Visitor & visitor) {
 	switch (_particle_index) {

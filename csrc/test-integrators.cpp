@@ -47,7 +47,7 @@ class SingleParticleAccelerationCalculator : public IAccelerationVisitor {
 		auto radius = sqrt(Particle::get_distance_sq(particle,_origin));
 		auto denominator = radius * radius * radius;
 		auto position = particle.get_position();
-		array<double,3> acceleration = {-position[0]/denominator, -position[1]/denominator, -position[2]/denominator};
+		array<double,NDIM> acceleration = {-position[0]/denominator, -position[1]/denominator, -position[2]/denominator};
 		particle.set_acceleration(acceleration);
 	}
 }; 
