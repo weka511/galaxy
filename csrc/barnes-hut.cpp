@@ -41,9 +41,8 @@ BarnesHutVisitor::BarnesHutVisitor(Particle& me,const double theta, const double
  *
  */
 Node::Visitor::Status BarnesHutVisitor::visit_internal(Node * internal_node) {
-	double m;
-	array<double,NDIM> X;
-	tie(m,X) = internal_node->get_mass_and_centre();
+	const auto m = internal_node->get_mass();
+	const auto X = internal_node->get_centre_of_mass();
 	const auto dsq_node=Particle::get_distance_sq(X,_position);
 	/*
 	 * Is this node distant enough that its particles can be lumped?
@@ -64,12 +63,11 @@ Node::Visitor::Status BarnesHutVisitor::visit_internal(Node * internal_node) {
  *
  */
 Node::Visitor::Status BarnesHutVisitor::visit_external(Node * external_node) {
-	double m;
-	array<double,NDIM> X;
-	tie(m,X) = external_node->get_mass_and_centre();
-
-	if (external_node->get_index() != _id) //  accumulate except don't accumulate self!
-		_accumulate_acceleration(m,X,Particle::get_distance_sq(X,_position)); 			
+	if (external_node->get_index() == _id) return Node::Visitor::Status::Continue;
+	const auto m = external_node->get_mass();
+	const auto X = external_node->get_centre_of_mass();
+	const auto dsq_node=Particle::get_distance_sq(X,_position);
+	_accumulate_acceleration(m,X,dsq_node); 			
 	return Node::Visitor::Status::Continue;
 }
 

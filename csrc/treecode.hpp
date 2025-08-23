@@ -41,7 +41,8 @@ class Node {
 	
   private:	
 	/**
-	 *   Used to ensure we have an octree
+	 *   Used to ensure we have an octree. Box is divided into 2 halves (high and low)
+	 *   along each of x, y, and z axes.
 	 */
 	enum {N_Children=2*2*2};
 
@@ -57,18 +58,19 @@ class Node {
 	int _particle_index;
 	
 	/**
-	 *  Mass and centre of mass
+	 *  Total mass of all particles in or below this node
 	 */
 	double _m;
 	
+	/**
+	 *  Centre of mass of all particles in or below this node
+	 */
 	array<double,NDIM> _center_of_mass;
 
 	/**
 	 * Bounding box for Node. This will be subdivided as we move down the tree
 	 */
-	array<double,NDIM> _Xmin;
-	array<double,NDIM> _Xmax;
-	array<double,NDIM>	_Xmean;
+	array<double,NDIM> _Xmin, _Xmax, _Xmean;
 	
 	/**
 	 * Descendants of this node - only for an Internal Node
@@ -81,6 +83,16 @@ class Node {
 	 static int _count;
 	 
   public:
+  
+  	/**
+	  * Indicates type of node. External Nodes use the index of the
+      * associated particle (>=0) instead of one of these values.
+	  */
+  	enum Type {
+		Internal=-2,
+		Unused=-1
+	};
+	
 	/**
 	*  Used to traverse tree depth first
 	*/
@@ -119,13 +131,7 @@ class Node {
 		 */
 		virtual void depart(Node * node) {;}
 	  };
-  
-	/**
-	  * Indicates type of node. External Nodes use the index of the
-      * associated particle instead of one of these values.
-	  */
-  	enum Type {Internal=-2, Unused=-1};
-	
+
   public:
   
   	/**
@@ -144,7 +150,6 @@ class Node {
 	 */	
 	Node(array<double,NDIM> Xmin, array<double,NDIM> Xmax);
 
-	
 	/**
 	 * Destroy node and its descendants.
 	 */
@@ -170,20 +175,29 @@ class Node {
 	 * Indicates type of node. External Nodes use the index of the
      * associated particle instead of one of these values.
 	 */
-	int get_index() { return _particle_index;}
+	inline int get_index() { return _particle_index;}
 	
 	/**
-	 * Get mass and centre of mass
+	 * Get mass
 	 */
-	tuple <double,array<double,NDIM>>  get_mass_and_centre() {
-		return make_tuple(_m,_center_of_mass);
+	inline double  get_mass() {return _m;}
+	
+	/**
+	 * Get centre of mass
+	 */
+	inline array<double,NDIM>  get_centre_of_mass() {return _center_of_mass;}
+	
+	/**
+	 * Set mass and centre of mass
+	 */
+	inline void set_mass(double m) {
+		_m = m;
 	}
 	
 	/**
 	 * Set mass and centre of mass
 	 */
-	void set_mass_and_centre(double m, array<double,NDIM> X) {
-		_m = m;
+	inline void set_centre_of_mass(array<double,NDIM> X) {
 		_center_of_mass = X;
 	}
 	

@@ -58,7 +58,7 @@ class CentreOfMassCalculator : public Node::Visitor {
 	/**
 	 *  For an internal note we need to accumulate the mass and positions for each child
 	 */
-	virtual void accumulate(Node * node,Node * child);
+	virtual void accumulate(Node * internal_node,Node * child);
 	
 	/**
 	 * This is called when we finish processing an internal Node, after all children 
@@ -66,7 +66,7 @@ class CentreOfMassCalculator : public Node::Visitor {
 	 * sum of positions of centres for children. Divide weighted sum by total mass,
 	 * and store total mass and centre of mass.
 	 */
-	virtual void depart(Node * node);
+	virtual void depart(Node * internal_node);
 	
 };
 

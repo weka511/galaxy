@@ -126,7 +126,7 @@ class Configuration {
 	/**
 	 * Determine total linear momentum
 	 */
-	array<double,3>  get_momentum();
+	array<double,NDIM>  get_momentum();
 	
   private:
   

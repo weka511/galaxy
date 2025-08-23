@@ -37,9 +37,9 @@ Leapfrog::Euler::Euler(const double dt)
  */
  
 void Leapfrog::Euler::visit(Particle & particle){
-	array<double,3>  velocity = particle.get_velocity();
-	array<double,3>  acceleration = particle.get_acceleration();
-	for (int i=0;i<3;i++)
+	array<double,NDIM>  velocity = particle.get_velocity();
+	array<double,NDIM>  acceleration = particle.get_acceleration();
+	for (int i=0;i<NDIM;i++)
 		velocity[i] += _dt * acceleration[i];
 	particle.set_velocity(velocity);
 }
@@ -89,9 +89,9 @@ void Leapfrog::run( int max_iter,const double dt){
  *  particles         Vector of particles
  */
 void Leapfrog::PositionUpdater::visit(Particle & particle){
-	array<double,3>  position = particle.get_position();
-	array<double,3>  velocity = particle.get_velocity();
-	for (int i=0;i<3;i++)
+	array<double,NDIM>  position = particle.get_position();
+	array<double,NDIM>  velocity = particle.get_velocity();
+	for (int i=0;i<NDIM;i++)
 		position[i] += _dt * velocity[i];
 	particle.set_position(position);
 }
@@ -103,9 +103,9 @@ void Leapfrog::PositionUpdater::visit(Particle & particle){
  *  particles         Vector of particles
  */
 void Leapfrog::VelocityUpdater::visit(Particle & particle){
-	array<double,3>  velocity = particle.get_velocity();
-	array<double,3>  acceleration = particle.get_acceleration();
-	for (int i=0;i<3;i++)
+	array<double,NDIM>  velocity = particle.get_velocity();
+	array<double,NDIM>  acceleration = particle.get_acceleration();
+	for (int i=0;i<NDIM;i++)
 		velocity[i] += _dt * acceleration[i];
 	particle.set_velocity(velocity);	
 }

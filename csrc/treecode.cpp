@@ -28,8 +28,8 @@ int Node::_count=0;   // Initially tree is empty
 unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n){
 	double zmin, zmax;
 	tie(zmin,zmax) = Node::get_limits(particles,n);
-	array<double,3> Xmin = {zmin,zmin,zmin};
-	array<double,3> Xmax = {zmax,zmax,zmax};
+	array<double,NDIM> Xmin = {zmin,zmin,zmin};
+	array<double,NDIM> Xmax = {zmax,zmax,zmax};
 	unique_ptr<Node> product = unique_ptr<Node>(new Node(Xmin,Xmax));
 
 	for (int index=0;index<n;index++)
@@ -47,7 +47,7 @@ tuple<double,double> Node::get_limits(unique_ptr<Particle[]>& particles,int n,co
 	auto zmin = numeric_limits<double>::max();
 	auto zmax = -zmin;
 	for (int i=0;i<n;i++)
-		for (int j=0;j<3;j++){
+		for (int j=0;j<NDIM;j++){
 			zmin = min(zmin,particles[i].get_position()[j]);
 			zmax = max(particles[i].get_position()[j],zmax);
 		}
@@ -71,11 +71,11 @@ tuple<double,double> Node::get_limits(unique_ptr<Particle[]>& particles,int n,co
  * it has been added to Tree and has at least one child node
  */
  
-Node::Node(array<double,3> Xmin,array<double,3> Xmax)
+Node::Node(array<double,NDIM> Xmin,array<double,NDIM> Xmax)
   : _id(_count),_particle_index(Unused),
   	_m(0.0), _center_of_mass({0.0,0.0,0.0}),
 	_Xmin(Xmin), _Xmax(Xmax){
-	for (int i=0;i<3;i++)
+	for (int i=0;i<NDIM;i++)
 		_Xmean[i] = 0.5 * (Xmin[i] + Xmax[i]);
 	for (int i=0;i<N_Children;i++)
 		_child[i] = NULL;
@@ -110,8 +110,8 @@ void Node::insert(int new_particle_index,unique_ptr<Particle[]> &particles) {
  */
 int Node::_get_octant_number(Particle &particle) {
 	auto pos = particle.get_position();
-	array<int,3> indices;
-	for (int i=0;i<3;i++)
+	array<int,NDIM> indices;
+	for (int i=0;i<NDIM;i++)
 		indices[i] = (pos[i] > _Xmean[i]);
 	
 	return _triple_to_octant(indices);
@@ -149,8 +149,8 @@ void Node::_insert_or_propagate(int new_particle_index,int incumbent,unique_ptr<
  */
 void Node::_split_node() {
 	_particle_index = Internal;
-	array<double,3> Xmin;
-	array<double,3> Xmax;
+	array<double,NDIM> Xmin;
+	array<double,NDIM> Xmax;
 	for (int i=0;i<2;i++) {
 		tie (Xmin[0], Xmax[0]) = _get_refined_bounds(i, _Xmin[0], _Xmax[0],  _Xmean[0]);
 		for (int j=0;j<2;j++) {
@@ -195,7 +195,7 @@ void Node::traverse(Visitor & visitor) {
  */
 void Node::accumulate_center_of_mass(Node* child) {
 	_m += child->_m;
-	for (int i=0;i<3;i++)
+	for (int i=0;i<NDIM;i++)
 		_center_of_mass[i] += child->_m * child->_center_of_mass[i];
 }
 

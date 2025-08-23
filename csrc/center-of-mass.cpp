@@ -29,7 +29,8 @@ CentreOfMassCalculator::CentreOfMassCalculator(unique_ptr<Particle[]> &particles
 Node::Visitor::Status CentreOfMassCalculator::visit_external(Node * external_node) {
 	const int particle_index = external_node->get_index(); 
 	Particle & particle = _particles[particle_index];
-	external_node->set_mass_and_centre(particle.get_mass(),particle.get_position());
+	external_node->set_mass(particle.get_mass());
+	external_node->set_centre_of_mass(particle.get_position());
 	return Node::Visitor::Status::Continue;
 }
 
@@ -37,8 +38,8 @@ Node::Visitor::Status CentreOfMassCalculator::visit_external(Node * external_nod
 /**
  *  We need to accumulate the mass and positions for each child of an internal node
  */
-void CentreOfMassCalculator::accumulate(Node * node,Node * child){
-	node->accumulate_center_of_mass(child);
+void CentreOfMassCalculator::accumulate(Node * internal_node,Node * child){
+	internal_node->accumulate_center_of_mass(child);
 }
 
 
@@ -48,12 +49,11 @@ void CentreOfMassCalculator::accumulate(Node * node,Node * child){
  * sum of positions of centres for children. Divide weighted sum by total mass,
  * and store total mass and centre of mass.
  */
-void CentreOfMassCalculator::depart(Node * node)  {
-	array<double,NDIM> X;
-	double m;
-	tie(m,X) = node->get_mass_and_centre();
+void CentreOfMassCalculator::depart(Node * internal_node)  {
+	const auto m = internal_node->get_mass();
+	auto X = internal_node->get_centre_of_mass();
 	for (int i=0;i<NDIM;i++)
 		X[i] /= m;
-	node->set_mass_and_centre(m,X);
+	internal_node->set_centre_of_mass(X);
 }
 
