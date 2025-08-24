@@ -28,78 +28,78 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 	
 	SECTION("Trivial Tree Insert") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(2);
-		auto i = 0;
-		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
-		unique_ptr<Node> tree = Node::create(particles,i);
+		auto n = 0;
+		particles[n++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
+		unique_ptr<Node> tree = Node::create(particles,n);
 		REQUIRE(Node::get_count() == 9);
 	}
 	
 	SECTION("Insert two nodes that are close enough to force a second level") {
-		unique_ptr<Particle[]> particles = make_unique<Particle[]>(2);
-		auto i = 0;
-		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
-		particles[i++].init(array{-1.0,-1.0,0.5 + offset},array{0.0,0.0,0.0},1.0,2);
-		particles[i++].init(array{-1.0,-1.0,0.525 + offset},array{0.0,0.0,0.0},1.0,3);
-		unique_ptr<Node> tree = Node::create(particles,i);
-		REQUIRE(Node::get_count() == 17);
+		unique_ptr<Particle[]> particles = make_unique<Particle[]>(4);
+		auto n = 0;
+		particles[n++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
+		particles[n++].init(array{-1.0,-1.0,0.5 + offset},array{0.0,0.0,0.0},1.0,2);
+		particles[n++].init(array{-1.0,-1.0,0.525 + offset},array{0.0,0.0,0.0},1.0,3);
+		unique_ptr<Node> tree = Node::create(particles,n);
+		REQUIRE(Node::get_count() == 57);
 	}
 	
-	// SECTION("Insert two nodes that are close enough to force a second level") {
-		// unique_ptr<Particle[]> particles = make_unique<Particle[]>(2);
-		// auto i = 0;
-		// particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
-		// particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
-		// particles[i++].init(array{-1.0,-1.0,0.5 + offset},array{0.0,0.0,0.0},1.0,2);
-		// particles[i++].init(array{-1.0,-1.0,0.50625 + offset},array{0.0,0.0,0.0},1.0,3);
-		// unique_ptr<Node> tree = Node::create(particles,i);
-		// REQUIRE(Node::get_count() == 17);
-	// }
+	SECTION("Insert two nodes that are close enough to force a second level") {
+		unique_ptr<Particle[]> particles = make_unique<Particle[]>(4);
+		auto n = 0;
+		particles[n++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
+		particles[n++].init(array{-1.0,-1.0,0.5 + offset},array{0.0,0.0,0.0},1.0,2);
+		particles[n++].init(array{-1.0,-1.0,0.50625 + offset},array{0.0,0.0,0.0},1.0,3);
+		unique_ptr<Node> tree = Node::create(particles,n);
+		REQUIRE(Node::get_count() == 73);
+	}
 	
 	SECTION("Larger Tree Insert") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(8);
-		auto i = 0;
-		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{-1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{+1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{-1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{+1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
-		unique_ptr<Node> tree = Node::create(particles,i);
+		auto n = 0;
+		particles[n++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{-1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{+1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{-1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{+1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		unique_ptr<Node> tree = Node::create(particles,n);
 		REQUIRE(Node::get_count() == 9);
 	}
 	
 	SECTION("2nd layer Tree Insert") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(9);
-		auto i = 0;
-		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{-1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{+1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{-1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{+1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{+0.2, +0.2, +1.0},array{0.0,0.0,0.0},1.0,0);
-		unique_ptr<Node> tree = Node::create(particles,i);
+		auto n = 0;
+		particles[n++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{-1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{+1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{-1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{+1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{+0.2, +0.2, +1.0},array{0.0,0.0,0.0},1.0,0);
+		unique_ptr<Node> tree = Node::create(particles,n);
 		REQUIRE(Node::get_count() == 17);
 	}
 	
 	SECTION("3rd layer Tree Insert: https://www.cs.princeton.edu/courses/archive/fall03/cs126/assignments/barnes-hut.html") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(8);
-		auto i = 0;
-		particles[i++].init(array{-2.0,2.0,0.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{1.5,3.5,0.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{0.5,2.5,0.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{2.5,0.5,0.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{-3.0,-1.0,0.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{-3.0,-3.0,0.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{-1.0,-3.0,0.0},array{0.0,0.0,0.0},1.0,0);
-		particles[i++].init(array{2.0,-2.0,0.0},array{0.0,0.0,0.0},1.0,0);
-		unique_ptr<Node> tree = Node::create(particles,i);
+		auto n = 0;
+		particles[n++].init(array{-2.0,2.0,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{1.5,3.5,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{0.5,2.5,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{2.5,0.5,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{-3.0,-1.0,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{-3.0,-3.0,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{-1.0,-3.0,0.0},array{0.0,0.0,0.0},1.0,0);
+		particles[n++].init(array{2.0,-2.0,0.0},array{0.0,0.0,0.0},1.0,0);
+		unique_ptr<Node> tree = Node::create(particles,n);
 		REQUIRE(Node::get_count() == 33);
 	}
 	REQUIRE(Node::get_count() == 0);
