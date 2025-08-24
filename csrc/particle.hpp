@@ -18,8 +18,6 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-
-
 #include <array>
 #include <iostream>
 #include <ostream>
@@ -32,7 +30,7 @@ using namespace std;
 const int NDIM = 3;
 
 /**
- * Square a number
+ * Square a distance
  */ 
 inline double sqr(double x) {return x*x;}
 
@@ -79,12 +77,12 @@ class Particle {
 	 * Determine squared distance between two particles
 	 */
 	static inline double get_distance_sq(Particle&particle1,Particle&particle2)  {
-		double sum = 0.0;
-		for (int i=0;i<NDIM;i++)
-			sum += sqr(particle1._position[i] - particle2._position[i]);
-		return sum;
+		return get_distance_sq(particle1._position,particle2._position);
 	}
 	
+	/**
+	 * Determine squared distance between two points
+	 */
 	static inline double get_distance_sq(array<double,NDIM> position1,array<double,NDIM> position2)  {
 		double sum = 0.0;
 		for (int i=0;i<NDIM;i++)
@@ -94,8 +92,14 @@ class Particle {
 	
 	/**
 	 *   Used to set initial position and velocity when configuration is initialized.
+	 *
+	 *   Parameters:
+	 *       position    Location of particle
+	 *       velocity    Velocity of particle
+	 *       m           Mass of particle
+	 *       id          Unique "name" of this particle
 	 */
-	void init(array<double,NDIM> position, array<double,NDIM> velocity, double m, int id);
+	void init(const array<double,NDIM> position, const array<double,NDIM> velocity, const double m, const int id);
 	
 	/**
 	 *  Accessor for mass

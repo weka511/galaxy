@@ -22,23 +22,23 @@
 /**
  *   Create one stationary particle at origin with unit mass
  */
- Particle::Particle() :_id(-1),_m(1.0) {
-	for (int i=0;i<NDIM;i++){
-		_position[i] = 0.0;
-		_velocity[i] = 0.0;
-		_acceleration[i] = 0.0;
-	}
-}
+ Particle::Particle() 
+   :_id(-1),_position({0.0, 0.0, 0.0}),_velocity({0.0, 0.0, 0.0}),_acceleration({0.0, 0.0, 0.0}),_m(1.0) {}
 
 /**
  *   Used to set initial position and velocity when configuration is initialized.
+ *
+ *   Parameters:
+ *       position    Location of particle
+ *       velocity    Velocity of particle
+ *       m           Mass of particle
+ *       id          Unique "name" of this particle
  */
- void Particle::init(array<double,NDIM> position, array<double,NDIM> velocity, double m, int id) {
+ void Particle::init(const array<double,NDIM> position, const array<double,NDIM> velocity, const double m, const int id) {
 	_id = id;
 	_m = m;
 	_position = position;
 	_velocity = velocity;
-	_acceleration = {0.0, 0.0, 0.0};
  }
  
 
