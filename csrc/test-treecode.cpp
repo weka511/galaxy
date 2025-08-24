@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2025 Greenweaves Software Limited
+ * Copyright (C) 2025 Simon Crase
  *
  * This is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,18 +22,40 @@
 
 using namespace std;
 
-
+const double offset=1.0/1024.0;
 TEST_CASE( "Tree Tests", "[tree]" ) {
 	REQUIRE(Node::get_count() == 0);
 	
 	SECTION("Trivial Tree Insert") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(2);
 		auto i = 0;
-		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},0.0,0);
-		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},0.0,0);
+		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
 		unique_ptr<Node> tree = Node::create(particles,i);
 		REQUIRE(Node::get_count() == 9);
 	}
+	
+	SECTION("Insert two nodes that are close enough to force a second level") {
+		unique_ptr<Particle[]> particles = make_unique<Particle[]>(2);
+		auto i = 0;
+		particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
+		particles[i++].init(array{-1.0,-1.0,0.5 + offset},array{0.0,0.0,0.0},1.0,2);
+		particles[i++].init(array{-1.0,-1.0,0.525 + offset},array{0.0,0.0,0.0},1.0,3);
+		unique_ptr<Node> tree = Node::create(particles,i);
+		REQUIRE(Node::get_count() == 17);
+	}
+	
+	// SECTION("Insert two nodes that are close enough to force a second level") {
+		// unique_ptr<Particle[]> particles = make_unique<Particle[]>(2);
+		// auto i = 0;
+		// particles[i++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
+		// particles[i++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
+		// particles[i++].init(array{-1.0,-1.0,0.5 + offset},array{0.0,0.0,0.0},1.0,2);
+		// particles[i++].init(array{-1.0,-1.0,0.50625 + offset},array{0.0,0.0,0.0},1.0,3);
+		// unique_ptr<Node> tree = Node::create(particles,i);
+		// REQUIRE(Node::get_count() == 17);
+	// }
 	
 	SECTION("Larger Tree Insert") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(8);
