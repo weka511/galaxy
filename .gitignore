@@ -47,3 +47,4 @@ virial/
 *.txt
 *.txt~
 
+logs/
