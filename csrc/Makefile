@@ -13,11 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this software.  If not, see <http://www.gnu.org/licenses/>
 #
-# Makefile snarfed from https://stackoverflow.com/questions/2481269/how-to-make-a-simple-c-makefile
+# Makefile snarfed from
+# https://stackoverflow.com/questions/2481269/how-to-make-a-simple-c-makefile
 
 TIMER ?= OFF
 GIT_VERSION := $(shell git describe --tags)
-CPPFLAGS  = -g -O3  -pthread -I/sw/include/root  -std=c++23 -DVERSION="\"$(GIT_VERSION)\"" -Wall -D$(TIMER)
+CPP_BASIC_FLAGS = -g -O3  -I/sw/include/root  -std=c++23
+CPPFLAGS  =  $(CPP_BASIC_FLAGS) -DVERSION="\"$(GIT_VERSION)\"" -Wall -D$(TIMER)
 LDFLAGS   = -g -O3
 LDLIBS    =
 CC        = gcc
@@ -73,7 +75,7 @@ install: rebuild
 	
 .depend: $(SRCS) $(TESTS)  galaxy.cpp Makefile
 	$(RM) ./.depend
-	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
+	$(CXX) $(CPP_BASIC_FLAGS) -MM $^>>./.depend;
 	sed -i -e 's/^.*:.*/$(OBJDIR)\/&/' .depend;
 
 $(OBJDIR):
@@ -95,5 +97,4 @@ setup:
 	-$(MKDIR) ../logs
 	-$(MKDIR) ../config
 
-	
 include .depend
