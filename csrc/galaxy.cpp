@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <chrono>
+#include <cstdlib>
 
 #include "acceleration.hpp"
 #include "barnes-hut.hpp"
@@ -46,12 +47,11 @@ int main(int argc, char **argv) {
 	}  catch (const exception& e) {
         cerr << __FILE__ << " " << __LINE__ << " Terminating because of errors: "<< endl;
 		cerr  << e.what() << endl;
-		exit(1);
+		return EXIT_FAILURE;
     }
 	auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-
     std::cout << "Execution time: " << duration.count() << " seconds" << std::endl;
 	LOG("galaxy Ending");
-    return 0;
+    return EXIT_SUCCESS;
 }
