@@ -26,25 +26,55 @@ const double offset=1.0/1024.0;
 TEST_CASE( "Tree Tests", "[tree]" ) {
 	REQUIRE(Node::get_count() == 0);
 	
+	/**
+	 * Create a tree containing two particles only.
+	 *      Head (Internal Node)
+	 *        External Node
+	 *        External Node
+	 *        8 * Unused Node
+	 */
 	SECTION("Trivial Tree Insert") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(2);
 		auto n = 0;
 		particles[n++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
 		particles[n++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
 		unique_ptr<Node> tree = Node::create(particles,n);
-		REQUIRE(Node::get_count() == 9);
+		REQUIRE(Node::get_count() == Node::N_Children+1);
 	}
 	
+	/**
+	 * Create a tree containing four particles. Two are widely separated (they define the Box);
+	 * the other two try to occupy the same Internal Node.
+	 *      Head (Internal Node)  [-1,1]
+	 *        External Node       [-1,0]
+	 *        External Node       [0,+1]
+	 *        Internal Node       [0,1]
+	 *        	Internal Node       [0.5,1]
+	 *        		Internal Node       [0.5,0.75]
+	 *        			Internal Node       [0.5,0.625]
+	 *        				Internal Node       [0.5,0.5625]
+	 *        					Internal Node       [0.5,0.5315]
+	 *        						External Node       [0.5,0.515625]
+	 *        						External Node       [0.51562,0.5315]
+	 *                              6 * Unused Node
+	 *                          7 * Unused Node
+	 *                    	7 * Unused Node
+	 *                  7 * Unused Node
+	 *              7 * Unused Node
+	 *          7 * Unused Node
+	 *        5 * Unused Node
+	 */
 	SECTION("Insert two nodes that are close enough to force a second level") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(4);
 		auto n = 0;
 		particles[n++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
-		particles[n++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
+		particles[n++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
 		particles[n++].init(array{-1.0,-1.0,0.5 + offset},array{0.0,0.0,0.0},1.0,2);
 		particles[n++].init(array{-1.0,-1.0,0.525 + offset},array{0.0,0.0,0.0},1.0,3);
 		unique_ptr<Node> tree = Node::create(particles,n);
-		REQUIRE(Node::get_count() == 57);
+		REQUIRE(Node::get_count() == 7*Node::N_Children+1);
 	}
+	
 	
 	SECTION("Insert two nodes that are close enough to force a second level") {
 		unique_ptr<Particle[]> particles = make_unique<Particle[]>(4);
@@ -54,7 +84,7 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		particles[n++].init(array{-1.0,-1.0,0.5 + offset},array{0.0,0.0,0.0},1.0,2);
 		particles[n++].init(array{-1.0,-1.0,0.50625 + offset},array{0.0,0.0,0.0},1.0,3);
 		unique_ptr<Node> tree = Node::create(particles,n);
-		REQUIRE(Node::get_count() == 73);
+		REQUIRE(Node::get_count() == 9*Node::N_Children+1);
 	}
 	
 	SECTION("Larger Tree Insert") {
@@ -69,7 +99,7 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		particles[n++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
 		particles[n++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
 		unique_ptr<Node> tree = Node::create(particles,n);
-		REQUIRE(Node::get_count() == 9);
+		REQUIRE(Node::get_count() == Node::N_Children+1);
 	}
 	
 	SECTION("2nd layer Tree Insert") {
@@ -85,7 +115,7 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		particles[n++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
 		particles[n++].init(array{+0.2, +0.2, +1.0},array{0.0,0.0,0.0},1.0,0);
 		unique_ptr<Node> tree = Node::create(particles,n);
-		REQUIRE(Node::get_count() == 17);
+		REQUIRE(Node::get_count() == 2*Node::N_Children+1);
 	}
 	
 	SECTION("3rd layer Tree Insert: https://www.cs.princeton.edu/courses/archive/fall03/cs126/assignments/barnes-hut.html") {
@@ -100,7 +130,7 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		particles[n++].init(array{-1.0,-3.0,0.0},array{0.0,0.0,0.0},1.0,0);
 		particles[n++].init(array{2.0,-2.0,0.0},array{0.0,0.0,0.0},1.0,0);
 		unique_ptr<Node> tree = Node::create(particles,n);
-		REQUIRE(Node::get_count() == 33);
+		REQUIRE(Node::get_count() == 4*Node::N_Children+1);
 	}
 	REQUIRE(Node::get_count() == 0);
 }

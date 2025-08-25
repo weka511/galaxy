@@ -39,13 +39,14 @@ using namespace std;
  */
 class Node {
 	
-  private:	
+  public:
 	/**
 	 *   Used to ensure we have an octree. Box is divided into 2 halves (high and low)
 	 *   along each of x, y, and z axes.
 	 */
 	enum {N_Children=2*2*2};
 
+  private:	
 	/**
 	 *  Used to keep track of nodes for debugging
 	 */
