@@ -39,28 +39,28 @@ TESTS     = test-configuration.cpp \
 			test-integrators.cpp	\
 			test-particle.cpp      \
 			test-treecode.cpp
-		
-OBJS1     = $(subst .cpp,.o,$(SRCS)) 
-OBJS      = $(subst .cc,.o,$(OBJS1)) 
-TEST_OBJS = $(subst .cpp,.o,$(TESTS))
 
-THREADING = threading.exe
+OBJDIR = obj
+		
+OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRCS))
+TEST_OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(TESTS))
+
 
 MAIN      = galaxy.exe
 TARGETS   = $(MAIN) 
 TEST_MAIN = tests.exe
 
-all : $(MAIN)
+all : $(MAIN) $(TEST_OBJS)
 
 run : all 
 	${RM} configs/foo*.csv
 	./$(MAIN)
 	
-tests : $(TEST_MAIN)
+tests : $(TEST_MAIN) all
 	./$(TEST_MAIN)
 	
 clean :
-	${RM} *.o *.stackdump
+	${RM} $(OBJDIR)/*.o *.stackdump
 
 rebuild: clean all
 
@@ -71,16 +71,22 @@ install: rebuild
 	mkdir -p ../logs
 	mkdir -p ../config
 	
-.depend: $(SRCS)   $(TESTS)  galaxy.cpp Makefile
+.depend: $(SRCS) $(TESTS)  galaxy.cpp Makefile
 	$(RM) ./.depend
 	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
-	sed -i -e 's/\/home\/Weka\/smac\/book\///$g' .depend
+	sed -i -e 's/^.*:.*/$(OBJDIR)\/&/' .depend;
+
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
+
+$(OBJDIR)/%.o: %.cpp | $(OBJDIR)
+	$(CXX) $(CPPFLAGS) -c $< -o $@
+		
+$(MAIN): $(OBJS) $(OBJDIR)/galaxy.o 
+	${CXX} $(LDFLAGS) -o $(MAIN) $(OBJDIR)/galaxy.o ${OBJS} ${LDLIBS}
 	
-$(MAIN): $(OBJS) galaxy.o 
-	${CXX} $(LDFLAGS) -o $(MAIN) galaxy.o ${OBJS} ${LDLIBS}
-	
-$(TEST_MAIN): $(OBJS) tests.o $(TEST_OBJS)
-	${CXX} $(LDFLAGS) -o $(TEST_MAIN) tests.o ${OBJS} $(TEST_OBJS) ${LDLIBS}
+$(TEST_MAIN): $(OBJS) $(OBJDIR)/tests.o $(TEST_OBJS)
+	${CXX} $(LDFLAGS) -o $(TEST_MAIN) $(OBJDIR)/tests.o ${OBJS} $(TEST_OBJS) ${LDLIBS}
 	
 distclean: clean
 	$(RM) *~ .depend
