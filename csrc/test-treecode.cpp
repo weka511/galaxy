@@ -71,7 +71,7 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		particles[n++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
 		particles[n++].init(array{-1.0,-1.0,0.5 + offset},array{0.0,0.0,0.0},1.0,2);
 		particles[n++].init(array{-1.0,-1.0,0.525 + offset},array{0.0,0.0,0.0},1.0,3);
-		unique_ptr<Node> tree = Node::create(particles,n);
+		unique_ptr<Node> tree = Node::create(particles,n,true);
 		REQUIRE(Node::get_count() == 7*Node::N_Children+1);
 	}
 	

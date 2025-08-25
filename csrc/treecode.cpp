@@ -16,6 +16,8 @@
  */
  
 #include <limits>
+#include <cassert>
+
 #include "treecode.hpp"
 
 using namespace std;
@@ -25,7 +27,7 @@ int Node::_count=0;   // Initially tree is empty
 /**
  * Create an oct-tree from a set of particles
  */
-unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n,const double pad){
+unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n,const bool verify,const double pad){
 	double zmin, zmax;
 	tie(zmin,zmax) = _get_limits(particles,n,pad);
 	array<double,NDIM> Xmin = {zmin,zmin,zmin};
@@ -35,19 +37,24 @@ unique_ptr<Node> Node::create(unique_ptr<Particle[]> &particles, int n,const dou
 	for (int index=0;index<n;index++)
 		product->insert(index,particles);
 
+	if (verify){
+		TreeVerifier verifier(particles,n);
+		product->traverse(verifier);
+		assert(verifier.has_been_verified());
+	}
 	return product;
 }
 
-	/**
-     * Determine a cube that will serve as a bounding box for the
-	 * set of particles.  Make it slightly larger than strictly
-	 * needed, so everything is guaranteed to be inside box
-	 *
-	 * Parameters:
-	 *     particles    The paritcles
-	 *     n			Number of particles
-	 *     pad			Box will be expanded by a factor of (1+pad)
-     */
+/**
+ * Determine a cube that will serve as a bounding box for the
+ * set of particles.  Make it slightly larger than strictly
+ * needed, so everything is guaranteed to be inside box
+ *
+ * Parameters:
+ *     particles    The paritcles
+ *     n			Number of particles
+ *     pad			Box will be expanded by a factor of (1+pad)
+ */
 tuple<double,double> Node::_get_limits(unique_ptr<Particle[]>& particles,int n,const double pad){
 	auto zmin = numeric_limits<double>::max();
 	auto zmax = -zmin;
@@ -216,3 +223,29 @@ Node::~Node() {
  * Used to get number of Nodes - normally to make sure tree has been destructed.
  */
 int Node::get_count() {return _count;}
+
+TreeVerifier::TreeVerifier(unique_ptr<Particle[]> &particles, const int n) : _particles(particles),_n(n) {
+	_particle_verified = vector<bool>();
+	for (int i=0;i<n;i++)
+		_particle_verified.push_back(false);
+}
+	
+Node::Visitor::Status TreeVerifier::visit_internal(Node * node){
+	return Node::Visitor::Status::Continue;
+}
+
+Node::Visitor::Status TreeVerifier::visit_external(Node * node){
+	const int index = node->get_index();
+	assert(!_particle_verified[index]);
+	_particle_verified[index] = true;
+	return Node::Visitor::Status::Continue;
+}
+
+void TreeVerifier::accumulate(Node * node,Node * child){
+}
+
+bool TreeVerifier::has_been_verified(){
+	for (bool status : _particle_verified)
+		if (!status)	return false;
+	return true;
+}

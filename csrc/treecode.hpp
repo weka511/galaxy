@@ -21,6 +21,8 @@
 #include <array>
 #include <memory>
 #include <tuple>
+#include <vector>
+
 #include "particle.hpp"
 
 using namespace std;
@@ -143,7 +145,7 @@ class Node {
 	/**
 	 * Create an oct-tree from a set of particles
 	 */
-	static unique_ptr<Node> create(unique_ptr<Particle[]> &particles, const int n, const double pad=1.0e-4);
+	static unique_ptr<Node> create(unique_ptr<Particle[]> &particles, const int n, const bool verify=false, const double pad=1.0e-4);
 	
 	/**
 	 *  Create one node for tree. I have made this private, 
@@ -277,4 +279,26 @@ class Node {
 	}
 };
 
-#endif   // _TREECODE_HPP
+class TreeVerifier: public Node::Visitor{
+  private:
+    unique_ptr<Particle[]> &_particles;
+
+	const int _n;
+ 
+	vector<bool> _particle_verified;
+	
+   public:
+	
+	TreeVerifier(unique_ptr<Particle[]> &particles, const int n);
+	
+	Node::Visitor::Status visit_internal(Node * node);
+
+	Node::Visitor::Status visit_external(Node * node);
+	
+	void accumulate(Node * node,Node * child);
+	
+	bool has_been_verified();
+			
+};
+
+#endif   // _TREECODE_HPP 
