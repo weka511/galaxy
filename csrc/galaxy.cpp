@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 		path configuration_file = parameters->get_path();
 		configuration_file /=  parameters->get_config_file();
 		Configuration configuration(configuration_file);
-		AccelerationVisitor calculate_acceleration(configuration, parameters->get_theta(),parameters->get_G(),parameters->get_a());
+		AccelerationVisitor calculate_acceleration(configuration, parameters->get_theta(),parameters->get_G(),parameters->get_a(),parameters->should_verify_tree());
 		Reporter reporter(configuration,parameters->get_base(),parameters->get_path(),"csv","kill",parameters->get_frequency());
 		Leapfrog integrator(configuration,  calculate_acceleration,reporter);
 		integrator.run(parameters->get_max_iter(),parameters->get_dt());

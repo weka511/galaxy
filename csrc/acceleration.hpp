@@ -53,6 +53,8 @@ class AccelerationVisitor : public IAccelerationVisitor {
 	 */
 	const double _a; 
 	
+	bool _verify_tree;
+	
   public:
 	/**
 	 *  Create acceleration visitor
@@ -63,7 +65,7 @@ class AccelerationVisitor : public IAccelerationVisitor {
 	 *      G				Gravitational constant
 	 *      a				Softening length
 	 */
-    AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double a);
+    AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double a, const bool verify_tree);
 	 
 	/**
 	 *  Construct oct-tree from particles

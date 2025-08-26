@@ -84,6 +84,8 @@ class Parameters {
 	 */
 	int _frequency = 100;
 	
+	bool _verify_tree = false;
+	
   public:
   
 	/**
@@ -152,6 +154,7 @@ class Parameters {
 	 */
 	int get_frequency() {return _frequency;}
 	
+	bool should_verify_tree() {return _verify_tree;}
 	/**
 	 *  Show list of command line parameters.
 	 */

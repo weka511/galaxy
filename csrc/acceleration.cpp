@@ -29,8 +29,8 @@
  *      G				Gravitational constant
  *      a				Softening length
  */
-AccelerationVisitor::AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double a)
-	 : _theta(theta),_G(G),_a(a){}
+AccelerationVisitor::AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double a, bool verify_tree)
+	 : _theta(theta),_G(G),_a(a), _verify_tree(verify_tree){}
 	 
 /**
  *  Construct oct-tree from particles, and compute centre of mass for tree and its subtrees
@@ -39,9 +39,9 @@ AccelerationVisitor::AccelerationVisitor(Configuration& configuration, const dou
  *      particles    Pointer to particles
  *      n            Number of particles
  */
-void AccelerationVisitor::initialize(unique_ptr<Particle[]> & particles, int n){
+void AccelerationVisitor::initialize(unique_ptr<Particle[]> & particles, int n)  {
 	_tree.reset();
-	_tree = Node::create(particles,n); 
+	_tree = Node::create(particles,n,_verify_tree); 
 	CentreOfMassCalculator calculator(particles);
 	_tree->traverse(calculator);
 }

@@ -21,11 +21,9 @@
  */
 
 #include <iostream>
-
+#include <cstdlib>
 
 #include "parameters.hpp"
-
-
 
 /**
  *  Options for command line
@@ -40,6 +38,7 @@ struct option Parameters::long_options[] ={
 	{"report", required_argument, NULL, 'r'},
 	{"frequency",required_argument,NULL,'f'},
 	{"help",no_argument,NULL,'h'},
+	{"verify_tree",no_argument,NULL,'v'},
 	{NULL, 0, NULL, 0}
 };
 
@@ -89,10 +88,13 @@ unique_ptr<Parameters> Parameters::get_options(int argc, char **argv){
 			break;
 		case 'h':
 			parameters->usage(); 
-			exit(0);
+			exit(EXIT_SUCCESS);
+		case 'v':
+			parameters->_verify_tree = true; 
+			break;
 		default:
 			parameters->usage();
-			exit(2);
+			exit(EXIT_FAILURE);
 		}
 	}
 	return parameters;
@@ -112,6 +114,7 @@ void Parameters::usage() {
 	cout << "\t-e" << "\t--theta" << endl;
 	cout << "\t-f" << "\t--frequency" << endl;
 	cout <<"\t-h" << "\t--help"  << endl;
+	cout <<"\t-v" << "\t--verify_tree"  << endl;
 }
 
 /**
