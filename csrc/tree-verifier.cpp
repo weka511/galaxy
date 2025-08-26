@@ -15,7 +15,6 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-// #include <limits>
 #include <cassert>
 #include <cmath>
 #include <stdexcept>
