@@ -35,7 +35,7 @@ def parse_args():
     parser.add_argument('--seed',type=int,default=None,help='Seed for random number generator')
     parser.add_argument('-o', '--out', default = basename(splitext(__file__)[0]),help='Name of output file')
     parser.add_argument('--figs', default = './figs', help = 'Name of folder where plots are to be stored')
-    parser.add_argument('--show', action = 'store_true', help   = 'Show plot')
+    parser.add_argument('--show', action = 'store_true', help = 'Show plot')
     parser.add_argument('--dpi', type=int, default=dpi, help=f'Dots per inch for displaying and saving figure [{dpi}]')
     parser.add_argument('--norbits','-K', type=int, default=norbits, help=f'Number of orbits [{norbits}]')
     parser.add_argument('--maxsamples','-m', type=int, default=maxsamples, help=f'Maximum number of sample per orbit [{maxsamples} (process all samples)]')
@@ -45,6 +45,7 @@ def parse_args():
     parser.add_argument('--nsigma','-g', type=int,  default=nsigma, help=f'Number of standard deviations to use for scaling [{nsigma}]')
     parser.add_argument('--path','-p', default='../csrc/configs', help='Path for config files')
     parser.add_argument('--title','-t',default=None,help='Title for plot')
+    parser.add_argument('--centre', action = 'store_true', help = 'Reset centre to origin')
     return parser.parse_args()
 
 def get_file_name(name,default_ext='png',figs='./figs',seq=None):
@@ -132,7 +133,8 @@ def plot(Orbits,selector,
          images='.',
          linestyles = ['-', '--', '-.', ':'],
          dpi=300,
-         title=None):
+         title=None,
+         centre=True):
     '''
     Plot orbits
     Parameters:
@@ -147,14 +149,17 @@ def plot(Orbits,selector,
 
     fig = figure(figsize=(20,20))
     ax = fig.add_subplot(111,  projection='3d')
+    centre_of_mass = np.mean(Orbits,axis=1) if centre else np.zeros((3))
     for k in range(K):
-        ax.plot(Orbits[:,k,0],Orbits[:,k,1],Orbits[:,k,2],
+        Centred = Orbits[:,k,:] - centre_of_mass
+        ax.plot(Centred[:,0],Centred[:,1],Centred[:,2],
                 c=colours[k%len(colours)],
                 linestyle=linestyles[(k//len(colours)) % len(linestyles)])
-        ax.scatter(Orbits[0,k,0],Orbits[0,k,1],Orbits[0,k,2],
+        ax.scatter(Centred[0,0],Centred[0,1],Centred[0,2],
                    c=colours[k%len(colours)],
                    label=f'{k}',
-                   s=50,marker='x')
+                   s=50,
+                   marker='x')
     ax.legend(loc='best',title='Starts of Orbits')
     if title == None:
         title = f'Orbits of {K} randomly selected stars out of {m}'
@@ -162,9 +167,9 @@ def plot(Orbits,selector,
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
-    ax.set_xlim(get_limits(Orbits[:,:,0],n=n))
-    ax.set_ylim(get_limits(Orbits[:,:,1],n=n))
-    ax.set_zlim(get_limits(Orbits[:,:,2],n=n))
+    # ax.set_xlim(get_limits(Orbits[:,:,0],n=n))
+    # ax.set_ylim(get_limits(Orbits[:,:,1],n=n))
+    # ax.set_zlim(get_limits(Orbits[:,:,2],n=n))
     fig.savefig(get_file_name(args.out,figs=args.figs), dpi=dpi)
 
 if __name__=='__main__':
@@ -178,7 +183,7 @@ if __name__=='__main__':
                               suffix = args.suffix,
                               delimiter = args.delimiter,
                               K = args.norbits)
-    plot(Orbits,selector,title=args.title)
+    plot(Orbits,selector,title=args.title,centre=args.centre)
 
     if args.show:
         show()
