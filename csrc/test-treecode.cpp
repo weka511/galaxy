@@ -38,7 +38,7 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		auto n = 0;
 		particles[n++].init(array{-1.0,-1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
 		particles[n++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
-		unique_ptr<Node> tree = Node::create(particles,n);
+		unique_ptr<Node> tree = Node::create(particles,n,true);
 		REQUIRE(Node::get_count() == Node::N_Children+1);
 	}
 	
@@ -83,7 +83,7 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		particles[n++].init(array{-1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,1);
 		particles[n++].init(array{-1.0,-1.0,0.5 + offset},array{0.0,0.0,0.0},1.0,2);
 		particles[n++].init(array{-1.0,-1.0,0.50625 + offset},array{0.0,0.0,0.0},1.0,3);
-		unique_ptr<Node> tree = Node::create(particles,n);
+		unique_ptr<Node> tree = Node::create(particles,n,true);
 		REQUIRE(Node::get_count() == 9*Node::N_Children+1);
 	}
 	
@@ -98,7 +98,7 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		particles[n++].init(array{+1.0,-1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
 		particles[n++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
 		particles[n++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
-		unique_ptr<Node> tree = Node::create(particles,n);
+		unique_ptr<Node> tree = Node::create(particles,n,true);
 		REQUIRE(Node::get_count() == Node::N_Children+1);
 	}
 	
@@ -114,7 +114,7 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		particles[n++].init(array{+1.0,+1.0,-1.0},array{0.0,0.0,0.0},1.0,0);
 		particles[n++].init(array{+1.0,+1.0,+1.0},array{0.0,0.0,0.0},1.0,0);
 		particles[n++].init(array{+0.2, +0.2, +1.0},array{0.0,0.0,0.0},1.0,0);
-		unique_ptr<Node> tree = Node::create(particles,n);
+		unique_ptr<Node> tree = Node::create(particles,n,true);
 		REQUIRE(Node::get_count() == 2*Node::N_Children+1);
 	}
 	
@@ -129,7 +129,7 @@ TEST_CASE( "Tree Tests", "[tree]" ) {
 		particles[n++].init(array{-3.0,-3.0,0.0},array{0.0,0.0,0.0},1.0,0);
 		particles[n++].init(array{-1.0,-3.0,0.0},array{0.0,0.0,0.0},1.0,0);
 		particles[n++].init(array{2.0,-2.0,0.0},array{0.0,0.0,0.0},1.0,0);
-		unique_ptr<Node> tree = Node::create(particles,n);
+		unique_ptr<Node> tree = Node::create(particles,n,true);
 		REQUIRE(Node::get_count() == 4*Node::N_Children+1);
 	}
 	REQUIRE(Node::get_count() == 0);

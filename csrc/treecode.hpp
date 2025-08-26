@@ -40,7 +40,7 @@ using namespace std;
  *  particle wants to live in the associated cube.
  */
 class Node {
-	
+  friend class TreeVerifier;	
   public:
 	/**
 	 *   Used to ensure we have an octree. Box is divided into 2 halves (high and low)
@@ -287,6 +287,8 @@ class TreeVerifier: public Node::Visitor{
  
 	vector<bool> _particle_verified;
 	
+	vector<array<array<array<bool,2>,2>,2>> _child_within_limits;
+	
    public:
 	
 	TreeVerifier(unique_ptr<Particle[]> &particles, const int n);
@@ -297,7 +299,12 @@ class TreeVerifier: public Node::Visitor{
 	
 	void accumulate(Node * node,Node * child);
 	
+	void depart(Node * node);
+	
 	bool has_been_verified();
+	
+  private:
+    int _get_index(Node * node,Node * child,const int i, double tolerance=0.000001);
 			
 };
 
