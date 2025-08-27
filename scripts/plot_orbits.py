@@ -18,7 +18,7 @@
 '''Plot orbits from Barnes Hut Galaxy Simulator, galaxy.exe'''
 
 from argparse import ArgumentParser
-from os import listdir
+from glob import glob
 from os.path import basename, join, splitext
 from re import search
 from sys import exit
@@ -45,7 +45,7 @@ def parse_args():
     parser.add_argument('--nsigma','-g', type=int,  default=nsigma, help=f'Number of standard deviations to use for scaling [{nsigma}]')
     parser.add_argument('--path','-p', default='../csrc/configs', help='Path for config files')
     parser.add_argument('--title','-t',default=None,help='Title for plot')
-    parser.add_argument('--centre', action = 'store_true', help = 'Reset centre to origin')
+    parser.add_argument('--centered', action = 'store_true', help = 'Reset centre to origin')
     return parser.parse_args()
 
 def get_file_name(name,default_ext='png',figs='./figs',seq=None):
@@ -80,13 +80,14 @@ def get_limits(xs,n=1):
     sigma = np.std(xs)
     return (mean-n*sigma,mean+n*sigma)
 
-def extract(config_path = './configs/',
-            K = 6,
-            maxsamples=1000,
-            prefix='bodies',
-            suffix='csv',
-            delimiter=',',
-            rng = np.random.default_rng()):
+def read_files(config_path = './configs/',
+               K = 6,
+               maxsamples=1000,
+               prefix='bodies',
+               suffix='csv',
+               delimiter=',',
+               rng = np.random.default_rng(),
+               centered = True):
     '''
     Extract data from configuration files
 
@@ -98,43 +99,41 @@ def extract(config_path = './configs/',
            suffix          Suffix for configuration files
            delimiter       Delimiter for fields in config file
     '''
-    def get_n():
+    def get_n(path_names,maxsamples):
         '''
         Determine total number of points in a single orbit and the number of
         points to skip so the number of sample won't exceed maxsamples
         '''
-        n = len(listdir(config_path))
+        n = len(path_names)
         skip = 1
         while maxsamples > 0 and n//skip > maxsamples:
-            skip *= 10
-        return skip,n
+            skip *= 2
+        return skip,n//skip
+    path_names = sorted(glob(join(config_path, prefix) + f'*.{suffix}'))
+    skip,n = get_n(path_names,maxsamples)
 
-    number_of_bodies = None         # Will be set when we read first file
-    Data = None                     # Will be set when we know how many bodies there are
-    skip,n = get_n()
+    record = np.loadtxt(path_names[0],delimiter=delimiter)
+    number_of_bodies,_ = record.shape
+    Data = np.zeros((number_of_bodies,n,3))
+    selector = rng.choice(number_of_bodies,size=K,replace=False)
+    for time_step in range(n):
+        record = np.loadtxt(path_names[skip*time_step],delimiter=delimiter)
+        Data[:,time_step,:] = record[:,1:4]
+        if centered:
+            Weights = record[:,-1]
+            Centres = np.average(Data[:,time_step,:],axis=0,weights=Weights)
+            np.subtract(Data[:,time_step,:],Centres,out=Data[:,time_step,:])
 
-    for i,file_name in enumerate(listdir(config_path)):
-        match = search(r'{0}[0-9]+\.{1}'.format(prefix,suffix),file_name)
-        if match:
-            record = np.loadtxt(join(config_path,match.group(0)),delimiter=delimiter)
-            if i%skip == 0:
-                if number_of_bodies == None:
-                    number_of_bodies = len(record)
-                    selector = rng.choice(number_of_bodies,size=K)
-                    Data = np.zeros((len(listdir(config_path)),K,3))
-            Data[i,:,:] = record[selector,1:4]
+    return Data[selector,:,:]
 
-    return (Data,selector)
-
-def plot(Orbits,selector,
+def plot(Data,
+         number_of_bodies=100,
          colours=['xkcd:purple','xkcd:green','xkcd:blue','xkcd:pink','xkcd:brown','xkcd:red',
                   'xkcd:light blue', 'xkcd:teal', 'xkcd:orange', 'xkcd:light green', 'xkcd:magenta', 'xkcd:yellow'],
-         n=2,
          images='.',
          linestyles = ['-', '--', '-.', ':'],
          dpi=300,
-         title=None,
-         centre=True):
+         title=None):
     '''
     Plot orbits
     Parameters:
@@ -142,34 +141,24 @@ def plot(Orbits,selector,
         selector  Used to selectd which points will be plotted
         colours   Colours used to distinguish orbits
     '''
-    m,K,_ = Orbits.shape
+    K,m,_ = Data.shape
     if m == 0:
         print ('No data - check path')
         sys.exit(2)
 
     fig = figure(figsize=(20,20))
     ax = fig.add_subplot(111,  projection='3d')
-    centre_of_mass = np.mean(Orbits,axis=1) if centre else np.zeros((3))
+
     for k in range(K):
-        Centred = Orbits[:,k,:] - centre_of_mass
-        ax.plot(Centred[:,0],Centred[:,1],Centred[:,2],
+        ax.plot(Data[k,:,0],Data[k,:,1],Data[k,:,2],
                 c=colours[k%len(colours)],
                 linestyle=linestyles[(k//len(colours)) % len(linestyles)])
-        ax.scatter(Centred[0,0],Centred[0,1],Centred[0,2],
-                   c=colours[k%len(colours)],
-                   label=f'{k}',
-                   s=50,
-                   marker='x')
-    ax.legend(loc='best',title='Starts of Orbits')
     if title == None:
-        title = f'Orbits of {K} randomly selected stars out of {m}'
+        title = f'Orbits of {K} randomly selected stars out of {number_of_bodies}'
     ax.set_title(title)
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
-    # ax.set_xlim(get_limits(Orbits[:,:,0],n=n))
-    # ax.set_ylim(get_limits(Orbits[:,:,1],n=n))
-    # ax.set_zlim(get_limits(Orbits[:,:,2],n=n))
     fig.savefig(get_file_name(args.out,figs=args.figs), dpi=dpi)
 
 if __name__=='__main__':
@@ -177,13 +166,14 @@ if __name__=='__main__':
 
     rng = np.random.default_rng(args.seed)
 
-    Orbits,selector = extract(config_path = args.path,
-                              maxsamples = args.maxsamples,
-                              prefix = args.prefix,
-                              suffix = args.suffix,
-                              delimiter = args.delimiter,
-                              K = args.norbits)
-    plot(Orbits,selector,title=args.title,centre=args.centre)
+    Data = read_files(config_path = args.path,
+                      maxsamples = args.maxsamples,
+                      prefix = args.prefix,
+                      suffix = args.suffix,
+                      delimiter = args.delimiter,
+                      K = args.norbits,
+                      centered = args.centered)
+    plot(Data,title=args.title)
 
     if args.show:
         show()
