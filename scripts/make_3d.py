@@ -39,7 +39,7 @@ colours = ['r','b','g','c','y','m'] #FIXME - what is this used for -- except len
 def ensure_file_does_not_exist(filename):
     '''
     Used to ensure that named file does not exist. Delete if necessary.
-    
+
     Parameters:
         filename
     '''
@@ -141,8 +141,8 @@ if __name__=='__main__':
     parser.add_argument('--points', type=int, default=maxsize, help='Number of colours')
     parser.add_argument('--show', action='store_true', default=False, help='Show images (as well as saving)')
     parser.add_argument('--cube', action='store_true', default=False, help='Scale to cube')
-    parser.add_argument('--out', default='./imgs' , help='Path name for images')
-    parser.add_argument('--path', default='./configs', help='Path name for configurations')
+    parser.add_argument('--out', default='./figs' , help='Path name for images')
+    parser.add_argument('--path', default='../configs', help='Path name for configurations')
     parser.add_argument('--nsigma', type=float, default=3, help='Number of standard deviations in cube')
     parser.add_argument('--sample', type=int, default=1000, help='Number of samples')
     parser.add_argument('--movie', default=None, help='Make movie')
@@ -166,7 +166,7 @@ if __name__=='__main__':
         i = 0
         for filename in listdir(args.path):
             if filename.endswith(".csv"):
-                if get_seq(filename,prefix='bodies',ext='csv') < largest_sequence_number + 1: continue
+                if get_seq(filename,prefix='galaxy',ext='csv') < largest_sequence_number + 1: continue
                 fig,img_file = plot(fname_in = join(args.path,filename),
                                     n = args.bodies,
                                     m = args.points,
