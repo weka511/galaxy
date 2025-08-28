@@ -104,6 +104,7 @@ class Leapfrog {
 	IReporter & _reporter;
 	
   public:
+  
     /**
 	 *    Initialize Leapfrog.
 	 *
