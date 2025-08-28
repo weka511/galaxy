@@ -26,13 +26,21 @@
 
 using namespace std;
 
+/**
+ * This class integrates an Ordinary Differential Equation using the Leapfrog algorithm.
+ * See Peter Young: Leapfrog method and other "symplectic" algorithms for integrating Newton’s laws of motion
+ * https://courses.physics.ucsd.edu/2019/Winter/physics141/Assignments/leapfrog.pdf.
+ *
+ * This class implements Configuration::Visitor. The visit() method is called once
+ * for each particle.
+ */
 
 class Leapfrog {
 
 	/**
 	 *  Use Euler algorithm for first step. NB: this updates velocity only, so x
 	 *  remains at its initial value, which is what Leapfrog needs.
-	 *
+	 *  
 	 */
 	class Euler : public Configuration::Visitor {
 	  private:
@@ -81,11 +89,29 @@ class Leapfrog {
 	};	
 
   private:
+	/**
+	 *   Container for particles
+	 */
 	Configuration & _configuration;
+	/**
+	 *    Used to calculate acceleration of each particle
+	 */
 	IAccelerationVisitor &_calculate_acceleration;
+	
+	/**
+	 *   Used to record results in a file
+	 */
 	IReporter & _reporter;
 	
   public:
+    /**
+	 *    Initialize Leapfrog.
+	 *
+	 *    Parameters:
+	 *        configuration             Container for particles
+	 *        calculate_acceleration    Used to calculate acceleration of each particle
+	 *        reporter                  Used to record results in a file
+	 */
 	Leapfrog(Configuration & configuration, IAccelerationVisitor &calculate_acceleration,IReporter & reporter);
 	
 	/**

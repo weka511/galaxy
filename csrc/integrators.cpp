@@ -44,6 +44,14 @@ void Leapfrog::Euler::visit(Particle & particle){
 	particle.set_velocity(velocity);
 }
 
+/**
+ *    Initialize Leapfrog.
+ *
+ *    Parameters:
+ *        configuration             Container for particles
+ *        calculate_acceleration    Used to calculate acceleration of each particle
+ *        reporter                  Used to record results in a file
+ */
 Leapfrog::Leapfrog(Configuration & configuration, IAccelerationVisitor &calculate_acceleration,IReporter & reporter)
 	:  	_configuration(configuration),
 		_calculate_acceleration(calculate_acceleration),
