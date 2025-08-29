@@ -57,12 +57,7 @@ class ConfigurationPlotter:
         Plot points from input file
         Parameters:
             fname_in  Input file
-            scale_to_cube
-            out
-            nsigma
-            rng
-
-        I have had to workaround the problem of the legend function not supporting the type returned by a 3D scatter.
+          I have had to workaround the problem of the legend function not supporting the type returned by a 3D scatter.
         See https://stackoverflow.com/questions/20505105/add-a-legend-in-a-3d-scatterplot-with-scatter-in-matplotlib for details.
 
         I have noticed that there seems to be some red structure (2nd Galaxy)
@@ -72,6 +67,8 @@ class ConfigurationPlotter:
         '''
         fig = figure(figsize=(20,10))
         particles = np.loadtxt(fname_in,delimiter=',')
+        positions = particles[:,1:4]
+        positions -= np.average(positions,axis=0,weights=particles[:,-1])
         ax = fig.add_subplot(111,  projection='3d')
 
         if self.first:
@@ -81,13 +78,13 @@ class ConfigurationPlotter:
 
         get_colour = np.vectorize(lambda x : self.colour_from_index(x,threshold=50))
 
-        ax.scatter(particles[self.indices,1],particles[self.indices,2],particles[self.indices,3],
+        ax.scatter(positions[self.indices,0],positions[self.indices,1],positions[self.indices,2],
                    edgecolor= get_colour(self.indices),s=1)
 
         if self.scale_to_cube:
-            ax.set_xlim(get_limits(particles[:,1]))
-            ax.set_ylim(get_limits(particles[:,2]))
-            ax.set_zbound(get_limits(particles[:,3]))
+            ax.set_xlim(get_limits(positions[:,0]))
+            ax.set_ylim(get_limits(positions[:,1]))
+            ax.set_zbound(get_limits(positions[:,2]))
 
         ax.set_title(fname_in.replace('.csv',''));
         ax.set_xlabel('x')
@@ -116,26 +113,7 @@ class ConfigurationPlotter:
         sigma = std(xs)
         return (mu-self.nsigma*sigma,mu+self.nsigma*sigma)
 
-def parse_args():
-    parser = ArgumentParser(description=__doc__)
-    parser.add_argument('--seed',type=int,default=None,help='Seed for random number generator')
-    parser.add_argument('--img_freq', type=int, default=20, help='Frequency of displaying progress')
-    parser.add_argument('--show', action='store_true', default=False, help='Show images (as well as saving)')
-    parser.add_argument('--cube', action='store_true', default=False, help='Scale to cube')
-    parser.add_argument('--out', default='./figs' , help='Path name for images')
-    parser.add_argument('--path', default='../configs', help='Path name for configurations')
-    parser.add_argument('--nsigma', type=float, default=3, help='Number of standard deviations in cube')
-    parser.add_argument('--sample', type=int, default=1000, help='Number of samples')
-    parser.add_argument('--movie', default=None, help='Make movie')
-    parser.add_argument('--movie_only', default=None, help='Skip extracting images. Just make movie')
-    parser.add_argument('--colour_threshold', type=int, default=0, help='Colour threshold')
-    parser.add_argument('--movie_maker', default='ffmpeg.exe', help='Name of program which builds movie')
-    parser.add_argument('--movie_maker_path', default=r'C:\ffmpeg\bin', help='Path name for program which builds movie')
-    parser.add_argument('--movie_player', default='ffplay.exe', help='Name of program which plays movie')
-    parser.add_argument('--play', action='store_true', default=False, help='Play movie')
-    parser.add_argument('--framerate', type=int, default=1, help='Frame rate')
-    parser.add_argument('--prefix',default='galaxy')
-    return parser.parse_args()
+
 
 class Movie:
     '''
@@ -191,14 +169,36 @@ class Movie:
         return  system(
             f'{self.movie_player} {join(out,movie)}')
 
+def parse_args():
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument('--seed',type=int,default=None,help='Seed for random number generator')
+    parser.add_argument('--img_freq', type=int, default=20, help='Frequency of displaying progress')
+    parser.add_argument('--show', action='store_true', default=False, help='Show images (as well as saving)')
+    parser.add_argument('--cube', action='store_true', default=False, help='Scale to cube')
+    parser.add_argument('--out', default='./figs' , help='Path name for images')
+    parser.add_argument('--path', default='../configs', help='Path name for configurations')
+    parser.add_argument('--nsigma', type=float, default=3, help='Number of standard deviations in cube')
+    parser.add_argument('--sample', type=int, default=1000, help='Number of samples')
+    parser.add_argument('--movie', default=None, help='Make movie')
+    parser.add_argument('--movie_only', default=None, help='Skip extracting images. Just make movie')
+    parser.add_argument('--colour_threshold', type=int, default=0, help='Colour threshold')
+    parser.add_argument('--movie_maker', default='ffmpeg.exe', help='Name of program which builds movie')
+    parser.add_argument('--movie_maker_path', default=r'C:\ffmpeg\bin', help='Path name for program which builds movie')
+    parser.add_argument('--movie_player', default='ffplay.exe', help='Name of program which plays movie')
+    parser.add_argument('--play', action='store_true', default=False, help='Play movie')
+    parser.add_argument('--framerate', type=int, default=1, help='Frame rate')
+    parser.add_argument('--prefix',default='galaxy')
+    return parser.parse_args()
+
+
 if __name__=='__main__':
 
     args = parse_args()
-    movie = Movie(join(args.movie_maker_path,args.movie_maker),join(args.movie_maker_path,args.movie_player),args.framerate)
+    movie = Movie(join(args.movie_maker_path,args.movie_maker),
+                  join(args.movie_maker_path,args.movie_player),
+                  args.framerate)
     if args.play:
         exit(movie.play_movie(args.movie,args.out))
-
-    movie.play_movie(args.movie_only, args.out, args.movie_maker_path, args.movie_player)
 
     if args.movie_only == None:
         plotter = ConfigurationPlotter(scale_to_cube = args.cube,
@@ -215,12 +215,12 @@ if __name__=='__main__':
             if not args.show:
                 close(fig)
 
-        if args.show:
-            show()
-
         if args.movie != None:
             if movie.make_movie(args.out,join('figs',f'{args.prefix}%06d.png'), args.movie):
                 movie.play_movie(args.movie,args.out)
     else:
         if movie.make_movie(args.out,join('figs',f'{args.prefix}%06d.png'), args.movie_only):
             movie.play_movie(args.movie_only, args.out)
+
+    if args.show:
+        show()
