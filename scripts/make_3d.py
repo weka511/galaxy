@@ -137,59 +137,68 @@ def parse_args():
     parser.add_argument('--prefix',default='galaxy')
     return parser.parse_args()
 
-
-def ensure_file_does_not_exist(filename):
+class Movie:
     '''
-    Used to ensure that named file does not exist. Delete if necessary.
-
-    Parameters:
-        filename
+    This class is a wrapper for ffmpeg and ffplay
     '''
-    try:
-        remove(filename)
-    except OSError:
-        pass
+    def __init__(self,movie_maker,movie_player,framerate=1):
+        self.movie_maker = movie_maker
+        self.framerate = framerate
+        self.movie_player = movie_player
 
+    def ensure_file_does_not_exist(self,filename):
+        '''
+        Used to ensure that named file does not exist. Delete if necessary.
 
-def make_movie(movie_maker,out,pattern='figs/galaxy%06d.png',framerate=1,movie='bar.mp4'):
-    if len(movie.split('.')) < 2:
-        movie = movie+'.mp4'
-    if not isfile(movie_maker):
-        print (f'Cannot find {movie_maker}')
+        Parameters:
+            filename
+        '''
+        try:
+            remove(filename)
+        except OSError:
+            pass
+
+    def create_command(self,pattern,movie_file):
+        return f'{self.movie_maker} -f image2 -i {pattern} -framerate {self.framerate} {movie_file}'
+
+    def make_movie(self,out,pattern='figs/galaxy%06d.png',movie='bar.mp4'):
+        if len(movie.split('.')) < 2:
+            movie = movie+'.mp4'
+        if not isfile(self.movie_maker):
+            print (f'Cannot find {self.movie_maker}')
+            return False
+
+        movie_file = join(out,movie)
+        self.ensure_file_does_not_exist(movie_file)
+
+        return_code = system(self.create_command(pattern,movie_file))
+        if return_code == 0:
+            print (f'Created movie {movie}')
+            return True
+
+        print (f'{cmd} returned error {return_code}')
         return False
 
-    ensure_file_does_not_exist(join(out,movie))
 
-    cmd = f'{movie_maker} -f image2 -i {pattern} -framerate {framerate} {join(out,movie)}'
+    def play_movie(self,movie,out):
+        if not isfile(self.movie_player):
+            print (f'Cannot find {args.movie_player}')
+            return False
 
-    return_code = system(cmd)
-    if return_code == 0:
-        print ('Created movie {0}'.format(movie))
-        return True
+        if len(movie.split('.')) < 2:
+            movie = movie+'.mp4'
 
-    print ('{0} returned error {1}'.format(cmd,return_code))
-    return False
-
-
-def play_movie(movie,out,movie_maker_path,movie_player):
-    if not isfile(join(args.movie_maker_path,args.movie_player)):
-        print (f'Cannot find {join(args.movie_maker_path,args.movie_player)}')
-        return False
-
-    if len(movie.split('.')) < 2:
-        movie = movie+'.mp4'
-
-    return  system(
-        '{0} {1}'.format(
-                     join(args.movie_maker_path,args.movie_player),
-                     join(args.out,movie)))
+        return  system(
+            f'{self.movie_player} {join(out,movie)}')
 
 if __name__=='__main__':
 
     args = parse_args()
-
+    movie = Movie(join(args.movie_maker_path,args.movie_maker),join(args.movie_maker_path,args.movie_player),args.framerate)
     if args.play:
-        exit(play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player))
+        exit(movie.play_movie(args.movie,args.out))
+
+    movie.play_movie(args.movie_only, args.out, args.movie_maker_path, args.movie_player)
 
     if args.movie_only == None:
         plotter = ConfigurationPlotter(scale_to_cube = args.cube,
@@ -210,9 +219,8 @@ if __name__=='__main__':
             show()
 
         if args.movie != None:
-            if make_movie(join(args.movie_maker_path,args.movie_maker),
-                          args.out,join('figs',f'{prefix}%06d.png'),args.framerate, args.movie):
-                play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player)
+            if movie.make_movie(args.out,join('figs',f'{args.prefix}%06d.png'), args.movie):
+                movie.play_movie(args.movie,args.out)
     else:
-        if make_movie(join(args.movie_maker_path,args.movie_maker), args.out, 'figs/galaxy%06d.png', args.framerate, args.movie_only):
-            play_movie(args.movie_only, args.out, args.movie_maker_path, args.movie_player)
+        if movie.make_movie(args.out,join('figs',f'{args.prefix}%06d.png'), args.movie_only):
+            movie.play_movie(args.movie_only, args.out)
