@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2018-2025 Greenweaves Software Limited
+# Copyright (C) 2025 Simon Crase
 #
 # This is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 from argparse import ArgumentParser
 from os import system, remove, listdir
 from os.path import join, basename, isfile
-from random import shuffle
 from sys import maxsize, exit
 import numpy as np
 from matplotlib.pyplot import figure,show, close
@@ -35,6 +34,31 @@ from utils import find_seq,get_seq
 
 colours = ['r','b','g','c','y','m'] #FIXME - what is this used for -- except len(colours) ?
                                     # I think colour_from_index has taken over!
+
+def parse_args():
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument('--seed',type=int,default=None,help='Seed for random number generator')
+    parser.add_argument('--bodies', type=int, default=len(colours), help='Number of bodies')
+    parser.add_argument('--img_freq', type=int, default=20, help='Frequency of displaying progress')
+    parser.add_argument('--points', type=int, default=maxsize, help='Number of colours')
+    parser.add_argument('--show', action='store_true', default=False, help='Show images (as well as saving)')
+    parser.add_argument('--cube', action='store_true', default=False, help='Scale to cube')
+    parser.add_argument('--out', default='./figs' , help='Path name for images')
+    parser.add_argument('--path', default='../configs', help='Path name for configurations')
+    parser.add_argument('--nsigma', type=float, default=3, help='Number of standard deviations in cube')
+    parser.add_argument('--sample', type=int, default=1000, help='Number of samples')
+    parser.add_argument('--movie', default=None, help='Make movie')
+    parser.add_argument('--movie_only', default=None, help='Skip extracting images. Just make movie')
+    parser.add_argument('--colour_threshold', type=int, default=0, help='Colour threshold')
+    parser.add_argument('--movie_maker', default='ffmpeg.exe', help='Name of program which builds movie')
+    parser.add_argument('--movie_maker_path', default=r'C:\ffmpeg\bin', help='Path name for program which builds movie')
+    parser.add_argument('--movie_player', default='ffplay.exe', help='Name of program which plays movie')
+    parser.add_argument('--play', action='store_true', default=False, help='Play movie')
+    parser.add_argument('--framerate', type=int, default=1, help='Frame rate')
+    parser.add_argument('--resume', default=False, action='store_true', help='Skip over existing PNG files and resume processing')
+    parser.add_argument('--prefix',default='galaxy')
+    return parser.parse_args()
+
 
 def ensure_file_does_not_exist(filename):
     '''
@@ -62,7 +86,10 @@ def colour_from_index(index,threshold=5000):
     '''
     return 'b' if index < threshold else 'r'
 
-def plot(fname_in,n=len(colours),m=maxsize,scale_to_cube=False,out='./imgs',nsigma=3,N=1000,get_colour=colour_from_index):
+def plot(fname_in,
+         n=len(colours),
+         m=maxsize,scale_to_cube=False,out='./imgs',nsigma=3,N=1000,get_colour=colour_from_index,
+         rng = np.random.default_rng()):
     '''
     Plot points from input file
     Parameters:
@@ -83,7 +110,7 @@ def plot(fname_in,n=len(colours),m=maxsize,scale_to_cube=False,out='./imgs',nsig
     scatterproxies = []
     labels = []
     indices = list(range(len(pos)))
-    shuffle(indices)
+    rng.shuffle(indices)
     xs = [pos[j,0] for j in indices]
     ys = [pos[j,1] for j in indices]
     zs = [pos[j,2] for j in indices]
@@ -135,28 +162,9 @@ def play_movie(movie,out,movie_maker_path,movie_player):
                      join(args.out,movie)))
 
 if __name__=='__main__':
-    parser = ArgumentParser(description=__doc__)
-    parser.add_argument('--bodies', type=int, default=len(colours), help='Number of bodies')
-    parser.add_argument('--img_freq', type=int, default=20, help='Frequency of displaying progress')
-    parser.add_argument('--points', type=int, default=maxsize, help='Number of colours')
-    parser.add_argument('--show', action='store_true', default=False, help='Show images (as well as saving)')
-    parser.add_argument('--cube', action='store_true', default=False, help='Scale to cube')
-    parser.add_argument('--out', default='./figs' , help='Path name for images')
-    parser.add_argument('--path', default='../configs', help='Path name for configurations')
-    parser.add_argument('--nsigma', type=float, default=3, help='Number of standard deviations in cube')
-    parser.add_argument('--sample', type=int, default=1000, help='Number of samples')
-    parser.add_argument('--movie', default=None, help='Make movie')
-    parser.add_argument('--movie_only', default=None, help='Skip extracting images. Just make movie')
-    parser.add_argument('--colour_threshold', type=int, default=0, help='Colour threshold')
-    parser.add_argument('--movie_maker', default='ffmpeg.exe', help='Name of program which builds movie')
-    parser.add_argument('--movie_maker_path', default=r'C:\ffmpeg\bin', help='Path name for program which builds movie')
-    parser.add_argument('--movie_player', default='ffplay.exe', help='Name of program which plays movie')
-    parser.add_argument('--play', action='store_true', default=False, help='Play movie')
-    parser.add_argument('--framerate', type=int, default=1, help='Frame rate')
-    parser.add_argument('--resume', default=False, action='store_true', help='Skip over existing PNG files and resume processing')
 
-    args = parser.parse_args()
-
+    args = parse_args()
+    rng = np.random.default_rng(args.seed)
     if args.play:
         exit(play_movie(args.movie,args.out,args.movie_maker_path,args.movie_player))
 
@@ -166,7 +174,7 @@ if __name__=='__main__':
         i = 0
         for filename in listdir(args.path):
             if filename.endswith(".csv"):
-                if get_seq(filename,prefix='galaxy',ext='csv') < largest_sequence_number + 1: continue
+                if get_seq(filename,prefix=args.prefix,ext='csv') < largest_sequence_number + 1: continue
                 fig,img_file = plot(fname_in = join(args.path,filename),
                                     n = args.bodies,
                                     m = args.points,
@@ -174,7 +182,8 @@ if __name__=='__main__':
                                     out = args.out,
                                     N = args.sample,
                                     nsigma = args.nsigma,
-                                    get_colour = colour_from_index)
+                                    get_colour = colour_from_index,
+                                    rng=rng)
 
                 if i%args.img_freq == 0:
                     print ('Created {0}'.format(img_file))
