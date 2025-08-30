@@ -218,14 +218,13 @@ class XKCD_ColourModel(ColourModel):
     '''
     Use XKCD colours -- https://xkcd.com/color/rgb.txt
     '''
-    def __init__(self,file_name = 'rgb.txt',prefix = 'xkcd:',filter = lambda R,G,B:True):
+    def __init__(self,file_name = 'rgb.txt',prefix = 'xkcd:'):
         '''
         Create array of XKCD colours, starting with the most poular.
 
         Parameters:
             file_name Where XKCD colours live
             prefix    Use to prefix each colour with "xkcd:"
-            filter    Allows us to exclude some colours based on RGB values
         '''
         self.colours = []
         self.prefix = prefix
@@ -233,14 +232,8 @@ class XKCD_ColourModel(ColourModel):
             for row in colours:
                 parts = split(r'\s+#',row.strip())
                 if len(parts) > 1:
-                    rgb = int(parts[1],16)
-                    B = rgb % 256
-                    remainder = (rgb - B) // 256
-                    G = remainder % 256
-                    R = (remainder - G) // 256
-                    if filter(R,G,B):
-                        self.colours.append(parts[0])
-        self.colours = np.array(self.colours[::-1])
+                    self.colours.append(parts[0])
+        self.colours = np.array(self.colours[::-1],dtype=str)
 
     def __getitem__(self, index):
         return f'{self.prefix}{self.colours[index % len(self.colours)]}'
