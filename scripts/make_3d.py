@@ -213,6 +213,9 @@ class ColourModel:
         '''
 
 class XKCD_ColourModel(ColourModel):
+    '''
+    Use XKCD colours -- https://xkcd.com/color/rgb.txt
+    '''
     def __init__(self,file_name = 'rgb.txt',prefix = 'xkcd:',filter = lambda R,G,B:True):
         '''
         Create array of XKCD colours
