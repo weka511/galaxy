@@ -44,7 +44,8 @@ class ConfigurationPlotter:
                  nsigma = 3,
                  rng = np.random.default_rng(),
                  prefix='galaxy',
-                 colours = None):
+                 colours = None,
+                 size = 25):
         self.cube = cube
         self.indices = None
         self.first = True
@@ -55,6 +56,7 @@ class ConfigurationPlotter:
         self.prefix = prefix
         self.limits = np.zeros((2,3))
         self.colours = colours
+        self.size = size
 
     def plot_configuration(self,fname_in):
         '''
@@ -80,10 +82,9 @@ class ConfigurationPlotter:
             self.rng.shuffle(self.indices)
             self.first = False
 
-        get_colour = np.vectorize(lambda index : self.colours[index])
-
+        colours = np.vectorize(lambda index : self.colours[index])(self.indices)
         ax.scatter(positions[self.indices,0],positions[self.indices,1],positions[self.indices,2],
-                   edgecolor= get_colour(self.indices),s=1)
+                   c= colours,edgecolor= colours,s=self.size)
 
         if self.cube:
             self.scale_to_cube(i,ax,positions)
@@ -201,6 +202,7 @@ def parse_args():
     parser.add_argument('--prefix',default='galaxy')
     parser.add_argument('--extract', action='store_true', default=False, help='Extract images from csvs')
     parser.add_argument('--max', type=int, default=-1, help='Limit number of input files (for testing).')
+    parser.add_argument('-s','--size', type=int, default=25, help='Size for stars')
     return parser.parse_args()
 
 class ColourModel:
@@ -218,7 +220,7 @@ class XKCD_ColourModel(ColourModel):
     '''
     def __init__(self,file_name = 'rgb.txt',prefix = 'xkcd:',filter = lambda R,G,B:True):
         '''
-        Create array of XKCD colours
+        Create array of XKCD colours, starting with the most poular.
 
         Parameters:
             file_name Where XKCD colours live
@@ -258,7 +260,8 @@ if __name__=='__main__':
                                         nsigma = args.nsigma,
                                         rng = np.random.default_rng(args.seed),
                                         prefix = args.prefix,
-                                        colours = colours)
+                                        colours = colours,
+                                        size = args.size)
         for i,filename in enumerate(sorted(glob(join(args.path, args.prefix) + '*.csv'))):
             fig,img_file = plotter.plot_configuration(fname_in = join(args.path,filename))
 
