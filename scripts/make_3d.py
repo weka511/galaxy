@@ -23,14 +23,13 @@
 
 from argparse import ArgumentParser
 from glob import glob
-from os import system, remove
-from os.path import join, basename, isfile
+from os import system, remove, getcwd
+from os.path import join, basename, isfile, splitext
 from sys import maxsize, exit
 import numpy as np
 from matplotlib.pyplot import figure,show, close
 import mpl_toolkits.mplot3d as trid
 import matplotlib.lines as lines
-from scipy import mean, std
 
 class ConfigurationPlotter:
     '''
@@ -38,19 +37,20 @@ class ConfigurationPlotter:
     the plot as a png.
     '''
     def __init__(self,
-                scale_to_cube = False,
-                out = './imgs',
+                 cube = False,
+                 figs = './figs',
                  nsigma = 3,
                  rng = np.random.default_rng(),
                  prefix='galaxy'):
-        self.scale_to_cube = scale_to_cube
+        self.cube = cube
         self.indices = None
         self.first = True
-        self.out = out
+        self.figs = figs
         self.nsigma = nsigma
         self.rng = rng
         self.seq = 0
         self.prefix = prefix
+        self.limits = np.zeros((2,3))
 
     def plot_configuration(self,fname_in):
         '''
@@ -81,19 +81,25 @@ class ConfigurationPlotter:
         ax.scatter(positions[self.indices,0],positions[self.indices,1],positions[self.indices,2],
                    edgecolor= get_colour(self.indices),s=1)
 
-        if self.scale_to_cube:
-            ax.set_xlim(get_limits(positions[:,0]))
-            ax.set_ylim(get_limits(positions[:,1]))
-            ax.set_zbound(get_limits(positions[:,2]))
+        if self.cube:
+            self.scale_to_cube(i,ax,positions)
 
         ax.set_title(fname_in.replace('.csv',''));
         ax.set_xlabel('x')
         ax.set_ylabel('y')
 
-        img_file = join(self.out,f'{self.prefix}{self.seq:06d}.png')
+        img_file = join(self.figs,f'{self.prefix}{self.seq:06d}.png')
         self.seq += 1
         fig.savefig(img_file)
         return fig,img_file
+
+    def scale_to_cube(self,i,ax,positions):
+        if i == 0:
+            for j in range(3):
+                self.limits[:,j] = self.get_limits(positions[:,j])
+        ax.set_xlim(self.limits[:,0])
+        ax.set_ylim(self.limits[:,1])
+        ax.set_zbound(self.limits[:,2])
 
     def colour_from_index(self,index,threshold=50):
         '''
@@ -103,19 +109,17 @@ class ConfigurationPlotter:
 
     def get_limits(self,xs):
         '''
-        Used when we plot to establish limits for each axis, based on mean and standard deviation.r
+        Used when we plot to establish limits for each axis, based on mean and standard deviation
 
         Parameters:
             xs
             nsigma
         '''
-        mu = mean(xs)
-        sigma = std(xs)
+        mu = np.mean(xs)
+        sigma = np.std(xs)
         return (mu-self.nsigma*sigma,mu+self.nsigma*sigma)
 
-
-
-class Movie:
+class MovieMaker:
     '''
     This class is a wrapper for ffmpeg and ffplay
     '''
@@ -139,7 +143,10 @@ class Movie:
     def create_command(self,pattern,movie_file):
         return f'{self.movie_maker} -f image2 -i {pattern} -framerate {self.framerate} {movie_file}'
 
-    def make_movie(self,out,pattern='figs/galaxy%06d.png',movie='bar.mp4'):
+    def make(self,out,pattern='figs/galaxy%06d.png',movie='bar.mp4'):
+        '''
+        Convert a sequence of images into a movie
+        '''
         if len(movie.split('.')) < 2:
             movie = movie+'.mp4'
         if not isfile(self.movie_maker):
@@ -149,16 +156,20 @@ class Movie:
         movie_file = join(out,movie)
         self.ensure_file_does_not_exist(movie_file)
 
-        return_code = system(self.create_command(pattern,movie_file))
+        cmd = self.create_command(pattern,movie_file)
+        return_code = system(cmd)
         if return_code == 0:
             print (f'Created movie {movie}')
             return True
+        else:
+            print (f'{cmd} returned error {return_code}')
+            return False
 
-        print (f'{cmd} returned error {return_code}')
-        return False
 
-
-    def play_movie(self,movie,out):
+    def play(self,out,movie='bar.mp4'):
+        '''
+        Play movie
+        '''
         if not isfile(self.movie_player):
             print (f'Cannot find {args.movie_player}')
             return False
@@ -175,12 +186,11 @@ def parse_args():
     parser.add_argument('--img_freq', type=int, default=20, help='Frequency of displaying progress')
     parser.add_argument('--show', action='store_true', default=False, help='Show images (as well as saving)')
     parser.add_argument('--cube', action='store_true', default=False, help='Scale to cube')
-    parser.add_argument('--out', default='./figs' , help='Path name for images')
+    parser.add_argument('-o', '--out', default = basename(splitext(__file__)[0]),help='Name of output file')
+    parser.add_argument('--figs', default = './figs', help = 'Name of folder where plots are to be stored')
     parser.add_argument('--path', default='../configs', help='Path name for configurations')
     parser.add_argument('--nsigma', type=float, default=3, help='Number of standard deviations in cube')
-    parser.add_argument('--sample', type=int, default=1000, help='Number of samples')
-    parser.add_argument('--movie', default=None, help='Make movie')
-    parser.add_argument('--movie_only', default=None, help='Skip extracting images. Just make movie')
+    parser.add_argument('--movie', action='store_true', default=False, help='Make movie')
     parser.add_argument('--colour_threshold', type=int, default=0, help='Colour threshold')
     parser.add_argument('--movie_maker', default='ffmpeg.exe', help='Name of program which builds movie')
     parser.add_argument('--movie_maker_path', default=r'C:\ffmpeg\bin', help='Path name for program which builds movie')
@@ -188,21 +198,22 @@ def parse_args():
     parser.add_argument('--play', action='store_true', default=False, help='Play movie')
     parser.add_argument('--framerate', type=int, default=1, help='Frame rate')
     parser.add_argument('--prefix',default='galaxy')
+    parser.add_argument('--extract', action='store_true', default=False, help='Extract images from csvs')
+    parser.add_argument('--max', type=int, default=-1, help='Limit number of inpyt files (for testing).')
     return parser.parse_args()
 
 
 if __name__=='__main__':
-
+    cwd = getcwd()
     args = parse_args()
-    movie = Movie(join(args.movie_maker_path,args.movie_maker),
-                  join(args.movie_maker_path,args.movie_player),
-                  args.framerate)
-    if args.play:
-        exit(movie.play_movie(args.movie,args.out))
+    movie_maker = MovieMaker(join(args.movie_maker_path,args.movie_maker),
+                             join(args.movie_maker_path,args.movie_player),
+                             args.framerate)
 
-    if args.movie_only == None:
-        plotter = ConfigurationPlotter(scale_to_cube = args.cube,
-                                        out = args.out,
+
+    if args.extract:
+        plotter = ConfigurationPlotter( cube = args.cube,
+                                        figs = args.figs,
                                         nsigma = args.nsigma,
                                         rng = np.random.default_rng(args.seed),
                                         prefix=args.prefix)
@@ -215,12 +226,13 @@ if __name__=='__main__':
             if not args.show:
                 close(fig)
 
-        if args.movie != None:
-            if movie.make_movie(args.out,join('figs',f'{args.prefix}%06d.png'), args.movie):
-                movie.play_movie(args.movie,args.out)
-    else:
-        if movie.make_movie(args.out,join('figs',f'{args.prefix}%06d.png'), args.movie_only):
-            movie.play_movie(args.movie_only, args.out)
+            if args.max > 0 and i > args.max: break
+
+    if args.movie:
+        movie_maker.make(args.figs,join(args.figs,f'{args.prefix}%06d.png'), args.out)
+
+    if args.play:
+        movie_maker.play(args.figs,args.out)
 
     if args.show:
         show()
