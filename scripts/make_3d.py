@@ -21,10 +21,12 @@
     The movie function assumes that ffmpeg, https://www.ffmpeg.org/, has been installed.
 '''
 
+from abc import abstractmethod
 from argparse import ArgumentParser
 from glob import glob
 from os import system, remove, getcwd
 from os.path import join, basename, isfile, splitext
+from re import split
 from sys import maxsize, exit
 import numpy as np
 from matplotlib.pyplot import figure,show, close
@@ -41,7 +43,8 @@ class ConfigurationPlotter:
                  figs = './figs',
                  nsigma = 3,
                  rng = np.random.default_rng(),
-                 prefix='galaxy'):
+                 prefix='galaxy',
+                 colours = None):
         self.cube = cube
         self.indices = None
         self.first = True
@@ -51,6 +54,7 @@ class ConfigurationPlotter:
         self.seq = 0
         self.prefix = prefix
         self.limits = np.zeros((2,3))
+        self.colours = colours
 
     def plot_configuration(self,fname_in):
         '''
@@ -76,7 +80,7 @@ class ConfigurationPlotter:
             self.rng.shuffle(self.indices)
             self.first = False
 
-        get_colour = np.vectorize(lambda x : self.colour_from_index(x,threshold=50))
+        get_colour = np.vectorize(lambda index : self.colours[index])
 
         ax.scatter(positions[self.indices,0],positions[self.indices,1],positions[self.indices,2],
                    edgecolor= get_colour(self.indices),s=1)
@@ -94,18 +98,15 @@ class ConfigurationPlotter:
         return fig,img_file
 
     def scale_to_cube(self,i,ax,positions):
+        '''
+        Used to ensure tht all frames have consistent axes
+        '''
         if i == 0:
             for j in range(3):
                 self.limits[:,j] = self.get_limits(positions[:,j])
         ax.set_xlim(self.limits[:,0])
         ax.set_ylim(self.limits[:,1])
         ax.set_zbound(self.limits[:,2])
-
-    def colour_from_index(self,index,threshold=50):
-        '''
-        Used to distinguish points based on the cluster in when the occur.
-        '''
-        return 'b' if index < threshold else 'r'
 
     def get_limits(self,xs):
         '''
@@ -199,24 +200,62 @@ def parse_args():
     parser.add_argument('--framerate', type=int, default=1, help='Frame rate')
     parser.add_argument('--prefix',default='galaxy')
     parser.add_argument('--extract', action='store_true', default=False, help='Extract images from csvs')
-    parser.add_argument('--max', type=int, default=-1, help='Limit number of inpyt files (for testing).')
+    parser.add_argument('--max', type=int, default=-1, help='Limit number of input files (for testing).')
     return parser.parse_args()
+
+class ColourModel:
+    '''
+    A Colour model is used to assign colours to individual particles
+    '''
+    @abstractmethod
+    def __getitem__(self, index):
+        '''
+        '''
+
+class XKCD_ColourModel(ColourModel):
+    def __init__(self,file_name = 'rgb.txt',prefix = 'xkcd:',filter = lambda R,G,B:True):
+        '''
+        Create array of XKCD colours
+
+        Parameters:
+            file_name Where XKCD colours live
+            prefix    Use to prefix each colour with "xkcd:"
+            filter    Allows us to exclude some colours based on RGB values
+        '''
+        self.colours = []
+        self.prefix = prefix
+        with open(file_name) as colours:
+            for row in colours:
+                parts = split(r'\s+#',row.strip())
+                if len(parts) > 1:
+                    rgb = int(parts[1],16)
+                    B = rgb % 256
+                    remainder = (rgb - B) // 256
+                    G = remainder % 256
+                    R = (remainder - G) // 256
+                    if filter(R,G,B):
+                        self.colours.append(parts[0])
+        self.colours = np.array(self.colours[::-1])
+
+    def __getitem__(self, index):
+        return f'{self.prefix}{self.colours[index % len(self.colours)]}'
+
 
 
 if __name__=='__main__':
-    cwd = getcwd()
     args = parse_args()
     movie_maker = MovieMaker(join(args.movie_maker_path,args.movie_maker),
                              join(args.movie_maker_path,args.movie_player),
                              args.framerate)
 
-
     if args.extract:
+        colours = XKCD_ColourModel()
         plotter = ConfigurationPlotter( cube = args.cube,
                                         figs = args.figs,
                                         nsigma = args.nsigma,
                                         rng = np.random.default_rng(args.seed),
-                                        prefix=args.prefix)
+                                        prefix = args.prefix,
+                                        colours = colours)
         for i,filename in enumerate(sorted(glob(join(args.path, args.prefix) + '*.csv'))):
             fig,img_file = plotter.plot_configuration(fname_in = join(args.path,filename))
 
