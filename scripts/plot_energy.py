@@ -21,57 +21,78 @@
    and compare with boltzmann.
 '''
 
-import argparse
+from argparse import ArgumentParser
 from glob import glob
+from os.path import join
+from sys import maxsize
 import numpy as np
 import matplotlib.pyplot as plt
-import os.path
-import sys
 from matplotlib import rc
 from scipy.optimize import curve_fit
-import configure
+from configure import Body, calculate_energy
 
+def parse_args():
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument('--N0', type=int, default=0, help='Starting config sequence number')
+    parser.add_argument('--N1', type=int, default=maxsize, help='Final config sequence number')
+    parser.add_argument('--show', default=False, action='store_true', help='Show image')
+    parser.add_argument('--nbins', type=int, default=200, help='Number of bins for histogram')
+    parser.add_argument('--ext', default='.csv', help='Extension for config files')
+    parser.add_argument('--path', default='../configs', help='Path for config files')
+    parser.add_argument('--out', default='./figs', help='Path for output files')
+    parser.add_argument('--distribution', default='boltzmann.png', help='Output file for plotting energy distribution')
+    parser.add_argument('--prefix',default='galaxy')
+    return parser.parse_args()
 
 def boltzmann(n,m,beta):
     '''Generate the Maxwell-Boltzmann distribution function'''
     return m*np.exp(-beta*n)
 
-popt_cached=(-1,-1) #So optimization step can use value from previous step as starting value
+class DistributionPlotter:
+    def __init__(self):
+        self.popt_cached=(-1,-1) #So optimization step can use value from previous step as starting value
 
-def plot_distribution(
-    name  = 'bodies00002',
-    ext   = '.csv',
-    path  = './configs',
-    nbins = 200,
-    out   = './imgs',
-    show  = False):
-    '''
-    Plot distribution of energies and compare with Boltzmann
-    '''
-    global popt_cached
-    plt.figure(figsize=(10,10))
+    def create_particle(self,row):
+        position = row[1:4]
+        velocity = row[4:7]
+        mass = row[7]
+        return Body(position,mass,velocity)
 
-    config        = np.loadtxt(os.path.join(path,name+ext),delimiter=',')
-    bodies        = list([tuple(config[i,j] for j in [0,1,2,6,3,4,5]) for i in range(len(config))])
-    kinetic_energy,potential_energy = configure.calculate_energy(bodies)
-    print (kinetic_energy,potential_energy,-potential_energy/kinetic_energy)
-    energies      = [0.5*config[j,6]*(config[j,3]**2+config[j,4]**2+config[j,5]**2) for j in range(len(config))]
-    n,bins,_      = plt.hist(energies,bins=nbins,label='Energies')
-    energy_levels = [0.5*(bins[i]+bins[i-1]) for i in range(1,len(bins))]
-    if popt_cached[0]<0:
-        popt_cached=(n[0], 100)
-    popt, pcov   = curve_fit(boltzmann, energy_levels, n, p0=popt_cached)
-    popt_cached  = popt
-    perr         = np.sqrt(np.diag(pcov))
-    probabiities = [boltzmann(e,*popt) for e in energy_levels]
-    plt.plot( energy_levels, probabiities,
-              c='r',label=r'Boltzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
-    plt.title(name)
-    plt.legend()
-    plt.savefig(os.path.join(out,name.replace('bodies','energy')+'.png'))
-    if not show:
-        plt.close()
-    return popt[1],perr[1]
+    def plot(self,
+        name  = 'bodies00002',
+        ext   = '.csv',
+        path  = './configs',
+        nbins = 200,
+        out   = './imgs',
+        show  = False):
+        '''
+        Plot distribution of energies and compare with Boltzmann
+        '''
+        global popt_cached
+        plt.figure(figsize=(10,10))
+
+        config = np.loadtxt(name,delimiter=',') #id,x,y,z,vx,vy,vz,m
+        n,_ = config.shape
+        bodies = [self.create_particle(config[i,:]) for i in range(n)]# list([tuple(config[i,j] for j in [0,1,2,6,3,4,5]) for i in range(len(config))])
+        kinetic_energy,potential_energy = configure.calculate_energy(bodies)
+        print (kinetic_energy,potential_energy,-potential_energy/kinetic_energy)
+        energies      = [0.5*config[j,6]*(config[j,3]**2+config[j,4]**2+config[j,5]**2) for j in range(len(config))]
+        n,bins,_      = plt.hist(energies,bins=nbins,label='Energies')
+        energy_levels = [0.5*(bins[i]+bins[i-1]) for i in range(1,len(bins))]
+        if popt_cached[0]<0:
+            popt_cached=(n[0], 100)
+        popt, pcov   = curve_fit(boltzmann, energy_levels, n, p0=popt_cached)
+        popt_cached  = popt
+        perr         = np.sqrt(np.diag(pcov))
+        probabiities = [boltzmann(e,*popt) for e in energy_levels]
+        plt.plot( energy_levels, probabiities,
+                  c='r',label=r'Boltzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
+        plt.title(name)
+        plt.legend()
+        plt.savefig(join(out,name.replace('bodies','energy')+'.png'))
+        if not show:
+            plt.close()
+        return popt[1],perr[1]
 
 
 def plot_evolution_parameters(path,out):
@@ -83,7 +104,7 @@ def plot_evolution_parameters(path,out):
     plt.plot(sigmas,'r',label=r'$\sigma$')
     plt.title('Evolution of parameters')
     plt.legend()
-    plt.savefig(os.path.join(path,out))
+    plt.savefig(join(path,out))
 
 def find_seq(path='./imgs',prefix='energy',ext='png'):
     '''
@@ -106,30 +127,16 @@ def find_seq(path='./imgs',prefix='energy',ext='png'):
 if __name__=='__main__':
     rc('font',**{'family':'serif', 'serif': ['cmr10']}) # see http://matplotlib.1069221.n5.nabble.com/computer-modern-td22253.html
     rc('text', usetex=True)
-
-    parser = argparse.ArgumentParser(description='Plot distribution of energies')
-    parser.add_argument('--N0',    type=int, default=0,                          help='Starting config sequence number')
-    parser.add_argument('--N1',    type=int, default=sys.maxsize,                help='Final config sequence number')
-    parser.add_argument('--step',  type=int, default=100,                        help='Step size')
-    parser.add_argument('--show',            default=False, action='store_true', help='Show image')
-    parser.add_argument('--nbins', type=int, default=200,                        help='Number of bins for histogram')
-    parser.add_argument('--ext',             default='.csv',                     help='Extension for config files')
-    parser.add_argument('--path',            default='./configs',                help='Path for config files')
-    parser.add_argument('--out',             default='./imgs',                   help='Path for output files')
-    parser.add_argument('--distribution',    default='boltzmann.png',            help='Output file for plotting energy distribution')
-    parser.add_argument('--resume',          default=False, action='store_true', help='Skip over existing PNG files and resume processing')
-    args = parser.parse_args()
+    args = parse_args()
 
     betas = []
     sigmas = []
     try:
+        input_files = sorted(glob(join(args.path, args.prefix) + '*.csv'))
         start = args.N0
-        if args.resume:
-            nn = utils.find_seq(path=args.out)
-            if nn >-1:
-                start = nn + args.step
-        for i in range(start,args.N1,args.step):
-            beta,sigma = plot_distribution('bodies{0:05d}'.format(i),show=args.show,ext=args.ext,path=args.path,out=args.out)
+        for i in range(0,12):#FIXME start,args.N1,args.step):
+            distribution_plotter = DistributionPlotter()
+            beta,sigma = distribution_plotter.plot(input_files[i],show=args.show,ext=args.ext,path=args.path,out=args.out)
             betas.append(beta)
             sigmas.append(sigma)
     except FileNotFoundError:
