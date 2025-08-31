@@ -58,11 +58,13 @@ class ConfigurationPlotter:
         self.colours = colours
         self.size = size
 
-    def plot_configuration(self,fname_in):
+    def plot_configuration(self,fname_in,restarting = False):
         '''
         Plot points from input file
+
         Parameters:
             fname_in  Input file
+
           I have had to workaround the problem of the legend function not supporting the type returned by a 3D scatter.
         See https://stackoverflow.com/questions/20505105/add-a-legend-in-a-3d-scatterplot-with-scatter-in-matplotlib for details.
 
@@ -87,7 +89,7 @@ class ConfigurationPlotter:
                    c= colours,edgecolor= colours,s=self.size)
 
         if self.cube:
-            self.scale_to_cube(i,ax,positions)
+            self.scale_to_cube(i,ax,positions,restarting=restarting)
 
         ax.set_title(fname_in.replace('.csv',''));
         ax.set_xlabel('x')
@@ -98,11 +100,11 @@ class ConfigurationPlotter:
         fig.savefig(img_file)
         return fig,img_file
 
-    def scale_to_cube(self,i,ax,positions):
+    def scale_to_cube(self,i,ax,positions,restarting=False):
         '''
         Used to ensure tht all frames have consistent axes
         '''
-        if i == 0:
+        if i == 0 or restarting:
             for j in range(3):
                 self.limits[:,j] = self.get_limits(positions[:,j])
         ax.set_xlim(self.limits[:,0])
@@ -120,6 +122,10 @@ class ConfigurationPlotter:
         mu = np.mean(xs)
         sigma = np.std(xs)
         return (mu-self.nsigma*sigma,mu+self.nsigma*sigma)
+
+    def get_image_file_count(self):
+        pattern = join(self.figs,f'{self.prefix}[0-9]*.png')
+        return len(glob(pattern))
 
 class MovieMaker:
     '''
@@ -203,6 +209,9 @@ def parse_args():
     parser.add_argument('--extract', action='store_true', default=False, help='Extract images from csvs')
     parser.add_argument('--max', type=int, default=-1, help='Limit number of input files (for testing).')
     parser.add_argument('-s','--size', type=int, default=25, help='Size for stars')
+    action = parser.add_mutually_exclusive_group()
+    action.add_argument('--resume', action='store_true', default=False, help='Pick up processing where presvious run left off')
+    action.add_argument('--overwrite', action='store_true', default=False, help='Pverwrite existing inputs')
     return parser.parse_args()
 
 class ColourModel:
@@ -255,9 +264,24 @@ if __name__=='__main__':
                                         prefix = args.prefix,
                                         colours = colours,
                                         size = args.size)
-        for i,filename in enumerate(sorted(glob(join(args.path, args.prefix) + '*.csv'))):
-            fig,img_file = plotter.plot_configuration(fname_in = join(args.path,filename))
+        n_outputs = plotter.get_image_file_count()
+        n_start = 0
+        restarting = False
+        if n_outputs > 0:
+            if args.resume:
+                n_start = n_outputs
+                restarting = True
+            elif args.overwrite:
+                pass
+            else:
+                print(f'There are {n_outputs} output files already: must have resume or overwrite')
+                exit(2)
 
+        input_files = sorted(glob(join(args.path, args.prefix) + '*.csv'))
+        plotter.seq = n_outputs
+        for i in range(n_start,len(input_files)):
+            fig,img_file = plotter.plot_configuration(fname_in = join(args.path,input_files[i]),restarting=restarting)
+            restarting = False
             if i%args.img_freq == 0:
                 print ('Created {0}'.format(img_file))
 
