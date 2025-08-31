@@ -22,11 +22,11 @@
 '''
 
 import argparse
+from glob import glob
 import numpy as np
 import matplotlib.pyplot as plt
 import os.path
 import sys
-import utils
 from matplotlib import rc
 from scipy.optimize import curve_fit
 import configure
@@ -85,6 +85,22 @@ def plot_evolution_parameters(path,out):
     plt.legend()
     plt.savefig(os.path.join(path,out))
 
+def find_seq(path='./imgs',prefix='energy',ext='png'):
+    '''
+    Find largest sequence number in a set of files.
+
+    Parameters:
+        path     Identifies where files are stored
+        prefix   File names match this prefix, followed by sequence number
+        ext      File names have this extension
+
+    Returns:      largest sequence number, or -1 if no files found
+    '''
+    try:
+        files = sorted(glob(join(path,'{0}*.{1}'.format(prefix,ext))))
+        return get_seq(files[-1],prefix=prefix,ext=ext)
+    except IndexError:
+        return -1
 
 
 if __name__=='__main__':
