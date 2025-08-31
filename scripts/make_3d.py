@@ -33,20 +33,35 @@ from matplotlib.pyplot import figure,show, close
 import mpl_toolkits.mplot3d as trid
 import matplotlib.lines as lines
 
+def get_file_name(name = basename(splitext(__file__)[0]),default_ext='npz'):
+    '''
+    Used to create file names
+
+    Parameters:
+        name          Basis for file name
+        default_ext   Extension if non specified
+        figs          Directory for storing figures
+        seq           Used if there are multiple files
+    '''
+    base,ext = splitext(name)
+    if len(ext) == 0:
+        ext = default_ext
+
+    return f'{base}.{ext}'
+
+
 class ConfigurationPlotter:
     '''
     This class plots a configuration of particles and saves
     the plot as a png.
     '''
     def __init__(self,
-                 cube = False,
                  figs = './figs',
                  nsigma = 3,
                  rng = np.random.default_rng(),
                  prefix='galaxy',
                  colours = None,
                  size = 25):
-        self.cube = cube
         self.indices = None
         self.first = True
         self.figs = figs
@@ -79,37 +94,33 @@ class ConfigurationPlotter:
         positions -= np.average(positions,axis=0,weights=particles[:,-1])
         ax = fig.add_subplot(111,  projection='3d')
 
-        if self.first:
+        if restarting:
+            npzfile = np.load(get_file_name())
+            self.indices = npzfile['indices']
+            self.limits = npzfile['limits']
+            self.first = False
+        elif self.first:
             self.indices = particles[:,0].astype(int)
             self.rng.shuffle(self.indices)
-            self.first = False
+            for j in range(3):
+                self.limits[:,j] = self.get_limits(positions[:,j])
+            np.savez(get_file_name(),indices=self.indices,limits=self.limits)
 
         colours = np.vectorize(lambda index : self.colours[index])(self.indices)
         ax.scatter(positions[self.indices,0],positions[self.indices,1],positions[self.indices,2],
                    c= colours,edgecolor= colours,s=self.size)
 
-        if self.cube:
-            self.scale_to_cube(i,ax,positions,restarting=restarting)
-
         ax.set_title(fname_in.replace('.csv',''));
         ax.set_xlabel('x')
         ax.set_ylabel('y')
+        ax.set_xlim(self.limits[:,0])
+        ax.set_ylim(self.limits[:,1])
+        ax.set_zbound(self.limits[:,2])
 
         img_file = join(self.figs,f'{self.prefix}{self.seq:06d}.png')
         self.seq += 1
         fig.savefig(img_file)
         return fig,img_file
-
-    def scale_to_cube(self,i,ax,positions,restarting=False):
-        '''
-        Used to ensure tht all frames have consistent axes
-        '''
-        if i == 0 or restarting:
-            for j in range(3):
-                self.limits[:,j] = self.get_limits(positions[:,j])
-        ax.set_xlim(self.limits[:,0])
-        ax.set_ylim(self.limits[:,1])
-        ax.set_zbound(self.limits[:,2])
 
     def get_limits(self,xs):
         '''
@@ -193,7 +204,6 @@ def parse_args():
     parser.add_argument('--seed',type=int,default=None,help='Seed for random number generator')
     parser.add_argument('--img_freq', type=int, default=20, help='Frequency of displaying progress')
     parser.add_argument('--show', action='store_true', default=False, help='Show images (as well as saving)')
-    parser.add_argument('--cube', action='store_true', default=False, help='Scale to cube')
     parser.add_argument('-o', '--out', default = basename(splitext(__file__)[0]),help='Name of output file')
     parser.add_argument('--figs', default = './figs', help = 'Name of folder where plots are to be stored')
     parser.add_argument('--path', default='../configs', help='Path name for configurations')
@@ -257,8 +267,7 @@ if __name__=='__main__':
 
     if args.extract:
         colours = XKCD_ColourModel()
-        plotter = ConfigurationPlotter( cube = args.cube,
-                                        figs = args.figs,
+        plotter = ConfigurationPlotter( figs = args.figs,
                                         nsigma = args.nsigma,
                                         rng = np.random.default_rng(args.seed),
                                         prefix = args.prefix,
