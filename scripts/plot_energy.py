@@ -49,7 +49,11 @@ def boltzmann(n,m,beta):
     return m*np.exp(-beta*n)
 
 class DistributionPlotter:
-    def __init__(self,bins='sqrt', out   = './figs', show  = False, prefix='foo'):
+    '''
+    This class plots the histogram for energies and
+    fits the Bolzmann distribution to the data
+    '''
+    def __init__(self,bins='sqrt',out='./figs',show=False,prefix='galaxy'):
         self.bins = bins
         self.out = out
         self.show = show
@@ -70,18 +74,21 @@ class DistributionPlotter:
         n,_ = config.shape
         bodies = [self.create_particle(config[i,:]) for i in range(n)]
         energies = [particle.get_T() for particle in bodies]
-        fig = figure(figsize=(10,10))
-        ax = fig.add_subplot(1,1,1)
+
+
         n,bins = np.histogram(energies,bins=self.bins)
         energy_levels = [0.5*(bins[i]+bins[i-1]) for i in range(1,len(bins))]
         width = [0.5*(bins[i]-bins[i-1]) for i in range(1,len(bins))]
-        ax.bar(energy_levels,n,width=width,label='Kinetic Energies')
         if self.popt_cached[0]<0:
             self.popt_cached=(n[0], 100)
         popt, pcov = curve_fit(boltzmann, energy_levels, n, p0=self.popt_cached)
         self.popt_cached = popt
         perr = np.sqrt(np.diag(pcov))
         probabiities = [boltzmann(e,*popt) for e in energy_levels]
+
+        fig = figure(figsize=(10,10))
+        ax = fig.add_subplot(1,1,1)
+        ax.bar(energy_levels,n,width=width,label='Kinetic Energies')
         ax.plot( energy_levels, probabiities,
                   c='r',label=r'Boltzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
         ax.set_xlim(0,energy_levels[-1])
@@ -94,7 +101,7 @@ class DistributionPlotter:
         return popt[1],perr[1]
 
 
-def plot_evolution_parameters(path,out):
+def plot_evolution_parameters(path,out, betas=[],sigmas=[]):
     '''
     Plot evolution of Boltzmann beta and standard error
     '''
@@ -130,15 +137,15 @@ if __name__=='__main__':
     rc('text', usetex=True)
     args = parse_args()
 
-    betas = []
-    sigmas = []
     distribution_plotter = DistributionPlotter(bins=args.bins,show=args.show,out=args.out,prefix=args.prefix)
     input_files = sorted(glob(join(args.path, args.prefix) + '*.csv'))
+    betas = []
+    sigmas = []
     for i in range(args.N0,args.N1,args.step):
         beta,sigma = distribution_plotter.plot(input_files[i])
         betas.append(beta)
         sigmas.append(sigma)
 
-    plot_evolution_parameters(args.out,args.distribution)
+    plot_evolution_parameters(args.out,args.distribution,betas=betas,sigmas=sigmas)
     if args.show:
         show()
