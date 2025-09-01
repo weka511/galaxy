@@ -23,7 +23,7 @@
 
 from argparse import ArgumentParser
 from glob import glob
-from os.path import join
+from os.path import join,basename
 from sys import maxsize
 import numpy as np
 from matplotlib.pyplot import figure, show, close
@@ -52,11 +52,14 @@ class DistributionPlotter:
     def __init__(self,bins='sqrt',
                  ext   = '.csv',
                  path  = './configs',
-                 out   = './imgs',
-                 show  = False):
+                 out   = './figs',
+                 show  = False,
+                 prefix='foo'):
         self.bins = bins
         self.popt_cached=(-1,-1) #So optimization step can use value from previous step as starting value
+        self.out = out
         self.show = show
+        self.prefix = prefix
 
     def create_particle(self,row):
         position = row[1:4]
@@ -64,8 +67,7 @@ class DistributionPlotter:
         mass = row[7]
         return Body(position,mass,velocity)
 
-    def plot(self,
-        name  = 'bodies00002'):
+    def plot(self,name  = 'galaxy000000002.csv'):
         '''
         Plot distribution of energies and compare with Boltzmann
         '''
@@ -90,9 +92,10 @@ class DistributionPlotter:
         ax.plot( energy_levels, probabiities,
                   c='r',label=r'Boltzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
         ax.set_xlim(0,energy_levels[-1])
-        # ax.set_title(name)
+        ax.set_title(basename(name))
         ax.legend()
-        # plt.savefig(join(out,name.replace('bodies','energy')+'.png'))
+        nn = basename(name).replace(self.prefix,'energy')
+        fig.savefig(join(self.out,nn.replace('csv','png')))
         if not self.show:
             close(fig)
         return popt[1],perr[1]
@@ -139,8 +142,8 @@ if __name__=='__main__':
     try:
         input_files = sorted(glob(join(args.path, args.prefix) + '*.csv'))
         start = args.N0
-        for i in range(250,251):#FIXME start,args.N1,args.step):
-            distribution_plotter = DistributionPlotter(bins=args.bins,show=args.show,ext=args.ext,path=args.path,out=args.out)
+        for i in range(9990,10000):#FIXME start,args.N1,args.step):
+            distribution_plotter = DistributionPlotter(bins=args.bins,show=args.show,ext=args.ext,path=args.path,out=args.out,prefix=args.prefix)
             beta,sigma = distribution_plotter.plot(input_files[i])
             betas.append(beta)
             sigmas.append(sigma)
