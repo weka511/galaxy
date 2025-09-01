@@ -14,7 +14,6 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this software.  If not, see <http://www.gnu.org/licenses/>
-#
 
 '''
    Companion to galaxy.exe - plot kinetic energy distribution,
@@ -35,6 +34,7 @@ def parse_args():
     parser = ArgumentParser(description=__doc__)
     parser.add_argument('--N0', type=int, default=0, help='Starting config sequence number')
     parser.add_argument('--N1', type=int, default=maxsize, help='Final config sequence number')
+    parser.add_argument('--step', type=int, default=50, help='Stepsize for config sequence numbers')
     parser.add_argument('--show', default=False, action='store_true', help='Show image')
     parser.add_argument('--bins',  default='sqrt', help='Number of bins for histogram')
     parser.add_argument('--ext', default='.csv', help='Extension for config files')
@@ -45,21 +45,16 @@ def parse_args():
     return parser.parse_args()
 
 def boltzmann(n,m,beta):
-    '''Generate the Maxwell-Boltzmann distribution function'''
+    '''Generate the Boltzmann distribution function'''
     return m*np.exp(-beta*n)
 
 class DistributionPlotter:
-    def __init__(self,bins='sqrt',
-                 ext   = '.csv',
-                 path  = './configs',
-                 out   = './figs',
-                 show  = False,
-                 prefix='foo'):
+    def __init__(self,bins='sqrt', out   = './figs', show  = False, prefix='foo'):
         self.bins = bins
-        self.popt_cached=(-1,-1) #So optimization step can use value from previous step as starting value
         self.out = out
         self.show = show
         self.prefix = prefix
+        self.popt_cached=(-1,-1)
 
     def create_particle(self,row):
         position = row[1:4]
@@ -74,28 +69,26 @@ class DistributionPlotter:
         config = np.loadtxt(name,delimiter=',')
         n,_ = config.shape
         bodies = [self.create_particle(config[i,:]) for i in range(n)]
-        # kinetic_energy,potential_energy = configure.calculate_energy(bodies)
-        # print (kinetic_energy,potential_energy,-potential_energy/kinetic_energy)
-        energies      = [particle.get_T() for particle in bodies]
+        energies = [particle.get_T() for particle in bodies]
         fig = figure(figsize=(10,10))
         ax = fig.add_subplot(1,1,1)
         n,bins = np.histogram(energies,bins=self.bins)
         energy_levels = [0.5*(bins[i]+bins[i-1]) for i in range(1,len(bins))]
         width = [0.5*(bins[i]-bins[i-1]) for i in range(1,len(bins))]
-        ax.bar(energy_levels,n,width=width)
+        ax.bar(energy_levels,n,width=width,label='Kinetic Energies')
         if self.popt_cached[0]<0:
             self.popt_cached=(n[0], 100)
-        popt, pcov   = curve_fit(boltzmann, energy_levels, n, p0=self.popt_cached)
-        self.popt_cached  = popt
-        perr         = np.sqrt(np.diag(pcov))
+        popt, pcov = curve_fit(boltzmann, energy_levels, n, p0=self.popt_cached)
+        self.popt_cached = popt
+        perr = np.sqrt(np.diag(pcov))
         probabiities = [boltzmann(e,*popt) for e in energy_levels]
         ax.plot( energy_levels, probabiities,
                   c='r',label=r'Boltzmann: N={0:.0f}({2:.0f}),$\beta$={1:.0f}({3:.0f})'.format(popt[0],popt[1],perr[0],perr[1]))
         ax.set_xlim(0,energy_levels[-1])
         ax.set_title(basename(name))
         ax.legend()
-        nn = basename(name).replace(self.prefix,'energy')
-        fig.savefig(join(self.out,nn.replace('csv','png')))
+        plot_file = basename(name).replace(self.prefix,'energy').replace('csv','png')
+        fig.savefig(join(self.out,plot_file))
         if not self.show:
             close(fig)
         return popt[1],perr[1]
@@ -112,7 +105,7 @@ def plot_evolution_parameters(path,out):
     ax.plot(sigmas,'r',label=r'$\sigma$')
     ax.set_title('Evolution of parameters')
     ax.legend()
-    # ax.savefig(join(path,out))
+    fig.savefig(join(path,out))
 
 def find_seq(path='./imgs',prefix='energy',ext='png'):
     '''
@@ -139,18 +132,12 @@ if __name__=='__main__':
 
     betas = []
     sigmas = []
-    try:
-        input_files = sorted(glob(join(args.path, args.prefix) + '*.csv'))
-        start = args.N0
-        for i in range(9990,10000):#FIXME start,args.N1,args.step):
-            distribution_plotter = DistributionPlotter(bins=args.bins,show=args.show,ext=args.ext,path=args.path,out=args.out,prefix=args.prefix)
-            beta,sigma = distribution_plotter.plot(input_files[i])
-            betas.append(beta)
-            sigmas.append(sigma)
-    except FileNotFoundError:
-        pass
-    except OSError:  # End of files
-        pass
+    distribution_plotter = DistributionPlotter(bins=args.bins,show=args.show,out=args.out,prefix=args.prefix)
+    input_files = sorted(glob(join(args.path, args.prefix) + '*.csv'))
+    for i in range(args.N0,args.N1,args.step):
+        beta,sigma = distribution_plotter.plot(input_files[i])
+        betas.append(beta)
+        sigmas.append(sigma)
 
     plot_evolution_parameters(args.out,args.distribution)
     if args.show:
