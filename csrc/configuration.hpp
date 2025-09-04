@@ -26,6 +26,15 @@
 
 using namespace std;
  
+template<typename T>
+ class Visitor{
+	public:
+	   /**
+	    *  This will be called by iterate() once for each particle.
+		*/
+		virtual void visit(T & visitee) = 0;
+};
+	
 /**
  *  This class manages a collection of Particles.
  */
@@ -58,17 +67,6 @@ class Configuration {
   	    virtual void initialize(unique_ptr<Particle[]> & particles,int n) =  0;
 	};
 	
-	/**
-	 * Descendents of this class are used to iterate 
-	 * through all Particles.
-	 */
-	class Visitor{
-	  public:
-	   /**
-	    *  This will be called by iterate() once for each particle.
-		*/
-		virtual void visit(Particle & particle) = 0;
-	};
 	
 	/**
 	 * encode
@@ -116,7 +114,7 @@ class Configuration {
 	/**
 	 * iterate through all Particles, visiting each in turn
 	 */
-	void iterate(Visitor & visitor);
+	void iterate(Visitor<Particle> & visitor);
 	
 	/**
 	 * Used to initialize data structures that need to know about particles.

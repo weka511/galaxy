@@ -25,7 +25,7 @@
  
  using namespace std;
 
-class IReporter : public Configuration::Visitor {
+class IReporter : public Visitor<Particle> {
   public:
 	/**
 	 *   Record configuration in a csv file

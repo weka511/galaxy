@@ -42,7 +42,7 @@ class Leapfrog {
 	 *  remains at its initial value, which is what Leapfrog needs.
 	 *  
 	 */
-	class Euler : public Configuration::Visitor {
+	class Euler : public Visitor<Particle> {
 	  private:
 		/**
 		 *  _dt  Time step - set to half the timestep for Leapfrog
@@ -58,7 +58,7 @@ class Leapfrog {
 	/**
 	 * Class used to implement second half of Verlet algorithm - update positions
 	 */	
-	class PositionUpdater : public Configuration::Visitor {
+	class PositionUpdater : public Visitor<Particle> {
 	  private:
 		const double _dt;
 		
@@ -74,7 +74,7 @@ class Leapfrog {
 	/**
 	 * Class used to implement first half of Verlet algorithm - update velocities
 	 */
-	class VelocityUpdater : public Configuration::Visitor {
+	class VelocityUpdater : public Visitor<Particle> {
 	  private:
 		const double _dt;
 		

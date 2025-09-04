@@ -23,7 +23,7 @@
 
 using namespace std;
 
-class IAccelerationVisitor : public Configuration::Visitor, public Configuration::ParticleInitializer{
+class IAccelerationVisitor : public Visitor<Particle>, public Configuration::ParticleInitializer{
 	virtual void initialize(unique_ptr<Particle[]> & particles, int n) {;}
 };
 

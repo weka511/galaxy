@@ -204,7 +204,7 @@ array<double,NDIM>  Configuration::get_momentum(){
 /**
  * iterate through all Particles, visiting each in turn
  */
-void Configuration::iterate(Visitor & visitor) {
+void Configuration::iterate(Visitor<Particle> & visitor) {
 	for (int i=0;i<_n;i++) 
 		visitor.visit(_particles[i]);	
 }
