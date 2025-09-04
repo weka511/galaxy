@@ -19,11 +19,6 @@
  
  using namespace std;
  
-/**
- *   Create one stationary particle at origin with unit mass
- */
- Particle::Particle() 
-   :_id(-1),_position({0.0, 0.0, 0.0}),_velocity({0.0, 0.0, 0.0}),_acceleration({0.0, 0.0, 0.0}),_m(1.0) {}
 
 /**
  *   Used to set initial position and velocity when configuration is initialized.

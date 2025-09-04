@@ -177,17 +177,17 @@ class Node {
 	 * Indicates type of node. External Nodes use the index of the
      * associated particle instead of one of these values.
 	 */
-	inline int get_index() { return _particle_index;}
+	inline auto get_index() { return _particle_index;}
 	
 	/**
 	 * Get mass
 	 */
-	inline double  get_mass() {return _m;}
+	inline auto  get_mass() {return _m;}
 	
 	/**
 	 * Get centre of mass
 	 */
-	inline array<double,NDIM>  get_centre_of_mass() {return _center_of_mass;}
+	inline auto  get_centre_of_mass() {return _center_of_mass;}
 	
 	/**
 	 * Set mass and centre of mass
@@ -207,7 +207,7 @@ class Node {
 	/**
 	 * Determine length of any side of cube.
 	 */
-	inline double get_side() {return _Xmax[0] - _Xmin[0];}
+	inline auto get_side() {return _Xmax[0] - _Xmin[0];}
 
   private:
   
@@ -226,14 +226,14 @@ class Node {
 	/**
 	 * Used to map an array of 3 ints to an octant
 	 */
-	inline int _triple_to_octant(array<int,NDIM> indices) {
+	inline auto _triple_to_octant(array<int,NDIM> indices) {
 		return 2*(2*indices[0] + indices[1]) + indices[2];
 	}
 	
 	/**
 	 * Used to map a triple to an octant
 	 */
-	inline int _triple_to_octant(int i, int j, int k) {return 2*(2*i + j) + k;}
+	inline auto _triple_to_octant(int i, int j, int k) {return 2*(2*i + j) + k;}
 
 	/**
 	 * Find correct subtree to store particle, using bounding rectangular box
@@ -259,7 +259,7 @@ class Node {
 	void _split_node();
 	 
 	/**
-	 *   Used when we split the box associated with a Node
+	 *   Used when we split the box associated with a Node into octants
 	 *
 	 *   Parameters:
 	 *      i      Identifies whether we are computing the lower half (0) or upper half (1) of the split
@@ -268,9 +268,9 @@ class Node {
 	 *      wmean  Mid point of box along one dimension 
 	 *
 	 *   Returns:
-	 *      Lower and upper bound of half along one dimension
+	 *      Lower and upper bound of octant along one dimension
 	 */
-	inline tuple<double,double> _get_refined_bounds(int i,double wmin, double wmax, double wmean){
+	inline auto _get_refined_bounds(int i,double wmin, double wmax, double wmean){
 		if (i == 0)
 			return make_tuple(wmin, wmean);
 		else

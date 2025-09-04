@@ -32,11 +32,11 @@ const int NDIM = 3;
 /**
  * Square a distance
  */ 
-inline double sqr(double x) {return x*x;}
+inline auto sqr(double x) {return x*x;}
 
 /**
  * A Particle represents one of the bodies whose motion is being simulated.
- * It is just a passive container for data
+ * It is just a passive container for data.
  */
 class Particle {
  
@@ -44,50 +44,45 @@ class Particle {
   	/**
 	 *  The ID of a particle is equal to its index in the array of configurations
 	 */
-	int _id;
+	int _id = -1;
 	
 	/**
 	 *  Location of particle
 	 */
-    array<double,NDIM> _position;
+    array<double,NDIM> _position = {0.0, 0.0, 0.0};
 	
 	/**
 	 *   Velocity of particle
 	 */
-	array<double,NDIM> _velocity;
+	array<double,NDIM> _velocity = {0.0, 0.0, 0.0};
 	
 	/**
 	 *  Acceleration of particle
 	 */
-	array<double,NDIM> _acceleration;
+	array<double,NDIM> _acceleration ={0.0, 0.0, 0.0};
 	
 	/**
 	 * Mass of particle
 	 */
-	double _m;
+	double _m = 1.0;
 	
   public:
-  
-	/**
-	 *   Create one stationary particle at origin with unit mass
-	 */
-	Particle();
-	
-  	/**
-	 * Determine squared distance between two particles
-	 */
-	static inline double get_distance_sq(Particle&particle1,Particle&particle2)  {
-		return get_distance_sq(particle1._position,particle2._position);
-	}
-	
+  	
 	/**
 	 * Determine squared distance between two points
 	 */
-	static inline double get_distance_sq(array<double,NDIM> position1,array<double,NDIM> position2)  {
+	static inline auto get_distance_sq(array<double,NDIM> position1,array<double,NDIM> position2)  {
 		double sum = 0.0;
-		for (int i=0;i<NDIM;i++)
+		for (int i = 0; i < NDIM;i++)
 			sum += sqr(position1[i] - position2[i]);
 		return sum;
+	}
+	
+	/**
+	 * Determine squared distance between two particles
+	 */
+	static inline auto get_distance_sq(Particle&particle1,Particle&particle2)  {
+		return get_distance_sq(particle1._position,particle2._position);
 	}
 	
 	/**
@@ -104,17 +99,17 @@ class Particle {
 	/**
 	 *  Accessor for mass
 	 */
-	inline double get_mass() {return _m;}
+	inline auto get_mass() {return _m;}
 	
 	/**
 	 *  Accessor for ID
 	 */
-	inline int get_id() {return _id;}
+	inline auto get_id() {return _id;}
 	
 	/**
 	 *  Accessor for position
 	 */
-	inline array<double,NDIM> & get_position() {return _position;} 
+	inline auto & get_position() {return _position;} 
 	
 	/**
 	 *  Used to assign a new position
@@ -124,7 +119,7 @@ class Particle {
 	/**
 	 *  Accessor for velocity
 	 */
-	inline array<double,NDIM> & get_velocity() {return _velocity;}  
+	inline auto & get_velocity() {return _velocity;}  
 	
 	/**
 	 *  Used to assign a new velocity
@@ -133,8 +128,9 @@ class Particle {
 	
 	/**
 	 *  Accessor for acceleration
+	 *  Accessor for acceleration
 	 */
-	inline array<double,NDIM> & get_acceleration() {return _acceleration;}  
+	inline auto & get_acceleration() {return _acceleration;}  
 	
 	/**
 	 *  Used to assign acceleration
