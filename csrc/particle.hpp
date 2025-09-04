@@ -32,7 +32,7 @@ const int NDIM = 3;
 /**
  * Square a distance
  */ 
-inline auto sqr(double x) {return x*x;}
+inline auto sqr(auto x) {return x*x;}
 
 /**
  * A Particle represents one of the bodies whose motion is being simulated.
