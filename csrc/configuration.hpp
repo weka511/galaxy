@@ -20,20 +20,10 @@
  */
  
 #include <string> 
-#include <memory>
 #include <vector>
 #include "particle.hpp"
 
 using namespace std;
- 
-template<typename T>
- class Visitor{
-	public:
-	   /**
-	    *  This will be called by iterate() once for each particle.
-		*/
-		virtual void visit(T & visitee) = 0;
-};
 	
 /**
  *  This class manages a collection of Particles.
@@ -58,14 +48,7 @@ class Configuration {
 	
   public:
 	
-	/**
-	 * Descendents of this class are used to initialize
-	 * things that need access to the stored particles.
-	 */
-	class ParticleInitializer{
-	  public:
-  	    virtual void initialize(unique_ptr<Particle[]> & particles,int n) =  0;
-	};
+
 	
 	
 	/**
@@ -119,7 +102,7 @@ class Configuration {
 	/**
 	 * Used to initialize data structures that need to know about particles.
 	 */
-	void initialize(ParticleInitializer & initializer);
+	void initialize(Initializer<Particle> & initializer);
 	
 	/**
 	 * Determine total linear momentum

@@ -29,7 +29,7 @@
  *      G				Gravitational constant
  *      a				Softening length
  */
-AccelerationVisitor::AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double a, bool verify_tree)
+AccelerationVisitor::AccelerationVisitor(const double theta,const double G,const double a, bool verify_tree)
 	 : _theta(theta),_G(G),_a(a), _verify_tree(verify_tree){}
 	 
 /**

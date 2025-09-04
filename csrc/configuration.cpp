@@ -212,7 +212,7 @@ void Configuration::iterate(Visitor<Particle> & visitor) {
 /**
  * Used to initialize data structures that need to know about particles.
  */
-void Configuration::initialize(ParticleInitializer & initializer){
+void Configuration::initialize(Initializer<Particle> & initializer){
 	initializer.initialize(_particles,_n);
 }
 

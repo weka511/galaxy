@@ -21,7 +21,7 @@
 #include <array>
 #include <tuple>
 
-#include "configuration.hpp"
+#include "particle.hpp"
 #include "treecode.hpp"
 
 using namespace std;

@@ -18,12 +18,12 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>
  */
  
-#include "configuration.hpp"
+#include "particle.hpp"
 #include "treecode.hpp"
 
 using namespace std;
 
-class IAccelerationVisitor : public Visitor<Particle>, public Configuration::ParticleInitializer{
+class IAccelerationVisitor : public Visitor<Particle>, public Initializer<Particle> {
 	virtual void initialize(unique_ptr<Particle[]> & particles, int n) {;}
 };
 
@@ -65,7 +65,7 @@ class AccelerationVisitor : public IAccelerationVisitor {
 	 *      G				Gravitational constant
 	 *      a				Softening length
 	 */
-    AccelerationVisitor(Configuration& configuration, const double theta,const double G,const double a, const bool verify_tree);
+    AccelerationVisitor(const double theta,const double G,const double a, const bool verify_tree);
 	 
 	/**
 	 *  Construct oct-tree from particles

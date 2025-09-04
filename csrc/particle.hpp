@@ -21,6 +21,7 @@
 #include <array>
 #include <iostream>
 #include <ostream>
+#include <memory>
 
 using namespace std;
 
@@ -150,5 +151,26 @@ class Particle {
 	bool operator == (const Particle & other)  const {return _id == other._id;} 
 	
 };
+/**
+ * class used to iterate over particles.
+ */
+template<typename T>
+ class Visitor{
+	public:
+	   /**
+	    *  This will be called by iterate() once for each particle.
+		*/
+		virtual void visit(T & visitee) = 0;
+};
 
+/**
+ * Class are used to initialize things that need access
+ * to the stored particles.
+ */
+ template<typename T>
+class Initializer{
+  public:
+	virtual void initialize(unique_ptr<T[]> & particles,int n) =  0;
+};
+	
 #endif //_PARTICLE_HPP
