@@ -41,11 +41,12 @@ using namespace std;
 class Node {
   friend class TreeVerifier;	
   public:
+  enum  {N_Halves=2};
 	/**
 	 *   Used to ensure we have an octree. Box is divided into 2 halves (high and low)
 	 *   along each of x, y, and z axes.
 	 */
-	enum {N_Children=2*2*2};
+	enum {N_Children=N_Halves*N_Halves*N_Halves};
 
   private:	
 	/**
@@ -222,18 +223,20 @@ class Node {
 	 *     pad			Box will be expanded by a factor of (1+pad)
      */
 	static tuple<double,double> _get_limits(unique_ptr<Particle[]> &particles, int n, const double pad=1.0e-4);
-		
-	/**
-	 * Used to map an array of 3 ints to an octant
-	 */
-	inline auto _triple_to_octant(array<int,NDIM> indices) {
-		return 2*(2*indices[0] + indices[1]) + indices[2];
-	}
 	
 	/**
 	 * Used to map a triple to an octant
 	 */
-	inline auto _triple_to_octant(int i, int j, int k) {return 2*(2*i + j) + k;}
+	inline auto _triple_to_octant(int i, int j, int k) {
+		return N_Halves*(N_Halves*i + j) + k;
+	}
+	
+	/**
+	 * Used to map an array of 3 ints to an octant
+	 */
+	inline auto _triple_to_octant(array<int,NDIM> indices) {
+		return _triple_to_octant(indices[0],indices[1],indices[2]);
+	}
 
 	/**
 	 * Find correct subtree to store particle, using bounding rectangular box

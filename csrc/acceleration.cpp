@@ -19,18 +19,6 @@
 #include "center-of-mass.hpp"
 #include "barnes-hut.hpp"
 #include "logger.hpp"
-
-/**
- *  Create acceleration visitor
- *
- *  Parameters:
- *      configuration	Container for particles
- *		theta           Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
- *      G				Gravitational constant
- *      a				Softening length
- */
-AccelerationVisitor::AccelerationVisitor(const double theta,const double G,const double a, bool verify_tree)
-	 : _theta(theta),_G(G),_a(a), _verify_tree(verify_tree){}
 	 
 /**
  *  Construct oct-tree from particles, and compute centre of mass for tree and its subtrees

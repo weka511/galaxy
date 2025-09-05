@@ -27,7 +27,7 @@ using namespace std;
 
 /**
  *  Build the data structure needed to verify that each  
- *  particle is in the Tree once an only once.
+ *  particle is in the Tree once and only once.
  */
 TreeVerifier::TreeVerifier(unique_ptr<Particle[]> &particles, const int n) : _particles(particles),_n(n) {
 	_particle_verified = vector<bool>();

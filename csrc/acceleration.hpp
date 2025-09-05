@@ -23,6 +23,9 @@
 
 using namespace std;
 
+/**
+ * This interface allows the AccelerationVisitor to be mocked for unit tests
+ */
 class IAccelerationVisitor : public Visitor<Particle>, public Initializer<Particle> {
 	virtual void initialize(unique_ptr<Particle[]> & particles, int n) {;}
 };
@@ -53,6 +56,9 @@ class AccelerationVisitor : public IAccelerationVisitor {
 	 */
 	const double _a; 
 	
+	/**
+	 * Determines whether to verify that each  particle is in the Tree once and only once.
+	 */
 	bool _verify_tree;
 	
   public:
@@ -64,8 +70,10 @@ class AccelerationVisitor : public IAccelerationVisitor {
 	 *		theta           Ratio for Barnes G=Hut cutoff (Barnes and Hut recommend 1.0)
 	 *      G				Gravitational constant
 	 *      a				Softening length
+	 *      verify_tree     Determines whether to verify that each particle is in the Tree once and only once.
 	 */
-    AccelerationVisitor(const double theta,const double G,const double a, const bool verify_tree);
+    AccelerationVisitor(const double theta,const double G,const double a, const bool verify_tree) 
+	   : _theta(theta),_G(G),_a(a), _verify_tree(verify_tree){};
 	 
 	/**
 	 *  Construct oct-tree from particles

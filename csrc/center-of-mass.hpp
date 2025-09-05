@@ -38,7 +38,8 @@ class CentreOfMassCalculator : public Node::Visitor {
   
     /**
     * Create CentreOfMassCalculator.
-	*   Parameters:
+	*
+	* Parameters:
 	*   	particles These are the particles whose centre of mass is to be calculated. 
     */
 	CentreOfMassCalculator(unique_ptr<Particle[]> &particles);

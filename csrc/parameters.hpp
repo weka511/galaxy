@@ -84,6 +84,10 @@ class Parameters {
 	 */
 	int _frequency = 100;
 	
+	/**
+	 * Used in conjunction with treecode: it determines whether to
+     * verify that each particle is in the Tree once and only once.
+	 */
 	bool _verify_tree = false;
 	
   public:
@@ -154,7 +158,12 @@ class Parameters {
 	 */
 	int get_frequency() {return _frequency;}
 	
+	/**
+	 * Used in conjunction with treecode: it determines whether to
+     * verify that each particle is in the Tree once and only once.
+	 */
 	bool should_verify_tree() {return _verify_tree;}
+	
 	/**
 	 *  Show list of command line parameters.
 	 */
