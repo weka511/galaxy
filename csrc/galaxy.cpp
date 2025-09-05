@@ -27,6 +27,7 @@
 #include "logger.hpp"
 #include "parameters.hpp"
 #include "reporter.hpp"
+#include "notifier.hpp"
 
 using namespace std;
 
@@ -41,8 +42,9 @@ int main(int argc, char **argv) {
 		configuration_file /=  parameters->get_config_file();
 		Configuration configuration(configuration_file);
 		AccelerationVisitor calculate_acceleration(parameters->get_theta(),parameters->get_G(),parameters->get_a(),parameters->should_verify_tree());
-		Reporter reporter(configuration,parameters->get_base(),parameters->get_path(),"csv","kill",parameters->get_frequency());
-		Leapfrog integrator(configuration,  calculate_acceleration,reporter);
+		Reporter reporter(configuration,parameters->get_base(),parameters->get_path(),"csv",parameters->get_frequency());
+		Notifier notifier("kill");
+		Leapfrog integrator(configuration,  calculate_acceleration,reporter,notifier);
 		integrator.run(parameters->get_max_iter(),parameters->get_dt());
 	}  catch (const exception& e) {
         cerr << __FILE__ << " " << __LINE__ << " Terminating because of errors: "<< endl;

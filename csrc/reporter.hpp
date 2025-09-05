@@ -31,13 +31,8 @@ class IReporter : public Visitor<Particle> {
 	 *   Record configuration in a csv file
 	 */
 	virtual void report() = 0;
-	
-	/**
-	 *   Verify that parogram should continue executing,
-	 *   i.e. killfile not present
-	 */
-    virtual bool should_continue() = 0;
 };
+
 
 /**
  *  This class is used to record the configuration periodically.
@@ -57,7 +52,7 @@ class Reporter : public IReporter {
 	 */
 	int _sequence;
 	
-    string _killfile;
+ 
 	/**
 	 *   Gap between sequnce numbers for files.
 	 */
@@ -69,10 +64,10 @@ class Reporter : public IReporter {
 	int _count_down;
 	
   public:
-    Reporter(Configuration & configuration,string base="galaxy",string path="configs/",string extension="csv", string killfile="kill",int frequency=1)
+    Reporter(Configuration & configuration,string base="galaxy",string path="configs/",string extension="csv", int frequency=1)
  	: 	_configuration(configuration),
 		_output(),_base(base),_path(path),_extension(extension),_sequence(0),
-		_killfile(killfile),_frequency(frequency),_count_down(frequency) {;}
+		_frequency(frequency),_count_down(frequency) {;}
 	
 	/**
 	 *   Record configuration in a csv file
@@ -83,12 +78,6 @@ class Reporter : public IReporter {
 	 * Output velocity and position for one particle.
 	 */
 	void visit(Particle & particle);
-	
-	/**
-	 *   Verify that parogram should continue executing,
-	 *   i.e. killfile not present
-	 */
-    bool should_continue();
 	
   private:
 	/**

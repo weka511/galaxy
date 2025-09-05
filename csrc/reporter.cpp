@@ -53,19 +53,6 @@ void Reporter::visit(Particle & particle) {
 }
 
 /**
- *   Verify that parogram should continue executing,
- *   i.e. killfile not present
- */
-bool Reporter::should_continue() {
-	ifstream file(_killfile);
-	if (!file.is_open()) return true;
-	cout << "Found killfile: " <<_killfile<<endl;
-	file.close();
-	remove(_killfile.c_str());
-	return false;
-}
-
-/**
  *  Used to establish name for report file, including sequence number
  */
 string Reporter::_get_file_name(){
@@ -73,3 +60,4 @@ string Reporter::_get_file_name(){
 	ss << setw(10) << setfill('0') << _sequence;
 	return _path + _base + ss.str() + "." + _extension;
 }
+

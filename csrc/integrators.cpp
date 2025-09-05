@@ -52,10 +52,10 @@ void Leapfrog::Euler::visit(Particle & particle){
  *        calculate_acceleration    Used to calculate acceleration of each particle
  *        reporter                  Used to record results in a file
  */
-Leapfrog::Leapfrog(Configuration & configuration, IAccelerationVisitor &calculate_acceleration,IReporter & reporter)
+Leapfrog::Leapfrog(Configuration & configuration, IAccelerationVisitor &calculate_acceleration,IReporter & reporter, Notifier & notifier)
 	:  	_configuration(configuration),
 		_calculate_acceleration(calculate_acceleration),
-		_reporter(reporter) {;}
+		_reporter(reporter),_notifier(notifier) {;}
 		
 /**
  * This function is responsible for integrating an ODE.
@@ -79,7 +79,7 @@ void Leapfrog::run( int max_iter,const double dt){
 	 *  leapfrogging: use the "half ahead" velocity to update positions,
 	 *  calculate accelerations for the new positions, then update velocity.
 	 */
-	for (int iter=0;iter<max_iter and _reporter.should_continue();iter++) {
+	for (int iter=0;iter<max_iter and _notifier.should_continue();iter++) {
 		_configuration.iterate(position_updater);
 		_configuration.initialize(_calculate_acceleration);
 		_configuration.iterate(_calculate_acceleration);

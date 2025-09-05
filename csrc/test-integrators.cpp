@@ -82,8 +82,6 @@ class MockReporter : public IReporter {
 		_configuration.iterate(*this);
 	}
 	
-    bool should_continue() {return true;}
-	
 };
 
 TEST_CASE( "Integrator Tests", "[integrator]" ) {
@@ -95,7 +93,8 @@ TEST_CASE( "Integrator Tests", "[integrator]" ) {
 		Configuration configuration(1, params);
 		SingleParticleAccelerationCalculator calculate_acceleration;
 		MockReporter reporter(configuration,"single-circle");
-		Leapfrog integrator(configuration,  calculate_acceleration,reporter);
+		Notifier notifier("kill");
+		Leapfrog integrator(configuration,  calculate_acceleration,reporter,notifier);
 		configuration.iterate(reporter);
 		integrator.run(2*n*N,pi/n);
 		REQUIRE_THAT(reporter.positions[0][0], WithinAbs(reporter.positions[2*n*N][0], 1.0e-6));

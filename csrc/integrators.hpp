@@ -23,6 +23,7 @@
 #include "acceleration.hpp"
 #include "configuration.hpp"
 #include "reporter.hpp"
+#include "notifier.hpp"
 
 using namespace std;
 
@@ -103,6 +104,8 @@ class Leapfrog {
 	 */
 	IReporter & _reporter;
 	
+	 Notifier & _notifier;
+	
   public:
   
     /**
@@ -113,7 +116,7 @@ class Leapfrog {
 	 *        calculate_acceleration    Used to calculate acceleration of each particle
 	 *        reporter                  Used to record results in a file
 	 */
-	Leapfrog(Configuration & configuration, IAccelerationVisitor &calculate_acceleration,IReporter & reporter);
+	Leapfrog(Configuration & configuration, IAccelerationVisitor &calculate_acceleration,IReporter & reporter, Notifier & notifier);
 	
 	/**
 	 * This function is responsible for integrating an ODE.
