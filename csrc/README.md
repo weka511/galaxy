@@ -16,7 +16,7 @@ galaxy.cpp||Main program; parses command line parameters and initializes other c
 integrators.cpp|integrators.hpp|Integrate an Ordinary Differential Equation using the Leapfrog algorithm
 logger.cpp|logger.hpp|Record messages in logfile
 Makefile||Build galaxy simulation 
-notifier.cpp|notifier.hpp|Nofy program that it should stop executing
+notifier.cpp|notifier.hpp|Notify program that user has signalled that it should stop executing
 parameters.cpp|parameters.hpp|Command line parameters and environment variables.
 particle.cpp|particle.hpp|Represents the particles whose motion is being simulated
 reporter.cpp|reporter.hpp|Record the configuration periodically 

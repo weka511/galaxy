@@ -25,13 +25,19 @@
  using namespace std;
  
  /**
- * This class notifies the program should stop
+ * This class notifies the program that user has signalled that it should stop executing
  */
 class Notifier {
   private:
+   /*
+    * Name for file that is used to stop execution
+	*/
    string _killfile;
 
   public:  
+   /*
+    * Establish name for kill file
+	*/
 	Notifier(string killfile) : _killfile(killfile){;}  
 	/**
 	 *   Verify that program should continue executing,
@@ -41,3 +47,4 @@ class Notifier {
 };
  
  #endif //_NOTIFIER_HPP
+ 
